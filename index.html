@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>iNaturalist Tools</title>
+    <link rel="icon" href="favicon.ico" />
+    <meta
+      name="description"
+      content="Tools for iNaturalist - Project Search and SpeciesDex"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #333;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        width: 100%;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 50px;
+      }
+
+      .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 15px;
+      }
+
+      .title-container {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        justify-content: center;
+      }
+
+      .logo {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+      }
+
+      h1 {
+        font-size: 3rem;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        margin: 0;
+      }
+
+      .description {
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.9);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 40px;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .tool-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s, box-shadow 0.3s;
+        text-align: center;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .tool-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      .tool-icon {
+        font-size: 2.5rem;
+        margin-bottom: 5px;
+      }
+
+      .tool-card h2 {
+        font-size: 1.4rem;
+        color: #2c3e50;
+        margin: 0;
+      }
+
+      .tool-card p {
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        margin: 0;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 60px;
+        padding: 20px;
+      }
+
+      footer img {
+        max-width: 300px;
+        height: auto;
+        opacity: 0.9;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+
+        .logo {
+          width: 60px;
+          height: 60px;
+        }
+
+        .tools-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .tool-card {
+          padding: 30px 20px;
+        }
+
+        .tool-card h2 {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="header-content">
+          <div class="title-container">
+            <img src="logo.png" alt="iNaturalist Logo" class="logo" />
+            <h1>iNaturalist Tools</h1>
+          </div>
+          <p class="description">Explore and discover with powerful iNaturalist utilities</p>
+        </div>
+      </header>
+
+      <main>
+        <div class="tools-grid">
+          <a href="project-search.html" class="tool-card">
+            <div class="tool-icon">🔍</div>
+            <h2>Project Search</h2>
+            <p>Search for projects by name and location</p>
+          </a>
+
+          <a href="https://glauberramos.github.io/speciesdex" class="tool-card" target="_blank" rel="noopener noreferrer">
+            <div class="tool-icon">📚</div>
+            <h2>SpeciesDex</h2>
+            <p>Build your personal field guide</p>
+          </a>
+        </div>
+      </main>
+
+      <footer>
+        <img src="powered_by.png" alt="Powered By" />
+      </footer>
+    </div>
+  </body>
+</html>
