@@ -197,9 +197,17 @@
             <img src="logo.png" alt="SpeciesDex Logo" class="logo" />
             <h1>iNat Project Search</h1>
           </div>
-          <p class="description">Search for iNaturalist projects by location</p>
+          <p class="description">
+            Search for iNaturalist projects by name and/or location
+          </p>
         </div>
         <div class="search-container">
+          <input
+            type="text"
+            id="nameInput"
+            placeholder="Search by project name..."
+            autocomplete="off"
+          />
           <div class="place-search-container">
             <input
               type="text"
@@ -241,6 +249,7 @@
       let totalResults = 0;
       const perPage = 100;
 
+      const nameInput = document.getElementById("nameInput");
       const locationInput = document.getElementById("locationInput");
       const locationAutocomplete = document.getElementById(
         "locationAutocomplete"
@@ -327,8 +336,10 @@
 
       // Fetch projects for a specific page
       async function fetchProjects(page = 1) {
-        if (!selectedLocation) {
-          showError("Please select a location first");
+        const nameQuery = nameInput.value.trim();
+
+        if (!selectedLocation && !nameQuery) {
+          showError("Please enter a project name or select a location");
           return;
         }
 
@@ -340,7 +351,16 @@
 
         try {
           // Build URL with parameters
-          let url = `https://api.inaturalist.org/v1/projects?place_id=${selectedLocation.id}&per_page=${perPage}&page=${page}`;
+          let url = `https://api.inaturalist.org/v1/projects?per_page=${perPage}&page=${page}`;
+
+          if (nameQuery) {
+            url += `&q=${encodeURIComponent(nameQuery)}`;
+          }
+
+          if (selectedLocation) {
+            url += `&place_id=${selectedLocation.id}`;
+          }
+
           const orderBy = orderBySelect.value;
           if (orderBy) {
             url += `&order_by=${orderBy}`;
@@ -458,6 +478,44 @@
                   }
                 }
 
+                // Check for observed_on in search_parameters
+                let observedOnHtml = "";
+                if (
+                  project.search_parameters &&
+                  Array.isArray(project.search_parameters)
+                ) {
+                  const observedOnParam = project.search_parameters.find(
+                    (param) => param.field === "observed_on"
+                  );
+
+                  if (observedOnParam && observedOnParam.value) {
+                    // Parse and format the date
+                    const formatDate = (dateStr) => {
+                      const [year, month, day] = dateStr.split("-");
+                      const monthNames = [
+                        "Jan",
+                        "Feb",
+                        "Mar",
+                        "Apr",
+                        "May",
+                        "Jun",
+                        "Jul",
+                        "Aug",
+                        "Sep",
+                        "Oct",
+                        "Nov",
+                        "Dec",
+                      ];
+                      return `${monthNames[parseInt(month) - 1]} ${parseInt(
+                        day
+                      )}, ${year}`;
+                    };
+
+                    const formattedDate = formatDate(observedOnParam.value);
+                    observedOnHtml = `<p><strong>Date:</strong> ${formattedDate}</p>`;
+                  }
+                }
+
                 return `
                 <div class="project-card">
                   <div class="project-card-image-container">
@@ -497,6 +555,7 @@
                     ${creatorHtml}
                     ${createdDateHtml}
                     ${dateRangeHtml}
+                    ${observedOnHtml}
                   </div>
                 </div>
               `;
@@ -512,17 +571,41 @@
             }
 
             // Update location info
-            locationInfo.innerHTML = `
-              <strong>Location:</strong> ${selectedLocation.name}<br>
-              <strong>Total Projects:</strong> ${totalResults}
-            `;
+            let searchInfo = [];
+            if (nameQuery) {
+              searchInfo.push(`<strong>Name:</strong> "${nameQuery}"`);
+            }
+            if (selectedLocation) {
+              searchInfo.push(
+                `<strong>Location:</strong> ${selectedLocation.name}`
+              );
+            }
+            searchInfo.push(`<strong>Total Projects:</strong> ${totalResults}`);
+
+            locationInfo.innerHTML = searchInfo.join("<br>");
             locationInfo.classList.add("show");
           } else {
-            projectsContainer.innerHTML =
-              '<p style="text-align: center; color: #666; grid-column: 1 / -1;">No projects found in this location.</p>';
-            locationInfo.innerHTML = `
-              <strong>Location:</strong> ${selectedLocation.name}
-            `;
+            let noResultsMsg = "No projects found";
+            if (nameQuery && selectedLocation) {
+              noResultsMsg += " matching your name and location criteria.";
+            } else if (nameQuery) {
+              noResultsMsg += " matching your name criteria.";
+            } else {
+              noResultsMsg += " in this location.";
+            }
+            projectsContainer.innerHTML = `<p style="text-align: center; color: #666; grid-column: 1 / -1;">${noResultsMsg}</p>`;
+
+            let searchInfo = [];
+            if (nameQuery) {
+              searchInfo.push(`<strong>Name:</strong> "${nameQuery}"`);
+            }
+            if (selectedLocation) {
+              searchInfo.push(
+                `<strong>Location:</strong> ${selectedLocation.name}`
+              );
+            }
+
+            locationInfo.innerHTML = searchInfo.join("<br>");
             locationInfo.classList.add("show");
           }
 
