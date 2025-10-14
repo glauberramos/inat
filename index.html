@@ -20,7 +20,7 @@
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Oxygen, Ubuntu, Cantarell, sans-serif;
         line-height: 1.6;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: white;
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -59,20 +59,17 @@
         width: 80px;
         height: 80px;
         object-fit: contain;
-        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
       }
 
       h1 {
         font-size: 3rem;
-        color: white;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        color: #2c3e50;
         margin: 0;
       }
 
       .description {
         font-size: 1.2rem;
-        color: rgba(255, 255, 255, 0.9);
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        color: #666;
       }
 
       .tools-grid {
@@ -89,7 +86,8 @@
         background: white;
         border-radius: 12px;
         padding: 30px 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e0e0;
         transition: transform 0.3s, box-shadow 0.3s;
         text-align: center;
         text-decoration: none;
@@ -101,8 +99,8 @@
       }
 
       .tool-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
 
       .tool-icon {
@@ -132,8 +130,7 @@
       footer img {
         max-width: 300px;
         height: auto;
-        opacity: 0.9;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        opacity: 0.7;
       }
 
       @media (max-width: 768px) {
@@ -182,12 +179,7 @@
             <p>Search for projects by name and location</p>
           </a>
 
-          <a
-            href="https://glauberramos.github.io/speciesdex"
-            class="tool-card"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="/speciesdex" class="tool-card">
             <div class="tool-icon">📚</div>
             <h2>SpeciesDex</h2>
             <p>Build your personal field guide</p>
