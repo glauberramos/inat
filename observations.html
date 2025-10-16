@@ -217,6 +217,104 @@
           grid-template-columns: 1fr;
         }
       }
+
+      .view-controls {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 20px 0;
+      }
+
+      .view-btn {
+        padding: 10px 20px;
+        border: 2px solid #ddd;
+        background: white;
+        color: #2c3e50;
+        cursor: pointer;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s;
+      }
+
+      .view-btn:hover {
+        background: #f5f5f5;
+      }
+
+      .view-btn.active {
+        background: #3498db;
+        color: white;
+        border-color: #3498db;
+      }
+
+      .species-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        margin-top: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .species-table thead {
+        background: #f5f5f5;
+        border-bottom: 2px solid #ddd;
+      }
+
+      .species-table th {
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 14px;
+      }
+
+      .species-table td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+      }
+
+      .species-table tbody tr {
+        transition: background 0.2s;
+      }
+
+      .species-table tbody tr:hover {
+        background: #f9f9f9;
+      }
+
+      .species-table .table-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+
+      .species-table .table-common-name {
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .species-table .table-sci-name {
+        font-style: italic;
+        color: #666;
+        font-size: 12px;
+      }
+
+      .species-table .user-count {
+        color: #74ac00;
+        font-weight: 600;
+      }
+
+      .species-table .global-count {
+        color: #3498db;
+        font-weight: 600;
+      }
+
+      #speciesContainer.table-view {
+        display: block;
+      }
     </style>
   </head>
   <body>
@@ -348,6 +446,11 @@
           />
         </div>
 
+        <div class="view-controls" id="viewControls" style="display: none">
+          <button id="gridViewBtn" class="view-btn active">Grid View</button>
+          <button id="tableViewBtn" class="view-btn">Table View</button>
+        </div>
+
         <div class="loading" id="loading" style="display: none">Loading...</div>
         <div
           id="resultsCount"
@@ -392,10 +495,14 @@
       );
       const sortSelect = document.getElementById("sortSelect");
       const filterInput = document.getElementById("filterInput");
+      const viewControls = document.getElementById("viewControls");
+      const gridViewBtn = document.getElementById("gridViewBtn");
+      const tableViewBtn = document.getElementById("tableViewBtn");
 
       let speciesData = [];
       let currentUserId = null;
       let searchTimeout = null;
+      let currentView = "grid"; // 'grid' or 'table'
 
       // Username autocomplete
       usernameInput.addEventListener("input", (e) => {
@@ -496,6 +603,21 @@
         displaySpecies();
       });
 
+      // View toggle handlers
+      gridViewBtn.addEventListener("click", () => {
+        currentView = "grid";
+        gridViewBtn.classList.add("active");
+        tableViewBtn.classList.remove("active");
+        displaySpecies();
+      });
+
+      tableViewBtn.addEventListener("click", () => {
+        currentView = "table";
+        tableViewBtn.classList.add("active");
+        gridViewBtn.classList.remove("active");
+        displaySpecies();
+      });
+
       async function fetchUserData() {
         const username = usernameInput.value.trim();
 
@@ -579,6 +701,7 @@
 
           summaryCard.classList.add("show");
           controls.style.display = "flex";
+          viewControls.style.display = "flex";
 
           displaySpecies();
         } catch (error) {
@@ -654,110 +777,197 @@
         }`;
         resultsCount.style.display = resultCount > 0 ? "block" : "none";
 
-        // Display species cards
-        speciesContainer.innerHTML = sortedData
-          .map((item) => {
-            const taxon = item.taxon;
-            const userCount = item.count;
-            const globalCount = taxon.observations_count || 0;
+        // Escape HTML helper function
+        const escapeHtml = (text) => {
+          const div = document.createElement("div");
+          div.textContent = text;
+          return div.innerHTML;
+        };
 
-            // Get image
-            let imageUrl = "https://www.inaturalist.org/assets/logo-small.png";
-            if (taxon.default_photo && taxon.default_photo.medium_url) {
-              imageUrl = taxon.default_photo.medium_url;
-            }
+        // Render based on current view
+        if (currentView === "table") {
+          speciesContainer.classList.add("table-view");
+          speciesContainer.innerHTML = `
+            <table class="species-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Common Name</th>
+                  <th>Scientific Name</th>
+                  <th>Your Observations</th>
+                  <th>Global Observations</th>
+                  <th>Conservation Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${sortedData
+                  .map((item) => {
+                    const taxon = item.taxon;
+                    const userCount = item.count;
+                    const globalCount = taxon.observations_count || 0;
 
-            // Get names
-            const commonName = taxon.preferred_common_name || taxon.name;
-            const sciName = taxon.name;
-
-            // Get conservation status
-            let conservationBadge = "";
-            let conservationStatusHtml = "";
-            if (taxon.conservation_status && taxon.conservation_status.status) {
-              const status = taxon.conservation_status.status.toLowerCase();
-              const statusName =
-                taxon.conservation_status.status_name || status.toUpperCase();
-
-              // Map status codes to colors and badge text
-              const statusConfig = {
-                cr: { color: "#8b0000", badge: "CR", class: "status-cr" },
-                critically_endangered: {
-                  color: "#8b0000",
-                  badge: "CR",
-                  class: "status-cr",
-                },
-                en: { color: "#d12f19", badge: "EN", class: "status-en" },
-                endangered: {
-                  color: "#d12f19",
-                  badge: "EN",
-                  class: "status-en",
-                },
-                vu: { color: "#f39c12", badge: "VU", class: "status-vu" },
-                vulnerable: {
-                  color: "#f39c12",
-                  badge: "VU",
-                  class: "status-vu",
-                },
-                nt: { color: "#f1c40f", badge: "NT", class: "status-nt" },
-                near_threatened: {
-                  color: "#f1c40f",
-                  badge: "NT",
-                  class: "status-nt",
-                },
-                lc: { color: "#27ae60", badge: "LC", class: "status-lc" },
-                least_concern: {
-                  color: "#27ae60",
-                  badge: "LC",
-                  class: "status-lc",
-                },
-              };
-
-              const config = statusConfig[status];
-              if (config) {
-                conservationBadge = `<div class="threatened-badge" style="background: ${config.color};">${config.badge}</div>`;
-                conservationStatusHtml = `<div class="conservation-status ${config.class}">${statusName}</div>`;
-              }
-            }
-
-            // Escape HTML
-            const escapeHtml = (text) => {
-              const div = document.createElement("div");
-              div.textContent = text;
-              return div.innerHTML;
-            };
-
-            return `
-              <div class="species-card">
-                ${conservationBadge}
-                <a href="https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${
-              taxon.id
-            }" target="_blank" style="text-decoration: none; color: inherit;">
-                  <img class="species-image" src="${imageUrl}" alt="${escapeHtml(
-              commonName
-            )}" onerror="this.src='https://www.inaturalist.org/assets/logo-small.png'">
-                  <div class="species-content">
-                    <div class="species-common-name">${escapeHtml(
-                      commonName
-                    )}</div>
-                    ${
-                      commonName !== sciName
-                        ? `<div class="species-sci-name">${escapeHtml(
-                            sciName
-                          )}</div>`
-                        : ""
+                    // Get image
+                    let imageUrl =
+                      "https://www.inaturalist.org/assets/logo-small.png";
+                    if (taxon.default_photo && taxon.default_photo.medium_url) {
+                      imageUrl = taxon.default_photo.medium_url;
                     }
-                    <div class="species-stats">
-                      <div>Your obs: <span class="user-count">${userCount.toLocaleString()}</span></div>
-                      <div>Global: <span class="global-count">${globalCount.toLocaleString()}</span></div>
+
+                    // Get names
+                    const commonName = taxon.preferred_common_name || taxon.name;
+                    const sciName = taxon.name;
+
+                    // Get conservation status
+                    let conservationStatusHtml = "-";
+                    if (
+                      taxon.conservation_status &&
+                      taxon.conservation_status.status
+                    ) {
+                      const status = taxon.conservation_status.status.toLowerCase();
+                      const statusName =
+                        taxon.conservation_status.status_name ||
+                        status.toUpperCase();
+
+                      const statusConfig = {
+                        cr: { class: "status-cr" },
+                        critically_endangered: { class: "status-cr" },
+                        en: { class: "status-en" },
+                        endangered: { class: "status-en" },
+                        vu: { class: "status-vu" },
+                        vulnerable: { class: "status-vu" },
+                        nt: { class: "status-nt" },
+                        near_threatened: { class: "status-nt" },
+                        lc: { class: "status-lc" },
+                        least_concern: { class: "status-lc" },
+                      };
+
+                      const config = statusConfig[status];
+                      if (config) {
+                        conservationStatusHtml = `<span class="conservation-status ${config.class}">${statusName}</span>`;
+                      }
+                    }
+
+                    return `
+                      <tr onclick="window.open('https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${taxon.id}', '_blank')" style="cursor: pointer;">
+                        <td><img class="table-image" src="${imageUrl}" alt="${escapeHtml(
+                      commonName
+                    )}" onerror="this.src='https://www.inaturalist.org/assets/logo-small.png'"></td>
+                        <td><div class="table-common-name">${escapeHtml(
+                          commonName
+                        )}</div></td>
+                        <td><div class="table-sci-name">${escapeHtml(
+                          sciName
+                        )}</div></td>
+                        <td><span class="user-count">${userCount.toLocaleString()}</span></td>
+                        <td><span class="global-count">${globalCount.toLocaleString()}</span></td>
+                        <td>${conservationStatusHtml}</td>
+                      </tr>
+                    `;
+                  })
+                  .join("")}
+              </tbody>
+            </table>
+          `;
+        } else {
+          // Grid view
+          speciesContainer.classList.remove("table-view");
+          speciesContainer.innerHTML = sortedData
+            .map((item) => {
+              const taxon = item.taxon;
+              const userCount = item.count;
+              const globalCount = taxon.observations_count || 0;
+
+              // Get image
+              let imageUrl = "https://www.inaturalist.org/assets/logo-small.png";
+              if (taxon.default_photo && taxon.default_photo.medium_url) {
+                imageUrl = taxon.default_photo.medium_url;
+              }
+
+              // Get names
+              const commonName = taxon.preferred_common_name || taxon.name;
+              const sciName = taxon.name;
+
+              // Get conservation status
+              let conservationBadge = "";
+              let conservationStatusHtml = "";
+              if (taxon.conservation_status && taxon.conservation_status.status) {
+                const status = taxon.conservation_status.status.toLowerCase();
+                const statusName =
+                  taxon.conservation_status.status_name || status.toUpperCase();
+
+                // Map status codes to colors and badge text
+                const statusConfig = {
+                  cr: { color: "#8b0000", badge: "CR", class: "status-cr" },
+                  critically_endangered: {
+                    color: "#8b0000",
+                    badge: "CR",
+                    class: "status-cr",
+                  },
+                  en: { color: "#d12f19", badge: "EN", class: "status-en" },
+                  endangered: {
+                    color: "#d12f19",
+                    badge: "EN",
+                    class: "status-en",
+                  },
+                  vu: { color: "#f39c12", badge: "VU", class: "status-vu" },
+                  vulnerable: {
+                    color: "#f39c12",
+                    badge: "VU",
+                    class: "status-vu",
+                  },
+                  nt: { color: "#f1c40f", badge: "NT", class: "status-nt" },
+                  near_threatened: {
+                    color: "#f1c40f",
+                    badge: "NT",
+                    class: "status-nt",
+                  },
+                  lc: { color: "#27ae60", badge: "LC", class: "status-lc" },
+                  least_concern: {
+                    color: "#27ae60",
+                    badge: "LC",
+                    class: "status-lc",
+                  },
+                };
+
+                const config = statusConfig[status];
+                if (config) {
+                  conservationBadge = `<div class="threatened-badge" style="background: ${config.color};">${config.badge}</div>`;
+                  conservationStatusHtml = `<div class="conservation-status ${config.class}">${statusName}</div>`;
+                }
+              }
+
+              return `
+                <div class="species-card">
+                  ${conservationBadge}
+                  <a href="https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${
+                taxon.id
+              }" target="_blank" style="text-decoration: none; color: inherit;">
+                    <img class="species-image" src="${imageUrl}" alt="${escapeHtml(
+                commonName
+              )}" onerror="this.src='https://www.inaturalist.org/assets/logo-small.png'">
+                    <div class="species-content">
+                      <div class="species-common-name">${escapeHtml(
+                        commonName
+                      )}</div>
+                      ${
+                        commonName !== sciName
+                          ? `<div class="species-sci-name">${escapeHtml(
+                              sciName
+                            )}</div>`
+                          : ""
+                      }
+                      <div class="species-stats">
+                        <div>Your obs: <span class="user-count">${userCount.toLocaleString()}</span></div>
+                        <div>Global: <span class="global-count">${globalCount.toLocaleString()}</span></div>
+                      </div>
+                      ${conservationStatusHtml}
                     </div>
-                    ${conservationStatusHtml}
-                  </div>
-                </a>
-              </div>
-            `;
-          })
-          .join("");
+                  </a>
+                </div>
+              `;
+            })
+            .join("");
+        }
       }
 
       function showError(message) {
