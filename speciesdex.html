@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpeciesDex - Track Your Nature Observations on iNaturalist</title>
+    <link rel="icon" href="favicon.ico" />
+    <meta
+      name="description"
+      content="Discover which of the top 100 most observed species in a place you've already observed - on iNaturalist."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <a href="/inat" class="top-link">See more iNat tools</a>
+        <div class="header-content">
+          <div class="title-container">
+            <img src="logo.png" alt="SpeciesDex Logo" class="logo" />
+            <h1>SpeciesDex</h1>
+          </div>
+          <p class="description">
+            See which of the most observed species in a place you've observed -
+            iNaturalist.
+          </p>
+        </div>
+        <div class="search-container">
+          <select id="taxonSelect" class="taxon-select">
+            <option value="all" selected>All Species</option>
+            <option value="1">Animals</option>
+            <option value="355675">Vertebrates</option>
+            <option value="3">Birds</option>
+            <option value="40151">Mammals</option>
+            <option value="26036">Reptiles</option>
+            <option value="20978">Amphibians</option>
+            <option value="47178">Fish</option>
+            <option value="47158">Insects</option>
+            <option value="47157">Butterflies and Moths</option>
+            <option value="47208">Beetles</option>
+            <option value="47119">Arachnids</option>
+            <option value="47115">Mollusks</option>
+            <option value="47126">Plants</option>
+            <option value="47170">Fungi</option>
+          </select>
+          <div class="place-search-container">
+            <input
+              type="text"
+              id="placeNameInput"
+              placeholder="Search place or project..."
+              autocomplete="off"
+            />
+            <div id="placeAutocomplete" class="place-autocomplete"></div>
+          </div>
+          <input type="text" id="placeIdInput" style="display: none" />
+          <select id="limitSelect" class="limit-select">
+            <option value="100">Top 100 Species</option>
+            <option value="200">Top 200 Species</option>
+            <option value="500">Top 500 Species</option>
+            <option value="1000">Top 1000 Species</option>
+            <option value="5000">Top 5000 Species</option>
+          </select>
+          <div class="username-search-container">
+            <input
+              type="text"
+              id="usernameInput"
+              placeholder="Enter iNaturalist username"
+              data-1p-ignore
+            />
+          </div>
+          <button id="searchButton">Search</button>
+          <button id="advancedOptionsButton" type="button">
+            Advanced Options
+          </button>
+        </div>
+        <div
+          id="advancedOptionsSection"
+          class="advanced-options-section"
+          style="display: none"
+        >
+          <div class="taxon-search-container">
+            <input
+              id="taxonIdOverrideInput"
+              class="taxon-id-override-input"
+              placeholder="Search for a taxon..."
+              autocomplete="off"
+            />
+            <div id="taxonAutocomplete" class="taxon-autocomplete"></div>
+          </div>
+          <span class="language-select-container">
+            <select id="languageSelect" class="language-select">
+              <option value="en" selected>English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="pt">Portuguese</option>
+              <option value="it">Italian</option>
+              <option value="nl">Dutch</option>
+              <option value="ru">Russian</option>
+              <option value="ja">Japanese</option>
+              <option value="zh">Chinese</option>
+            </select>
+          </span>
+          <span class="advanced-options-checkbox">
+            <input type="checkbox" id="wildCheckbox" class="wild-checkbox" />
+            <label for="wildCheckbox">Wild</label>
+          </span>
+          <span class="advanced-options-checkbox">
+            <input
+              type="checkbox"
+              id="researchGradeCheckbox"
+              class="research-grade-checkbox"
+            />
+            <label for="researchGradeCheckbox">Research Grade</label>
+          </span>
+          <span class="advanced-options-checkbox">
+            <input
+              type="checkbox"
+              id="threatenedCheckbox"
+              class="threatened-checkbox"
+            />
+            <label for="threatenedCheckbox">Threatened</label>
+          </span>
+          <span class="advanced-options-checkbox">
+            <input
+              type="checkbox"
+              id="verifiableCheckbox"
+              class="verifiable-checkbox"
+              checked
+            />
+            <label for="verifiableCheckbox">Verifiable</label>
+          </span>
+          <span class="advanced-options-checkbox">
+            <input
+              type="checkbox"
+              id="includeAllPlacesCheckbox"
+              class="include-all-places-checkbox"
+            />
+            <label for="includeAllPlacesCheckbox"
+              >Include my observations from all places</label
+            >
+          </span>
+          <div class="advanced-actions">
+            <button id="searchButtonAdvanced" class="search-button-advanced">
+              Search
+            </button>
+            <button id="downloadButton" class="download-button" disabled>
+              📄 Download Report
+            </button>
+          </div>
+        </div>
+        <div class="status-bar" id="statusBar">
+          <div class="status-text">
+            Observed: <span id="observedCount">0</span> /
+            <span id="totalCount">0</span> species (<span id="percentObserved"
+              >0</span
+            >%)
+          </div>
+
+          <div class="progress-bar">
+            <div class="progress" id="progressBar"></div>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <div class="loading" id="loading">Loading...</div>
+        <div class="checkbox-container">
+          <span id="locationName" class="location-name"></span>
+          <input
+            type="checkbox"
+            id="showMissingOnly"
+            class="show-missing-checkbox"
+          />
+          <label for="showMissingOnly">Show only missing</label>
+          <input
+            type="checkbox"
+            id="showSpottedOnly"
+            class="show-spotted-checkbox"
+          />
+          <label for="showSpottedOnly">Show only observed</label>
+        </div>
+        <div class="species-grid" id="speciesGrid"></div>
+      </main>
+    </div>
+    <script src="script.js"></script>
+    <script src="search.js"></script>
+    <script src="download.js"></script>
+    <script
+      defer
+      data-domain="glauberramos.github.io/speciesdex"
+      src="https://plausible.io/js/script.js"
+    ></script>
+  </body>
+</html>

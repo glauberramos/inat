@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Observations - iNaturalist</title>
+    <link rel="icon" href="favicon.ico" />
+    <meta
+      name="description"
+      content="View iNaturalist user observation statistics and species list"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .summary-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin: 20px 0;
+        display: none;
+      }
+
+      .summary-card.show {
+        display: block;
+      }
+
+      .summary-stats {
+        display: flex;
+        gap: 40px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .stat-item {
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #74ac00;
+      }
+
+      .stat-label {
+        font-size: 1rem;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      .controls {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .controls label {
+        font-weight: 500;
+        color: #2c3e50;
+      }
+
+      .controls select {
+        padding: 8px 12px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        background: white;
+        cursor: pointer;
+      }
+
+      #speciesContainer {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .species-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        overflow: hidden;
+        transition: transform 0.3s;
+      }
+
+      .species-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .species-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        background: #f5f5f5;
+      }
+
+      .species-content {
+        padding: 12px;
+      }
+
+      .species-common-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 4px;
+      }
+
+      .species-sci-name {
+        font-style: italic;
+        color: #666;
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+
+      .species-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 13px;
+        color: #666;
+      }
+
+      .user-count {
+        color: #74ac00;
+        font-weight: 600;
+      }
+
+      .global-count {
+        color: #3498db;
+        font-weight: 600;
+      }
+
+      .error-message {
+        background: #ffebee;
+        color: #c62828;
+        padding: 12px;
+        border-radius: 4px;
+        margin: 16px 0;
+        display: none;
+      }
+
+      .error-message.show {
+        display: block;
+      }
+
+      @media (max-width: 1400px) {
+        #speciesContainer {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      @media (max-width: 1200px) {
+        #speciesContainer {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 900px) {
+        #speciesContainer {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 600px) {
+        #speciesContainer {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div style="text-align: center; margin-bottom: 15px">
+          <a
+            href="/inat"
+            style="
+              color: #3498db;
+              text-decoration: none;
+              font-size: 0.9rem;
+              font-weight: 500;
+              transition: color 0.3s;
+            "
+            onmouseover="this.style.color='#2980b9'"
+            onmouseout="this.style.color='#3498db'"
+          >
+            � See more iNat tools
+          </a>
+        </div>
+        <div class="header-content">
+          <div class="title-container">
+            <img src="logo.png" alt="iNaturalist Logo" class="logo" />
+            <h1>User Observations</h1>
+          </div>
+          <p class="description">
+            View user observation statistics and species
+          </p>
+        </div>
+        <div class="search-container">
+          <div class="username-search-container" style="width: 300px">
+            <input
+              type="text"
+              id="usernameInput"
+              placeholder="Enter iNaturalist username..."
+              autocomplete="off"
+              style="width: 100%"
+            />
+            <div id="usernameAutocomplete" class="username-autocomplete"></div>
+          </div>
+          <button id="searchButton">Search</button>
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+      </header>
+
+      <main>
+        <div class="summary-card" id="summaryCard">
+          <h2 style="text-align: center; margin-bottom: 20px; color: #2c3e50">
+            <span id="userName"></span>'s Statistics
+          </h2>
+          <div class="summary-stats">
+            <div class="stat-item">
+              <div class="stat-value" id="totalObservations">0</div>
+              <div class="stat-label">Total Observations</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="totalSpecies">0</div>
+              <div class="stat-label">Total Species</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls" id="controls" style="display: none">
+          <label for="iconicTaxonSelect">Iconic Taxon:</label>
+          <select id="iconicTaxonSelect" style="padding: 8px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; background: white; cursor: pointer;">
+            <option value="">All</option>
+            <option value="Mammalia">Mammalia</option>
+            <option value="Aves">Aves</option>
+            <option value="Animalia">Animalia</option>
+            <option value="Mollusca">Mollusca</option>
+            <option value="Plantae">Plantae</option>
+            <option value="Arachnida">Arachnida</option>
+            <option value="Insecta">Insecta</option>
+            <option value="Amphibia">Amphibia</option>
+            <option value="Protozoa">Protozoa</option>
+            <option value="Fungi">Fungi</option>
+            <option value="Chromista">Chromista</option>
+            <option value="Actinopterygii">Actinopterygii</option>
+            <option value="Reptilia">Reptilia</option>
+          </select>
+          <label for="sortSelect" style="margin-left: 20px">Sort by:</label>
+          <select id="sortSelect">
+            <option value="user">User Observations (High to Low)</option>
+            <option value="user-asc">User Observations (Low to High)</option>
+            <option value="global">Global Observations (High to Low)</option>
+            <option value="global-asc">
+              Global Observations (Low to High)
+            </option>
+          </select>
+          <label for="filterInput" style="margin-left: 20px">Filter:</label>
+          <input
+            type="text"
+            id="filterInput"
+            placeholder="Search by name..."
+            style="
+              padding: 8px 12px;
+              border: 2px solid #ddd;
+              border-radius: 5px;
+              font-size: 14px;
+              width: 200px;
+            "
+          />
+        </div>
+
+        <div class="loading" id="loading" style="display: none">Loading...</div>
+        <div id="resultsCount" style="text-align: center; color: #666; font-size: 14px; margin: 15px 0; display: none;"></div>
+        <div id="speciesContainer"></div>
+      </main>
+    </div>
+    <footer
+      style="text-align: center; padding: 40px 20px 20px; margin-top: 40px"
+    >
+      <img
+        src="powered_by.png"
+        alt="Powered By"
+        style="max-width: 300px; height: auto; opacity: 0.8"
+      />
+    </footer>
+    <script>
+      const usernameInput = document.getElementById("usernameInput");
+      const usernameAutocomplete = document.getElementById(
+        "usernameAutocomplete"
+      );
+      const searchButton = document.getElementById("searchButton");
+      const loading = document.getElementById("loading");
+      const resultsCount = document.getElementById("resultsCount");
+      const speciesContainer = document.getElementById("speciesContainer");
+      const errorMessage = document.getElementById("errorMessage");
+      const summaryCard = document.getElementById("summaryCard");
+      const userName = document.getElementById("userName");
+      const totalObservations = document.getElementById("totalObservations");
+      const totalSpecies = document.getElementById("totalSpecies");
+      const controls = document.getElementById("controls");
+      const iconicTaxonSelect = document.getElementById("iconicTaxonSelect");
+      const sortSelect = document.getElementById("sortSelect");
+      const filterInput = document.getElementById("filterInput");
+
+      let speciesData = [];
+      let currentUserId = null;
+      let searchTimeout = null;
+
+      // Username autocomplete
+      usernameInput.addEventListener("input", (e) => {
+        clearTimeout(searchTimeout);
+        const query = e.target.value.trim();
+
+        if (query.length < 2) {
+          usernameAutocomplete.innerHTML = "";
+          usernameAutocomplete.style.display = "none";
+          return;
+        }
+
+        searchTimeout = setTimeout(async () => {
+          try {
+            const response = await fetch(
+              `https://api.inaturalist.org/v1/users/autocomplete?q=${encodeURIComponent(
+                query
+              )}`
+            );
+            const data = await response.json();
+
+            if (data.results && data.results.length > 0) {
+              usernameAutocomplete.innerHTML = data.results
+                .slice(0, 10)
+                .map((user) => {
+                  const obsCount = user.observations_count || 0;
+                  return `
+                    <div class="username-suggestion" data-login="${user.login}">
+                      <div class="username-name">${user.login}</div>
+                      <div class="username-info">${obsCount.toLocaleString()} observations</div>
+                    </div>
+                  `;
+                })
+                .join("");
+              usernameAutocomplete.style.display = "block";
+
+              document
+                .querySelectorAll(".username-suggestion")
+                .forEach((item) => {
+                  item.addEventListener("click", () => {
+                    usernameInput.value = item.dataset.login;
+                    usernameAutocomplete.innerHTML = "";
+                    usernameAutocomplete.style.display = "none";
+                    fetchUserData();
+                  });
+                });
+            } else {
+              usernameAutocomplete.innerHTML = "";
+              usernameAutocomplete.style.display = "none";
+            }
+          } catch (error) {
+            console.error("Error fetching users:", error);
+            usernameAutocomplete.innerHTML = "";
+            usernameAutocomplete.style.display = "none";
+          }
+        }, 300);
+      });
+
+      // Hide autocomplete when clicking outside
+      document.addEventListener("click", (e) => {
+        if (
+          !usernameInput.contains(e.target) &&
+          !usernameAutocomplete.contains(e.target)
+        ) {
+          usernameAutocomplete.style.display = "none";
+        }
+      });
+
+      // Search button handler
+      searchButton.addEventListener("click", () => {
+        fetchUserData();
+      });
+
+      // Enter key handler
+      usernameInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          fetchUserData();
+        }
+      });
+
+      // Iconic taxon filter handler
+      iconicTaxonSelect.addEventListener("change", () => {
+        displaySpecies();
+      });
+
+      // Sort handler
+      sortSelect.addEventListener("change", () => {
+        displaySpecies();
+      });
+
+      // Filter handler
+      filterInput.addEventListener("input", () => {
+        displaySpecies();
+      });
+
+      async function fetchUserData() {
+        const username = usernameInput.value.trim();
+
+        if (!username) {
+          showError("Please enter a username");
+          return;
+        }
+
+        hideError();
+        loading.style.display = "block";
+        speciesContainer.innerHTML = "";
+        summaryCard.classList.remove("show");
+        controls.style.display = "none";
+
+        try {
+          // First, get user info to get user_id
+          const userResponse = await fetch(
+            `https://api.inaturalist.org/v1/users/autocomplete?q=${encodeURIComponent(
+              username
+            )}`
+          );
+          const userData = await userResponse.json();
+
+          if (!userData.results || userData.results.length === 0) {
+            loading.style.display = "none";
+            showError("User not found");
+            return;
+          }
+
+          const user = userData.results[0];
+          const userId = user.id;
+          currentUserId = userId;
+
+          // Display user stats
+          userName.textContent = user.login;
+          totalObservations.textContent =
+            user.observations_count?.toLocaleString() || "0";
+
+          // Fetch species count data - first page to get total_results
+          const perPage = 500;
+          const firstResponse = await fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=1`
+          );
+          const firstData = await firstResponse.json();
+
+          if (!firstData.results || firstData.results.length === 0) {
+            loading.style.display = "none";
+            showError("No species found for this user");
+            return;
+          }
+
+          // Start with first page results
+          let allResults = [...firstData.results];
+          const totalResults = firstData.total_results;
+          const totalPages = Math.ceil(totalResults / perPage);
+
+          // If there are more pages, fetch them all
+          if (totalPages > 1) {
+            const additionalPromises = [];
+            for (let page = 2; page <= totalPages; page++) {
+              additionalPromises.push(
+                fetch(
+                  `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}`
+                )
+                  .then((response) => response.json())
+                  .then((data) => data.results)
+              );
+            }
+
+            // Fetch all remaining pages in parallel
+            const additionalResults = await Promise.all(additionalPromises);
+            additionalResults.forEach((results) => {
+              allResults.push(...results);
+            });
+          }
+
+          loading.style.display = "none";
+
+          speciesData = allResults;
+          totalSpecies.textContent = speciesData.length.toLocaleString();
+
+          summaryCard.classList.add("show");
+          controls.style.display = "flex";
+
+          displaySpecies();
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          loading.style.display = "none";
+          showError("Error fetching data. Please try again.");
+        }
+      }
+
+      function displaySpecies() {
+        // Filter data based on text input and iconic taxon
+        const filterText = filterInput.value.trim().toLowerCase();
+        const iconicTaxon = iconicTaxonSelect.value;
+        let filteredData = speciesData;
+
+        // Filter by iconic taxon
+        if (iconicTaxon) {
+          filteredData = filteredData.filter((item) => {
+            return item.taxon.iconic_taxon_name === iconicTaxon;
+          });
+        }
+
+        // Filter by text
+        if (filterText) {
+          filteredData = filteredData.filter((item) => {
+            const commonName = (
+              item.taxon.preferred_common_name || ""
+            ).toLowerCase();
+            const sciName = (item.taxon.name || "").toLowerCase();
+            return (
+              commonName.includes(filterText) || sciName.includes(filterText)
+            );
+          });
+        }
+
+        // Sort data based on selection
+        const sortBy = sortSelect.value;
+        let sortedData = [...filteredData];
+
+        if (sortBy === "user") {
+          sortedData.sort((a, b) => b.count - a.count);
+        } else if (sortBy === "user-asc") {
+          sortedData.sort((a, b) => a.count - b.count);
+        } else if (sortBy === "global") {
+          sortedData.sort(
+            (a, b) =>
+              (b.taxon.observations_count || 0) -
+              (a.taxon.observations_count || 0)
+          );
+        } else if (sortBy === "global-asc") {
+          sortedData.sort(
+            (a, b) =>
+              (a.taxon.observations_count || 0) -
+              (b.taxon.observations_count || 0)
+          );
+        }
+
+        // Display results count
+        const resultCount = sortedData.length;
+        resultsCount.textContent = `${resultCount.toLocaleString()} result${resultCount !== 1 ? 's' : ''}`;
+        resultsCount.style.display = resultCount > 0 ? 'block' : 'none';
+
+        // Display species cards
+        speciesContainer.innerHTML = sortedData
+          .map((item) => {
+            const taxon = item.taxon;
+            const userCount = item.count;
+            const globalCount = taxon.observations_count || 0;
+
+            // Get image
+            let imageUrl = "https://www.inaturalist.org/assets/logo-small.png";
+            if (taxon.default_photo && taxon.default_photo.medium_url) {
+              imageUrl = taxon.default_photo.medium_url;
+            }
+
+            // Get names
+            const commonName = taxon.preferred_common_name || taxon.name;
+            const sciName = taxon.name;
+
+            // Escape HTML
+            const escapeHtml = (text) => {
+              const div = document.createElement("div");
+              div.textContent = text;
+              return div.innerHTML;
+            };
+
+            return `
+              <div class="species-card">
+                <a href="https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${
+              taxon.id
+            }" target="_blank" style="text-decoration: none; color: inherit;">
+                  <img class="species-image" src="${imageUrl}" alt="${escapeHtml(
+              commonName
+            )}" onerror="this.src='https://www.inaturalist.org/assets/logo-small.png'">
+                  <div class="species-content">
+                    <div class="species-common-name">${escapeHtml(
+                      commonName
+                    )}</div>
+                    ${
+                      commonName !== sciName
+                        ? `<div class="species-sci-name">${escapeHtml(
+                            sciName
+                          )}</div>`
+                        : ""
+                    }
+                    <div class="species-stats">
+                      <div>Your obs: <span class="user-count">${userCount.toLocaleString()}</span></div>
+                      <div>Global: <span class="global-count">${globalCount.toLocaleString()}</span></div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.add("show");
+      }
+
+      function hideError() {
+        errorMessage.classList.remove("show");
+      }
+    </script>
+    <script
+      defer
+      data-domain="glauberramos.github.io/inat"
+      src="https://plausible.io/js/script.js"
+    ></script>
+  </body>
+</html>
