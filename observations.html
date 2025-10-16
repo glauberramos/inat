@@ -85,11 +85,27 @@
         border: 1px solid #ddd;
         overflow: hidden;
         transition: transform 0.3s;
+        position: relative;
       }
 
       .species-card:hover {
         transform: translateY(-3px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .threatened-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #d12f19;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+        z-index: 10;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
       }
 
       .species-image {
@@ -189,7 +205,7 @@
             onmouseover="this.style.color='#2980b9'"
             onmouseout="this.style.color='#3498db'"
           >
-            � See more iNat tools
+            ← See more iNat tools
           </a>
         </div>
         <div class="header-content">
@@ -569,6 +585,10 @@
             const commonName = taxon.preferred_common_name || taxon.name;
             const sciName = taxon.name;
 
+            // Check if threatened
+            const isThreatened = taxon.threatened || (taxon.conservation_status && taxon.conservation_status.status &&
+              ['endangered', 'critically_endangered', 'vulnerable', 'threatened', 'en', 'cr', 'vu'].includes(taxon.conservation_status.status.toLowerCase()));
+
             // Escape HTML
             const escapeHtml = (text) => {
               const div = document.createElement("div");
@@ -578,6 +598,7 @@
 
             return `
               <div class="species-card">
+                ${isThreatened ? '<div class="threatened-badge">Threatened</div>' : ''}
                 <a href="https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${
               taxon.id
             }" target="_blank" style="text-decoration: none; color: inherit;">
