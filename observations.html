@@ -147,6 +147,7 @@
 
       .species-content {
         padding: 12px;
+        padding-top: 5px;
       }
 
       .species-common-name {
@@ -174,11 +175,13 @@
       .user-count {
         color: #74ac00;
         font-weight: 600;
+        font-size: 15px;
       }
 
       .global-count {
         color: #3498db;
         font-weight: 600;
+        font-size: 15px;
       }
 
       .error-message {
@@ -271,7 +274,7 @@
       }
 
       .species-table td {
-        padding: 12px;
+        padding: 6px;
         border-bottom: 1px solid #eee;
         font-size: 14px;
       }
@@ -814,7 +817,8 @@
                     }
 
                     // Get names
-                    const commonName = taxon.preferred_common_name || taxon.name;
+                    const commonName =
+                      taxon.preferred_common_name || taxon.name;
                     const sciName = taxon.name;
 
                     // Get conservation status
@@ -823,7 +827,8 @@
                       taxon.conservation_status &&
                       taxon.conservation_status.status
                     ) {
-                      const status = taxon.conservation_status.status.toLowerCase();
+                      const status =
+                        taxon.conservation_status.status.toLowerCase();
                       const statusName =
                         taxon.conservation_status.status_name ||
                         status.toUpperCase();
@@ -848,7 +853,9 @@
                     }
 
                     return `
-                      <tr onclick="window.open('https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${taxon.id}', '_blank')" style="cursor: pointer;">
+                      <tr onclick="window.open('https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${
+                      taxon.id
+                    }', '_blank')" style="cursor: pointer;">
                         <td><img class="table-image" src="${imageUrl}" alt="${escapeHtml(
                       commonName
                     )}" onerror="this.src='https://www.inaturalist.org/assets/logo-small.png'"></td>
@@ -878,7 +885,8 @@
               const globalCount = taxon.observations_count || 0;
 
               // Get image
-              let imageUrl = "https://www.inaturalist.org/assets/logo-small.png";
+              let imageUrl =
+                "https://www.inaturalist.org/assets/logo-small.png";
               if (taxon.default_photo && taxon.default_photo.medium_url) {
                 imageUrl = taxon.default_photo.medium_url;
               }
@@ -890,7 +898,10 @@
               // Get conservation status
               let conservationBadge = "";
               let conservationStatusHtml = "";
-              if (taxon.conservation_status && taxon.conservation_status.status) {
+              if (
+                taxon.conservation_status &&
+                taxon.conservation_status.status
+              ) {
                 const status = taxon.conservation_status.status.toLowerCase();
                 const statusName =
                   taxon.conservation_status.status_name || status.toUpperCase();
