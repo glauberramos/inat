@@ -605,7 +605,6 @@
         // Filter by conservation status
         if (onlyWithConservationStatus) {
           filteredData = filteredData.filter((item) => {
-            console.log(item.taxon.conservation_status);
             return (
               item.taxon.conservation_status &&
               item.taxon.conservation_status.status
