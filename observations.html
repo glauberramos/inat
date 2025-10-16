@@ -97,7 +97,6 @@
         position: absolute;
         top: 8px;
         right: 8px;
-        background: #d12f19;
         color: white;
         padding: 4px 8px;
         border-radius: 4px;
@@ -107,6 +106,22 @@
         z-index: 10;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
       }
+
+      .conservation-status {
+        font-size: 12px;
+        color: #666;
+        margin-top: 8px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+        display: inline-block;
+      }
+
+      .status-cr { background: #8b0000; color: white; }
+      .status-en { background: #d12f19; color: white; }
+      .status-vu { background: #f39c12; color: white; }
+      .status-nt { background: #f1c40f; color: #333; }
+      .status-lc { background: #27ae60; color: white; }
 
       .species-image {
         width: 100%;
@@ -585,9 +600,33 @@
             const commonName = taxon.preferred_common_name || taxon.name;
             const sciName = taxon.name;
 
-            // Check if threatened
-            const isThreatened = taxon.threatened || (taxon.conservation_status && taxon.conservation_status.status &&
-              ['endangered', 'critically_endangered', 'vulnerable', 'threatened', 'en', 'cr', 'vu'].includes(taxon.conservation_status.status.toLowerCase()));
+            // Get conservation status
+            let conservationBadge = '';
+            let conservationStatusHtml = '';
+            if (taxon.conservation_status && taxon.conservation_status.status) {
+              const status = taxon.conservation_status.status.toLowerCase();
+              const statusName = taxon.conservation_status.status_name || status.toUpperCase();
+
+              // Map status codes to colors and badge text
+              const statusConfig = {
+                'cr': { color: '#8b0000', badge: 'CR', class: 'status-cr' },
+                'critically_endangered': { color: '#8b0000', badge: 'CR', class: 'status-cr' },
+                'en': { color: '#d12f19', badge: 'EN', class: 'status-en' },
+                'endangered': { color: '#d12f19', badge: 'EN', class: 'status-en' },
+                'vu': { color: '#f39c12', badge: 'VU', class: 'status-vu' },
+                'vulnerable': { color: '#f39c12', badge: 'VU', class: 'status-vu' },
+                'nt': { color: '#f1c40f', badge: 'NT', class: 'status-nt' },
+                'near_threatened': { color: '#f1c40f', badge: 'NT', class: 'status-nt' },
+                'lc': { color: '#27ae60', badge: 'LC', class: 'status-lc' },
+                'least_concern': { color: '#27ae60', badge: 'LC', class: 'status-lc' }
+              };
+
+              const config = statusConfig[status];
+              if (config) {
+                conservationBadge = `<div class="threatened-badge" style="background: ${config.color};">${config.badge}</div>`;
+                conservationStatusHtml = `<div class="conservation-status ${config.class}">${statusName}</div>`;
+              }
+            }
 
             // Escape HTML
             const escapeHtml = (text) => {
@@ -598,7 +637,7 @@
 
             return `
               <div class="species-card">
-                ${isThreatened ? '<div class="threatened-badge">Threatened</div>' : ''}
+                ${conservationBadge}
                 <a href="https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${
               taxon.id
             }" target="_blank" style="text-decoration: none; color: inherit;">
@@ -620,6 +659,7 @@
                       <div>Your obs: <span class="user-count">${userCount.toLocaleString()}</span></div>
                       <div>Global: <span class="global-count">${globalCount.toLocaleString()}</span></div>
                     </div>
+                    ${conservationStatusHtml}
                   </div>
                 </a>
               </div>
