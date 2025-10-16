@@ -117,11 +117,26 @@
         display: inline-block;
       }
 
-      .status-cr { background: #8b0000; color: white; }
-      .status-en { background: #d12f19; color: white; }
-      .status-vu { background: #f39c12; color: white; }
-      .status-nt { background: #f1c40f; color: #333; }
-      .status-lc { background: #27ae60; color: white; }
+      .status-cr {
+        background: #8b0000;
+        color: white;
+      }
+      .status-en {
+        background: #d12f19;
+        color: white;
+      }
+      .status-vu {
+        background: #f39c12;
+        color: white;
+      }
+      .status-nt {
+        background: #f1c40f;
+        color: #333;
+      }
+      .status-lc {
+        background: #27ae60;
+        color: white;
+      }
 
       .species-image {
         width: 100%;
@@ -267,7 +282,17 @@
 
         <div class="controls" id="controls" style="display: none">
           <label for="iconicTaxonSelect">Iconic Taxon:</label>
-          <select id="iconicTaxonSelect" style="padding: 8px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; background: white; cursor: pointer;">
+          <select
+            id="iconicTaxonSelect"
+            style="
+              padding: 8px 12px;
+              border: 2px solid #ddd;
+              border-radius: 5px;
+              font-size: 14px;
+              background: white;
+              cursor: pointer;
+            "
+          >
             <option value="">All</option>
             <option value="Mammalia">Mammalia</option>
             <option value="Aves">Aves</option>
@@ -283,6 +308,22 @@
             <option value="Actinopterygii">Actinopterygii</option>
             <option value="Reptilia">Reptilia</option>
           </select>
+          <label
+            style="
+              margin-left: 20px;
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              cursor: pointer;
+            "
+          >
+            <input
+              type="checkbox"
+              id="conservationStatusFilter"
+              style="width: 16px; height: 16px; cursor: pointer"
+            />
+            <span>With Conservation Status</span>
+          </label>
           <label for="sortSelect" style="margin-left: 20px">Sort by:</label>
           <select id="sortSelect">
             <option value="user">User Observations (High to Low)</option>
@@ -308,7 +349,16 @@
         </div>
 
         <div class="loading" id="loading" style="display: none">Loading...</div>
-        <div id="resultsCount" style="text-align: center; color: #666; font-size: 14px; margin: 15px 0; display: none;"></div>
+        <div
+          id="resultsCount"
+          style="
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin: 15px 0;
+            display: none;
+          "
+        ></div>
         <div id="speciesContainer"></div>
       </main>
     </div>
@@ -337,6 +387,9 @@
       const totalSpecies = document.getElementById("totalSpecies");
       const controls = document.getElementById("controls");
       const iconicTaxonSelect = document.getElementById("iconicTaxonSelect");
+      const conservationStatusFilter = document.getElementById(
+        "conservationStatusFilter"
+      );
       const sortSelect = document.getElementById("sortSelect");
       const filterInput = document.getElementById("filterInput");
 
@@ -425,6 +478,11 @@
 
       // Iconic taxon filter handler
       iconicTaxonSelect.addEventListener("change", () => {
+        displaySpecies();
+      });
+
+      // Conservation status filter handler
+      conservationStatusFilter.addEventListener("change", () => {
         displaySpecies();
       });
 
@@ -534,12 +592,24 @@
         // Filter data based on text input and iconic taxon
         const filterText = filterInput.value.trim().toLowerCase();
         const iconicTaxon = iconicTaxonSelect.value;
+        const onlyWithConservationStatus = conservationStatusFilter.checked;
         let filteredData = speciesData;
 
         // Filter by iconic taxon
         if (iconicTaxon) {
           filteredData = filteredData.filter((item) => {
             return item.taxon.iconic_taxon_name === iconicTaxon;
+          });
+        }
+
+        // Filter by conservation status
+        if (onlyWithConservationStatus) {
+          filteredData = filteredData.filter((item) => {
+            console.log(item.taxon.conservation_status);
+            return (
+              item.taxon.conservation_status &&
+              item.taxon.conservation_status.status
+            );
           });
         }
 
@@ -580,8 +650,10 @@
 
         // Display results count
         const resultCount = sortedData.length;
-        resultsCount.textContent = `${resultCount.toLocaleString()} result${resultCount !== 1 ? 's' : ''}`;
-        resultsCount.style.display = resultCount > 0 ? 'block' : 'none';
+        resultsCount.textContent = `${resultCount.toLocaleString()} result${
+          resultCount !== 1 ? "s" : ""
+        }`;
+        resultsCount.style.display = resultCount > 0 ? "block" : "none";
 
         // Display species cards
         speciesContainer.innerHTML = sortedData
@@ -601,24 +673,45 @@
             const sciName = taxon.name;
 
             // Get conservation status
-            let conservationBadge = '';
-            let conservationStatusHtml = '';
+            let conservationBadge = "";
+            let conservationStatusHtml = "";
             if (taxon.conservation_status && taxon.conservation_status.status) {
               const status = taxon.conservation_status.status.toLowerCase();
-              const statusName = taxon.conservation_status.status_name || status.toUpperCase();
+              const statusName =
+                taxon.conservation_status.status_name || status.toUpperCase();
 
               // Map status codes to colors and badge text
               const statusConfig = {
-                'cr': { color: '#8b0000', badge: 'CR', class: 'status-cr' },
-                'critically_endangered': { color: '#8b0000', badge: 'CR', class: 'status-cr' },
-                'en': { color: '#d12f19', badge: 'EN', class: 'status-en' },
-                'endangered': { color: '#d12f19', badge: 'EN', class: 'status-en' },
-                'vu': { color: '#f39c12', badge: 'VU', class: 'status-vu' },
-                'vulnerable': { color: '#f39c12', badge: 'VU', class: 'status-vu' },
-                'nt': { color: '#f1c40f', badge: 'NT', class: 'status-nt' },
-                'near_threatened': { color: '#f1c40f', badge: 'NT', class: 'status-nt' },
-                'lc': { color: '#27ae60', badge: 'LC', class: 'status-lc' },
-                'least_concern': { color: '#27ae60', badge: 'LC', class: 'status-lc' }
+                cr: { color: "#8b0000", badge: "CR", class: "status-cr" },
+                critically_endangered: {
+                  color: "#8b0000",
+                  badge: "CR",
+                  class: "status-cr",
+                },
+                en: { color: "#d12f19", badge: "EN", class: "status-en" },
+                endangered: {
+                  color: "#d12f19",
+                  badge: "EN",
+                  class: "status-en",
+                },
+                vu: { color: "#f39c12", badge: "VU", class: "status-vu" },
+                vulnerable: {
+                  color: "#f39c12",
+                  badge: "VU",
+                  class: "status-vu",
+                },
+                nt: { color: "#f1c40f", badge: "NT", class: "status-nt" },
+                near_threatened: {
+                  color: "#f1c40f",
+                  badge: "NT",
+                  class: "status-nt",
+                },
+                lc: { color: "#27ae60", badge: "LC", class: "status-lc" },
+                least_concern: {
+                  color: "#27ae60",
+                  badge: "LC",
+                  class: "status-lc",
+                },
               };
 
               const config = statusConfig[status];
