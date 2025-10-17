@@ -12,9 +12,33 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <a
+      href="/inat"
+      style="
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: #74ac00;
+        color: white;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 10px 16px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s;
+      "
+      onmouseover="this.style.background='#659900'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.2)'"
+      onmouseout="this.style.background='#74ac00'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.15)'"
+    >
+      <span style="font-size: 1rem">←</span> More iNat tools
+    </a>
     <div class="container">
       <header>
-        <a href="/inat" class="top-link">See more iNat tools</a>
         <div class="header-content">
           <div class="title-container">
             <img src="logo.png" alt="SpeciesDex Logo" class="logo" />
