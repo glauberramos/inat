@@ -533,6 +533,14 @@
       let searchTimeout = null;
       let currentView = "grid"; // 'grid' or 'table'
 
+      // Load saved username from localStorage (shared with SpeciesDex)
+      const savedUsername = localStorage.getItem("inatUsername");
+      if (savedUsername) {
+        usernameInput.value = savedUsername;
+        // Auto-trigger search on page load
+        fetchUserData();
+      }
+
       // Username autocomplete
       usernameInput.addEventListener("input", (e) => {
         clearTimeout(searchTimeout);
@@ -679,6 +687,9 @@
           const user = userData.results[0];
           const userId = user.id;
           currentUserId = userId;
+
+          // Save username to localStorage (shared with SpeciesDex)
+          localStorage.setItem("inatUsername", username);
 
           // Display user stats
           userName.textContent = user.login;
