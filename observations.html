@@ -225,31 +225,42 @@
 
       .view-controls {
         display: flex;
-        gap: 10px;
-        justify-content: center;
+        gap: 15px;
+        align-items: center;
         margin: 20px 0;
+      }
+
+      .view-buttons {
+        display: flex;
+        gap: 0;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 2px solid #ddd;
       }
 
       .view-btn {
         padding: 10px 20px;
-        border: 2px solid #ddd;
+        border: none;
         background: white;
         color: #2c3e50;
         cursor: pointer;
-        border-radius: 5px;
         font-size: 14px;
         font-weight: 500;
         transition: all 0.3s;
+        border-right: 1px solid #ddd;
       }
 
-      .view-btn:hover {
+      .view-btn:last-child {
+        border-right: none;
+      }
+
+      .view-btn:hover:not(.active) {
         background: #f5f5f5;
       }
 
       .view-btn.active {
         background: #3498db;
         color: white;
-        border-color: #3498db;
       }
 
       .species-table {
@@ -461,21 +472,20 @@
         </div>
 
         <div class="view-controls" id="viewControls" style="display: none">
-          <button id="gridViewBtn" class="view-btn active">Grid View</button>
-          <button id="tableViewBtn" class="view-btn">Table View</button>
+          <div class="view-buttons">
+            <button id="gridViewBtn" class="view-btn active">Grid View</button>
+            <button id="tableViewBtn" class="view-btn">Table View</button>
+          </div>
+          <div
+            id="resultsCount"
+            style="
+              color: #666;
+              font-size: 14px;
+            "
+          ></div>
         </div>
 
         <div class="loading" id="loading" style="display: none">Loading...</div>
-        <div
-          id="resultsCount"
-          style="
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-            margin: 15px 0;
-            display: none;
-          "
-        ></div>
         <div id="speciesContainer"></div>
       </main>
     </div>
@@ -789,7 +799,6 @@
         resultsCount.textContent = `${resultCount.toLocaleString()} result${
           resultCount !== 1 ? "s" : ""
         }`;
-        resultsCount.style.display = resultCount > 0 ? "block" : "none";
 
         // Escape HTML helper function
         const escapeHtml = (text) => {
