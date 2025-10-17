@@ -116,6 +116,29 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
       }
 
+      .only-observer-badge {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+        color: #2c3e50;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: bold;
+        z-index: 10;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .species-card.only-observer {
+        border: 3px solid #ffd700;
+        box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+      }
+
+      .species-card.only-observer:hover {
+        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.6);
+      }
+
       .conservation-status {
         font-size: 10px;
         color: #666;
@@ -850,6 +873,9 @@
                     const userCount = item.count;
                     const globalCount = taxon.observations_count || 0;
 
+                    // Check if user is the only observer
+                    const isOnlyObserver = userCount === globalCount && globalCount > 0;
+
                     // Get image
                     let imageUrl =
                       "https://www.inaturalist.org/assets/logo-small.png";
@@ -897,7 +923,7 @@
                     }
 
                     return `
-                      <tr>
+                      <tr${isOnlyObserver ? ' style="background: linear-gradient(to right, rgba(255, 215, 0, 0.1), transparent);"' : ""}>
                         <td><a href="https://www.inaturalist.org/taxa/${
                           taxon.id
                         }" target="_blank" style="color: #3498db; text-decoration: underline;">${
@@ -907,7 +933,7 @@
                         <td><img class="table-image" src="${imageUrl}" alt="${escapeHtml(
                       commonName
                     )}" onerror="this.src='https://www.inaturalist.org/assets/logo-small.png'"></td>
-                        <td><div class="table-common-name">${escapeHtml(
+                        <td><div class="table-common-name">${isOnlyObserver ? '⭐ ' : ''}${escapeHtml(
                           commonName
                         )}</div></td>
                         <td><div class="table-sci-name">${escapeHtml(
@@ -946,6 +972,13 @@
               // Get names
               const commonName = taxon.preferred_common_name || taxon.name;
               const sciName = taxon.name;
+
+              // Check if user is the only observer
+              const isOnlyObserver = userCount === globalCount && globalCount > 0;
+              const onlyObserverClass = isOnlyObserver ? " only-observer" : "";
+              const onlyObserverBadge = isOnlyObserver
+                ? `<div class="only-observer-badge">⭐ Only Observer</div>`
+                : "";
 
               // Get conservation status
               let conservationBadge = "";
@@ -1000,7 +1033,8 @@
               }
 
               return `
-                <div class="species-card">
+                <div class="species-card${onlyObserverClass}">
+                  ${onlyObserverBadge}
                   ${conservationBadge}
                   <a href="https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${
                 taxon.id
