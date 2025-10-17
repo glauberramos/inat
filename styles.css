@@ -137,7 +137,7 @@ input {
   border: 2px solid #ddd;
   border-radius: 5px;
   font-size: 1rem;
-  width: 200px;
+  width: 220px;
 }
 
 input:focus {
@@ -451,7 +451,7 @@ input[type="checkbox"] {
 
 .place-search-container {
   position: relative;
-  width: 200px;
+  width: 220px;
 }
 
 .place-autocomplete {
