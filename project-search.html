@@ -290,6 +290,19 @@
       const prevPageBtn = document.getElementById("prevPage");
       const nextPageBtn = document.getElementById("nextPage");
 
+      // Load saved place from localStorage (shared with SpeciesDex)
+      const savedPlaceId = localStorage.getItem("inatPlaceId");
+      const savedPlaceName = localStorage.getItem("inatPlaceName");
+      if (savedPlaceId && savedPlaceName) {
+        selectedLocation = {
+          id: savedPlaceId,
+          name: savedPlaceName,
+        };
+        locationInput.value = savedPlaceName;
+        // Auto-trigger search on page load
+        fetchProjects(1);
+      }
+
       // Search for locations using iNaturalist autocomplete
       locationInput.addEventListener("input", (e) => {
         clearTimeout(searchTimeout);
@@ -335,6 +348,10 @@
                     locationInput.value = item.dataset.name;
                     locationAutocomplete.innerHTML = "";
                     locationAutocomplete.style.display = "none";
+
+                    // Save place to localStorage (shared with SpeciesDex)
+                    localStorage.setItem("inatPlaceId", item.dataset.id);
+                    localStorage.setItem("inatPlaceName", item.dataset.name);
                   });
                 });
             } else {
