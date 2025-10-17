@@ -16,8 +16,8 @@
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         border: 1px solid #ddd;
-        padding: 20px;
-        margin: 20px 0;
+        padding: 10px 20px;
+        margin: 15px 0;
         display: none;
       }
 
@@ -27,25 +27,27 @@
 
       .summary-stats {
         display: flex;
-        gap: 40px;
+        gap: 20px;
         justify-content: center;
+        align-items: center;
         flex-wrap: wrap;
       }
 
       .stat-item {
-        text-align: center;
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
       .stat-value {
-        font-size: 2.5rem;
+        font-size: 1.5rem;
         font-weight: bold;
         color: #74ac00;
       }
 
       .stat-label {
-        font-size: 1rem;
+        font-size: 0.9rem;
         color: #666;
-        margin-top: 5px;
       }
 
       .controls {
@@ -108,11 +110,11 @@
       }
 
       .conservation-status {
-        font-size: 12px;
+        font-size: 10px;
         color: #666;
-        margin-top: 8px;
-        padding: 4px 8px;
-        border-radius: 4px;
+        margin-top: 4px;
+        padding: 3px 6px;
+        border-radius: 3px;
         font-weight: 500;
         display: inline-block;
       }
@@ -140,48 +142,48 @@
 
       .species-image {
         width: 100%;
-        height: 180px;
+        height: 120px;
         object-fit: cover;
         background: #f5f5f5;
       }
 
       .species-content {
-        padding: 12px;
-        padding-top: 5px;
+        padding: 8px;
+        padding-top: 4px;
       }
 
       .species-common-name {
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 600;
         color: #2c3e50;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
       }
 
       .species-sci-name {
         font-style: italic;
         color: #666;
-        font-size: 13px;
-        margin-bottom: 8px;
+        font-size: 11px;
+        margin-bottom: 4px;
       }
 
       .species-stats {
         display: flex;
-        flex-direction: column;
-        gap: 4px;
-        font-size: 13px;
+        flex-direction: row;
+        gap: 8px;
+        font-size: 11px;
         color: #666;
       }
 
       .user-count {
         color: #74ac00;
         font-weight: 600;
-        font-size: 15px;
+        font-size: 13px;
       }
 
       .global-count {
         color: #3498db;
         font-weight: 600;
-        font-size: 15px;
+        font-size: 13px;
       }
 
       .error-message {
@@ -366,17 +368,17 @@
 
       <main>
         <div class="summary-card" id="summaryCard">
-          <h2 style="text-align: center; margin-bottom: 20px; color: #2c3e50">
-            <span id="userName"></span>'s Statistics
-          </h2>
           <div class="summary-stats">
+            <div style="font-weight: 600; color: #2c3e50; font-size: 1rem;">
+              <span id="userName"></span>'s Statistics:
+            </div>
             <div class="stat-item">
               <div class="stat-value" id="totalObservations">0</div>
-              <div class="stat-label">Total Observations</div>
+              <div class="stat-label">Observations</div>
             </div>
             <div class="stat-item">
               <div class="stat-value" id="totalSpecies">0</div>
-              <div class="stat-label">Total Species</div>
+              <div class="stat-label">Species</div>
             </div>
           </div>
         </div>
@@ -794,6 +796,8 @@
             <table class="species-table">
               <thead>
                 <tr>
+                  <th>Taxon ID</th>
+                  <th>Iconic Taxon</th>
                   <th>Image</th>
                   <th>Common Name</th>
                   <th>Scientific Name</th>
@@ -820,6 +824,9 @@
                     const commonName =
                       taxon.preferred_common_name || taxon.name;
                     const sciName = taxon.name;
+
+                    // Get iconic taxon
+                    const iconicTaxon = taxon.iconic_taxon_name || "-";
 
                     // Get conservation status
                     let conservationStatusHtml = "-";
@@ -853,9 +860,9 @@
                     }
 
                     return `
-                      <tr onclick="window.open('https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${
-                      taxon.id
-                    }', '_blank')" style="cursor: pointer;">
+                      <tr>
+                        <td><a href="https://www.inaturalist.org/taxa/${taxon.id}" target="_blank" style="color: #3498db; text-decoration: underline;">${taxon.id}</a></td>
+                        <td>${iconicTaxon}</td>
                         <td><img class="table-image" src="${imageUrl}" alt="${escapeHtml(
                       commonName
                     )}" onerror="this.src='https://www.inaturalist.org/assets/logo-small.png'"></td>
@@ -865,8 +872,8 @@
                         <td><div class="table-sci-name">${escapeHtml(
                           sciName
                         )}</div></td>
-                        <td><span class="user-count">${userCount.toLocaleString()}</span></td>
-                        <td><span class="global-count">${globalCount.toLocaleString()}</span></td>
+                        <td><a href="https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${taxon.id}" target="_blank" style="color: #74ac00; text-decoration: underline; font-weight: 600;">${userCount.toLocaleString()}</a></td>
+                        <td><a href="https://www.inaturalist.org/observations?taxon_id=${taxon.id}" target="_blank" style="color: #3498db; text-decoration: underline; font-weight: 600;">${globalCount.toLocaleString()}</a></td>
                         <td>${conservationStatusHtml}</td>
                       </tr>
                     `;
