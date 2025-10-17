@@ -252,6 +252,14 @@ document.addEventListener("DOMContentLoaded", function () {
         ? "&verifiable=true"
         : "";
 
+    // Get selected months
+    const monthCheckboxes = document.querySelectorAll(
+      ".month-checkbox:checked"
+    );
+    const selectedMonths = Array.from(monthCheckboxes).map((cb) => cb.value);
+    const monthParam =
+      selectedMonths.length > 0 ? `&month=${selectedMonths.join(",")}` : "";
+
     // Check if we have a project selected instead of a place
     const projectId = localStorage.getItem("inatProjectId");
     let allPlacesParam = "";
@@ -300,6 +308,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const languageParam =
       selectedLanguage !== "en" ? `&locale=${selectedLanguage}` : "";
 
+    // Get selected months
+    const monthCheckboxes = document.querySelectorAll(
+      ".month-checkbox:checked"
+    );
+    const selectedMonths = Array.from(monthCheckboxes).map((cb) => cb.value);
+    const monthParam =
+      selectedMonths.length > 0 ? `&month=${selectedMonths.join(",")}` : "";
+
     // Check if we have a project selected instead of a place
     const projectId = localStorage.getItem("inatProjectId");
     let locationParam = "";
@@ -317,7 +333,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(
           `https://api.inaturalist.org/v1/observations/species_counts?${locationParam.substring(
             1
-          )}&per_page=500&page=${page}${taxonParam}${captiveParam}${researchGrade}${threatened}${verifiable}${languageParam}`
+          )}&per_page=500&page=${page}${taxonParam}${captiveParam}${researchGrade}${threatened}${verifiable}${languageParam}${monthParam}`
         )
           .then((response) => response.json())
           .then((data) => data.results);
@@ -335,7 +351,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // First call: get first 500 species
       const url1 = `https://api.inaturalist.org/v1/observations/species_counts?${locationParam.substring(
         1
-      )}&per_page=500${taxonParam}${captiveParam}${researchGrade}${threatened}${verifiable}${languageParam}`;
+      )}&per_page=500${taxonParam}${captiveParam}${researchGrade}${threatened}${verifiable}${languageParam}${monthParam}`;
       const response1 = await fetch(url1);
       const data1 = await response1.json();
       results.push(...data1.results);
@@ -343,7 +359,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Second call: get next 500 species (page 2)
       const url2 = `https://api.inaturalist.org/v1/observations/species_counts?${locationParam.substring(
         1
-      )}&per_page=500&page=2${taxonParam}${captiveParam}${researchGrade}${threatened}${verifiable}${languageParam}`;
+      )}&per_page=500&page=2${taxonParam}${captiveParam}${researchGrade}${threatened}${verifiable}${languageParam}${monthParam}`;
       const response2 = await fetch(url2);
       const data2 = await response2.json();
       results.push(...data2.results);
@@ -353,7 +369,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Regular single API call for other limits
       const url = `https://api.inaturalist.org/v1/observations/species_counts?${locationParam.substring(
         1
-      )}&per_page=${limit}${taxonParam}${captiveParam}${researchGrade}${threatened}${verifiable}${languageParam}`;
+      )}&per_page=${limit}${taxonParam}${captiveParam}${researchGrade}${threatened}${verifiable}${languageParam}${monthParam}`;
       const response = await fetch(url);
       const data = await response.json();
 
@@ -396,7 +412,15 @@ document.addEventListener("DOMContentLoaded", function () {
     card.className = `species-card ${isObserved ? "observed" : ""}`;
 
     // Create the iNaturalist URL for this species in the current place
-    const inatUrl = `https://www.inaturalist.org/observations?place_id=${placeIdInput.value}&taxon_id=${specimen.taxon.id}`;
+    // Get selected months to include in URL
+    const monthCheckboxes = document.querySelectorAll(
+      ".month-checkbox:checked"
+    );
+    const selectedMonths = Array.from(monthCheckboxes).map((cb) => cb.value);
+    const monthParam =
+      selectedMonths.length > 0 ? `&month=${selectedMonths.join(",")}` : "";
+
+    const inatUrl = `https://www.inaturalist.org/observations?place_id=${placeIdInput.value}&taxon_id=${specimen.taxon.id}${monthParam}`;
 
     // Create status labels container
     const statusContainer = document.createElement("div");
