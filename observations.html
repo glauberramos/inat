@@ -16,21 +16,29 @@
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         border: 1px solid #ddd;
-        padding: 10px 20px;
+        padding: 15px 20px;
         margin: 15px 0;
-        display: none;
-      }
-
-      .summary-card.show {
-        display: block;
-      }
-
-      .summary-stats {
         display: flex;
         gap: 20px;
         justify-content: center;
         align-items: center;
         flex-wrap: wrap;
+      }
+
+      .summary-search {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .summary-stats {
+        display: none;
+        gap: 20px;
+        align-items: center;
+      }
+
+      .summary-stats.show {
+        display: flex;
       }
 
       .stat-item {
@@ -370,25 +378,25 @@
             View user observation statistics and species
           </p>
         </div>
-        <div class="search-container">
-          <div class="username-search-container" style="width: 300px">
-            <input
-              type="text"
-              id="usernameInput"
-              placeholder="Enter iNaturalist username..."
-              autocomplete="off"
-              style="width: 100%"
-            />
-            <div id="usernameAutocomplete" class="username-autocomplete"></div>
-          </div>
-          <button id="searchButton">Search</button>
-        </div>
         <div class="error-message" id="errorMessage"></div>
       </header>
 
       <main>
         <div class="summary-card" id="summaryCard">
-          <div class="summary-stats">
+          <div class="summary-search">
+            <div class="username-search-container" style="width: 300px">
+              <input
+                type="text"
+                id="usernameInput"
+                placeholder="Enter iNaturalist username..."
+                autocomplete="off"
+                style="width: 100%"
+              />
+              <div id="usernameAutocomplete" class="username-autocomplete"></div>
+            </div>
+            <button id="searchButton">Search</button>
+          </div>
+          <div class="summary-stats" id="summaryStats">
             <div style="font-weight: 600; color: #2c3e50; font-size: 1rem">
               <span id="userName"></span>'s Statistics:
             </div>
@@ -512,6 +520,7 @@
       const userName = document.getElementById("userName");
       const totalObservations = document.getElementById("totalObservations");
       const totalSpecies = document.getElementById("totalSpecies");
+      const summaryStats = document.getElementById("summaryStats");
       const controls = document.getElementById("controls");
       const iconicTaxonSelect = document.getElementById("iconicTaxonSelect");
       const conservationStatusFilter = document.getElementById(
@@ -653,7 +662,7 @@
         hideError();
         loading.style.display = "block";
         speciesContainer.innerHTML = "";
-        summaryCard.classList.remove("show");
+        summaryStats.classList.remove("show");
         controls.style.display = "none";
 
         try {
@@ -723,7 +732,7 @@
           speciesData = allResults;
           totalSpecies.textContent = speciesData.length.toLocaleString();
 
-          summaryCard.classList.add("show");
+          summaryStats.classList.add("show");
           controls.style.display = "flex";
           viewControls.style.display = "flex";
 
