@@ -17,7 +17,6 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         border: 1px solid #ddd;
         padding: 15px 20px;
-        margin: 15px 0;
         display: flex;
         gap: 20px;
         justify-content: center;
@@ -392,7 +391,10 @@
                 autocomplete="off"
                 style="width: 100%"
               />
-              <div id="usernameAutocomplete" class="username-autocomplete"></div>
+              <div
+                id="usernameAutocomplete"
+                class="username-autocomplete"
+              ></div>
             </div>
             <button id="searchButton">Search</button>
           </div>
@@ -484,13 +486,7 @@
             <button id="gridViewBtn" class="view-btn active">Grid View</button>
             <button id="tableViewBtn" class="view-btn">Table View</button>
           </div>
-          <div
-            id="resultsCount"
-            style="
-              color: #666;
-              font-size: 14px;
-            "
-          ></div>
+          <div id="resultsCount" style="color: #666; font-size: 14px"></div>
         </div>
 
         <div class="loading" id="loading" style="display: none">Loading...</div>

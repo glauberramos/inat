@@ -61,7 +61,7 @@ h1 {
   font-size: 1.1rem;
   color: #666;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0 auto 20px;
   line-height: 1.6;
 }
 
@@ -166,6 +166,7 @@ button:hover {
   font-size: 1.2rem;
   color: #666;
   display: none;
+  margin-top: 20px;
 }
 
 /* Grid styles for different taxons */
