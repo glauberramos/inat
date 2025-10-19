@@ -448,9 +448,6 @@
             <button id="searchButton">Search</button>
           </div>
           <div class="summary-stats" id="summaryStats">
-            <div style="font-weight: 600; color: #2c3e50; font-size: 1rem">
-              <span id="userName"></span>'s Statistics:
-            </div>
             <div class="stat-item">
               <div class="stat-value" id="totalObservations">0</div>
               <div class="stat-label">Observations</div>
@@ -458,6 +455,14 @@
             <div class="stat-item">
               <div class="stat-value" id="totalSpecies">0</div>
               <div class="stat-label">Species</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="atRiskSpecies">0</div>
+              <div class="stat-label">Threatened Species</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="onlyObserverSpecies">0</div>
+              <div class="stat-label">Only Observer</div>
             </div>
           </div>
         </div>
@@ -504,7 +509,7 @@
               id="conservationStatusFilter"
               style="width: 16px; height: 16px; cursor: pointer"
             />
-            <span>With Conservation Status</span>
+            <span>Threatened</span>
           </label>
           <label for="sortSelect" style="margin-left: 20px">Sort by:</label>
           <select id="sortSelect">
@@ -562,9 +567,10 @@
       const speciesContainer = document.getElementById("speciesContainer");
       const errorMessage = document.getElementById("errorMessage");
       const summaryCard = document.getElementById("summaryCard");
-      const userName = document.getElementById("userName");
       const totalObservations = document.getElementById("totalObservations");
       const totalSpecies = document.getElementById("totalSpecies");
+      const atRiskSpecies = document.getElementById("atRiskSpecies");
+      const onlyObserverSpecies = document.getElementById("onlyObserverSpecies");
       const summaryStats = document.getElementById("summaryStats");
       const controls = document.getElementById("controls");
       const iconicTaxonSelect = document.getElementById("iconicTaxonSelect");
@@ -741,7 +747,6 @@
           localStorage.setItem("inatUsername", username);
 
           // Display user stats
-          userName.textContent = user.login;
           totalObservations.textContent =
             user.observations_count?.toLocaleString() || "0";
 
@@ -788,6 +793,24 @@
           speciesData = allResults;
           totalSpecies.textContent = speciesData.length.toLocaleString();
 
+          // Calculate threatened species count
+          const atRiskStatuses = ['cr', 'critically_endangered', 'en', 'endangered', 'vu', 'vulnerable', 'nt', 'near_threatened'];
+          const atRiskCount = speciesData.filter(item => {
+            if (item.taxon.conservation_status && item.taxon.conservation_status.status) {
+              return atRiskStatuses.includes(item.taxon.conservation_status.status.toLowerCase());
+            }
+            return false;
+          }).length;
+          atRiskSpecies.textContent = atRiskCount.toLocaleString();
+
+          // Calculate only observer count
+          const onlyObserverCount = speciesData.filter(item => {
+            const userCount = item.count;
+            const globalCount = item.taxon.observations_count || 0;
+            return userCount === globalCount && globalCount > 0;
+          }).length;
+          onlyObserverSpecies.textContent = onlyObserverCount.toLocaleString();
+
           summaryStats.classList.add("show");
           controls.style.display = "flex";
           viewControls.style.display = "flex";
@@ -814,13 +837,14 @@
           });
         }
 
-        // Filter by conservation status
+        // Filter by threatened conservation status
         if (onlyWithConservationStatus) {
+          const atRiskStatuses = ['cr', 'critically_endangered', 'en', 'endangered', 'vu', 'vulnerable', 'nt', 'near_threatened'];
           filteredData = filteredData.filter((item) => {
-            return (
-              item.taxon.conservation_status &&
-              item.taxon.conservation_status.status
-            );
+            if (item.taxon.conservation_status && item.taxon.conservation_status.status) {
+              return atRiskStatuses.includes(item.taxon.conservation_status.status.toLowerCase());
+            }
+            return false;
           });
         }
 
