@@ -851,6 +851,24 @@
         };
       }
 
+      function calculateRareSpeciesAchievement(observations, maxObsCount, goal) {
+        const rareSpecies = new Set();
+
+        observations.forEach((obs) => {
+          if (obs.taxon && obs.taxon.id && obs.taxon.observations_count) {
+            if (obs.taxon.observations_count < maxObsCount) {
+              rareSpecies.add(obs.taxon.id);
+            }
+          }
+        });
+
+        return {
+          current: rareSpecies.size,
+          total: goal,
+          completed: rareSpecies.size >= goal,
+        };
+      }
+
       function calculateNewYearAchievement(observations, goal) {
         let count = 0;
 
@@ -1116,6 +1134,10 @@
         const favorited10 = calculateFavoritedAchievement(allObservations, 10);
         const commented10 = calculateCommentedAchievement(allObservations, 10);
 
+        // Rare species achievements
+        const rareSpecies100 = calculateRareSpeciesAchievement(allObservations, 100, 10);
+        const rareSpecies10 = calculateRareSpeciesAchievement(allObservations, 10, 10);
+
         // Species in a day achievements
         const speciesDay10 = calculateSpeciesInDayAchievement(
           allObservations,
@@ -1216,6 +1238,8 @@
           veteran10,
           favorited10,
           commented10,
+          rareSpecies100,
+          rareSpecies10,
           ...Object.values(taxonAchievements),
         ];
         const completedCount = allAchievements.filter(
@@ -1378,6 +1402,18 @@
                 "💬",
                 "Conversation Starter",
                 "Have 10 observations that received comments"
+              )}
+              ${renderAchievementCard(
+                rareSpecies100,
+                "💎",
+                "Diamond Hunter",
+                "Observe 10 species with less than 100 total observations"
+              )}
+              ${renderAchievementCard(
+                rareSpecies10,
+                "🦄",
+                "Unicorn Spotter",
+                "Observe 10 species with less than 10 total observations"
               )}
               ${Object.entries(ICONIC_TAXONS)
                 .map(([taxon, data]) =>
