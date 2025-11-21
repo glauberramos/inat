@@ -865,7 +865,11 @@
         };
       }
 
-      function calculateRareSpeciesAchievement(observations, maxObsCount, goal) {
+      function calculateRareSpeciesAchievement(
+        observations,
+        maxObsCount,
+        goal
+      ) {
         const rareSpecies = new Set();
 
         observations.forEach((obs) => {
@@ -1149,8 +1153,16 @@
         const commented10 = calculateCommentedAchievement(allObservations, 10);
 
         // Rare species achievements
-        const rareSpecies100 = calculateRareSpeciesAchievement(allObservations, 100, 10);
-        const rareSpecies10 = calculateRareSpeciesAchievement(allObservations, 10, 10);
+        const rareSpecies100 = calculateRareSpeciesAchievement(
+          allObservations,
+          100,
+          10
+        );
+        const rareSpecies10 = calculateRareSpeciesAchievement(
+          allObservations,
+          10,
+          10
+        );
 
         // Species in a day achievements
         const speciesDay10 = calculateSpeciesInDayAchievement(
@@ -1289,49 +1301,166 @@
 
         return `
           <div class="achievements-section">
-            <h2 class="achievements-title">Achievements <span class="achievements-count">${completedCount}/${totalAchievements} (${Math.round((completedCount / totalAchievements) * 100)}%)</span></h2>
+            <h2 class="achievements-title">Achievements <span class="achievements-count">${completedCount}/${totalAchievements} (${Math.round(
+          (completedCount / totalAchievements) * 100
+        )}%)</span></h2>
 
             <h3 class="category-title">Milestones</h3>
             <div class="achievements-grid">
-              ${renderAchievementCard(obs100, "📷", "Observer", "Record 100 observations")}
-              ${renderAchievementCard(obs1000, "📷", "Dedicated Observer", "Record 1,000 observations")}
-              ${renderAchievementCard(obs10000, "📷", "Master Observer", "Record 10,000 observations")}
-              ${renderAchievementCard(species100, "🔬", "Species Spotter", "Observe 100 species")}
-              ${renderAchievementCard(species1000, "🔬", "Species Expert", "Observe 1,000 species")}
-              ${renderAchievementCard(species10000, "🔬", "Species Master", "Observe 10,000 species")}
-              ${renderAchievementCard(veteran5, "🎖️", "5-Year Veteran", "Have 10 observations from 5+ years ago")}
-              ${renderAchievementCard(veteran10, "🏅", "10-Year Veteran", "Have 10 observations from 10+ years ago")}
+              ${renderAchievementCard(
+                obs100,
+                "📷",
+                "Observer",
+                "Record 100 observations"
+              )}
+              ${renderAchievementCard(
+                obs1000,
+                "📷",
+                "Dedicated Observer",
+                "Record 1,000 observations"
+              )}
+              ${renderAchievementCard(
+                obs10000,
+                "📷",
+                "Master Observer",
+                "Record 10,000 observations"
+              )}
+              ${renderAchievementCard(
+                species100,
+                "🔬",
+                "Species Spotter",
+                "Observe 100 species"
+              )}
+              ${renderAchievementCard(
+                species1000,
+                "🔬",
+                "Species Expert",
+                "Observe 1,000 species"
+              )}
+              ${renderAchievementCard(
+                species10000,
+                "🔬",
+                "Species Master",
+                "Observe 10,000 species"
+              )}
+              ${renderAchievementCard(
+                veteran5,
+                "🎖️",
+                "5-Year Veteran",
+                "Have 10 observations from 5+ years ago"
+              )}
+              ${renderAchievementCard(
+                veteran10,
+                "🏅",
+                "10-Year Veteran",
+                "Have 10 observations from 10+ years ago"
+              )}
             </div>
 
             <h3 class="category-title">Conservation</h3>
             <div class="achievements-grid">
-              ${renderAchievementCard(threatened10, "🦁", "Conservation Ally", "Observe 10 threatened species")}
-              ${renderAchievementCard(threatened50, "🦁", "Conservation Champion", "Observe 50 threatened species")}
-              ${renderAchievementCard(threatened100, "🦁", "Conservation Hero", "Observe 100 threatened species")}
+              ${renderAchievementCard(
+                threatened10,
+                "🦁",
+                "Conservation Ally",
+                "Observe 10 threatened species"
+              )}
+              ${renderAchievementCard(
+                threatened50,
+                "🦁",
+                "Conservation Champion",
+                "Observe 50 threatened species"
+              )}
+              ${renderAchievementCard(
+                threatened100,
+                "🦁",
+                "Conservation Hero",
+                "Observe 100 threatened species"
+              )}
             </div>
 
             <h3 class="category-title">Rarity</h3>
             <div class="achievements-grid">
-              ${renderAchievementCard(onlyObserver, "⭐", "Rare Find", "Be the only observer of a species")}
-              ${renderAchievementCard(rareSpecies100, "💎", "Diamond Hunter", "Observe 10 species with less than 100 total observations")}
-              ${renderAchievementCard(rareSpecies10, "🦄", "Unicorn Spotter", "Observe 10 species with less than 10 total observations")}
+              ${renderAchievementCard(
+                onlyObserver,
+                "⭐",
+                "Rare Find",
+                "Be the only observer of a species"
+              )}
+              ${renderAchievementCard(
+                rareSpecies100,
+                "💎",
+                "Diamond Hunter",
+                "Observe 10 species with less than 100 total observations"
+              )}
+              ${renderAchievementCard(
+                rareSpecies10,
+                "🦄",
+                "Unicorn Spotter",
+                "Observe 10 species with less than 10 total observations"
+              )}
             </div>
 
             <h3 class="category-title">Time & Dedication</h3>
             <div class="achievements-grid">
-              ${renderAchievementCard(streak7, "🔥", "Week Warrior", "7-day observation streak")}
-              ${renderAchievementCard(streak30, "🔥", "Monthly Dedication", "30-day observation streak")}
-              ${renderAchievementCard(earlyBird, "🌅", "Early Bird", "50 observations before 7am")}
-              ${renderAchievementCard(nightOwl, "🦉", "Night Owl", "50 observations after 8pm")}
-              ${renderAchievementCard(newYear, "🎆", "New Year, New Observations", "10 observations on January 1st")}
-              ${renderAchievementCard(speciesDay10, "🌈", "Diversity Day", "10 species in a single day")}
-              ${renderAchievementCard(speciesDay100, "🌈", "Biodiversity Blitz", "100 species in a single day")}
+              ${renderAchievementCard(
+                streak7,
+                "🔥",
+                "Week Warrior",
+                "7-day observation streak"
+              )}
+              ${renderAchievementCard(
+                streak30,
+                "🔥",
+                "Monthly Dedication",
+                "30-day observation streak"
+              )}
+              ${renderAchievementCard(
+                earlyBird,
+                "🌅",
+                "Early Bird",
+                "50 observations before 7am"
+              )}
+              ${renderAchievementCard(
+                nightOwl,
+                "🦉",
+                "Night Owl",
+                "50 observations after 8pm"
+              )}
+              ${renderAchievementCard(
+                newYear,
+                "🎆",
+                "New Year, New Observations",
+                "10 observations on January 1st"
+              )}
+              ${renderAchievementCard(
+                speciesDay10,
+                "🌈",
+                "Diversity Day",
+                "10 species in a single day"
+              )}
+              ${renderAchievementCard(
+                speciesDay100,
+                "🌈",
+                "Biodiversity Blitz",
+                "100 species in a single day"
+              )}
             </div>
 
             <h3 class="category-title">Community</h3>
             <div class="achievements-grid">
-              ${renderAchievementCard(favorited10, "❤️", "Fan Favorite", "Have 10 observations that were favorited")}
-              ${renderAchievementCard(commented10, "💬", "Conversation Starter", "Have 10 observations that received comments")}
+              ${renderAchievementCard(
+                favorited10,
+                "❤️",
+                "Fan Favorite",
+                "Have 10 observations that were favorited"
+              )}
+              ${renderAchievementCard(
+                commented10,
+                "💬",
+                "Conversation Starter",
+                "Have 10 observations that received comments"
+              )}
             </div>
 
             <h3 class="category-title">Taxonomy</h3>
@@ -1346,8 +1475,12 @@
                   )
                 )
                 .join("")}
-              <div class="achievement-card ${iconicTaxonAchievement.completed ? "completed" : ""}">
-                <div class="achievement-icon">${iconicTaxonAchievement.completed ? "🏆" : "🌍"}</div>
+              <div class="achievement-card ${
+                iconicTaxonAchievement.completed ? "completed" : ""
+              }">
+                <div class="achievement-icon">${
+                  iconicTaxonAchievement.completed ? "🏆" : "🌍"
+                }</div>
                 <div class="achievement-content">
                   <div class="achievement-name">Biodiversity Explorer</div>
                   <div class="achievement-description">Observe all iconic taxons</div>
@@ -1355,7 +1488,9 @@
                     <div class="progress-bar">
                       <div class="progress-fill" style="width: ${iconicPercentage}%"></div>
                     </div>
-                    <div class="progress-text">${iconicTaxonAchievement.current}/${iconicTaxonAchievement.total}</div>
+                    <div class="progress-text">${
+                      iconicTaxonAchievement.current
+                    }/${iconicTaxonAchievement.total}</div>
                   </div>
                   <div class="taxon-icons">${taxonIconsHtml}</div>
                 </div>
@@ -1364,44 +1499,73 @@
 
             <h3 class="category-title">Geography & Seasons</h3>
             <div class="achievements-grid">
-              <div class="achievement-card ${continentsAchievement.completed ? "completed" : ""}">
-                <div class="achievement-icon">${continentsAchievement.completed ? "🏆" : "✈️"}</div>
+              <div class="achievement-card ${
+                continentsAchievement.completed ? "completed" : ""
+              }">
+                <div class="achievement-icon">${
+                  continentsAchievement.completed ? "🏆" : "✈️"
+                }</div>
                 <div class="achievement-content">
                   <div class="achievement-name">World Traveler</div>
                   <div class="achievement-description">Observe in all 7 continents</div>
                   <div class="achievement-progress">
                     <div class="progress-bar">
-                      <div class="progress-fill" style="width: ${(continentsAchievement.current / continentsAchievement.total) * 100}%"></div>
+                      <div class="progress-fill" style="width: ${
+                        (continentsAchievement.current /
+                          continentsAchievement.total) *
+                        100
+                      }%"></div>
                     </div>
-                    <div class="progress-text">${continentsAchievement.current}/${continentsAchievement.total}</div>
+                    <div class="progress-text">${
+                      continentsAchievement.current
+                    }/${continentsAchievement.total}</div>
                   </div>
                   <div class="taxon-icons">${continentIconsHtml}</div>
                 </div>
               </div>
-              <div class="achievement-card ${seasonsAchievement.completed ? "completed" : ""}">
-                <div class="achievement-icon">${seasonsAchievement.completed ? "🏆" : "📅"}</div>
+              <div class="achievement-card ${
+                seasonsAchievement.completed ? "completed" : ""
+              }">
+                <div class="achievement-icon">${
+                  seasonsAchievement.completed ? "🏆" : "📅"
+                }</div>
                 <div class="achievement-content">
                   <div class="achievement-name">Year-Round Observer</div>
                   <div class="achievement-description">Observe in all 4 seasons</div>
                   <div class="achievement-progress">
                     <div class="progress-bar">
-                      <div class="progress-fill" style="width: ${(seasonsAchievement.current / seasonsAchievement.total) * 100}%"></div>
+                      <div class="progress-fill" style="width: ${
+                        (seasonsAchievement.current /
+                          seasonsAchievement.total) *
+                        100
+                      }%"></div>
                     </div>
-                    <div class="progress-text">${seasonsAchievement.current}/${seasonsAchievement.total}</div>
+                    <div class="progress-text">${seasonsAchievement.current}/${
+          seasonsAchievement.total
+        }</div>
                   </div>
                   <div class="taxon-icons">${seasonIconsHtml}</div>
                 </div>
               </div>
-              <div class="achievement-card ${monthsAchievement.completed ? "completed" : ""}">
-                <div class="achievement-icon">${monthsAchievement.completed ? "🏆" : "📆"}</div>
+              <div class="achievement-card ${
+                monthsAchievement.completed ? "completed" : ""
+              }">
+                <div class="achievement-icon">${
+                  monthsAchievement.completed ? "🏆" : "📆"
+                }</div>
                 <div class="achievement-content">
                   <div class="achievement-name">Monthly Observer</div>
                   <div class="achievement-description">Observe in all 12 months</div>
                   <div class="achievement-progress">
                     <div class="progress-bar">
-                      <div class="progress-fill" style="width: ${(monthsAchievement.current / monthsAchievement.total) * 100}%"></div>
+                      <div class="progress-fill" style="width: ${
+                        (monthsAchievement.current / monthsAchievement.total) *
+                        100
+                      }%"></div>
                     </div>
-                    <div class="progress-text">${monthsAchievement.current}/${monthsAchievement.total}</div>
+                    <div class="progress-text">${monthsAchievement.current}/${
+          monthsAchievement.total
+        }</div>
                   </div>
                   <div class="taxon-icons">${monthIconsHtml}</div>
                 </div>
@@ -1416,5 +1580,16 @@
       data-domain="glauberramos.github.io/inat"
       src="https://plausible.io/js/script.js"
     ></script>
+    <script type="text/javascript">
+      window.$pipeback = [];
+      window.PIPEBACK_ID = "a069b910-4aef-4233-99cc-913e7fb30fb5";
+      (function () {
+        d = document;
+        s = d.createElement("script");
+        s.src = "https://widget.pipeback.com/l.js";
+        s.async = 1;
+        d.getElementsByTagName("head")[0].appendChild(s);
+      })();
+    </script>
   </body>
 </html>

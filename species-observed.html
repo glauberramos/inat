@@ -570,7 +570,9 @@
       const totalObservations = document.getElementById("totalObservations");
       const totalSpecies = document.getElementById("totalSpecies");
       const atRiskSpecies = document.getElementById("atRiskSpecies");
-      const onlyObserverSpecies = document.getElementById("onlyObserverSpecies");
+      const onlyObserverSpecies = document.getElementById(
+        "onlyObserverSpecies"
+      );
       const summaryStats = document.getElementById("summaryStats");
       const controls = document.getElementById("controls");
       const iconicTaxonSelect = document.getElementById("iconicTaxonSelect");
@@ -794,17 +796,31 @@
           totalSpecies.textContent = speciesData.length.toLocaleString();
 
           // Calculate threatened species count
-          const atRiskStatuses = ['cr', 'critically_endangered', 'en', 'endangered', 'vu', 'vulnerable', 'nt', 'near_threatened'];
-          const atRiskCount = speciesData.filter(item => {
-            if (item.taxon.conservation_status && item.taxon.conservation_status.status) {
-              return atRiskStatuses.includes(item.taxon.conservation_status.status.toLowerCase());
+          const atRiskStatuses = [
+            "cr",
+            "critically_endangered",
+            "en",
+            "endangered",
+            "vu",
+            "vulnerable",
+            "nt",
+            "near_threatened",
+          ];
+          const atRiskCount = speciesData.filter((item) => {
+            if (
+              item.taxon.conservation_status &&
+              item.taxon.conservation_status.status
+            ) {
+              return atRiskStatuses.includes(
+                item.taxon.conservation_status.status.toLowerCase()
+              );
             }
             return false;
           }).length;
           atRiskSpecies.textContent = atRiskCount.toLocaleString();
 
           // Calculate only observer count
-          const onlyObserverCount = speciesData.filter(item => {
+          const onlyObserverCount = speciesData.filter((item) => {
             const userCount = item.count;
             const globalCount = item.taxon.observations_count || 0;
             return userCount === globalCount && globalCount > 0;
@@ -839,10 +855,24 @@
 
         // Filter by threatened conservation status
         if (onlyWithConservationStatus) {
-          const atRiskStatuses = ['cr', 'critically_endangered', 'en', 'endangered', 'vu', 'vulnerable', 'nt', 'near_threatened'];
+          const atRiskStatuses = [
+            "cr",
+            "critically_endangered",
+            "en",
+            "endangered",
+            "vu",
+            "vulnerable",
+            "nt",
+            "near_threatened",
+          ];
           filteredData = filteredData.filter((item) => {
-            if (item.taxon.conservation_status && item.taxon.conservation_status.status) {
-              return atRiskStatuses.includes(item.taxon.conservation_status.status.toLowerCase());
+            if (
+              item.taxon.conservation_status &&
+              item.taxon.conservation_status.status
+            ) {
+              return atRiskStatuses.includes(
+                item.taxon.conservation_status.status.toLowerCase()
+              );
             }
             return false;
           });
@@ -1182,5 +1212,16 @@
       data-domain="glauberramos.github.io/inat"
       src="https://plausible.io/js/script.js"
     ></script>
+    <script type="text/javascript">
+      window.$pipeback = [];
+      window.PIPEBACK_ID = "a069b910-4aef-4233-99cc-913e7fb30fb5";
+      (function () {
+        d = document;
+        s = d.createElement("script");
+        s.src = "https://widget.pipeback.com/l.js";
+        s.async = 1;
+        d.getElementsByTagName("head")[0].appendChild(s);
+      })();
+    </script>
   </body>
 </html>
