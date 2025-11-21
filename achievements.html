@@ -146,8 +146,9 @@
       }
 
       .achievement-card.completed {
-        border-color: #74ac00;
-        background: linear-gradient(to right, rgba(116, 172, 0, 0.05), white);
+        border: 3px solid #74ac00;
+        background: linear-gradient(to right, rgba(116, 172, 0, 0.1), white);
+        box-shadow: 0 2px 8px rgba(116, 172, 0, 0.25);
       }
 
       .achievement-icon {
@@ -774,21 +775,21 @@
           now.getDate()
         );
 
-        let hasOldObservation = false;
+        let count = 0;
 
         observations.forEach((obs) => {
           if (obs.observed_on) {
             const obsDate = new Date(obs.observed_on);
             if (obsDate <= cutoffDate) {
-              hasOldObservation = true;
+              count++;
             }
           }
         });
 
         return {
-          current: hasOldObservation ? 1 : 0,
+          current: count,
           total: 1,
-          completed: hasOldObservation,
+          completed: count >= 1,
         };
       }
 
