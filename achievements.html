@@ -235,6 +235,17 @@
       .taxon-icon:hover {
         transform: scale(1.1);
       }
+
+      .taxon-icon.month-icon {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #999;
+      }
+
+      .taxon-icon.month-icon.observed {
+        color: #74ac00;
+      }
+
     </style>
   </head>
   <body>
@@ -261,10 +272,21 @@
       onmouseover="this.style.background='#659900'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.2)'"
       onmouseout="this.style.background='#74ac00'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.15)'"
     >
-      <span style="font-size: 1rem">�</span> More iNat tools
+      <span style="font-size: 1rem">←</span> More iNat tools
     </a>
-    <div style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; text-align: center; padding: 12px 20px; font-size: 0.9rem; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-      <span style="margin-right: 8px;">🚧</span> This feature is still in beta - some achievements may not work as expected
+    <div
+      style="
+        background: linear-gradient(135deg, #f39c12, #e67e22);
+        color: white;
+        text-align: center;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      "
+    >
+      <span style="margin-right: 8px">🚧</span> This feature is still in beta -
+      some achievements may not work as expected
     </div>
     <div class="container">
       <header>
@@ -310,7 +332,9 @@
           </div>
         </div>
 
-        <div class="loading" id="loading" style="display: none">Loading...</div>
+        <div class="loading" id="loading" style="display: none">
+          Loading... <span id="loadingCount"></span>
+        </div>
         <div id="achievementsContainer"></div>
       </main>
     </div>
@@ -510,6 +534,7 @@
       async function loadAllObservations(userId) {
         const perPage = 200;
         const today = new Date().toISOString().split("T")[0];
+        const loadingCount = document.getElementById("loadingCount");
         let allResults = [];
         let page = 1;
         let hasMore = true;
@@ -522,6 +547,7 @@
 
           if (data.results && data.results.length > 0) {
             allResults = allResults.concat(data.results);
+            loadingCount.textContent = `(${allResults.length.toLocaleString()} observations)`;
             page++;
             hasMore = data.results.length === perPage;
           } else {
@@ -589,12 +615,12 @@
       }
 
       const CONTINENTS = {
-        "North America": "🌎",
-        "South America": "🌎",
-        Europe: "🌍",
-        Africa: "🌍",
-        Asia: "🌏",
-        Oceania: "🌏",
+        "North America": "🦅",
+        "South America": "🦜",
+        Europe: "🦌",
+        Africa: "🦁",
+        Asia: "🐼",
+        Oceania: "🦘",
         Antarctica: "🐧",
       };
 
@@ -693,18 +719,18 @@
       }
 
       const MONTHS = {
-        Jan: "1️⃣",
-        Feb: "2️⃣",
-        Mar: "3️⃣",
-        Apr: "4️⃣",
-        May: "5️⃣",
-        Jun: "6️⃣",
-        Jul: "7️⃣",
-        Aug: "8️⃣",
-        Sep: "9️⃣",
-        Oct: "🔟",
-        Nov: "🔢",
-        Dec: "🎄",
+        Jan: "Jan",
+        Feb: "Feb",
+        Mar: "Mar",
+        Apr: "Apr",
+        May: "May",
+        Jun: "Jun",
+        Jul: "Jul",
+        Aug: "Aug",
+        Sep: "Sep",
+        Oct: "Oct",
+        Nov: "Nov",
+        Dec: "Dec",
       };
 
       function calculateMonthsAchievement(observations) {
@@ -767,7 +793,7 @@
         };
       }
 
-      function calculateVeteranAchievement(observations, years) {
+      function calculateVeteranAchievement(observations, years, goal) {
         const now = new Date();
         const cutoffDate = new Date(
           now.getFullYear() - years,
@@ -788,8 +814,8 @@
 
         return {
           current: count,
-          total: 1,
-          completed: count >= 1,
+          total: goal,
+          completed: count >= goal,
         };
       }
 
@@ -798,7 +824,6 @@
 
         observations.forEach((obs) => {
           if (obs.faves_count && obs.faves_count > 0) {
-            console.log("favorited", obs.uri);
             count++;
           }
         });
@@ -884,13 +909,11 @@
             if (startHour < endHour) {
               // Normal range (e.g., 0-7 for early bird)
               if (hour >= startHour && hour < endHour) {
-                console.log("early bird", obs.uri);
                 count++;
               }
             } else {
               // Wrap around range (e.g., 20-24 for night owl)
               if (hour >= startHour || hour < endHour) {
-                console.log("night owl", obs.uri);
                 count++;
               }
             }
@@ -1086,8 +1109,8 @@
         const newYear = calculateNewYearAchievement(allObservations, 10);
 
         // Veteran achievements
-        const veteran5 = calculateVeteranAchievement(allObservations, 5);
-        const veteran10 = calculateVeteranAchievement(allObservations, 10);
+        const veteran5 = calculateVeteranAchievement(allObservations, 5, 10);
+        const veteran10 = calculateVeteranAchievement(allObservations, 10, 10);
 
         // Favorited and commented achievements
         const favorited10 = calculateFavoritedAchievement(allObservations, 10);
@@ -1131,7 +1154,7 @@
             const isObserved =
               continentsAchievement.observedContinents.has(name);
             return `
-              <div class="taxon-icon ${
+              <div class="taxon-icon continent-icon ${
                 isObserved ? "observed" : ""
               }" title="${name}">
                 ${emoji}
@@ -1154,13 +1177,13 @@
           .join("");
 
         const monthIconsHtml = Object.entries(MONTHS)
-          .map(([name, emoji]) => {
+          .map(([name, label]) => {
             const isObserved = monthsAchievement.observedMonths.has(name);
             return `
-              <div class="taxon-icon ${
+              <div class="taxon-icon month-icon ${
                 isObserved ? "observed" : ""
               }" title="${name}">
-                ${emoji}
+                ${label}
               </div>
             `;
           })
@@ -1336,13 +1359,13 @@
                 veteran5,
                 "🎖️",
                 "5-Year Veteran",
-                "Have an observation from 5+ years ago"
+                "Have 10 observations from 5+ years ago"
               )}
               ${renderAchievementCard(
                 veteran10,
                 "🏅",
                 "10-Year Veteran",
-                "Have an observation from 10+ years ago"
+                "Have 10 observations from 10+ years ago"
               )}
               ${renderAchievementCard(
                 favorited10,
