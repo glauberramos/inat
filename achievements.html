@@ -1251,7 +1251,7 @@
 
         return `
           <div class="achievements-section">
-            <h2 class="achievements-title">Achievements <span class="achievements-count">${completedCount}/${totalAchievements}</span></h2>
+            <h2 class="achievements-title">Achievements <span class="achievements-count">${completedCount}/${totalAchievements} (${Math.round((completedCount / totalAchievements) * 100)}%)</span></h2>
             <div class="achievements-grid">
               ${renderAchievementCard(
                 obs100,
