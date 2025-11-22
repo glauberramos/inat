@@ -117,8 +117,20 @@
         border-color: #444;
       }
 
+      body.dark-mode .username-suggestion {
+        border-bottom-color: #444;
+      }
+
       body.dark-mode .username-suggestion:hover {
         background: #3d3d3d;
+      }
+
+      body.dark-mode .username-name {
+        color: #e0e0e0;
+      }
+
+      body.dark-mode .username-info {
+        color: #aaa;
       }
 
       body.dark-mode .summary-stat-label,
@@ -615,6 +627,7 @@
 
           const observationsCount = user.observations_count || 0;
           const speciesCount = speciesData.total_results || 0;
+          const identificationsCount = user.identifications_count || 0;
 
           // Load all observations
           allObservations = await loadAllObservations(userId);
@@ -629,7 +642,8 @@
           // Display achievements
           achievementsContainer.innerHTML = renderAchievements(
             observationsCount,
-            speciesCount
+            speciesCount,
+            identificationsCount
           );
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -1327,7 +1341,7 @@
         };
       }
 
-      function renderAchievements(observationsCount, speciesCount) {
+      function renderAchievements(observationsCount, speciesCount, identificationsCount) {
         const iconicTaxonAchievement =
           calculateIconicTaxonAchievement(allObservations);
         const iconicPercentage =
@@ -1355,6 +1369,11 @@
         const species100 = calculateCountAchievement(speciesCount, 100);
         const species1000 = calculateCountAchievement(speciesCount, 1000);
         const species10000 = calculateCountAchievement(speciesCount, 10000);
+
+        // Identification achievements
+        const ids100 = calculateCountAchievement(identificationsCount, 100);
+        const ids1000 = calculateCountAchievement(identificationsCount, 1000);
+        const ids10000 = calculateCountAchievement(identificationsCount, 10000);
 
         // Only observer achievement
         const onlyObserver = calculateOnlyObserverAchievement(allObservations);
@@ -1503,6 +1522,9 @@
           species100,
           species1000,
           species10000,
+          ids100,
+          ids1000,
+          ids10000,
           threatened10,
           threatened50,
           threatened100,
@@ -1615,6 +1637,28 @@
                 "🏅",
                 "10-Year Veteran",
                 "Have 10 observations from 10+ years ago"
+              )}
+            </div>
+
+            <h3 class="category-title">Identifications</h3>
+            <div class="achievements-grid">
+              ${renderAchievementCard(
+                ids100,
+                "🏷️",
+                "Identifier",
+                "Make 100 identifications"
+              )}
+              ${renderAchievementCard(
+                ids1000,
+                "🏷️",
+                "Dedicated Identifier",
+                "Make 1,000 identifications"
+              )}
+              ${renderAchievementCard(
+                ids10000,
+                "🏷️",
+                "Master Identifier",
+                "Make 10,000 identifications"
               )}
             </div>
 
