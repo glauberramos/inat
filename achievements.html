@@ -661,6 +661,17 @@
             });
           }
 
+          // Fetch identification species counts (for others' observations)
+          const idSpeciesResponse = await fetch(
+            `https://api.inaturalist.org/v1/identifications/species_counts?own_observation=false&user_id=${userId}&per_page=1`
+          );
+          const idSpeciesData = await idSpeciesResponse.json();
+          // Find max count for any single species
+          let maxSpeciesIdCount = 0;
+          if (idSpeciesData.results && idSpeciesData.results.length > 0) {
+            maxSpeciesIdCount = idSpeciesData.results[0].count;
+          }
+
           // Load all observations
           allObservations = await loadAllObservations(userId);
 
@@ -676,7 +687,8 @@
             observationsCount,
             speciesCount,
             identificationsCount,
-            idCategories
+            idCategories,
+            maxSpeciesIdCount
           );
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -1368,7 +1380,8 @@
         observationsCount,
         speciesCount,
         identificationsCount,
-        idCategories
+        idCategories,
+        maxSpeciesIdCount
       ) {
         const iconicTaxonAchievement =
           calculateIconicTaxonAchievement(allObservations);
@@ -1404,18 +1417,34 @@
         const ids10000 = calculateCountAchievement(identificationsCount, 10000);
 
         // Identification category achievements (for others' observations)
-        const idsSupporting = calculateCountAchievement(
+        const idsSupporting100 = calculateCountAchievement(
           idCategories.supporting || 0,
           100
         );
-        const idsImproving = calculateCountAchievement(
+        const idsSupporting1000 = calculateCountAchievement(
+          idCategories.supporting || 0,
+          1000
+        );
+        const idsImproving100 = calculateCountAchievement(
           idCategories.improving || 0,
           100
         );
-        const idsLeading = calculateCountAchievement(
+        const idsImproving1000 = calculateCountAchievement(
+          idCategories.improving || 0,
+          1000
+        );
+        const idsLeading100 = calculateCountAchievement(
           idCategories.leading || 0,
           100
         );
+        const idsLeading1000 = calculateCountAchievement(
+          idCategories.leading || 0,
+          1000
+        );
+
+        // Species identification expert achievements
+        const idsSpecies100 = calculateCountAchievement(maxSpeciesIdCount, 100);
+        const idsSpecies1000 = calculateCountAchievement(maxSpeciesIdCount, 1000);
 
         // Only observer achievement
         const onlyObserver = calculateOnlyObserverAchievement(allObservations);
@@ -1576,9 +1605,14 @@
           ids100,
           ids1000,
           ids10000,
-          idsSupporting,
-          idsImproving,
-          idsLeading,
+          idsSupporting100,
+          idsSupporting1000,
+          idsImproving100,
+          idsImproving1000,
+          idsLeading100,
+          idsLeading1000,
+          idsSpecies100,
+          idsSpecies1000,
           threatened10,
           threatened50,
           threatened100,
@@ -1691,46 +1725,6 @@
                 "🏅",
                 "10-Year Veteran",
                 "Have 10 observations from 10+ years ago"
-              )}
-            </div>
-
-            <h3 class="category-title">Identifications</h3>
-            <div class="achievements-grid">
-              ${renderAchievementCard(
-                ids100,
-                "🏷️",
-                "Identifier",
-                "Make 100 identifications"
-              )}
-              ${renderAchievementCard(
-                ids1000,
-                "🏷️",
-                "Dedicated Identifier",
-                "Make 1,000 identifications"
-              )}
-              ${renderAchievementCard(
-                ids10000,
-                "🏷️",
-                "Master Identifier",
-                "Make 10,000 identifications"
-              )}
-              ${renderAchievementCard(
-                idsSupporting,
-                "👍",
-                "Supporter",
-                "Make 100 supporting identifications"
-              )}
-              ${renderAchievementCard(
-                idsImproving,
-                "📈",
-                "Improver",
-                "Make 100 improving identifications"
-              )}
-              ${renderAchievementCard(
-                idsLeading,
-                "🥇",
-                "Leader",
-                "Make 100 leading identifications"
               )}
             </div>
 
@@ -1849,6 +1843,76 @@
                 "💬",
                 "Conversation Starter",
                 "Have 10 observations that received comments"
+              )}
+            </div>
+
+            <h3 class="category-title">Identifications</h3>
+            <div class="achievements-grid">
+              ${renderAchievementCard(
+                ids100,
+                "🏷️",
+                "Identifier",
+                "Make 100 identifications"
+              )}
+              ${renderAchievementCard(
+                ids1000,
+                "🏷️",
+                "Dedicated Identifier",
+                "Make 1,000 identifications"
+              )}
+              ${renderAchievementCard(
+                ids10000,
+                "🏷️",
+                "Master Identifier",
+                "Make 10,000 identifications"
+              )}
+              ${renderAchievementCard(
+                idsSupporting100,
+                "👍",
+                "Supporter",
+                "Make 100 supporting identifications"
+              )}
+              ${renderAchievementCard(
+                idsSupporting1000,
+                "👍",
+                "Super Supporter",
+                "Make 1,000 supporting identifications"
+              )}
+              ${renderAchievementCard(
+                idsImproving100,
+                "📈",
+                "Improver",
+                "Make 100 improving identifications"
+              )}
+              ${renderAchievementCard(
+                idsImproving1000,
+                "📈",
+                "Super Improver",
+                "Make 1,000 improving identifications"
+              )}
+              ${renderAchievementCard(
+                idsLeading100,
+                "🥇",
+                "Leader",
+                "Make 100 leading identifications"
+              )}
+              ${renderAchievementCard(
+                idsLeading1000,
+                "🥇",
+                "Super Leader",
+                "Make 1,000 leading identifications"
+              )}
+              ${renderAchievementCard(
+                idsSpecies100,
+                "🔍",
+                "Species Specialist",
+                "Identify a species 100 times"
+              )}
+              ${renderAchievementCard(
+                idsSpecies1000,
+                "🔍",
+                "Species Expert",
+                "Identify a species 1,000 times"
               )}
             </div>
 
