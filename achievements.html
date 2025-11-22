@@ -691,8 +691,8 @@
 
         loadingCount.textContent = `(${allResults.length.toLocaleString()} of ${totalResults.toLocaleString()} observations)`;
 
-        // Load remaining pages 3 at a time
-        const concurrentRequests = 3;
+        // Load remaining pages 2 at a time
+        const concurrentRequests = 2;
         let currentPage = 2;
 
         while (currentPage <= totalPages) {
