@@ -1622,8 +1622,8 @@
         const newYear = calculateNewYearAchievement(allObservations, 10);
 
         // Veteran achievements
-        const veteran5 = calculateVeteranAchievement(allObservations, 5, 10);
-        const veteran10 = calculateVeteranAchievement(allObservations, 10, 10);
+        const veteran5 = calculateVeteranAchievement(allObservations, 5, 1);
+        const veteran10 = calculateVeteranAchievement(allObservations, 10, 1);
 
         // Favorited and commented achievements
         const favorited10 = calculateFavoritedAchievement(allObservations, 10);
@@ -1855,13 +1855,13 @@
                 veteran5,
                 "🎖️",
                 "5-Year Veteran",
-                "Have 10 observations from 5+ years ago"
+                "Have an observation from 5+ years ago"
               )}
               ${renderAchievementCard(
                 veteran10,
                 "🏅",
                 "10-Year Veteran",
-                "Have 10 observations from 10+ years ago"
+                "Have an observation from 10+ years ago"
               )}
             </div>
 
