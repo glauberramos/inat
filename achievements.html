@@ -468,15 +468,6 @@
         <div id="achievementsContainer"></div>
       </main>
     </div>
-    <footer
-      style="text-align: center; padding: 40px 20px 20px; margin-top: 40px"
-    >
-      <img
-        src="powered_by.png"
-        alt="Powered By"
-        style="max-width: 180px; height: auto; opacity: 0.8"
-      />
-    </footer>
     <script>
       const usernameInput = document.getElementById("usernameInput");
       const usernameAutocomplete = document.getElementById(
@@ -965,6 +956,22 @@
         };
       }
 
+      function calculateMostFavoritedAchievement(observations, minFaves) {
+        let count = 0;
+
+        observations.forEach((obs) => {
+          if (obs.faves_count && obs.faves_count >= minFaves) {
+            count++;
+          }
+        });
+
+        return {
+          current: count,
+          total: 1,
+          completed: count >= 1,
+        };
+      }
+
       function calculateCommentedAchievement(observations, goal) {
         let count = 0;
 
@@ -978,6 +985,32 @@
           current: count,
           total: goal,
           completed: count >= goal,
+        };
+      }
+
+      function calculateObservationsInDayAchievement(observations, goal) {
+        // Group observations by date
+        const obsByDate = {};
+
+        observations.forEach((obs) => {
+          if (obs.observed_on) {
+            if (!obsByDate[obs.observed_on]) {
+              obsByDate[obs.observed_on] = 0;
+            }
+            obsByDate[obs.observed_on]++;
+          }
+        });
+
+        // Find max observations in a single day
+        let maxObs = 0;
+        Object.values(obsByDate).forEach((count) => {
+          maxObs = Math.max(maxObs, count);
+        });
+
+        return {
+          current: maxObs,
+          total: goal,
+          completed: maxObs >= goal,
         };
       }
 
@@ -1266,6 +1299,7 @@
 
         // Favorited and commented achievements
         const favorited10 = calculateFavoritedAchievement(allObservations, 10);
+        const mostFavorited10 = calculateMostFavoritedAchievement(allObservations, 10);
         const commented10 = calculateCommentedAchievement(allObservations, 10);
 
         // Rare species achievements
@@ -1286,6 +1320,12 @@
           10
         );
         const speciesDay100 = calculateSpeciesInDayAchievement(
+          allObservations,
+          100
+        );
+
+        // Observations in a day achievement
+        const obsDay100 = calculateObservationsInDayAchievement(
           allObservations,
           100
         );
@@ -1376,9 +1416,11 @@
           newYear,
           speciesDay10,
           speciesDay100,
+          obsDay100,
           veteran5,
           veteran10,
           favorited10,
+          mostFavorited10,
           commented10,
           rareSpecies100,
           rareSpecies10,
@@ -1559,6 +1601,12 @@
                 "Biodiversity Blitz",
                 "100 species in a single day"
               )}
+              ${renderAchievementCard(
+                obsDay100,
+                "📸",
+                "Photo Marathon",
+                "100 observations in a single day"
+              )}
             </div>
 
             <h3 class="category-title">Community</h3>
@@ -1568,6 +1616,12 @@
                 "❤️",
                 "Fan Favorite",
                 "Have 10 observations that were favorited"
+              )}
+              ${renderAchievementCard(
+                mostFavorited10,
+                "🌟",
+                "Superstar",
+                "Have an observation with 10+ favorites"
               )}
               ${renderAchievementCard(
                 commented10,
