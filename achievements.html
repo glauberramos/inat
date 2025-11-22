@@ -194,20 +194,23 @@
         color: #74ac00;
       }
 
-      .summary-stat-label {
-        font-size: 0.85rem;
-        color: #666;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-weight: 600;
+      .achievements-progress {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #74ac00;
+        padding: 8px 14px;
+        background: #e8f5e9;
+        border-radius: 8px;
+        display: none;
       }
 
-      .summary-stat-value {
-        background: linear-gradient(135deg, #74ac00, #5d8a00);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-shadow: 0 2px 10px rgba(116, 172, 0, 0.2);
+      .achievements-progress.show {
+        display: inline-block;
+      }
+
+      body.dark-mode .achievements-progress {
+        background: rgba(116, 172, 0, 0.2);
+        color: #9acd32;
       }
 
       .error-message {
@@ -536,20 +539,7 @@
         <div class="header-content">
           <div class="title-container">
             <img src="logo.png" alt="iNaturalist Logo" class="logo" />
-            <h1>
-              Achievements
-              <span
-                style="
-                  font-size: 0.5em;
-                  background: #f39c12;
-                  color: white;
-                  padding: 4px 8px;
-                  border-radius: 4px;
-                  vertical-align: middle;
-                "
-                >Beta</span
-              >
-            </h1>
+            <h1>Achievements</h1>
           </div>
           <p class="description">
             Track your iNaturalist milestones and achievements
@@ -575,16 +565,7 @@
               ></div>
             </div>
             <button id="loadButton">Load</button>
-          </div>
-          <div class="summary-stats" id="summaryStats">
-            <div class="summary-stat-item">
-              <div class="summary-stat-value" id="totalObservations">0</div>
-              <div class="summary-stat-label">Observations</div>
-            </div>
-            <div class="summary-stat-item">
-              <div class="summary-stat-value" id="totalSpecies">0</div>
-              <div class="summary-stat-label">Species</div>
-            </div>
+            <span id="achievementsProgress" class="achievements-progress"></span>
           </div>
         </div>
 
@@ -605,9 +586,7 @@
         "achievementsContainer"
       );
       const errorMessage = document.getElementById("errorMessage");
-      const summaryStats = document.getElementById("summaryStats");
-      const totalObservationsEl = document.getElementById("totalObservations");
-      const totalSpeciesEl = document.getElementById("totalSpecies");
+      const achievementsProgress = document.getElementById("achievementsProgress");
 
       let searchTimeout = null;
       let allObservations = [];
@@ -724,7 +703,7 @@
         hideError();
         loading.style.display = "block";
         achievementsContainer.innerHTML = "";
-        summaryStats.classList.remove("show");
+        achievementsProgress.classList.remove("show");
         document.getElementById("loadingCount").textContent = "";
 
         try {
@@ -786,19 +765,20 @@
 
           loading.style.display = "none";
 
-          // Update and show summary stats
-          totalObservationsEl.textContent = observationsCount.toLocaleString();
-          totalSpeciesEl.textContent = speciesCount.toLocaleString();
-          summaryStats.classList.add("show");
-
-          // Display achievements
-          achievementsContainer.innerHTML = renderAchievements(
+          // Display achievements and get progress
+          const { html, completedCount, totalAchievements } = renderAchievements(
             observationsCount,
             speciesCount,
             identificationsCount,
             idCategories,
             maxSpeciesIdCount
           );
+          achievementsContainer.innerHTML = html;
+
+          // Update achievements progress
+          const percentage = Math.round((completedCount / totalAchievements) * 100);
+          achievementsProgress.textContent = `${completedCount}/${totalAchievements} (${percentage}%)`;
+          achievementsProgress.classList.add("show");
         } catch (error) {
           console.error("Error fetching user data:", error);
           loading.style.display = "none";
@@ -1779,12 +1759,8 @@
           `;
         }
 
-        return `
+        const html = `
           <div class="achievements-section">
-            <h2 class="achievements-title">Achievements <span class="achievements-count">${completedCount}/${totalAchievements} (${Math.round(
-          (completedCount / totalAchievements) * 100
-        )}%)</span></h2>
-
             <h3 class="category-title">Milestones</h3>
             <div class="achievements-grid">
               ${renderAchievementCard(
@@ -2145,6 +2121,8 @@
             </div>
           </div>
         `;
+
+        return { html, completedCount, totalAchievements };
       }
     </script>
     <script>
