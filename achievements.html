@@ -69,8 +69,14 @@
 
       body.dark-mode .achievement-card.completed {
         border-color: #74ac00;
-        background: linear-gradient(135deg, #2d3d25 0%, #253020 50%, #2d2d2d 100%);
-        box-shadow: 0 4px 15px rgba(116, 172, 0, 0.25), 0 0 25px rgba(116, 172, 0, 0.1);
+        background: linear-gradient(
+          135deg,
+          #2d3d25 0%,
+          #253020 50%,
+          #2d2d2d 100%
+        );
+        box-shadow: 0 4px 15px rgba(116, 172, 0, 0.25),
+          0 0 25px rgba(116, 172, 0, 0.1);
       }
 
       body.dark-mode .achievement-card.completed .achievement-name {
@@ -98,7 +104,11 @@
 
       body.dark-mode .category-title {
         color: #ccc;
-        background: linear-gradient(90deg, rgba(116, 172, 0, 0.15) 0%, transparent 100%);
+        background: linear-gradient(
+          90deg,
+          rgba(116, 172, 0, 0.15) 0%,
+          transparent 100%
+        );
         border-left-color: #74ac00;
       }
 
@@ -287,8 +297,13 @@
       }
 
       @keyframes countPulse {
-        0%, 100% { box-shadow: 0 2px 8px rgba(116, 172, 0, 0.3); }
-        50% { box-shadow: 0 2px 15px rgba(116, 172, 0, 0.5); }
+        0%,
+        100% {
+          box-shadow: 0 2px 8px rgba(116, 172, 0, 0.3);
+        }
+        50% {
+          box-shadow: 0 2px 15px rgba(116, 172, 0, 0.5);
+        }
       }
 
       .achievements-grid {
@@ -318,13 +333,20 @@
 
       .achievement-card.completed {
         border: 2px solid #74ac00;
-        background: linear-gradient(135deg, #f0f9e8 0%, #e8f5e0 50%, #ffffff 100%);
-        box-shadow: 0 4px 15px rgba(116, 172, 0, 0.3), 0 0 20px rgba(116, 172, 0, 0.1);
+        background: linear-gradient(
+          135deg,
+          #f0f9e8 0%,
+          #e8f5e0 50%,
+          #ffffff 100%
+        );
+        box-shadow: 0 4px 15px rgba(116, 172, 0, 0.3),
+          0 0 20px rgba(116, 172, 0, 0.1);
       }
 
       .achievement-card.completed:hover {
         transform: translateY(-3px) scale(1.01);
-        box-shadow: 0 8px 25px rgba(116, 172, 0, 0.35), 0 0 30px rgba(116, 172, 0, 0.15);
+        box-shadow: 0 8px 25px rgba(116, 172, 0, 0.35),
+          0 0 30px rgba(116, 172, 0, 0.15);
       }
 
       .achievement-icon {
@@ -342,9 +364,15 @@
       }
 
       @keyframes iconPop {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); }
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.2);
+        }
+        100% {
+          transform: scale(1);
+        }
       }
 
       .achievement-card:hover .achievement-icon {
@@ -414,7 +442,7 @@
       }
 
       .achievement-card.completed .progress-text::after {
-        content: ' ✓';
+        content: " ✓";
       }
 
       .taxon-icons {
@@ -437,7 +465,7 @@
         filter: grayscale(100%);
         transition: all 0.3s ease;
         border: 2px solid #ddd;
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
       }
 
       .taxon-icon.observed {
@@ -450,9 +478,17 @@
       }
 
       @keyframes iconUnlock {
-        0% { transform: scale(0.8); opacity: 0; }
-        50% { transform: scale(1.1); }
-        100% { transform: scale(1); opacity: 1; }
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
       }
 
       .taxon-icon.observed::after {
@@ -461,7 +497,7 @@
 
       .taxon-icon:hover {
         transform: scale(1.15);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
 
       .taxon-icon.month-icon {
@@ -480,7 +516,11 @@
         color: #555;
         margin: 30px 0 16px 0;
         padding: 8px 12px;
-        background: linear-gradient(90deg, rgba(116, 172, 0, 0.1) 0%, transparent 100%);
+        background: linear-gradient(
+          90deg,
+          rgba(116, 172, 0, 0.1) 0%,
+          transparent 100%
+        );
         border-left: 4px solid #74ac00;
         border-radius: 0 8px 8px 0;
         text-transform: uppercase;
@@ -492,7 +532,7 @@
       }
 
       .category-title::before {
-        content: '🏆';
+        content: "🏆";
         font-size: 1rem;
       }
 
@@ -565,7 +605,10 @@
               ></div>
             </div>
             <button id="loadButton">Load</button>
-            <span id="achievementsProgress" class="achievements-progress"></span>
+            <span
+              id="achievementsProgress"
+              class="achievements-progress"
+            ></span>
           </div>
         </div>
 
@@ -586,7 +629,9 @@
         "achievementsContainer"
       );
       const errorMessage = document.getElementById("errorMessage");
-      const achievementsProgress = document.getElementById("achievementsProgress");
+      const achievementsProgress = document.getElementById(
+        "achievementsProgress"
+      );
 
       let searchTimeout = null;
       let allObservations = [];
@@ -766,17 +811,20 @@
           loading.style.display = "none";
 
           // Display achievements and get progress
-          const { html, completedCount, totalAchievements } = renderAchievements(
-            observationsCount,
-            speciesCount,
-            identificationsCount,
-            idCategories,
-            maxSpeciesIdCount
-          );
+          const { html, completedCount, totalAchievements } =
+            renderAchievements(
+              observationsCount,
+              speciesCount,
+              identificationsCount,
+              idCategories,
+              maxSpeciesIdCount
+            );
           achievementsContainer.innerHTML = html;
 
           // Update achievements progress
-          const percentage = Math.round((completedCount / totalAchievements) * 100);
+          const percentage = Math.round(
+            (completedCount / totalAchievements) * 100
+          );
           achievementsProgress.textContent = `${completedCount}/${totalAchievements} (${percentage}%)`;
           achievementsProgress.classList.add("show");
         } catch (error) {
@@ -1442,9 +1490,10 @@
         const raptorSpecies = new Set();
         // Birds of prey ancestor IDs
         const RAPTOR_ANCESTOR_IDS = [
-          71261, // Accipitriformes (hawks, eagles, kites, etc.)
+          71261, // Accipitriformes (hawks, eagles, kites, Old World vultures)
           67570, // Falconiformes (falcons)
           19350, // Strigiformes (owls)
+          559244, // Cathartiformes (New World vultures)
         ];
 
         observations.forEach((obs) => {
@@ -1533,7 +1582,10 @@
 
         // Species identification expert achievements
         const idsSpecies100 = calculateCountAchievement(maxSpeciesIdCount, 100);
-        const idsSpecies1000 = calculateCountAchievement(maxSpeciesIdCount, 1000);
+        const idsSpecies1000 = calculateCountAchievement(
+          maxSpeciesIdCount,
+          1000
+        );
 
         // Only observer achievement
         const onlyObserver = calculateOnlyObserverAchievement(allObservations);
