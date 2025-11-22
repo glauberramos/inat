@@ -642,24 +642,45 @@
         const perPage = 200;
         const today = new Date().toISOString().split("T")[0];
         const loadingCount = document.getElementById("loadingCount");
-        let allResults = [];
-        let page = 1;
-        let hasMore = true;
+        const baseUrl = `https://api.inaturalist.org/v1/observations?user_id=${userId}&per_page=${perPage}&d2=${today}&order_by=observed_on&captive=false&verifiable=true`;
 
-        while (hasMore) {
-          const response = await fetch(
-            `https://api.inaturalist.org/v1/observations?user_id=${userId}&per_page=${perPage}&page=${page}&d2=${today}&order_by=observed_on&captive=false&verifiable=true`
-          );
-          const data = await response.json();
+        // First, load page 1 to get total_results
+        const firstResponse = await fetch(`${baseUrl}&page=1`);
+        const firstData = await firstResponse.json();
 
-          if (data.results && data.results.length > 0) {
-            allResults = allResults.concat(data.results);
-            loadingCount.textContent = `(${allResults.length.toLocaleString()} observations)`;
-            page++;
-            hasMore = data.results.length === perPage;
-          } else {
-            hasMore = false;
+        if (!firstData.results || firstData.results.length === 0) {
+          return [];
+        }
+
+        let allResults = firstData.results;
+        const totalResults = firstData.total_results;
+        const totalPages = Math.ceil(totalResults / perPage);
+
+        loadingCount.textContent = `(${allResults.length.toLocaleString()} of ${totalResults.toLocaleString()} observations)`;
+
+        // Load remaining pages 4 at a time
+        const concurrentRequests = 4;
+        let currentPage = 2;
+
+        while (currentPage <= totalPages) {
+          const pagesToFetch = [];
+          for (let i = 0; i < concurrentRequests && currentPage <= totalPages; i++) {
+            pagesToFetch.push(currentPage);
+            currentPage++;
           }
+
+          const responses = await Promise.all(
+            pagesToFetch.map(page => fetch(`${baseUrl}&page=${page}`))
+          );
+          const dataArrays = await Promise.all(responses.map(r => r.json()));
+
+          dataArrays.forEach(data => {
+            if (data.results && data.results.length > 0) {
+              allResults = allResults.concat(data.results);
+            }
+          });
+
+          loadingCount.textContent = `(${allResults.length.toLocaleString()} of ${totalResults.toLocaleString()} observations)`;
         }
 
         return allResults;
