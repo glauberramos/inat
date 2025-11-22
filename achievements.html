@@ -616,6 +616,7 @@
         loading.style.display = "block";
         achievementsContainer.innerHTML = "";
         summaryStats.classList.remove("show");
+        document.getElementById("loadingCount").textContent = "";
 
         try {
           // Get user info
@@ -1340,7 +1341,7 @@
         const raptorSpecies = new Set();
         // Birds of prey ancestor IDs
         const RAPTOR_ANCESTOR_IDS = [
-          3658, // Accipitriformes (hawks, eagles, kites, etc.)
+          71261, // Accipitriformes (hawks, eagles, kites, etc.)
           67570, // Falconiformes (falcons)
           19350, // Strigiformes (owls)
         ];
@@ -1403,9 +1404,18 @@
         const ids10000 = calculateCountAchievement(identificationsCount, 10000);
 
         // Identification category achievements (for others' observations)
-        const idsSupporting = calculateCountAchievement(idCategories.supporting || 0, 100);
-        const idsImproving = calculateCountAchievement(idCategories.improving || 0, 100);
-        const idsLeading = calculateCountAchievement(idCategories.leading || 0, 100);
+        const idsSupporting = calculateCountAchievement(
+          idCategories.supporting || 0,
+          100
+        );
+        const idsImproving = calculateCountAchievement(
+          idCategories.improving || 0,
+          100
+        );
+        const idsLeading = calculateCountAchievement(
+          idCategories.leading || 0,
+          100
+        );
 
         // Only observer achievement
         const onlyObserver = calculateOnlyObserverAchievement(allObservations);
