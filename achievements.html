@@ -11,6 +11,121 @@
     />
     <link rel="stylesheet" href="styles.css" />
     <style>
+      /* Dark mode toggle */
+      .dark-mode-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #74ac00;
+        border: none;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        cursor: pointer;
+        font-size: 1.3rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .dark-mode-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Dark mode styles */
+      body.dark-mode {
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+      }
+
+      body.dark-mode .container {
+        background-color: #1a1a1a;
+      }
+
+      body.dark-mode h1,
+      body.dark-mode h2,
+      body.dark-mode h3 {
+        color: #e0e0e0;
+      }
+
+      body.dark-mode .description {
+        color: #aaa;
+      }
+
+      body.dark-mode .summary-card,
+      body.dark-mode .achievement-card,
+      body.dark-mode .stats-card {
+        background: #2d2d2d;
+        border-color: #444;
+      }
+
+      body.dark-mode .achievement-card.completed {
+        border-color: #74ac00;
+        background: linear-gradient(to right, rgba(116, 172, 0, 0.15), #2d2d2d);
+      }
+
+      body.dark-mode input,
+      body.dark-mode select {
+        background: #3d3d3d;
+        border-color: #555;
+        color: #e0e0e0;
+      }
+
+      body.dark-mode input::placeholder {
+        color: #888;
+      }
+
+      body.dark-mode .achievement-name {
+        color: #e0e0e0;
+      }
+
+      body.dark-mode .achievement-description {
+        color: #aaa;
+      }
+
+      body.dark-mode .category-title {
+        color: #aaa;
+        border-bottom-color: #444;
+      }
+
+      body.dark-mode .progress-bar {
+        background: #444;
+      }
+
+      body.dark-mode .taxon-icon {
+        background: #3d3d3d;
+      }
+
+      body.dark-mode .taxon-icon.observed {
+        background: rgba(116, 172, 0, 0.2);
+      }
+
+      body.dark-mode .taxon-icon.month-icon {
+        color: #666;
+      }
+
+      body.dark-mode .taxon-icon.month-icon.observed {
+        color: #74ac00;
+      }
+
+      body.dark-mode .username-autocomplete {
+        background: #2d2d2d;
+        border-color: #444;
+      }
+
+      body.dark-mode .username-suggestion:hover {
+        background: #3d3d3d;
+      }
+
+      body.dark-mode .summary-stat-label,
+      body.dark-mode .stat-label {
+        color: #aaa;
+      }
+
       .summary-card {
         background: white;
         border-radius: 8px;
@@ -263,6 +378,7 @@
     </style>
   </head>
   <body>
+    <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">🌙</button>
     <a
       href="/inat"
       style="
@@ -1564,6 +1680,24 @@
           </div>
         `;
       }
+    </script>
+    <script>
+      // Dark mode functionality
+      const darkModeToggle = document.getElementById('darkModeToggle');
+
+      // Load dark mode preference from localStorage
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+        darkModeToggle.textContent = '☀️';
+      }
+
+      // Toggle dark mode
+      darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDarkMode);
+        darkModeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+      });
     </script>
     <script
       defer
