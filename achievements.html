@@ -390,7 +390,13 @@
     </style>
   </head>
   <body>
-    <button class="dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode">🌙</button>
+    <button
+      class="dark-mode-toggle"
+      id="darkModeToggle"
+      title="Toggle dark mode"
+    >
+      🌙
+    </button>
     <a
       href="/inat"
       style="
@@ -421,7 +427,20 @@
         <div class="header-content">
           <div class="title-container">
             <img src="logo.png" alt="iNaturalist Logo" class="logo" />
-            <h1>Achievements <span style="font-size: 0.5em; background: #f39c12; color: white; padding: 4px 8px; border-radius: 4px; vertical-align: middle;">Beta</span></h1>
+            <h1>
+              Achievements
+              <span
+                style="
+                  font-size: 0.5em;
+                  background: #f39c12;
+                  color: white;
+                  padding: 4px 8px;
+                  border-radius: 4px;
+                  vertical-align: middle;
+                "
+                >Beta</span
+              >
+            </h1>
           </div>
           <p class="description">
             Track your iNaturalist milestones and achievements
@@ -672,23 +691,27 @@
 
         loadingCount.textContent = `(${allResults.length.toLocaleString()} of ${totalResults.toLocaleString()} observations)`;
 
-        // Load remaining pages 4 at a time
-        const concurrentRequests = 4;
+        // Load remaining pages 3 at a time
+        const concurrentRequests = 3;
         let currentPage = 2;
 
         while (currentPage <= totalPages) {
           const pagesToFetch = [];
-          for (let i = 0; i < concurrentRequests && currentPage <= totalPages; i++) {
+          for (
+            let i = 0;
+            i < concurrentRequests && currentPage <= totalPages;
+            i++
+          ) {
             pagesToFetch.push(currentPage);
             currentPage++;
           }
 
           const responses = await Promise.all(
-            pagesToFetch.map(page => fetch(`${baseUrl}&page=${page}`))
+            pagesToFetch.map((page) => fetch(`${baseUrl}&page=${page}`))
           );
-          const dataArrays = await Promise.all(responses.map(r => r.json()));
+          const dataArrays = await Promise.all(responses.map((r) => r.json()));
 
-          dataArrays.forEach(data => {
+          dataArrays.forEach((data) => {
             if (data.results && data.results.length > 0) {
               allResults = allResults.concat(data.results);
             }
@@ -1281,15 +1304,15 @@
         // Trees are typically in these orders/families
         const TREE_ANCESTOR_IDS = [
           136329, // Pinopsida (conifers)
-          47375,  // Pinales (pine order)
-          47562,  // Fagales (oaks, beeches, birches)
-          47196,  // Sapindales (maples, horse chestnuts)
-          48515,  // Rosales (includes some trees)
-          51028,  // Malvales (includes lindens)
-          47163,  // Fabales (includes acacias, locust trees)
-          71274,  // Ericales (includes some trees)
-          52295,  // Laurales
-          47178,  // Magnoliales
+          47375, // Pinales (pine order)
+          47562, // Fagales (oaks, beeches, birches)
+          47196, // Sapindales (maples, horse chestnuts)
+          48515, // Rosales (includes some trees)
+          51028, // Malvales (includes lindens)
+          47163, // Fabales (includes acacias, locust trees)
+          71274, // Ericales (includes some trees)
+          52295, // Laurales
+          47178, // Magnoliales
         ];
 
         observations.forEach((obs) => {
@@ -1318,9 +1341,9 @@
         const raptorSpecies = new Set();
         // Birds of prey ancestor IDs
         const RAPTOR_ANCESTOR_IDS = [
-          3658,   // Accipitriformes (hawks, eagles, kites, etc.)
-          67570,  // Falconiformes (falcons)
-          19350,  // Strigiformes (owls)
+          3658, // Accipitriformes (hawks, eagles, kites, etc.)
+          67570, // Falconiformes (falcons)
+          19350, // Strigiformes (owls)
         ];
 
         observations.forEach((obs) => {
@@ -1341,7 +1364,11 @@
         };
       }
 
-      function renderAchievements(observationsCount, speciesCount, identificationsCount) {
+      function renderAchievements(
+        observationsCount,
+        speciesCount,
+        identificationsCount
+      ) {
         const iconicTaxonAchievement =
           calculateIconicTaxonAchievement(allObservations);
         const iconicPercentage =
@@ -1415,7 +1442,10 @@
 
         // Favorited and commented achievements
         const favorited10 = calculateFavoritedAchievement(allObservations, 10);
-        const mostFavorited10 = calculateMostFavoritedAchievement(allObservations, 10);
+        const mostFavorited10 = calculateMostFavoritedAchievement(
+          allObservations,
+          10
+        );
         const commented10 = calculateCommentedAchievement(allObservations, 10);
 
         // Rare species achievements
@@ -1457,9 +1487,15 @@
         });
 
         // New specialty achievements
-        const lepidopterist = calculateLepidopteristAchievement(allObservations, 100);
+        const lepidopterist = calculateLepidopteristAchievement(
+          allObservations,
+          100
+        );
         const treeHugger = calculateTreeHuggerAchievement(allObservations, 100);
-        const raptorWatcher = calculateRaptorWatcherAchievement(allObservations, 25);
+        const raptorWatcher = calculateRaptorWatcherAchievement(
+          allObservations,
+          25
+        );
 
         const taxonIconsHtml = Object.entries(ICONIC_TAXONS)
           .map(([key, value]) => {
@@ -1904,20 +1940,20 @@
     </script>
     <script>
       // Dark mode functionality
-      const darkModeToggle = document.getElementById('darkModeToggle');
+      const darkModeToggle = document.getElementById("darkModeToggle");
 
       // Load dark mode preference from localStorage
-      if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-        darkModeToggle.textContent = '☀️';
+      if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
+        darkModeToggle.textContent = "☀️";
       }
 
       // Toggle dark mode
-      darkModeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        const isDarkMode = document.body.classList.contains('dark-mode');
-        localStorage.setItem('darkMode', isDarkMode);
-        darkModeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+      darkModeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        const isDarkMode = document.body.classList.contains("dark-mode");
+        localStorage.setItem("darkMode", isDarkMode);
+        darkModeToggle.textContent = isDarkMode ? "☀️" : "🌙";
       });
     </script>
     <script
