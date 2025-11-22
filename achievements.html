@@ -688,10 +688,10 @@
         const perPage = 200;
         const today = new Date().toISOString().split("T")[0];
         const loadingCount = document.getElementById("loadingCount");
-        const baseUrl = `https://api.inaturalist.org/v1/observations?user_id=${userId}&per_page=${perPage}&d2=${today}&order_by=observed_on&captive=false&verifiable=true`;
+        const baseUrl = `https://api.inaturalist.org/v1/observations?user_id=${userId}&per_page=${perPage}&d2=${today}&order_by=id&order=asc&captive=false&verifiable=true`;
 
-        // First, load page 1 to get total_results
-        const firstResponse = await fetch(`${baseUrl}&page=1`);
+        // First, load initial batch to get total_results
+        const firstResponse = await fetch(baseUrl);
         const firstData = await firstResponse.json();
 
         if (!firstData.results || firstData.results.length === 0) {
@@ -700,35 +700,21 @@
 
         let allResults = firstData.results;
         const totalResults = firstData.total_results;
-        const totalPages = Math.ceil(totalResults / perPage);
+        let lastId = firstData.results[firstData.results.length - 1].id;
 
         loadingCount.textContent = `(${allResults.length.toLocaleString()} of ${totalResults.toLocaleString()} observations)`;
 
-        // Load remaining pages 2 at a time
-        const concurrentRequests = 2;
-        let currentPage = 2;
+        // Use id_above to fetch beyond 10k limit
+        while (allResults.length < totalResults) {
+          const response = await fetch(`${baseUrl}&id_above=${lastId}`);
+          const data = await response.json();
 
-        while (currentPage <= totalPages) {
-          const pagesToFetch = [];
-          for (
-            let i = 0;
-            i < concurrentRequests && currentPage <= totalPages;
-            i++
-          ) {
-            pagesToFetch.push(currentPage);
-            currentPage++;
+          if (!data.results || data.results.length === 0) {
+            break;
           }
 
-          const responses = await Promise.all(
-            pagesToFetch.map((page) => fetch(`${baseUrl}&page=${page}`))
-          );
-          const dataArrays = await Promise.all(responses.map((r) => r.json()));
-
-          dataArrays.forEach((data) => {
-            if (data.results && data.results.length > 0) {
-              allResults = allResults.concat(data.results);
-            }
-          });
+          allResults = allResults.concat(data.results);
+          lastId = data.results[data.results.length - 1].id;
 
           loadingCount.textContent = `(${allResults.length.toLocaleString()} of ${totalResults.toLocaleString()} observations)`;
         }
