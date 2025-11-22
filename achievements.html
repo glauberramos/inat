@@ -57,15 +57,24 @@
       }
 
       body.dark-mode .summary-card,
-      body.dark-mode .achievement-card,
       body.dark-mode .stats-card {
         background: #2d2d2d;
         border-color: #444;
       }
 
+      body.dark-mode .achievement-card {
+        background: linear-gradient(135deg, #2d2d2d 0%, #252525 100%);
+        border-color: #444;
+      }
+
       body.dark-mode .achievement-card.completed {
         border-color: #74ac00;
-        background: linear-gradient(to right, rgba(116, 172, 0, 0.15), #2d2d2d);
+        background: linear-gradient(135deg, #2d3d25 0%, #253020 50%, #2d2d2d 100%);
+        box-shadow: 0 4px 15px rgba(116, 172, 0, 0.25), 0 0 25px rgba(116, 172, 0, 0.1);
+      }
+
+      body.dark-mode .achievement-card.completed .achievement-name {
+        color: #9acd32;
       }
 
       body.dark-mode input,
@@ -84,16 +93,22 @@
       }
 
       body.dark-mode .achievement-description {
-        color: #aaa;
+        color: #999;
       }
 
       body.dark-mode .category-title {
-        color: #aaa;
-        border-bottom-color: #444;
+        color: #ccc;
+        background: linear-gradient(90deg, rgba(116, 172, 0, 0.15) 0%, transparent 100%);
+        border-left-color: #74ac00;
       }
 
       body.dark-mode .progress-bar {
-        background: #444;
+        background: linear-gradient(to bottom, #333, #3d3d3d);
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+
+      body.dark-mode .achievement-card:not(.completed) .achievement-icon {
+        filter: grayscale(60%) opacity(0.5);
       }
 
       body.dark-mode .taxon-icon {
@@ -180,8 +195,19 @@
       }
 
       .summary-stat-label {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+      }
+
+      .summary-stat-value {
+        background: linear-gradient(135deg, #74ac00, #5d8a00);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 2px 10px rgba(116, 172, 0, 0.2);
       }
 
       .error-message {
@@ -247,12 +273,19 @@
 
       .achievements-count {
         font-size: 1rem;
-        color: #74ac00;
-        font-weight: 600;
-        background: #e8f5e9;
-        padding: 4px 10px;
-        border-radius: 12px;
-        margin-left: 8px;
+        color: #fff;
+        font-weight: 700;
+        background: linear-gradient(135deg, #74ac00 0%, #5d8a00 100%);
+        padding: 6px 14px;
+        border-radius: 20px;
+        margin-left: 10px;
+        box-shadow: 0 2px 8px rgba(116, 172, 0, 0.3);
+        animation: countPulse 2s infinite;
+      }
+
+      @keyframes countPulse {
+        0%, 100% { box-shadow: 0 2px 8px rgba(116, 172, 0, 0.3); }
+        50% { box-shadow: 0 2px 15px rgba(116, 172, 0, 0.5); }
       }
 
       .achievements-grid {
@@ -262,24 +295,57 @@
       }
 
       .achievement-card {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        border: 1px solid #ddd;
-        padding: 15px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 2px solid #e0e0e0;
+        padding: 16px;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .achievement-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
       }
 
       .achievement-card.completed {
-        border: 3px solid #74ac00;
-        background: linear-gradient(to right, rgba(116, 172, 0, 0.1), white);
-        box-shadow: 0 2px 8px rgba(116, 172, 0, 0.25);
+        border: 2px solid #74ac00;
+        background: linear-gradient(135deg, #f0f9e8 0%, #e8f5e0 50%, #ffffff 100%);
+        box-shadow: 0 4px 15px rgba(116, 172, 0, 0.3), 0 0 20px rgba(116, 172, 0, 0.1);
+      }
+
+      .achievement-card.completed:hover {
+        transform: translateY(-3px) scale(1.01);
+        box-shadow: 0 8px 25px rgba(116, 172, 0, 0.35), 0 0 30px rgba(116, 172, 0, 0.15);
       }
 
       .achievement-icon {
-        font-size: 2rem;
+        font-size: 2.2rem;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        transition: all 0.3s ease;
+      }
+
+      .achievement-card:not(.completed) .achievement-icon {
+        filter: grayscale(50%) opacity(0.6);
+      }
+
+      .achievement-card.completed .achievement-icon {
+        animation: iconPop 0.5s ease;
+      }
+
+      @keyframes iconPop {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+      }
+
+      .achievement-card:hover .achievement-icon {
+        transform: scale(1.1);
       }
 
       .achievement-content {
@@ -289,15 +355,21 @@
 
       .achievement-name {
         font-size: 1rem;
-        font-weight: 600;
+        font-weight: 700;
         color: #2c3e50;
-        margin-bottom: 3px;
+        margin-bottom: 4px;
+        letter-spacing: 0.3px;
+      }
+
+      .achievement-card.completed .achievement-name {
+        color: #4a7c00;
       }
 
       .achievement-description {
         font-size: 0.8rem;
-        color: #666;
-        margin-bottom: 8px;
+        color: #777;
+        margin-bottom: 10px;
+        line-height: 1.3;
       }
 
       .achievement-progress {
@@ -308,24 +380,38 @@
 
       .progress-bar {
         flex: 1;
-        height: 8px;
-        background: #eee;
-        border-radius: 4px;
+        height: 10px;
+        background: #d0d0d0;
+        border-radius: 5px;
         overflow: hidden;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
       }
 
       .progress-fill {
         height: 100%;
-        background: #74ac00;
-        border-radius: 4px;
-        transition: width 0.3s;
+        background: linear-gradient(90deg, #8bc34a 0%, #74ac00 100%);
+        border-radius: 5px;
+        transition: width 0.5s ease-out;
+      }
+
+      .achievement-card.completed .progress-fill {
+        background: linear-gradient(90deg, #74ac00 0%, #5d8a00 100%);
       }
 
       .progress-text {
-        font-size: 0.9rem;
-        font-weight: 600;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #666;
+        min-width: 55px;
+        text-align: right;
+      }
+
+      .achievement-card.completed .progress-text {
         color: #74ac00;
-        min-width: 50px;
+      }
+
+      .achievement-card.completed .progress-text::after {
+        content: ' ✓';
       }
 
       .taxon-icons {
@@ -337,22 +423,33 @@
 
       .taxon-icon {
         font-size: 1.5rem;
-        width: 40px;
-        height: 40px;
+        width: 42px;
+        height: 42px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 8px;
-        background: #f5f5f5;
-        opacity: 0.3;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #f0f0f0, #e5e5e5);
+        opacity: 0.4;
         filter: grayscale(100%);
-        transition: all 0.3s;
+        transition: all 0.3s ease;
+        border: 2px solid #ddd;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
       }
 
       .taxon-icon.observed {
         opacity: 1;
         filter: grayscale(0%);
-        background: #e8f5e9;
+        background: linear-gradient(135deg, #e8f5e0, #d4edcc);
+        border-color: #74ac00;
+        box-shadow: 0 2px 8px rgba(116, 172, 0, 0.25);
+        animation: iconUnlock 0.5s ease;
+      }
+
+      @keyframes iconUnlock {
+        0% { transform: scale(0.8); opacity: 0; }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); opacity: 1; }
       }
 
       .taxon-icon.observed::after {
@@ -360,28 +457,40 @@
       }
 
       .taxon-icon:hover {
-        transform: scale(1.1);
+        transform: scale(1.15);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       }
 
       .taxon-icon.month-icon {
         font-size: 0.75rem;
-        font-weight: 600;
-        color: #999;
+        font-weight: 700;
+        color: #aaa;
       }
 
       .taxon-icon.month-icon.observed {
         color: #74ac00;
+        text-shadow: 0 1px 2px rgba(116, 172, 0, 0.3);
       }
 
       .category-title {
         font-size: 1.1rem;
-        color: #666;
-        margin: 25px 0 12px 0;
-        padding-bottom: 8px;
-        border-bottom: 2px solid #eee;
+        color: #555;
+        margin: 30px 0 16px 0;
+        padding: 8px 12px;
+        background: linear-gradient(90deg, rgba(116, 172, 0, 0.1) 0%, transparent 100%);
+        border-left: 4px solid #74ac00;
+        border-radius: 0 8px 8px 0;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: 600;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .category-title::before {
+        content: '🏆';
+        font-size: 1rem;
       }
 
       .category-title:first-of-type {
