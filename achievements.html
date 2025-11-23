@@ -1495,48 +1495,6 @@
         };
       }
 
-      // Tree Hugger: Observe tree species (using common tree taxa)
-      function calculateTreeHuggerAchievement(observations, goal) {
-        const treeSpecies = new Set();
-        // Common tree ancestor IDs in iNaturalist
-        // 47375 = Magnoliopsida (flowering plants, includes many trees)
-        // 136329 = Pinopsida (conifers)
-        // Using a simpler approach: check for plant species with tree-like ranks
-        // Trees are typically in these orders/families
-        const TREE_ANCESTOR_IDS = [
-          136329, // Pinopsida (conifers)
-          47375, // Pinales (pine order)
-          47562, // Fagales (oaks, beeches, birches)
-          47196, // Sapindales (maples, horse chestnuts)
-          48515, // Rosales (includes some trees)
-          51028, // Malvales (includes lindens)
-          47163, // Fabales (includes acacias, locust trees)
-          71274, // Ericales (includes some trees)
-          52295, // Laurales
-          47178, // Magnoliales
-        ];
-
-        observations.forEach((obs) => {
-          if (obs.taxon && obs.taxon.id && obs.taxon.ancestor_ids) {
-            // Check if it's a plant and belongs to tree-like groups
-            if (obs.taxon.iconic_taxon_name === "Plantae") {
-              for (const treeId of TREE_ANCESTOR_IDS) {
-                if (obs.taxon.ancestor_ids.includes(treeId)) {
-                  treeSpecies.add(obs.taxon.id);
-                  break;
-                }
-              }
-            }
-          }
-        });
-
-        return {
-          current: treeSpecies.size,
-          total: goal,
-          completed: treeSpecies.size >= goal,
-        };
-      }
-
       function calculateAccountAgeAchievement(createdAt, years) {
         if (!createdAt) {
           return { current: 0, total: 1, completed: false };
@@ -1771,7 +1729,6 @@
           total: 100,
           completed: lepidopteraSpeciesCount >= 100,
         };
-        const treeHugger = calculateTreeHuggerAchievement(allObservations, 100);
         const raptorWatcher = {
           current: raptorSpeciesCount,
           total: 25,
@@ -1887,7 +1844,6 @@
           rareSpecies100,
           rareSpecies10,
           lepidopterist,
-          treeHugger,
           raptorWatcher,
           ...Object.values(taxonAchievements),
         ];
@@ -2392,13 +2348,6 @@
                 "Lepidopterist",
                 "Observe 100 butterfly & moth species",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=47157`
-              )}
-              ${renderAchievementCard(
-                treeHugger,
-                "🌳",
-                "Tree Hugger",
-                "Observe 100 tree species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=47126`
               )}
               ${renderAchievementCard(
                 raptorWatcher,
