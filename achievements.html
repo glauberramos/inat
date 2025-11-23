@@ -641,7 +641,6 @@
       const ICONIC_TAXONS = {
         Plantae: { emoji: "🌿", name: "Plants", id: 47126 },
         Fungi: { emoji: "🍄", name: "Fungi", id: 47170 },
-        Animalia: { emoji: "🐾", name: "Other Animals", id: 48222 },
         Mollusca: { emoji: "🐌", name: "Mollusks", id: 47115 },
         Arachnida: { emoji: "🕷️", name: "Arachnids", id: 47119 },
         Insecta: { emoji: "🦋", name: "Insects", id: 47158 },
@@ -829,14 +828,21 @@
             `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=71261,67570,19350,559244&per_page=1&captive=false&verifiable=true`
           ).then((res) => res.json());
 
-          const [lepidopteraData, raptorData] = await Promise.all([
+          // Fetch Beetle species count (Coleoptera - taxon_id 47208)
+          const beetlePromise = fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=47208&per_page=1&captive=false&verifiable=true`
+          ).then((res) => res.json());
+
+          const [lepidopteraData, raptorData, beetleData] = await Promise.all([
             lepidopteraPromise,
             raptorPromise,
+            beetlePromise,
             ...taxonPromises,
           ]);
 
           const lepidopteraSpeciesCount = lepidopteraData.total_results || 0;
           const raptorSpeciesCount = raptorData.total_results || 0;
+          const beetleSpeciesCount = beetleData.total_results || 0;
 
           // Load all observations
           const obsResult = await loadAllObservations(userId);
@@ -856,7 +862,8 @@
               userCreatedAt,
               iconicTaxonSpeciesCounts,
               lepidopteraSpeciesCount,
-              raptorSpeciesCount
+              raptorSpeciesCount,
+              beetleSpeciesCount
             );
           achievementsContainer.innerHTML = html;
 
@@ -1520,7 +1527,8 @@
         userCreatedAt,
         iconicTaxonSpeciesCounts,
         lepidopteraSpeciesCount,
-        raptorSpeciesCount
+        raptorSpeciesCount,
+        beetleSpeciesCount
       ) {
         const iconicTaxonAchievement =
           calculateIconicTaxonAchievement(allObservations);
@@ -1734,6 +1742,11 @@
           total: 25,
           completed: raptorSpeciesCount >= 25,
         };
+        const coleopterist = {
+          current: beetleSpeciesCount,
+          total: 100,
+          completed: beetleSpeciesCount >= 100,
+        };
 
         const taxonIconsHtml = Object.entries(ICONIC_TAXONS)
           .map(([key, value]) => {
@@ -1845,6 +1858,7 @@
           rareSpecies10,
           lepidopterist,
           raptorWatcher,
+          coleopterist,
           ...Object.values(taxonAchievements),
         ];
         const completedCount = allAchievements.filter(
@@ -2355,6 +2369,13 @@
                 "Raptor Watcher",
                 "Observe 25 birds of prey species",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=71261,67570,19350,559244`
+              )}
+              ${renderAchievementCard(
+                coleopterist,
+                "🪲",
+                "Coleopterist",
+                "Observe 100 beetle species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=47208`
               )}
             </div>
 
