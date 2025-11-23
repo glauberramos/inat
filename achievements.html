@@ -833,16 +833,51 @@
             `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=47208&per_page=1&captive=false&verifiable=true`
           ).then((res) => res.json());
 
-          const [lepidopteraData, raptorData, beetleData] = await Promise.all([
+          // Fetch Bee species count (Anthophila - taxon_id 630955)
+          const beePromise = fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=630955&per_page=1&captive=false&verifiable=true`
+          ).then((res) => res.json());
+
+          // Fetch Cetacea species count (Whales & Dolphins - taxon_id 152871)
+          const cetaceaPromise = fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=152871&per_page=1&captive=false&verifiable=true`
+          ).then((res) => res.json());
+
+          // Fetch Anura species count (Frogs & Toads - taxon_id 20979)
+          const anuraPromise = fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=20979&per_page=1&captive=false&verifiable=true`
+          ).then((res) => res.json());
+
+          // Fetch Serpentes species count (Snakes - taxon_id 85553)
+          const serpentesPromise = fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=85553&per_page=1&captive=false&verifiable=true`
+          ).then((res) => res.json());
+
+          // Fetch Testudines species count (Turtles - taxon_id 39532)
+          const turtlePromise = fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=39532&per_page=1&captive=false&verifiable=true`
+          ).then((res) => res.json());
+
+          const [lepidopteraData, raptorData, beetleData, beeData, cetaceaData, anuraData, serpentesData, turtleData] = await Promise.all([
             lepidopteraPromise,
             raptorPromise,
             beetlePromise,
+            beePromise,
+            cetaceaPromise,
+            anuraPromise,
+            serpentesPromise,
+            turtlePromise,
             ...taxonPromises,
           ]);
 
           const lepidopteraSpeciesCount = lepidopteraData.total_results || 0;
           const raptorSpeciesCount = raptorData.total_results || 0;
           const beetleSpeciesCount = beetleData.total_results || 0;
+          const beeSpeciesCount = beeData.total_results || 0;
+          const cetaceaSpeciesCount = cetaceaData.total_results || 0;
+          const anuraSpeciesCount = anuraData.total_results || 0;
+          const serpentesSpeciesCount = serpentesData.total_results || 0;
+          const turtleSpeciesCount = turtleData.total_results || 0;
 
           // Load all observations
           const obsResult = await loadAllObservations(userId);
@@ -863,7 +898,12 @@
               iconicTaxonSpeciesCounts,
               lepidopteraSpeciesCount,
               raptorSpeciesCount,
-              beetleSpeciesCount
+              beetleSpeciesCount,
+              beeSpeciesCount,
+              cetaceaSpeciesCount,
+              anuraSpeciesCount,
+              serpentesSpeciesCount,
+              turtleSpeciesCount
             );
           achievementsContainer.innerHTML = html;
 
@@ -1528,7 +1568,12 @@
         iconicTaxonSpeciesCounts,
         lepidopteraSpeciesCount,
         raptorSpeciesCount,
-        beetleSpeciesCount
+        beetleSpeciesCount,
+        beeSpeciesCount,
+        cetaceaSpeciesCount,
+        anuraSpeciesCount,
+        serpentesSpeciesCount,
+        turtleSpeciesCount
       ) {
         const iconicTaxonAchievement =
           calculateIconicTaxonAchievement(allObservations);
@@ -1747,6 +1792,31 @@
           total: 100,
           completed: beetleSpeciesCount >= 100,
         };
+        const pollinatorPal = {
+          current: beeSpeciesCount,
+          total: 50,
+          completed: beeSpeciesCount >= 50,
+        };
+        const whaleWatcher = {
+          current: cetaceaSpeciesCount,
+          total: 10,
+          completed: cetaceaSpeciesCount >= 10,
+        };
+        const frogFinder = {
+          current: anuraSpeciesCount,
+          total: 25,
+          completed: anuraSpeciesCount >= 25,
+        };
+        const snakeSpotter = {
+          current: serpentesSpeciesCount,
+          total: 25,
+          completed: serpentesSpeciesCount >= 25,
+        };
+        const shellSeeker = {
+          current: turtleSpeciesCount,
+          total: 15,
+          completed: turtleSpeciesCount >= 15,
+        };
 
         const taxonIconsHtml = Object.entries(ICONIC_TAXONS)
           .map(([key, value]) => {
@@ -1859,6 +1929,11 @@
           lepidopterist,
           raptorWatcher,
           coleopterist,
+          pollinatorPal,
+          whaleWatcher,
+          frogFinder,
+          snakeSpotter,
+          shellSeeker,
           ...Object.values(taxonAchievements),
         ];
         const completedCount = allAchievements.filter(
@@ -2376,6 +2451,41 @@
                 "Coleopterist",
                 "Observe 100 beetle species",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=47208`
+              )}
+              ${renderAchievementCard(
+                pollinatorPal,
+                "🐝",
+                "Pollinator Pal",
+                "Observe 50 bee species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=630955`
+              )}
+              ${renderAchievementCard(
+                whaleWatcher,
+                "🐋",
+                "Whale Watcher",
+                "Observe 10 whale & dolphin species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=152871`
+              )}
+              ${renderAchievementCard(
+                frogFinder,
+                "🐸",
+                "Frog Finder",
+                "Observe 25 frog & toad species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=20979`
+              )}
+              ${renderAchievementCard(
+                snakeSpotter,
+                "🐍",
+                "Snake Spotter",
+                "Observe 25 snake species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=85553`
+              )}
+              ${renderAchievementCard(
+                shellSeeker,
+                "🐢",
+                "Shell Seeker",
+                "Observe 15 turtle & tortoise species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=39532`
               )}
             </div>
 
