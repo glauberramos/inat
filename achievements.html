@@ -917,7 +917,6 @@
         goal
       ) {
         const species = new Set();
-        const obsIds = [];
 
         observations.forEach((obs) => {
           if (
@@ -928,9 +927,6 @@
           ) {
             const status = obs.taxon.conservation_status.status.toLowerCase();
             if (statusCodes.includes(status)) {
-              if (!species.has(obs.taxon.id)) {
-                obsIds.push(obs.id);
-              }
               species.add(obs.taxon.id);
             }
           }
@@ -940,7 +936,7 @@
           current: species.size,
           total: goal,
           completed: species.size >= goal,
-          obsIds: obsIds,
+          taxonIds: Array.from(species),
         };
       }
 
@@ -967,13 +963,9 @@
 
       function calculateEndemicAchievement(observations, goal) {
         const endemicSpecies = new Set();
-        const obsIds = [];
 
         observations.forEach((obs) => {
           if (obs.taxon && obs.taxon.id && obs.taxon.endemic === true) {
-            if (!endemicSpecies.has(obs.taxon.id)) {
-              obsIds.push(obs.id);
-            }
             endemicSpecies.add(obs.taxon.id);
           }
         });
@@ -982,7 +974,7 @@
           current: endemicSpecies.size,
           total: goal,
           completed: endemicSpecies.size >= goal,
-          obsIds: obsIds,
+          taxonIds: Array.from(endemicSpecies),
         };
       }
 
@@ -1279,14 +1271,10 @@
         goal
       ) {
         const rareSpecies = new Set();
-        const rareObsIds = [];
 
         observations.forEach((obs) => {
           if (obs.taxon && obs.taxon.id && obs.taxon.observations_count) {
             if (obs.taxon.observations_count < maxObsCount) {
-              if (!rareSpecies.has(obs.taxon.id)) {
-                rareObsIds.push(obs.id);
-              }
               rareSpecies.add(obs.taxon.id);
             }
           }
@@ -1296,7 +1284,7 @@
           current: rareSpecies.size,
           total: goal,
           completed: rareSpecies.size >= goal,
-          obsIds: rareObsIds,
+          taxonIds: Array.from(rareSpecies),
         };
       }
 
@@ -1448,35 +1436,31 @@
         // Group observations by taxon and count user's observations per taxon
         const taxonCounts = {};
         const taxonGlobalCounts = {};
-        const taxonObsIds = {};
 
         observations.forEach((obs) => {
           if (obs.taxon && obs.taxon.id) {
             const taxonId = obs.taxon.id;
             taxonCounts[taxonId] = (taxonCounts[taxonId] || 0) + 1;
             taxonGlobalCounts[taxonId] = obs.taxon.observations_count || 0;
-            if (!taxonObsIds[taxonId]) {
-              taxonObsIds[taxonId] = obs.id;
-            }
           }
         });
 
         // Count species where user is the only observer
         let onlyObserverCount = 0;
-        const onlyObserverObsIds = [];
+        const onlyObserverTaxonIds = [];
         Object.keys(taxonCounts).forEach((taxonId) => {
           const userCount = taxonCounts[taxonId];
           const globalCount = taxonGlobalCounts[taxonId];
           if (userCount === globalCount && globalCount > 0) {
             onlyObserverCount++;
-            onlyObserverObsIds.push(taxonObsIds[taxonId]);
+            onlyObserverTaxonIds.push(taxonId);
           }
         });
 
         return {
           current: onlyObserverCount,
           total: 1,
-          obsIds: onlyObserverObsIds,
+          taxonIds: onlyObserverTaxonIds,
           completed: onlyObserverCount >= 1,
         };
       }
@@ -2139,8 +2123,8 @@
                 "👁️",
                 "Near Threatened Spotter",
                 "Observe 10 near threatened species",
-                nearThreatened10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${nearThreatened10.obsIds.join(
+                nearThreatened10.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${nearThreatened10.taxonIds.join(
                       ","
                     )}`
                   : null
@@ -2150,8 +2134,8 @@
                 "🛡️",
                 "Vulnerable Spotter",
                 "Observe 10 vulnerable species",
-                vulnerable10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${vulnerable10.obsIds.join(
+                vulnerable10.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${vulnerable10.taxonIds.join(
                       ","
                     )}`
                   : null
@@ -2161,8 +2145,8 @@
                 "🚨",
                 "Endangered Spotter",
                 "Observe 10 endangered species",
-                endangered10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${endangered10.obsIds.join(
+                endangered10.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${endangered10.taxonIds.join(
                       ","
                     )}`
                   : null
@@ -2172,8 +2156,8 @@
                 "⚠️",
                 "Critically Endangered Spotter",
                 "Observe 10 critically endangered species",
-                criticallyEndangered10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${criticallyEndangered10.obsIds.join(
+                criticallyEndangered10.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${criticallyEndangered10.taxonIds.join(
                       ","
                     )}`
                   : null
@@ -2183,8 +2167,8 @@
                 "💀",
                 "Extinct in Wild Spotter",
                 "Observe 10 species extinct in the wild",
-                extinctInWild10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${extinctInWild10.obsIds.join(
+                extinctInWild10.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${extinctInWild10.taxonIds.join(
                       ","
                     )}`
                   : null
@@ -2215,8 +2199,10 @@
                 "🏝️",
                 "Endemic Explorer",
                 "Observe 10 endemic species",
-                endemic10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${endemic10.obsIds.join(",")}`
+                endemic10.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${endemic10.taxonIds.join(
+                      ","
+                    )}`
                   : null
               )}
             </div>
@@ -2228,8 +2214,8 @@
                 "⭐",
                 "Rare Find",
                 "Be the only observer of a species",
-                onlyObserver.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${onlyObserver.obsIds.join(
+                onlyObserver.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${onlyObserver.taxonIds.join(
                       ","
                     )}`
                   : null
@@ -2239,8 +2225,8 @@
                 "💎",
                 "Diamond Hunter",
                 "Observe 10 species with less than 100 total observations",
-                rareSpecies100.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${rareSpecies100.obsIds.join(
+                rareSpecies100.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${rareSpecies100.taxonIds.join(
                       ","
                     )}`
                   : null
@@ -2250,8 +2236,8 @@
                 "🦄",
                 "Unicorn Spotter",
                 "Observe 10 species with less than 10 total observations",
-                rareSpecies10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${rareSpecies10.obsIds.join(
+                rareSpecies10.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${rareSpecies10.taxonIds.join(
                       ","
                     )}`
                   : null
