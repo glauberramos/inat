@@ -1923,55 +1923,64 @@
                 obs100,
                 "📷",
                 "Observer",
-                "Record 100 observations"
+                "Record 100 observations",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}`
               )}
               ${renderAchievementCard(
                 obs1000,
                 "📷",
                 "Dedicated Observer",
-                "Record 1,000 observations"
+                "Record 1,000 observations",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}`
               )}
               ${renderAchievementCard(
                 obs10000,
                 "📷",
                 "Master Observer",
-                "Record 10,000 observations"
+                "Record 10,000 observations",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}`
               )}
               ${renderAchievementCard(
                 species100,
                 "🔬",
                 "Species Spotter",
-                "Observe 100 species"
+                "Observe 100 species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&view=species`
               )}
               ${renderAchievementCard(
                 species1000,
                 "🔬",
                 "Species Expert",
-                "Observe 1,000 species"
+                "Observe 1,000 species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&view=species`
               )}
               ${renderAchievementCard(
                 species10000,
                 "🔬",
                 "Species Master",
-                "Observe 10,000 species"
+                "Observe 10,000 species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&view=species`
               )}
               ${renderAchievementCard(
                 veteran2,
                 "🎖️",
                 "2-Year Veteran",
-                "Have an observation from 2+ years ago"
+                "Have an observation from 2+ years ago",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&d2=${new Date(new Date().setFullYear(new Date().getFullYear() - 2) - 86400000).toISOString().split('T')[0]}`
               )}
               ${renderAchievementCard(
                 veteran5,
                 "🎖️",
                 "5-Year Veteran",
-                "Have an observation from 5+ years ago"
+                "Have an observation from 5+ years ago",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&d2=${new Date(new Date().setFullYear(new Date().getFullYear() - 5) - 86400000).toISOString().split('T')[0]}`
               )}
               ${renderAchievementCard(
                 veteran10,
                 "🏅",
                 "10-Year Veteran",
-                "Have an observation from 10+ years ago"
+                "Have an observation from 10+ years ago",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&d2=${new Date(new Date().setFullYear(new Date().getFullYear() - 10) - 86400000).toISOString().split('T')[0]}`
               )}
               ${renderAchievementCard(
                 account2,
