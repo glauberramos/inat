@@ -783,6 +783,7 @@
           const observationsCount = user.observations_count || 0;
           const speciesCount = speciesData.total_results || 0;
           const identificationsCount = user.identifications_count || 0;
+          const userCreatedAt = user.created_at || null;
 
           // Fetch identification categories (for others' observations)
           const idCategoriesResponse = await fetch(
@@ -819,7 +820,8 @@
               speciesCount,
               identificationsCount,
               idCategories,
-              maxSpeciesIdCount
+              maxSpeciesIdCount,
+              userCreatedAt
             );
           achievementsContainer.innerHTML = html;
 
@@ -1240,10 +1242,14 @@
         goal
       ) {
         const rareSpecies = new Set();
+        const rareObsIds = [];
 
         observations.forEach((obs) => {
           if (obs.taxon && obs.taxon.id && obs.taxon.observations_count) {
             if (obs.taxon.observations_count < maxObsCount) {
+              if (!rareSpecies.has(obs.taxon.id)) {
+                rareObsIds.push(obs.id);
+              }
               rareSpecies.add(obs.taxon.id);
             }
           }
@@ -1253,6 +1259,7 @@
           current: rareSpecies.size,
           total: goal,
           completed: rareSpecies.size >= goal,
+          obsIds: rareObsIds,
         };
       }
 
@@ -1542,12 +1549,29 @@
         };
       }
 
+      function calculateAccountAgeAchievement(createdAt, years) {
+        if (!createdAt) {
+          return { current: 0, total: 1, completed: false };
+        }
+
+        const now = new Date();
+        const created = new Date(createdAt);
+        const diffYears = (now - created) / (1000 * 60 * 60 * 24 * 365);
+
+        return {
+          current: diffYears >= years ? 1 : 0,
+          total: 1,
+          completed: diffYears >= years,
+        };
+      }
+
       function renderAchievements(
         observationsCount,
         speciesCount,
         identificationsCount,
         idCategories,
-        maxSpeciesIdCount
+        maxSpeciesIdCount,
+        userCreatedAt
       ) {
         const iconicTaxonAchievement =
           calculateIconicTaxonAchievement(allObservations);
@@ -1664,8 +1688,14 @@
         const newYear = calculateNewYearAchievement(allObservations, 10);
 
         // Veteran achievements
+        const veteran2 = calculateVeteranAchievement(allObservations, 2, 1);
         const veteran5 = calculateVeteranAchievement(allObservations, 5, 1);
         const veteran10 = calculateVeteranAchievement(allObservations, 10, 1);
+
+        // Account age achievements
+        const account2 = calculateAccountAgeAchievement(userCreatedAt, 2);
+        const account5 = calculateAccountAgeAchievement(userCreatedAt, 5);
+        const account10 = calculateAccountAgeAchievement(userCreatedAt, 10);
 
         // Favorited and commented achievements
         const favorited10 = calculateFavoritedAchievement(allObservations, 10);
@@ -1815,8 +1845,12 @@
           speciesDay10,
           speciesDay100,
           obsDay100,
+          veteran2,
           veteran5,
           veteran10,
+          account2,
+          account5,
+          account10,
           favorited10,
           mostFavorited10,
           commented10,
@@ -1922,6 +1956,12 @@
                 "Observe 10,000 species"
               )}
               ${renderAchievementCard(
+                veteran2,
+                "🎖️",
+                "2-Year Veteran",
+                "Have an observation from 2+ years ago"
+              )}
+              ${renderAchievementCard(
                 veteran5,
                 "🎖️",
                 "5-Year Veteran",
@@ -1932,6 +1972,24 @@
                 "🏅",
                 "10-Year Veteran",
                 "Have an observation from 10+ years ago"
+              )}
+              ${renderAchievementCard(
+                account2,
+                "📅",
+                "2-Year Member",
+                "Have an account for 2+ years"
+              )}
+              ${renderAchievementCard(
+                account5,
+                "📅",
+                "5-Year Member",
+                "Have an account for 5+ years"
+              )}
+              ${renderAchievementCard(
+                account10,
+                "📅",
+                "10-Year Member",
+                "Have an account for 10+ years"
               )}
             </div>
 
@@ -1993,7 +2051,8 @@
                 rareSpecies100,
                 "💎",
                 "Diamond Hunter",
-                "Observe 10 species with less than 100 total observations"
+                "Observe 10 species with less than 100 total observations",
+                rareSpecies100.obsIds.length > 0 ? `https://www.inaturalist.org/observations?id=${rareSpecies100.obsIds.join(',')}` : null
               )}
               ${renderAchievementCard(
                 rareSpecies10,
