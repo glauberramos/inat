@@ -774,13 +774,12 @@
           localStorage.setItem("inatUsername", username);
           currentUsername = username;
 
-          // Fetch species count
+          // Fetch species count (with same filters as observations)
           const speciesResponse = await fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=1`
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=1&captive=false&verifiable=true`
           );
           const speciesData = await speciesResponse.json();
 
-          const observationsCount = user.observations_count || 0;
           const speciesCount = speciesData.total_results || 0;
           const identificationsCount = user.identifications_count || 0;
           const userCreatedAt = user.created_at || null;
