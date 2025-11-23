@@ -809,14 +809,16 @@
           }
 
           // Load all observations
-          allObservations = await loadAllObservations(userId);
+          const obsResult = await loadAllObservations(userId);
+          allObservations = obsResult.observations;
+          const observationsTotalResults = obsResult.totalResults;
 
           loading.style.display = "none";
 
           // Display achievements and get progress
           const { html, completedCount, totalAchievements } =
             renderAchievements(
-              observationsCount,
+              observationsTotalResults,
               speciesCount,
               identificationsCount,
               idCategories,
@@ -849,7 +851,7 @@
         const firstData = await firstResponse.json();
 
         if (!firstData.results || firstData.results.length === 0) {
-          return [];
+          return { observations: [], totalResults: 0 };
         }
 
         let allResults = firstData.results;
@@ -873,7 +875,7 @@
           loadingCount.textContent = `(${allResults.length.toLocaleString()} of ${totalResults.toLocaleString()} observations)`;
         }
 
-        return allResults;
+        return { observations: allResults, totalResults };
       }
 
       function showError(message) {
@@ -928,11 +930,7 @@
         const introducedSpecies = new Set();
 
         observations.forEach((obs) => {
-          if (
-            obs.taxon &&
-            obs.taxon.id &&
-            obs.taxon.introduced === true
-          ) {
+          if (obs.taxon && obs.taxon.id && obs.taxon.introduced === true) {
             introducedSpecies.add(obs.taxon.id);
           }
         });
@@ -1866,13 +1864,21 @@
         ).length;
         const totalAchievements = allAchievements.length;
 
-        function renderAchievementCard(achievement, icon, name, description, link = null) {
+        function renderAchievementCard(
+          achievement,
+          icon,
+          name,
+          description,
+          link = null
+        ) {
           const percentage = Math.min(
             (achievement.current / achievement.total) * 100,
             100
           );
-          const linkStart = link ? `<a href="${link}" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 14px; flex: 1;">` : '';
-          const linkEnd = link ? '</a>' : '';
+          const linkStart = link
+            ? `<a href="${link}" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 14px; flex: 1;">`
+            : "";
+          const linkEnd = link ? "</a>" : "";
 
           if (link) {
             return `
@@ -1966,21 +1972,42 @@
                 "🎖️",
                 "2-Year Veteran",
                 "Have an observation from 2+ years ago",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&d2=${new Date(new Date().setFullYear(new Date().getFullYear() - 2) - 86400000).toISOString().split('T')[0]}`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&d2=${
+                  new Date(
+                    new Date().setFullYear(new Date().getFullYear() - 2) -
+                      86400000
+                  )
+                    .toISOString()
+                    .split("T")[0]
+                }`
               )}
               ${renderAchievementCard(
                 veteran5,
                 "🎖️",
                 "5-Year Veteran",
                 "Have an observation from 5+ years ago",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&d2=${new Date(new Date().setFullYear(new Date().getFullYear() - 5) - 86400000).toISOString().split('T')[0]}`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&d2=${
+                  new Date(
+                    new Date().setFullYear(new Date().getFullYear() - 5) -
+                      86400000
+                  )
+                    .toISOString()
+                    .split("T")[0]
+                }`
               )}
               ${renderAchievementCard(
                 veteran10,
                 "🏅",
                 "10-Year Veteran",
                 "Have an observation from 10+ years ago",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&d2=${new Date(new Date().setFullYear(new Date().getFullYear() - 10) - 86400000).toISOString().split('T')[0]}`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&d2=${
+                  new Date(
+                    new Date().setFullYear(new Date().getFullYear() - 10) -
+                      86400000
+                  )
+                    .toISOString()
+                    .split("T")[0]
+                }`
               )}
               ${renderAchievementCard(
                 account2,
@@ -2061,7 +2088,11 @@
                 "💎",
                 "Diamond Hunter",
                 "Observe 10 species with less than 100 total observations",
-                rareSpecies100.obsIds.length > 0 ? `https://www.inaturalist.org/observations?id=${rareSpecies100.obsIds.join(',')}` : null
+                rareSpecies100.obsIds.length > 0
+                  ? `https://www.inaturalist.org/observations?id=${rareSpecies100.obsIds.join(
+                      ","
+                    )}`
+                  : null
               )}
               ${renderAchievementCard(
                 rareSpecies10,
