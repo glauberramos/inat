@@ -639,17 +639,17 @@
 
       // All iconic taxons in iNaturalist with emojis
       const ICONIC_TAXONS = {
-        Plantae: { emoji: "🌿", name: "Plants" },
-        Fungi: { emoji: "🍄", name: "Fungi" },
-        Animalia: { emoji: "🐾", name: "Other Animals" },
-        Mollusca: { emoji: "🐌", name: "Mollusks" },
-        Arachnida: { emoji: "🕷️", name: "Arachnids" },
-        Insecta: { emoji: "🦋", name: "Insects" },
-        Actinopterygii: { emoji: "🐟", name: "Fish" },
-        Amphibia: { emoji: "🐸", name: "Amphibians" },
-        Reptilia: { emoji: "🦎", name: "Reptiles" },
-        Aves: { emoji: "🐦", name: "Birds" },
-        Mammalia: { emoji: "🦌", name: "Mammals" },
+        Plantae: { emoji: "🌿", name: "Plants", id: 47126 },
+        Fungi: { emoji: "🍄", name: "Fungi", id: 47170 },
+        Animalia: { emoji: "🐾", name: "Other Animals", id: 48222 },
+        Mollusca: { emoji: "🐌", name: "Mollusks", id: 47115 },
+        Arachnida: { emoji: "🕷️", name: "Arachnids", id: 47119 },
+        Insecta: { emoji: "🦋", name: "Insects", id: 47158 },
+        Actinopterygii: { emoji: "🐟", name: "Fish", id: 47178 },
+        Amphibia: { emoji: "🐸", name: "Amphibians", id: 20978 },
+        Reptilia: { emoji: "🦎", name: "Reptiles", id: 26036 },
+        Aves: { emoji: "🐦", name: "Birds", id: 3 },
+        Mammalia: { emoji: "🦌", name: "Mammals", id: 40151 },
       };
 
       // Load saved username from localStorage (shared with other tools)
@@ -807,6 +807,37 @@
             maxSpeciesIdCount = idSpeciesData.results[0].count;
           }
 
+          // Fetch species counts for each iconic taxon in parallel
+          const iconicTaxonSpeciesCounts = {};
+          const taxonPromises = Object.entries(ICONIC_TAXONS).map(
+            async ([taxonName, taxonData]) => {
+              const response = await fetch(
+                `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=${taxonData.id}&per_page=1&captive=false&verifiable=true`
+              );
+              const data = await response.json();
+              iconicTaxonSpeciesCounts[taxonName] = data.total_results || 0;
+            }
+          );
+
+          // Fetch Lepidoptera species count (butterflies & moths - taxon_id 47157)
+          const lepidopteraPromise = fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=47157&per_page=1&captive=false&verifiable=true`
+          ).then((res) => res.json());
+
+          // Fetch Raptor species count (birds of prey - taxon_ids 71261, 67570, 19350, 559244)
+          const raptorPromise = fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=71261,67570,19350,559244&per_page=1&captive=false&verifiable=true`
+          ).then((res) => res.json());
+
+          const [lepidopteraData, raptorData] = await Promise.all([
+            lepidopteraPromise,
+            raptorPromise,
+            ...taxonPromises,
+          ]);
+
+          const lepidopteraSpeciesCount = lepidopteraData.total_results || 0;
+          const raptorSpeciesCount = raptorData.total_results || 0;
+
           // Load all observations
           const obsResult = await loadAllObservations(userId);
           allObservations = obsResult.observations;
@@ -822,7 +853,10 @@
               identificationsCount,
               idCategories,
               maxSpeciesIdCount,
-              userCreatedAt
+              userCreatedAt,
+              iconicTaxonSpeciesCounts,
+              lepidopteraSpeciesCount,
+              raptorSpeciesCount
             );
           achievementsContainer.innerHTML = html;
 
@@ -1407,31 +1441,6 @@
         };
       }
 
-      function calculateSpeciesPerTaxonAchievement(
-        observations,
-        iconicTaxon,
-        goal
-      ) {
-        const speciesInTaxon = new Set();
-
-        observations.forEach((obs) => {
-          if (
-            obs.taxon &&
-            obs.taxon.iconic_taxon_name === iconicTaxon &&
-            obs.taxon.id &&
-            obs.taxon.rank === "species"
-          ) {
-            speciesInTaxon.add(obs.taxon.id);
-          }
-        });
-
-        return {
-          current: speciesInTaxon.size,
-          total: goal,
-          completed: speciesInTaxon.size >= goal,
-        };
-      }
-
       function calculateOnlyObserverAchievement(observations) {
         // Group observations by taxon and count user's observations per taxon
         const taxonCounts = {};
@@ -1486,26 +1495,6 @@
         };
       }
 
-      // Lepidopterist: Observe butterfly & moth species (Lepidoptera - taxon_id 47157)
-      function calculateLepidopteristAchievement(observations, goal) {
-        const lepidopteraSpecies = new Set();
-        const LEPIDOPTERA_ID = 47157;
-
-        observations.forEach((obs) => {
-          if (obs.taxon && obs.taxon.id && obs.taxon.ancestor_ids) {
-            if (obs.taxon.ancestor_ids.includes(LEPIDOPTERA_ID)) {
-              lepidopteraSpecies.add(obs.taxon.id);
-            }
-          }
-        });
-
-        return {
-          current: lepidopteraSpecies.size,
-          total: goal,
-          completed: lepidopteraSpecies.size >= goal,
-        };
-      }
-
       // Tree Hugger: Observe tree species (using common tree taxa)
       function calculateTreeHuggerAchievement(observations, goal) {
         const treeSpecies = new Set();
@@ -1548,35 +1537,6 @@
         };
       }
 
-      // Raptor Watcher: Observe birds of prey species
-      function calculateRaptorWatcherAchievement(observations, goal) {
-        const raptorSpecies = new Set();
-        // Birds of prey ancestor IDs
-        const RAPTOR_ANCESTOR_IDS = [
-          71261, // Accipitriformes (hawks, eagles, kites, Old World vultures)
-          67570, // Falconiformes (falcons)
-          19350, // Strigiformes (owls)
-          559244, // Cathartiformes (New World vultures)
-        ];
-
-        observations.forEach((obs) => {
-          if (obs.taxon && obs.taxon.id && obs.taxon.ancestor_ids) {
-            for (const raptorId of RAPTOR_ANCESTOR_IDS) {
-              if (obs.taxon.ancestor_ids.includes(raptorId)) {
-                raptorSpecies.add(obs.taxon.id);
-                break;
-              }
-            }
-          }
-        });
-
-        return {
-          current: raptorSpecies.size,
-          total: goal,
-          completed: raptorSpecies.size >= goal,
-        };
-      }
-
       function calculateAccountAgeAchievement(createdAt, years) {
         if (!createdAt) {
           return { current: 0, total: 1, completed: false };
@@ -1599,7 +1559,10 @@
         identificationsCount,
         idCategories,
         maxSpeciesIdCount,
-        userCreatedAt
+        userCreatedAt,
+        iconicTaxonSpeciesCounts,
+        lepidopteraSpeciesCount,
+        raptorSpeciesCount
       ) {
         const iconicTaxonAchievement =
           calculateIconicTaxonAchievement(allObservations);
@@ -1794,23 +1757,26 @@
         // Species per iconic taxon achievements (100 each)
         const taxonAchievements = {};
         Object.keys(ICONIC_TAXONS).forEach((taxon) => {
-          taxonAchievements[taxon] = calculateSpeciesPerTaxonAchievement(
-            allObservations,
-            taxon,
-            100
-          );
+          const count = iconicTaxonSpeciesCounts[taxon] || 0;
+          taxonAchievements[taxon] = {
+            current: count,
+            total: 100,
+            completed: count >= 100,
+          };
         });
 
         // New specialty achievements
-        const lepidopterist = calculateLepidopteristAchievement(
-          allObservations,
-          100
-        );
+        const lepidopterist = {
+          current: lepidopteraSpeciesCount,
+          total: 100,
+          completed: lepidopteraSpeciesCount >= 100,
+        };
         const treeHugger = calculateTreeHuggerAchievement(allObservations, 100);
-        const raptorWatcher = calculateRaptorWatcherAchievement(
-          allObservations,
-          25
-        );
+        const raptorWatcher = {
+          current: raptorSpeciesCount,
+          total: 25,
+          completed: raptorSpeciesCount >= 25,
+        };
 
         const taxonIconsHtml = Object.entries(ICONIC_TAXONS)
           .map(([key, value]) => {
@@ -2398,7 +2364,7 @@
                     data.emoji,
                     `${data.name} Expert`,
                     `Observe 100 ${data.name.toLowerCase()} species`,
-                    `https://www.inaturalist.org/observations?user_id=${currentUsername}&iconic_taxa=${taxon}`
+                    `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=${data.id}`
                   )
                 )
                 .join("")}
@@ -2432,7 +2398,7 @@
                 "🌳",
                 "Tree Hugger",
                 "Observe 100 tree species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&iconic_taxa=Plantae`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=47126`
               )}
               ${renderAchievementCard(
                 raptorWatcher,
