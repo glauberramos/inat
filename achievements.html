@@ -1604,20 +1604,20 @@
           ["vu", "vulnerable"],
           10
         );
-        const endangered10 = calculateStatusSpeciesAchievement(
+        const endangered5 = calculateStatusSpeciesAchievement(
           allObservations,
           ["en", "endangered"],
-          10
+          5
         );
-        const criticallyEndangered10 = calculateStatusSpeciesAchievement(
+        const criticallyEndangered1 = calculateStatusSpeciesAchievement(
           allObservations,
           ["cr", "critically_endangered", "critically endangered"],
-          10
+          1
         );
-        const extinctInWild10 = calculateStatusSpeciesAchievement(
+        const extinctInWild1 = calculateStatusSpeciesAchievement(
           allObservations,
           ["ew", "extinct_in_the_wild", "extinct in the wild"],
-          10
+          1
         );
 
         // Introduced species achievements
@@ -1895,9 +1895,9 @@
           threatened100,
           nearThreatened10,
           vulnerable10,
-          endangered10,
-          criticallyEndangered10,
-          extinctInWild10,
+          endangered5,
+          criticallyEndangered1,
+          extinctInWild1,
           introduced10,
           introduced50,
           introduced100,
@@ -2152,34 +2152,34 @@
                   : null
               )}
               ${renderAchievementCard(
-                endangered10,
+                endangered5,
                 "🚨",
                 "Endangered Spotter",
-                "Observe 10 endangered species",
-                endangered10.taxonIds.length > 0
-                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${endangered10.taxonIds.join(
+                "Observe 5 endangered species",
+                endangered5.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${endangered5.taxonIds.join(
                       ","
                     )}`
                   : null
               )}
               ${renderAchievementCard(
-                criticallyEndangered10,
+                criticallyEndangered1,
                 "⚠️",
                 "Critically Endangered Spotter",
-                "Observe 10 critically endangered species",
-                criticallyEndangered10.taxonIds.length > 0
-                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${criticallyEndangered10.taxonIds.join(
+                "Observe 1 critically endangered species",
+                criticallyEndangered1.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${criticallyEndangered1.taxonIds.join(
                       ","
                     )}`
                   : null
               )}
               ${renderAchievementCard(
-                extinctInWild10,
+                extinctInWild1,
                 "💀",
                 "Extinct in Wild Spotter",
-                "Observe 10 species extinct in the wild",
-                extinctInWild10.taxonIds.length > 0
-                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${extinctInWild10.taxonIds.join(
+                "Observe 1 species extinct in the wild",
+                extinctInWild1.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${extinctInWild1.taxonIds.join(
                       ","
                     )}`
                   : null
