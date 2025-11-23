@@ -635,6 +635,7 @@
 
       let searchTimeout = null;
       let allObservations = [];
+      let currentUsername = "";
 
       // All iconic taxons in iNaturalist with emojis
       const ICONIC_TAXONS = {
@@ -771,6 +772,7 @@
 
           // Save username to localStorage (shared with other tools)
           localStorage.setItem("inatUsername", username);
+          currentUsername = username;
 
           // Fetch species count
           const speciesResponse = await fetch(
@@ -1787,11 +1789,36 @@
         ).length;
         const totalAchievements = allAchievements.length;
 
-        function renderAchievementCard(achievement, icon, name, description) {
+        function renderAchievementCard(achievement, icon, name, description, link = null) {
           const percentage = Math.min(
             (achievement.current / achievement.total) * 100,
             100
           );
+          const linkStart = link ? `<a href="${link}" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 14px; flex: 1;">` : '';
+          const linkEnd = link ? '</a>' : '';
+
+          if (link) {
+            return `
+              <div class="achievement-card ${
+                achievement.completed ? "completed" : ""
+              }" style="cursor: pointer;">
+                ${linkStart}
+                <div class="achievement-icon">${icon}</div>
+                <div class="achievement-content">
+                  <div class="achievement-name">${name}</div>
+                  <div class="achievement-description">${description}</div>
+                  <div class="achievement-progress">
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="progress-text">${achievement.current.toLocaleString()}/${achievement.total.toLocaleString()}</div>
+                  </div>
+                </div>
+                ${linkEnd}
+              </div>
+            `;
+          }
+
           return `
             <div class="achievement-card ${
               achievement.completed ? "completed" : ""
@@ -2061,7 +2088,8 @@
                     taxonAchievements[taxon],
                     data.emoji,
                     `${data.name} Expert`,
-                    `Observe 100 ${data.name.toLowerCase()} species`
+                    `Observe 100 ${data.name.toLowerCase()} species`,
+                    `https://www.inaturalist.org/observations?user_id=${currentUsername}&iconic_taxa=${taxon}`
                   )
                 )
                 .join("")}
@@ -2087,19 +2115,22 @@
                 lepidopterist,
                 "🦋",
                 "Lepidopterist",
-                "Observe 100 butterfly & moth species"
+                "Observe 100 butterfly & moth species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=47157`
               )}
               ${renderAchievementCard(
                 treeHugger,
                 "🌳",
                 "Tree Hugger",
-                "Observe 100 tree species"
+                "Observe 100 tree species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&iconic_taxa=Plantae`
               )}
               ${renderAchievementCard(
                 raptorWatcher,
                 "🦅",
                 "Raptor Watcher",
-                "Observe 25 birds of prey species"
+                "Observe 25 birds of prey species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=71261,67570,19350,559244`
               )}
             </div>
 
