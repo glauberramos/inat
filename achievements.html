@@ -922,6 +922,31 @@
         };
       }
 
+      function calculateIntroducedSpeciesAchievement(observations) {
+        const introducedSpecies = new Set();
+
+        observations.forEach((obs) => {
+          if (
+            obs.taxon &&
+            obs.taxon.id &&
+            obs.taxon.introduced === true
+          ) {
+            introducedSpecies.add(obs.taxon.id);
+          }
+        });
+
+        return introducedSpecies.size;
+      }
+
+      function calculateIntroducedAchievement(observations, goal) {
+        const count = calculateIntroducedSpeciesAchievement(observations);
+        return {
+          current: count,
+          total: goal,
+          completed: count >= goal,
+        };
+      }
+
       function calculateCountAchievement(current, goal) {
         return {
           current: current,
@@ -1542,6 +1567,20 @@
           100
         );
 
+        // Introduced species achievements
+        const introduced10 = calculateIntroducedAchievement(
+          allObservations,
+          10
+        );
+        const introduced50 = calculateIntroducedAchievement(
+          allObservations,
+          50
+        );
+        const introduced100 = calculateIntroducedAchievement(
+          allObservations,
+          100
+        );
+
         // Observation achievements
         const obs100 = calculateCountAchievement(observationsCount, 100);
         const obs1000 = calculateCountAchievement(observationsCount, 1000);
@@ -1760,6 +1799,9 @@
           threatened10,
           threatened50,
           threatened100,
+          introduced10,
+          introduced50,
+          introduced100,
           onlyObserver,
           iconicTaxonAchievement,
           continentsAchievement,
@@ -1899,19 +1941,43 @@
                 threatened10,
                 "🦁",
                 "Conservation Ally",
-                "Observe 10 threatened species"
+                "Observe 10 threatened species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true`
               )}
               ${renderAchievementCard(
                 threatened50,
                 "🦁",
                 "Conservation Champion",
-                "Observe 50 threatened species"
+                "Observe 50 threatened species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true`
               )}
               ${renderAchievementCard(
                 threatened100,
                 "🦁",
                 "Conservation Hero",
-                "Observe 100 threatened species"
+                "Observe 100 threatened species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true`
+              )}
+              ${renderAchievementCard(
+                introduced10,
+                "🌍",
+                "Invasive Spotter",
+                "Observe 10 introduced species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true`
+              )}
+              ${renderAchievementCard(
+                introduced50,
+                "🌍",
+                "Invasive Tracker",
+                "Observe 50 introduced species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true`
+              )}
+              ${renderAchievementCard(
+                introduced100,
+                "🌍",
+                "Invasive Expert",
+                "Observe 100 introduced species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true`
               )}
             </div>
 
@@ -1995,7 +2061,8 @@
                 favorited10,
                 "❤️",
                 "Fan Favorite",
-                "Have 10 observations that were favorited"
+                "Have 10 observations that were favorited",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&popular=true`
               )}
               ${renderAchievementCard(
                 mostFavorited10,
