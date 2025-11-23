@@ -913,6 +913,39 @@
         };
       }
 
+      function calculateStatusSpeciesAchievement(
+        observations,
+        statusCodes,
+        goal
+      ) {
+        const species = new Set();
+        const obsIds = [];
+
+        observations.forEach((obs) => {
+          if (
+            obs.taxon &&
+            obs.taxon.id &&
+            obs.taxon.conservation_status &&
+            obs.taxon.conservation_status.status
+          ) {
+            const status = obs.taxon.conservation_status.status.toLowerCase();
+            if (statusCodes.includes(status)) {
+              if (!species.has(obs.taxon.id)) {
+                obsIds.push(obs.id);
+              }
+              species.add(obs.taxon.id);
+            }
+          }
+        });
+
+        return {
+          current: species.size,
+          total: goal,
+          completed: species.size >= goal,
+          obsIds: obsIds,
+        };
+      }
+
       function calculateIntroducedSpeciesAchievement(observations) {
         const introducedSpecies = new Set();
 
@@ -1583,6 +1616,33 @@
           100
         );
 
+        // Status-specific achievements
+        const nearThreatened10 = calculateStatusSpeciesAchievement(
+          allObservations,
+          ["nt", "near_threatened", "near threatened"],
+          10
+        );
+        const vulnerable10 = calculateStatusSpeciesAchievement(
+          allObservations,
+          ["vu", "vulnerable"],
+          10
+        );
+        const endangered10 = calculateStatusSpeciesAchievement(
+          allObservations,
+          ["en", "endangered"],
+          10
+        );
+        const criticallyEndangered10 = calculateStatusSpeciesAchievement(
+          allObservations,
+          ["cr", "critically_endangered", "critically endangered"],
+          10
+        );
+        const extinctInWild10 = calculateStatusSpeciesAchievement(
+          allObservations,
+          ["ew", "extinct_in_the_wild", "extinct in the wild"],
+          10
+        );
+
         // Introduced species achievements
         const introduced10 = calculateIntroducedAchievement(
           allObservations,
@@ -1821,6 +1881,11 @@
           threatened10,
           threatened50,
           threatened100,
+          nearThreatened10,
+          vulnerable10,
+          endangered10,
+          criticallyEndangered10,
+          extinctInWild10,
           introduced10,
           introduced50,
           introduced100,
@@ -2047,6 +2112,51 @@
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true`
               )}
               ${renderAchievementCard(
+                nearThreatened10,
+                "👁️",
+                "Near Threatened Spotter",
+                "Observe 10 near threatened species",
+                nearThreatened10.obsIds.length > 0
+                  ? `https://www.inaturalist.org/observations?id=${nearThreatened10.obsIds.join(",")}`
+                  : null
+              )}
+              ${renderAchievementCard(
+                vulnerable10,
+                "🛡️",
+                "Vulnerable Spotter",
+                "Observe 10 vulnerable species",
+                vulnerable10.obsIds.length > 0
+                  ? `https://www.inaturalist.org/observations?id=${vulnerable10.obsIds.join(",")}`
+                  : null
+              )}
+              ${renderAchievementCard(
+                endangered10,
+                "🚨",
+                "Endangered Spotter",
+                "Observe 10 endangered species",
+                endangered10.obsIds.length > 0
+                  ? `https://www.inaturalist.org/observations?id=${endangered10.obsIds.join(",")}`
+                  : null
+              )}
+              ${renderAchievementCard(
+                criticallyEndangered10,
+                "⚠️",
+                "Critically Endangered Spotter",
+                "Observe 10 critically endangered species",
+                criticallyEndangered10.obsIds.length > 0
+                  ? `https://www.inaturalist.org/observations?id=${criticallyEndangered10.obsIds.join(",")}`
+                  : null
+              )}
+              ${renderAchievementCard(
+                extinctInWild10,
+                "💀",
+                "Extinct in Wild Spotter",
+                "Observe 10 species extinct in the wild",
+                extinctInWild10.obsIds.length > 0
+                  ? `https://www.inaturalist.org/observations?id=${extinctInWild10.obsIds.join(",")}`
+                  : null
+              )}
+              ${renderAchievementCard(
                 introduced10,
                 "🌍",
                 "Invasive Spotter",
@@ -2077,7 +2187,9 @@
                 "Rare Find",
                 "Be the only observer of a species",
                 onlyObserver.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${onlyObserver.obsIds.join(",")}`
+                  ? `https://www.inaturalist.org/observations?id=${onlyObserver.obsIds.join(
+                      ","
+                    )}`
                   : null
               )}
               ${renderAchievementCard(
@@ -2097,7 +2209,9 @@
                 "Unicorn Spotter",
                 "Observe 10 species with less than 10 total observations",
                 rareSpecies10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${rareSpecies10.obsIds.join(",")}`
+                  ? `https://www.inaturalist.org/observations?id=${rareSpecies10.obsIds.join(
+                      ","
+                    )}`
                   : null
               )}
             </div>
