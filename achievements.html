@@ -1396,28 +1396,35 @@
         // Group observations by taxon and count user's observations per taxon
         const taxonCounts = {};
         const taxonGlobalCounts = {};
+        const taxonObsIds = {};
 
         observations.forEach((obs) => {
           if (obs.taxon && obs.taxon.id) {
             const taxonId = obs.taxon.id;
             taxonCounts[taxonId] = (taxonCounts[taxonId] || 0) + 1;
             taxonGlobalCounts[taxonId] = obs.taxon.observations_count || 0;
+            if (!taxonObsIds[taxonId]) {
+              taxonObsIds[taxonId] = obs.id;
+            }
           }
         });
 
         // Count species where user is the only observer
         let onlyObserverCount = 0;
+        const onlyObserverObsIds = [];
         Object.keys(taxonCounts).forEach((taxonId) => {
           const userCount = taxonCounts[taxonId];
           const globalCount = taxonGlobalCounts[taxonId];
           if (userCount === globalCount && globalCount > 0) {
             onlyObserverCount++;
+            onlyObserverObsIds.push(taxonObsIds[taxonId]);
           }
         });
 
         return {
           current: onlyObserverCount,
           total: 1,
+          obsIds: onlyObserverObsIds,
           completed: onlyObserverCount >= 1,
         };
       }
@@ -2068,7 +2075,10 @@
                 onlyObserver,
                 "⭐",
                 "Rare Find",
-                "Be the only observer of a species"
+                "Be the only observer of a species",
+                onlyObserver.obsIds.length > 0
+                  ? `https://www.inaturalist.org/observations?id=${onlyObserver.obsIds.join(",")}`
+                  : null
               )}
               ${renderAchievementCard(
                 rareSpecies100,
@@ -2085,7 +2095,10 @@
                 rareSpecies10,
                 "🦄",
                 "Unicorn Spotter",
-                "Observe 10 species with less than 10 total observations"
+                "Observe 10 species with less than 10 total observations",
+                rareSpecies10.obsIds.length > 0
+                  ? `https://www.inaturalist.org/observations?id=${rareSpecies10.obsIds.join(",")}`
+                  : null
               )}
             </div>
 
