@@ -886,30 +886,18 @@
         errorMessage.classList.remove("show");
       }
 
-      const THREATENED_STATUSES = [
-        "cr",
-        "critically_endangered",
-        "en",
-        "endangered",
-        "vu",
-        "vulnerable",
-        "nt",
-        "near_threatened",
-      ];
-
       function calculateThreatenedSpeciesAchievement(observations) {
         const threatenedSpecies = new Set();
+
+        count = 1;
 
         observations.forEach((obs) => {
           if (
             obs.taxon &&
-            obs.taxon.conservation_status &&
-            obs.taxon.conservation_status.status
+            obs.taxon.id &&
+            (obs.taxon.conservation_status || obs.taxon.threatened)
           ) {
-            const status = obs.taxon.conservation_status.status.toLowerCase();
-            if (THREATENED_STATUSES.includes(status)) {
-              threatenedSpecies.add(obs.taxon.id);
-            }
+            threatenedSpecies.add(obs.taxon.id);
           }
         });
 
