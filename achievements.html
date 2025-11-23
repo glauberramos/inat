@@ -889,8 +889,6 @@
       function calculateThreatenedSpeciesAchievement(observations) {
         const threatenedSpecies = new Set();
 
-        count = 1;
-
         observations.forEach((obs) => {
           if (
             obs.taxon &&
@@ -964,6 +962,27 @@
           current: count,
           total: goal,
           completed: count >= goal,
+        };
+      }
+
+      function calculateEndemicAchievement(observations, goal) {
+        const endemicSpecies = new Set();
+        const obsIds = [];
+
+        observations.forEach((obs) => {
+          if (obs.taxon && obs.taxon.id && obs.taxon.endemic === true) {
+            if (!endemicSpecies.has(obs.taxon.id)) {
+              obsIds.push(obs.id);
+            }
+            endemicSpecies.add(obs.taxon.id);
+          }
+        });
+
+        return {
+          current: endemicSpecies.size,
+          total: goal,
+          completed: endemicSpecies.size >= goal,
+          obsIds: obsIds,
         };
       }
 
@@ -1657,6 +1676,9 @@
           100
         );
 
+        // Endemic species achievement
+        const endemic10 = calculateEndemicAchievement(allObservations, 10);
+
         // Observation achievements
         const obs100 = calculateCountAchievement(observationsCount, 100);
         const obs1000 = calculateCountAchievement(observationsCount, 1000);
@@ -1889,6 +1911,7 @@
           introduced10,
           introduced50,
           introduced100,
+          endemic10,
           onlyObserver,
           iconicTaxonAchievement,
           continentsAchievement,
@@ -2117,7 +2140,9 @@
                 "Near Threatened Spotter",
                 "Observe 10 near threatened species",
                 nearThreatened10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${nearThreatened10.obsIds.join(",")}`
+                  ? `https://www.inaturalist.org/observations?id=${nearThreatened10.obsIds.join(
+                      ","
+                    )}`
                   : null
               )}
               ${renderAchievementCard(
@@ -2126,7 +2151,9 @@
                 "Vulnerable Spotter",
                 "Observe 10 vulnerable species",
                 vulnerable10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${vulnerable10.obsIds.join(",")}`
+                  ? `https://www.inaturalist.org/observations?id=${vulnerable10.obsIds.join(
+                      ","
+                    )}`
                   : null
               )}
               ${renderAchievementCard(
@@ -2135,7 +2162,9 @@
                 "Endangered Spotter",
                 "Observe 10 endangered species",
                 endangered10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${endangered10.obsIds.join(",")}`
+                  ? `https://www.inaturalist.org/observations?id=${endangered10.obsIds.join(
+                      ","
+                    )}`
                   : null
               )}
               ${renderAchievementCard(
@@ -2144,7 +2173,9 @@
                 "Critically Endangered Spotter",
                 "Observe 10 critically endangered species",
                 criticallyEndangered10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${criticallyEndangered10.obsIds.join(",")}`
+                  ? `https://www.inaturalist.org/observations?id=${criticallyEndangered10.obsIds.join(
+                      ","
+                    )}`
                   : null
               )}
               ${renderAchievementCard(
@@ -2153,7 +2184,9 @@
                 "Extinct in Wild Spotter",
                 "Observe 10 species extinct in the wild",
                 extinctInWild10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${extinctInWild10.obsIds.join(",")}`
+                  ? `https://www.inaturalist.org/observations?id=${extinctInWild10.obsIds.join(
+                      ","
+                    )}`
                   : null
               )}
               ${renderAchievementCard(
@@ -2176,6 +2209,15 @@
                 "Invasive Expert",
                 "Observe 100 introduced species",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true`
+              )}
+              ${renderAchievementCard(
+                endemic10,
+                "🏝️",
+                "Endemic Explorer",
+                "Observe 10 endemic species",
+                endemic10.obsIds.length > 0
+                  ? `https://www.inaturalist.org/observations?id=${endemic10.obsIds.join(",")}`
+                  : null
               )}
             </div>
 
