@@ -873,7 +873,25 @@
             `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&endemic=true&per_page=1&captive=false&verifiable=true`
           ).then((res) => res.json());
 
-          const [lepidopteraData, raptorData, beetleData, beeData, cetaceaData, anuraData, serpentesData, turtleData, threatenedData, introducedData, endemicData] = await Promise.all([
+          // Fetch Research Grade observations count
+          const researchGradePromise = fetch(
+            `https://api.inaturalist.org/v1/observations?user_id=${userId}&quality_grade=research&per_page=1&captive=false`
+          ).then((res) => res.json());
+
+          const [
+            lepidopteraData,
+            raptorData,
+            beetleData,
+            beeData,
+            cetaceaData,
+            anuraData,
+            serpentesData,
+            turtleData,
+            threatenedData,
+            introducedData,
+            endemicData,
+            researchGradeData,
+          ] = await Promise.all([
             lepidopteraPromise,
             raptorPromise,
             beetlePromise,
@@ -885,6 +903,7 @@
             threatenedPromise,
             introducedPromise,
             endemicPromise,
+            researchGradePromise,
             ...taxonPromises,
           ]);
 
@@ -899,6 +918,7 @@
           const threatenedSpeciesCount = threatenedData.total_results || 0;
           const introducedSpeciesCount = introducedData.total_results || 0;
           const endemicSpeciesCount = endemicData.total_results || 0;
+          const researchGradeCount = researchGradeData.total_results || 0;
 
           // Load all observations
           const obsResult = await loadAllObservations(userId);
@@ -927,7 +947,8 @@
               turtleSpeciesCount,
               threatenedSpeciesCount,
               introducedSpeciesCount,
-              endemicSpeciesCount
+              endemicSpeciesCount,
+              researchGradeCount
             );
           achievementsContainer.innerHTML = html;
 
@@ -1388,6 +1409,9 @@
             if (startHour < endHour) {
               // Normal range (e.g., 0-7 for early bird)
               if (hour >= startHour && hour < endHour) {
+                if (startHour === 0 && endHour === 7) {
+                  console.log(obs);
+                }
                 count++;
               }
             } else {
@@ -1537,7 +1561,8 @@
         turtleSpeciesCount,
         threatenedSpeciesCount,
         introducedSpeciesCount,
-        endemicSpeciesCount
+        endemicSpeciesCount,
+        researchGradeCount
       ) {
         const iconicTaxonAchievement =
           calculateIconicTaxonAchievement(allObservations);
@@ -1615,6 +1640,23 @@
         const obs100 = calculateCountAchievement(observationsCount, 100);
         const obs1000 = calculateCountAchievement(observationsCount, 1000);
         const obs10000 = calculateCountAchievement(observationsCount, 10000);
+
+        // Research Grade observation achievements
+        const researchGrade100 = {
+          current: researchGradeCount,
+          total: 100,
+          completed: researchGradeCount >= 100,
+        };
+        const researchGrade1000 = {
+          current: researchGradeCount,
+          total: 1000,
+          completed: researchGradeCount >= 1000,
+        };
+        const researchGrade10000 = {
+          current: researchGradeCount,
+          total: 10000,
+          completed: researchGradeCount >= 10000,
+        };
 
         // Species achievements
         const species100 = calculateCountAchievement(speciesCount, 100);
@@ -1850,6 +1892,9 @@
           obs100,
           obs1000,
           obs10000,
+          researchGrade100,
+          researchGrade1000,
+          researchGrade10000,
           species100,
           species1000,
           species10000,
@@ -1996,6 +2041,27 @@
                 "Master Observer",
                 "Record 10,000 observations",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}`
+              )}
+              ${renderAchievementCard(
+                researchGrade100,
+                "✅",
+                "Quality Contributor",
+                "Have 100 research grade observations",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&quality_grade=research`
+              )}
+              ${renderAchievementCard(
+                researchGrade1000,
+                "✅",
+                "Quality Expert",
+                "Have 1,000 research grade observations",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&quality_grade=research`
+              )}
+              ${renderAchievementCard(
+                researchGrade10000,
+                "✅",
+                "Quality Master",
+                "Have 10,000 research grade observations",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&quality_grade=research`
               )}
               ${renderAchievementCard(
                 species100,
