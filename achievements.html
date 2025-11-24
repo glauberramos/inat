@@ -1413,9 +1413,6 @@
             if (startHour < endHour) {
               // Normal range (e.g., 0-7 for early bird)
               if (hour >= startHour && hour < endHour) {
-                if (startHour === 0 && endHour === 7) {
-                  console.log(obs);
-                }
                 count++;
               }
             } else {
@@ -2431,13 +2428,17 @@
                 idsSpecies100,
                 "🔍",
                 "Species Specialist",
-                `Identify a species 100 times${maxSpeciesName ? ` (${maxSpeciesName})` : ""}`
+                `Identify a species 100 times${
+                  maxSpeciesName ? ` (${maxSpeciesName})` : ""
+                }`
               )}
               ${renderAchievementCard(
                 idsSpecies1000,
                 "🔍",
                 "Species Expert",
-                `Identify a species 1,000 times${maxSpeciesName ? ` (${maxSpeciesName})` : ""}`
+                `Identify a species 1,000 times${
+                  maxSpeciesName ? ` (${maxSpeciesName})` : ""
+                }`
               )}
             </div>
 
