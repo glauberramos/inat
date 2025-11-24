@@ -1276,10 +1276,12 @@
 
       function calculateMostFavoritedAchievement(observations, minFaves) {
         let count = 0;
+        const obsIds = [];
 
         observations.forEach((obs) => {
           if (obs.faves_count && obs.faves_count >= minFaves) {
             count++;
+            obsIds.push(obs.id);
           }
         });
 
@@ -1287,6 +1289,7 @@
           current: count,
           total: 1,
           completed: count >= 1,
+          obsIds: obsIds,
         };
       }
 
@@ -2358,7 +2361,10 @@
                 mostFavorited10,
                 "🌟",
                 "Superstar",
-                "Have an observation with 10+ favorites"
+                "Have an observation with 10+ favorites",
+                mostFavorited10.obsIds && mostFavorited10.obsIds.length > 0
+                  ? `https://www.inaturalist.org/observations?id=${mostFavorited10.obsIds.join(",")}`
+                  : null
               )}
               ${renderAchievementCard(
                 commented10,
