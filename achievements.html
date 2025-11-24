@@ -802,8 +802,11 @@
           const idSpeciesData = await idSpeciesResponse.json();
           // Find max count for any single species
           let maxSpeciesIdCount = 0;
+          let maxSpeciesName = "";
           if (idSpeciesData.results && idSpeciesData.results.length > 0) {
             maxSpeciesIdCount = idSpeciesData.results[0].count;
+            const taxon = idSpeciesData.results[0].taxon;
+            maxSpeciesName = taxon.preferred_common_name || taxon.name || "";
           }
 
           // Fetch species counts for each iconic taxon in parallel
@@ -935,6 +938,7 @@
               identificationsCount,
               idCategories,
               maxSpeciesIdCount,
+              maxSpeciesName,
               userCreatedAt,
               iconicTaxonSpeciesCounts,
               lepidopteraSpeciesCount,
@@ -1549,6 +1553,7 @@
         identificationsCount,
         idCategories,
         maxSpeciesIdCount,
+        maxSpeciesName,
         userCreatedAt,
         iconicTaxonSpeciesCounts,
         lepidopteraSpeciesCount,
@@ -2426,13 +2431,13 @@
                 idsSpecies100,
                 "🔍",
                 "Species Specialist",
-                "Identify a species 100 times"
+                `Identify a species 100 times${maxSpeciesName ? ` (${maxSpeciesName})` : ""}`
               )}
               ${renderAchievementCard(
                 idsSpecies1000,
                 "🔍",
                 "Species Expert",
-                "Identify a species 1,000 times"
+                `Identify a species 1,000 times${maxSpeciesName ? ` (${maxSpeciesName})` : ""}`
               )}
             </div>
 
