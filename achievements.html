@@ -858,7 +858,22 @@
             `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=39532&per_page=1&captive=false&verifiable=true`
           ).then((res) => res.json());
 
-          const [lepidopteraData, raptorData, beetleData, beeData, cetaceaData, anuraData, serpentesData, turtleData] = await Promise.all([
+          // Fetch Threatened species count
+          const threatenedPromise = fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&threatened=true&per_page=1&captive=false&verifiable=true`
+          ).then((res) => res.json());
+
+          // Fetch Introduced species count
+          const introducedPromise = fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&introduced=true&per_page=1&captive=false&verifiable=true`
+          ).then((res) => res.json());
+
+          // Fetch Endemic species count
+          const endemicPromise = fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&endemic=true&per_page=1&captive=false&verifiable=true`
+          ).then((res) => res.json());
+
+          const [lepidopteraData, raptorData, beetleData, beeData, cetaceaData, anuraData, serpentesData, turtleData, threatenedData, introducedData, endemicData] = await Promise.all([
             lepidopteraPromise,
             raptorPromise,
             beetlePromise,
@@ -867,6 +882,9 @@
             anuraPromise,
             serpentesPromise,
             turtlePromise,
+            threatenedPromise,
+            introducedPromise,
+            endemicPromise,
             ...taxonPromises,
           ]);
 
@@ -878,6 +896,9 @@
           const anuraSpeciesCount = anuraData.total_results || 0;
           const serpentesSpeciesCount = serpentesData.total_results || 0;
           const turtleSpeciesCount = turtleData.total_results || 0;
+          const threatenedSpeciesCount = threatenedData.total_results || 0;
+          const introducedSpeciesCount = introducedData.total_results || 0;
+          const endemicSpeciesCount = endemicData.total_results || 0;
 
           // Load all observations
           const obsResult = await loadAllObservations(userId);
@@ -903,7 +924,10 @@
               cetaceaSpeciesCount,
               anuraSpeciesCount,
               serpentesSpeciesCount,
-              turtleSpeciesCount
+              turtleSpeciesCount,
+              threatenedSpeciesCount,
+              introducedSpeciesCount,
+              endemicSpeciesCount
             );
           achievementsContainer.innerHTML = html;
 
@@ -967,31 +991,6 @@
         errorMessage.classList.remove("show");
       }
 
-      function calculateThreatenedSpeciesAchievement(observations) {
-        const threatenedSpecies = new Set();
-
-        observations.forEach((obs) => {
-          if (
-            obs.taxon &&
-            obs.taxon.id &&
-            (obs.taxon.conservation_status || obs.taxon.threatened)
-          ) {
-            threatenedSpecies.add(obs.taxon.id);
-          }
-        });
-
-        return threatenedSpecies.size;
-      }
-
-      function calculateThreatenedAchievement(observations, goal) {
-        const count = calculateThreatenedSpeciesAchievement(observations);
-        return {
-          current: count,
-          total: goal,
-          completed: count >= goal,
-        };
-      }
-
       function calculateStatusSpeciesAchievement(
         observations,
         statusCodes,
@@ -1018,44 +1017,6 @@
           total: goal,
           completed: species.size >= goal,
           taxonIds: Array.from(species),
-        };
-      }
-
-      function calculateIntroducedSpeciesAchievement(observations) {
-        const introducedSpecies = new Set();
-
-        observations.forEach((obs) => {
-          if (obs.taxon && obs.taxon.id && obs.taxon.introduced === true) {
-            introducedSpecies.add(obs.taxon.id);
-          }
-        });
-
-        return introducedSpecies.size;
-      }
-
-      function calculateIntroducedAchievement(observations, goal) {
-        const count = calculateIntroducedSpeciesAchievement(observations);
-        return {
-          current: count,
-          total: goal,
-          completed: count >= goal,
-        };
-      }
-
-      function calculateEndemicAchievement(observations, goal) {
-        const endemicSpecies = new Set();
-
-        observations.forEach((obs) => {
-          if (obs.taxon && obs.taxon.id && obs.taxon.endemic === true) {
-            endemicSpecies.add(obs.taxon.id);
-          }
-        });
-
-        return {
-          current: endemicSpecies.size,
-          total: goal,
-          completed: endemicSpecies.size >= goal,
-          taxonIds: Array.from(endemicSpecies),
         };
       }
 
@@ -1573,25 +1534,31 @@
         cetaceaSpeciesCount,
         anuraSpeciesCount,
         serpentesSpeciesCount,
-        turtleSpeciesCount
+        turtleSpeciesCount,
+        threatenedSpeciesCount,
+        introducedSpeciesCount,
+        endemicSpeciesCount
       ) {
         const iconicTaxonAchievement =
           calculateIconicTaxonAchievement(allObservations);
         const iconicPercentage =
           (iconicTaxonAchievement.current / iconicTaxonAchievement.total) * 100;
 
-        const threatened10 = calculateThreatenedAchievement(
-          allObservations,
-          10
-        );
-        const threatened50 = calculateThreatenedAchievement(
-          allObservations,
-          50
-        );
-        const threatened100 = calculateThreatenedAchievement(
-          allObservations,
-          100
-        );
+        const threatened10 = {
+          current: threatenedSpeciesCount,
+          total: 10,
+          completed: threatenedSpeciesCount >= 10,
+        };
+        const threatened50 = {
+          current: threatenedSpeciesCount,
+          total: 50,
+          completed: threatenedSpeciesCount >= 50,
+        };
+        const threatened100 = {
+          current: threatenedSpeciesCount,
+          total: 100,
+          completed: threatenedSpeciesCount >= 100,
+        };
 
         // Status-specific achievements
         const nearThreatened10 = calculateStatusSpeciesAchievement(
@@ -1621,21 +1588,28 @@
         );
 
         // Introduced species achievements
-        const introduced10 = calculateIntroducedAchievement(
-          allObservations,
-          10
-        );
-        const introduced50 = calculateIntroducedAchievement(
-          allObservations,
-          50
-        );
-        const introduced100 = calculateIntroducedAchievement(
-          allObservations,
-          100
-        );
+        const introduced10 = {
+          current: introducedSpeciesCount,
+          total: 10,
+          completed: introducedSpeciesCount >= 10,
+        };
+        const introduced50 = {
+          current: introducedSpeciesCount,
+          total: 50,
+          completed: introducedSpeciesCount >= 50,
+        };
+        const introduced100 = {
+          current: introducedSpeciesCount,
+          total: 100,
+          completed: introducedSpeciesCount >= 100,
+        };
 
         // Endemic species achievement
-        const endemic10 = calculateEndemicAchievement(allObservations, 10);
+        const endemic10 = {
+          current: endemicSpeciesCount,
+          total: 10,
+          completed: endemicSpeciesCount >= 10,
+        };
 
         // Observation achievements
         const obs100 = calculateCountAchievement(observationsCount, 100);
@@ -2210,11 +2184,7 @@
                 "🏝️",
                 "Endemic Explorer",
                 "Observe 10 endemic species",
-                endemic10.taxonIds.length > 0
-                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${endemic10.taxonIds.join(
-                      ","
-                    )}`
-                  : null
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&endemic=true`
               )}
             </div>
 
