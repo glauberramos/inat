@@ -2155,21 +2155,21 @@
                 "🦁",
                 "Conservation Ally",
                 "Observe 10 threatened species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true&view=species`
               )}
               ${renderAchievementCard(
                 threatened50,
                 "🦁",
                 "Conservation Champion",
                 "Observe 50 threatened species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true&view=species`
               )}
               ${renderAchievementCard(
                 threatened100,
                 "🦁",
                 "Conservation Hero",
                 "Observe 100 threatened species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true&view=species`
               )}
               ${renderAchievementCard(
                 nearThreatened10,
@@ -2179,7 +2179,7 @@
                 nearThreatened10.taxonIds.length > 0
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${nearThreatened10.taxonIds.join(
                       ","
-                    )}`
+                    )}&view=species`
                   : null
               )}
               ${renderAchievementCard(
@@ -2190,7 +2190,7 @@
                 vulnerable10.taxonIds.length > 0
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${vulnerable10.taxonIds.join(
                       ","
-                    )}`
+                    )}&view=species`
                   : null
               )}
               ${renderAchievementCard(
@@ -2201,7 +2201,7 @@
                 endangered5.taxonIds.length > 0
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${endangered5.taxonIds.join(
                       ","
-                    )}`
+                    )}&view=species`
                   : null
               )}
               ${renderAchievementCard(
@@ -2212,7 +2212,7 @@
                 criticallyEndangered1.taxonIds.length > 0
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${criticallyEndangered1.taxonIds.join(
                       ","
-                    )}`
+                    )}&view=species`
                   : null
               )}
               ${renderAchievementCard(
@@ -2223,7 +2223,7 @@
                 extinctInWild1.taxonIds.length > 0
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${extinctInWild1.taxonIds.join(
                       ","
-                    )}`
+                    )}&view=species`
                   : null
               )}
               ${renderAchievementCard(
@@ -2231,28 +2231,28 @@
                 "🌍",
                 "Invasive Spotter",
                 "Observe 10 introduced species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true&view=species`
               )}
               ${renderAchievementCard(
                 introduced50,
                 "🌍",
                 "Invasive Tracker",
                 "Observe 50 introduced species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true&view=species`
               )}
               ${renderAchievementCard(
                 introduced100,
                 "🌍",
                 "Invasive Expert",
                 "Observe 100 introduced species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true&view=species`
               )}
               ${renderAchievementCard(
                 endemic10,
                 "🏝️",
                 "Endemic Explorer",
                 "Observe 10 endemic species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&endemic=true`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&endemic=true&view=species`
               )}
             </div>
 
@@ -2266,7 +2266,7 @@
                 onlyObserver.taxonIds.length > 0
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${onlyObserver.taxonIds.join(
                       ","
-                    )}`
+                    )}&view=species`
                   : null
               )}
               ${renderAchievementCard(
@@ -2277,7 +2277,7 @@
                 rareSpecies100.taxonIds.length > 0
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${rareSpecies100.taxonIds.join(
                       ","
-                    )}`
+                    )}&view=species`
                   : null
               )}
               ${renderAchievementCard(
@@ -2288,7 +2288,7 @@
                 rareSpecies10.taxonIds.length > 0
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${rareSpecies10.taxonIds.join(
                       ","
-                    )}`
+                    )}&view=species`
                   : null
               )}
             </div>
@@ -2451,7 +2451,7 @@
                     data.emoji,
                     `${data.name} Expert`,
                     `Observe 100 ${data.name.toLowerCase()} species`,
-                    `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=${data.id}`
+                    `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=${data.id}&view=species`
                   )
                 )
                 .join("")}
@@ -2478,56 +2478,56 @@
                 "🦋",
                 "Lepidopterist",
                 "Observe 100 butterfly & moth species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=47157`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=47157&view=species`
               )}
               ${renderAchievementCard(
                 raptorWatcher,
                 "🦅",
                 "Raptor Watcher",
                 "Observe 25 birds of prey species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=71261,67570,19350,559244`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=71261,67570,19350,559244&view=species`
               )}
               ${renderAchievementCard(
                 coleopterist,
                 "🪲",
                 "Coleopterist",
                 "Observe 50 beetle species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=47208`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=47208&view=species`
               )}
               ${renderAchievementCard(
                 pollinatorPal,
                 "🐝",
                 "Pollinator Pal",
                 "Observe 50 bee species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=630955`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=630955&view=species`
               )}
               ${renderAchievementCard(
                 whaleWatcher,
                 "🐋",
                 "Whale Watcher",
                 "Observe 10 whale & dolphin species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=152871`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=152871&view=species`
               )}
               ${renderAchievementCard(
                 frogFinder,
                 "🐸",
                 "Frog Finder",
                 "Observe 25 frog & toad species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=20979`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=20979&view=species`
               )}
               ${renderAchievementCard(
                 snakeSpotter,
                 "🐍",
                 "Snake Spotter",
                 "Observe 25 snake species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=85553`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=85553&view=species`
               )}
               ${renderAchievementCard(
                 shellSeeker,
                 "🐢",
                 "Shell Seeker",
                 "Observe 15 turtle & tortoise species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=39532`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=39532&view=species`
               )}
             </div>
 
