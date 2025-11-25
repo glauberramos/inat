@@ -105,7 +105,6 @@
       );
 
       let searchTimeout = null;
-      let allObservations = [];
       let currentUsername = "";
 
       // All iconic taxons in iNaturalist with emojis
@@ -521,56 +520,12 @@
             histogramAchievements,
             conservationStatusAchievements,
             favoriteAchievements,
-            rarityAchievements,
-            false // observationsLoaded = false
+            rarityAchievements
           );
           achievementsContainer.innerHTML = result.html;
 
           // Update achievements progress
           let percentage = Math.round(
-            (result.completedCount / result.totalAchievements) * 100
-          );
-          achievementsProgress.textContent = `${result.completedCount}/${result.totalAchievements} (${percentage}%)`;
-          achievementsProgress.classList.add("show");
-
-          // Load all observations in the background for observation-dependent achievements
-          loading.style.display = "block";
-          const obsResult = await loadAllObservations(userId);
-          allObservations = obsResult.observations;
-          loading.style.display = "none";
-
-          // Re-render achievements with observation data
-          result = renderAchievements(
-            observationsTotalResults,
-            speciesCount,
-            identificationsCount,
-            idCategories,
-            maxSpeciesIdCount,
-            maxSpeciesName,
-            userCreatedAt,
-            iconicTaxonSpeciesCounts,
-            lepidopteraSpeciesCount,
-            raptorSpeciesCount,
-            beetleSpeciesCount,
-            beeSpeciesCount,
-            cetaceaSpeciesCount,
-            anuraSpeciesCount,
-            serpentesSpeciesCount,
-            turtleSpeciesCount,
-            threatenedSpeciesCount,
-            introducedSpeciesCount,
-            endemicSpeciesCount,
-            researchGradeCount,
-            histogramAchievements,
-            conservationStatusAchievements,
-            favoriteAchievements,
-            rarityAchievements,
-            true // observationsLoaded = true
-          );
-          achievementsContainer.innerHTML = result.html;
-
-          // Update achievements progress again
-          percentage = Math.round(
             (result.completedCount / result.totalAchievements) * 100
           );
           achievementsProgress.textContent = `${result.completedCount}/${result.totalAchievements} (${percentage}%)`;
@@ -668,44 +623,6 @@
         return allObservations;
       }
 
-      async function loadAllObservations(userId) {
-        const perPage = 200;
-        const today = new Date().toISOString().split("T")[0];
-        const loadingCount = document.getElementById("loadingCount");
-        const baseUrl = `https://api.inaturalist.org/v1/observations?user_id=${userId}&per_page=${perPage}&d2=${today}&order_by=id&order=asc&captive=false&verifiable=true`;
-
-        // First, load initial batch to get total_results
-        const firstResponse = await fetch(baseUrl);
-        const firstData = await firstResponse.json();
-
-        if (!firstData.results || firstData.results.length === 0) {
-          return { observations: [], totalResults: 0 };
-        }
-
-        let allResults = firstData.results;
-        const totalResults = firstData.total_results;
-        let lastId = firstData.results[firstData.results.length - 1].id;
-
-        loadingCount.textContent = `(${allResults.length.toLocaleString()} of ${totalResults.toLocaleString()} observations)`;
-
-        // Use id_above to fetch beyond 10k limit
-        while (allResults.length < totalResults) {
-          const response = await fetch(`${baseUrl}&id_above=${lastId}`);
-          const data = await response.json();
-
-          if (!data.results || data.results.length === 0) {
-            break;
-          }
-
-          allResults = allResults.concat(data.results);
-          lastId = data.results[data.results.length - 1].id;
-
-          loadingCount.textContent = `(${allResults.length.toLocaleString()} of ${totalResults.toLocaleString()} observations)`;
-        }
-
-        return { observations: allResults, totalResults };
-      }
-
       function showError(message) {
         errorMessage.textContent = message;
         errorMessage.classList.add("show");
@@ -713,35 +630,6 @@
 
       function hideError() {
         errorMessage.classList.remove("show");
-      }
-
-      function calculateStatusSpeciesAchievement(
-        observations,
-        statusCodes,
-        goal
-      ) {
-        const species = new Set();
-
-        observations.forEach((obs) => {
-          if (
-            obs.taxon &&
-            obs.taxon.id &&
-            obs.taxon.conservation_status &&
-            obs.taxon.conservation_status.status
-          ) {
-            const status = obs.taxon.conservation_status.status.toLowerCase();
-            if (statusCodes.includes(status)) {
-              species.add(obs.taxon.id);
-            }
-          }
-        });
-
-        return {
-          current: species.size,
-          total: goal,
-          completed: species.size >= goal,
-          taxonIds: Array.from(species),
-        };
       }
 
       function calculateStatusSpeciesAchievementFromSpeciesCounts(
@@ -826,99 +714,12 @@
         Antarctica: "🐧",
       };
 
-      function getContinent(lat, lng) {
-        if (lat === null || lng === null) return null;
-
-        // Antarctica
-        if (lat < -60) return "Antarctica";
-
-        // Oceania/Australia
-        if (lat < 0 && lng > 100 && lng <= 180) return "Oceania";
-        if (lat >= 0 && lat < 20 && lng > 95 && lng <= 180) return "Oceania";
-        if (lat < 0 && lng >= -180 && lng < -100) return "Oceania"; // Pacific islands
-
-        // South America
-        if (lat < 15 && lat > -60 && lng > -85 && lng < -30)
-          return "South America";
-
-        // North America (including Central America and Caribbean)
-        if (lat >= 7 && lat < 85 && lng >= -170 && lng < -30)
-          return "North America";
-
-        // Africa
-        if (lat > -40 && lat < 38 && lng >= -20 && lng < 55) return "Africa";
-
-        // Europe
-        if (lat >= 35 && lat < 75 && lng >= -25 && lng < 65) return "Europe";
-
-        // Asia (rest of Eastern hemisphere)
-        if (lng >= 25 || lng < -150) return "Asia";
-
-        return null;
-      }
-
-      function calculateContinentsAchievement(observations) {
-        const observedContinents = new Set();
-
-        observations.forEach((obs) => {
-          const lat =
-            obs.geojson?.coordinates?.[1] || obs.location?.split(",")[0];
-          const lng =
-            obs.geojson?.coordinates?.[0] || obs.location?.split(",")[1];
-
-          if (lat && lng) {
-            const continent = getContinent(parseFloat(lat), parseFloat(lng));
-            if (continent) {
-              observedContinents.add(continent);
-            }
-          }
-        });
-
-        const total = Object.keys(CONTINENTS).length;
-        return {
-          current: observedContinents.size,
-          total: total,
-          completed: observedContinents.size >= total,
-          observedContinents: observedContinents,
-        };
-      }
-
       const SEASONS = {
         Spring: "🌸",
         Summer: "☀️",
         Fall: "🍂",
         Winter: "❄️",
       };
-
-      function getSeason(dateStr) {
-        if (!dateStr) return null;
-        const date = new Date(dateStr);
-        const month = date.getMonth(); // 0-11
-
-        if (month >= 2 && month <= 4) return "Spring"; // Mar, Apr, May
-        if (month >= 5 && month <= 7) return "Summer"; // Jun, Jul, Aug
-        if (month >= 8 && month <= 10) return "Fall"; // Sep, Oct, Nov
-        return "Winter"; // Dec, Jan, Feb
-      }
-
-      function calculateSeasonsAchievement(observations) {
-        const observedSeasons = new Set();
-
-        observations.forEach((obs) => {
-          const season = getSeason(obs.observed_on);
-          if (season) {
-            observedSeasons.add(season);
-          }
-        });
-
-        const total = Object.keys(SEASONS).length;
-        return {
-          current: observedSeasons.size,
-          total: total,
-          completed: observedSeasons.size >= total,
-          observedSeasons: observedSeasons,
-        };
-      }
 
       const MONTHS = {
         Jan: "Jan",
@@ -934,150 +735,6 @@
         Nov: "Nov",
         Dec: "Dec",
       };
-
-      function calculateMonthsAchievement(observations) {
-        const observedMonths = new Set();
-
-        observations.forEach((obs) => {
-          if (obs.observed_on) {
-            const date = new Date(obs.observed_on);
-            const monthIndex = date.getMonth();
-            const monthNames = [
-              "Jan",
-              "Feb",
-              "Mar",
-              "Apr",
-              "May",
-              "Jun",
-              "Jul",
-              "Aug",
-              "Sep",
-              "Oct",
-              "Nov",
-              "Dec",
-            ];
-            observedMonths.add(monthNames[monthIndex]);
-          }
-        });
-
-        const total = Object.keys(MONTHS).length;
-        return {
-          current: observedMonths.size,
-          total: total,
-          completed: observedMonths.size >= total,
-          observedMonths: observedMonths,
-        };
-      }
-
-      function calculateSpeciesInDayAchievement(observations, goal) {
-        // Group species by date
-        const speciesByDate = {};
-
-        observations.forEach((obs) => {
-          if (obs.observed_on && obs.taxon && obs.taxon.id) {
-            if (!speciesByDate[obs.observed_on]) {
-              speciesByDate[obs.observed_on] = new Set();
-            }
-            speciesByDate[obs.observed_on].add(obs.taxon.id);
-          }
-        });
-
-        // Find max species in a single day
-        let maxSpecies = 0;
-        Object.values(speciesByDate).forEach((species) => {
-          maxSpecies = Math.max(maxSpecies, species.size);
-        });
-
-        return {
-          current: maxSpecies,
-          total: goal,
-          completed: maxSpecies >= goal,
-        };
-      }
-
-      function calculateVeteranAchievement(observations, years, goal) {
-        const now = new Date();
-        const cutoffDate = new Date(
-          now.getFullYear() - years,
-          now.getMonth(),
-          now.getDate()
-        );
-
-        let count = 0;
-
-        observations.forEach((obs) => {
-          if (obs.observed_on) {
-            const obsDate = new Date(obs.observed_on);
-            if (obsDate <= cutoffDate) {
-              count++;
-            }
-          }
-        });
-
-        return {
-          current: count,
-          total: goal,
-          completed: count >= goal,
-        };
-      }
-
-      function calculateFavoritedAchievement(observations, goal) {
-        let count = 0;
-
-        observations.forEach((obs) => {
-          if (obs.faves_count && obs.faves_count > 0) {
-            count++;
-          }
-        });
-
-        return {
-          current: count,
-          total: goal,
-          completed: count >= goal,
-        };
-      }
-
-      function calculateMostFavoritedAchievement(observations, minFaves) {
-        let count = 0;
-        const obsIds = [];
-
-        observations.forEach((obs) => {
-          if (obs.faves_count && obs.faves_count >= minFaves) {
-            count++;
-            obsIds.push(obs.id);
-          }
-        });
-
-        return {
-          current: count,
-          total: 1,
-          completed: count >= 1,
-          obsIds: obsIds,
-        };
-      }
-
-      function calculateRareSpeciesAchievement(
-        observations,
-        maxObsCount,
-        goal
-      ) {
-        const rareSpecies = new Set();
-
-        observations.forEach((obs) => {
-          if (obs.taxon && obs.taxon.id && obs.taxon.observations_count) {
-            if (obs.taxon.observations_count < maxObsCount) {
-              rareSpecies.add(obs.taxon.id);
-            }
-          }
-        });
-
-        return {
-          current: rareSpecies.size,
-          total: goal,
-          completed: rareSpecies.size >= goal,
-          taxonIds: Array.from(rareSpecies),
-        };
-      }
 
       function calculateRareSpeciesAchievementFromSpeciesCounts(
         speciesCounts,
@@ -1138,125 +795,6 @@
         };
       }
 
-      function calculateNewYearAchievement(observations, goal) {
-        let count = 0;
-
-        observations.forEach((obs) => {
-          if (obs.observed_on) {
-            const date = new Date(obs.observed_on);
-            const month = date.getMonth(); // 0 = January
-            const day = date.getDate();
-
-            if (month === 0 && day === 1) {
-              count++;
-            }
-          }
-        });
-
-        return {
-          current: count,
-          total: goal,
-          completed: count >= goal,
-        };
-      }
-
-      function calculateStreakAchievement(observations, goalDays) {
-        // Get all unique dates with observations
-        const datesWithObs = new Set();
-
-        observations.forEach((obs) => {
-          if (obs.observed_on) {
-            datesWithObs.add(obs.observed_on);
-          }
-        });
-
-        // Convert to sorted array of dates
-        const sortedDates = Array.from(datesWithObs).sort();
-
-        if (sortedDates.length === 0) {
-          return { current: 0, total: goalDays, completed: false };
-        }
-
-        // Calculate longest streak
-        let longestStreak = 1;
-        let currentStreak = 1;
-
-        for (let i = 1; i < sortedDates.length; i++) {
-          const prevDate = new Date(sortedDates[i - 1]);
-          const currDate = new Date(sortedDates[i]);
-          const diffDays = Math.round(
-            (currDate - prevDate) / (1000 * 60 * 60 * 24)
-          );
-
-          if (diffDays === 1) {
-            currentStreak++;
-            longestStreak = Math.max(longestStreak, currentStreak);
-          } else {
-            currentStreak = 1;
-          }
-        }
-
-        return {
-          current: longestStreak,
-          total: goalDays,
-          completed: longestStreak >= goalDays,
-        };
-      }
-
-      function calculateOnlyObserverAchievement(observations) {
-        // Group observations by taxon and count user's observations per taxon
-        const taxonCounts = {};
-        const taxonGlobalCounts = {};
-
-        observations.forEach((obs) => {
-          if (obs.taxon && obs.taxon.id) {
-            const taxonId = obs.taxon.id;
-            taxonCounts[taxonId] = (taxonCounts[taxonId] || 0) + 1;
-            taxonGlobalCounts[taxonId] = obs.taxon.observations_count || 0;
-          }
-        });
-
-        // Count species where user is the only observer
-        let onlyObserverCount = 0;
-        const onlyObserverTaxonIds = [];
-        Object.keys(taxonCounts).forEach((taxonId) => {
-          const userCount = taxonCounts[taxonId];
-          const globalCount = taxonGlobalCounts[taxonId];
-          if (userCount === globalCount && globalCount > 0) {
-            onlyObserverCount++;
-            onlyObserverTaxonIds.push(taxonId);
-          }
-        });
-
-        return {
-          current: onlyObserverCount,
-          total: 1,
-          taxonIds: onlyObserverTaxonIds,
-          completed: onlyObserverCount >= 1,
-        };
-      }
-
-      function calculateIconicTaxonAchievement(observations) {
-        const observedTaxons = new Set();
-
-        observations.forEach((obs) => {
-          if (obs.taxon && obs.taxon.iconic_taxon_name) {
-            observedTaxons.add(obs.taxon.iconic_taxon_name);
-          }
-        });
-
-        const taxonKeys = Object.keys(ICONIC_TAXONS);
-        const count = taxonKeys.filter((taxon) =>
-          observedTaxons.has(taxon)
-        ).length;
-        return {
-          current: count,
-          total: taxonKeys.length,
-          completed: count === taxonKeys.length,
-          observedTaxons: observedTaxons,
-        };
-      }
-
       function calculateIconicTaxonAchievementFromCounts(
         iconicTaxonSpeciesCounts
       ) {
@@ -1310,7 +848,6 @@
             streak7: { current: 0, total: 7, completed: false },
             streak30: { current: 0, total: 30, completed: false },
             newYear: { current: 0, total: 10, completed: false },
-            obsDay10: { current: 0, total: 10, completed: false },
             obsDay100: { current: 0, total: 100, completed: false },
             monthsAchievement: {
               current: 0,
@@ -1460,11 +997,6 @@
             total: 10,
             completed: newYearCount >= 10,
           },
-          obsDay10: {
-            current: maxObsInDay,
-            total: 10,
-            completed: maxObsInDay >= 10,
-          },
           obsDay100: {
             current: maxObsInDay,
             total: 100,
@@ -1509,8 +1041,7 @@
         histogramAchievements,
         conservationStatusAchievements,
         favoriteAchievements,
-        rarityAchievements,
-        observationsLoaded = true
+        rarityAchievements
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
         const iconicTaxonAchievement =
@@ -1635,9 +1166,13 @@
         // Only observer achievement - use pre-calculated from species counts
         const onlyObserver = rarityAchievements.onlyObserver;
 
-        // Continents achievement
-        const continentsAchievement =
-          calculateContinentsAchievement(allObservations);
+        // Continents achievement - WIP: requires all observations
+        const continentsAchievement = {
+          current: 0,
+          total: 7,
+          completed: false,
+          observedContinents: new Set(),
+        };
 
         // Use histogram-based achievements for seasons, months, and streaks
         const seasonsAchievement = histogramAchievements.seasonsAchievement;
@@ -1664,18 +1199,11 @@
         const rareSpecies100 = rarityAchievements.rareSpecies100;
         const rareSpecies10 = rarityAchievements.rareSpecies10;
 
-        // Species in a day achievements
-        const speciesDay10 = calculateSpeciesInDayAchievement(
-          allObservations,
-          10
-        );
-        const speciesDay100 = calculateSpeciesInDayAchievement(
-          allObservations,
-          100
-        );
+        // Species in a day achievements - WIP: requires all observations
+        const speciesDay10 = { current: 0, total: 10, completed: false };
+        const speciesDay100 = { current: 0, total: 100, completed: false };
 
         // Observations in a day achievements - use histogram data
-        const obsDay10 = histogramAchievements.obsDay10;
         const obsDay100 = histogramAchievements.obsDay100;
 
         // Species per iconic taxon achievements (100 each)
@@ -1828,7 +1356,6 @@
           newYear,
           speciesDay10,
           speciesDay100,
-          obsDay10,
           obsDay100,
           veteran2,
           veteran5,
@@ -2235,24 +1762,16 @@
               ${renderAchievementCard(
                 speciesDay10,
                 "🌈",
-                "Diversity Day",
+                "Diversity Day (WIP)",
                 "10 species in a single day",
                 null,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 speciesDay100,
                 "🌈",
-                "Biodiversity Blitz",
+                "Biodiversity Blitz (WIP)",
                 "100 species in a single day",
-                null,
-                !observationsLoaded
-              )}
-              ${renderAchievementCard(
-                obsDay10,
-                "📸",
-                "Productive Day",
-                "10 observations in a single day",
                 null,
                 false
               )}
@@ -2453,10 +1972,10 @@
             <div class="achievements-grid">
               <div class="achievement-card ${
                 continentsAchievement.completed ? "completed" : ""
-              } ${!observationsLoaded ? "loading" : ""}">
+              }">
                 <div class="achievement-icon">✈️</div>
                 <div class="achievement-content">
-                  <div class="achievement-name">World Traveler</div>
+                  <div class="achievement-name">World Traveler (WIP)</div>
                   <div class="achievement-description">Observe in all 7 continents</div>
                   <div class="achievement-progress">
                     <div class="progress-bar">
@@ -2546,7 +2065,7 @@
       data-domain="glauberramos.github.io/inat"
       src="https://plausible.io/js/script.js"
     ></script>
-    <script type="text/javascript">
+    <!-- <script type="text/javascript">
       window.$pipeback = [];
       window.PIPEBACK_ID = "a069b910-4aef-4233-99cc-913e7fb30fb5";
       (function () {
@@ -2556,6 +2075,6 @@
         s.async = 1;
         d.getElementsByTagName("head")[0].appendChild(s);
       })();
-    </script>
+    </script> -->
   </body>
 </html>
