@@ -356,6 +356,9 @@
           // Fetch favorite observations for favorite achievements
           const favoriteObservationsPromise = loadFavoriteObservations(userId);
 
+          // Fetch all species counts for rarity achievements
+          const allSpeciesCountsPromise = loadAllSpeciesCounts(userId);
+
           const [
             iconicTaxaData,
             lepidopteraData,
@@ -373,6 +376,7 @@
             histogramData,
             threatenedSpecies,
             favoriteObservations,
+            allSpeciesCounts,
           ] = await Promise.all([
             iconicTaxaPromise,
             lepidopteraPromise,
@@ -390,6 +394,7 @@
             histogramPromise,
             threatenedSpeciesPromise,
             favoriteObservationsPromise,
+            allSpeciesCountsPromise,
           ]);
 
           // Process iconic taxa data - map taxon IDs to names
@@ -467,6 +472,13 @@
           // Calculate favorite achievements from favorite observations
           const favoriteAchievements = calculateFavoriteAchievements(favoriteObservations);
 
+          // Calculate rarity achievements from species counts
+          const rarityAchievements = {
+            onlyObserver: calculateOnlyObserverAchievementFromSpeciesCounts(allSpeciesCounts),
+            rareSpecies100: calculateRareSpeciesAchievementFromSpeciesCounts(allSpeciesCounts, 100, 10),
+            rareSpecies10: calculateRareSpeciesAchievementFromSpeciesCounts(allSpeciesCounts, 10, 10),
+          };
+
           // Display achievements immediately with available data (without observations)
           loading.style.display = "none";
           let result = renderAchievements(
@@ -493,6 +505,7 @@
             histogramAchievements,
             conservationStatusAchievements,
             favoriteAchievements,
+            rarityAchievements,
             false // observationsLoaded = false
           );
           achievementsContainer.innerHTML = result.html;
@@ -535,6 +548,7 @@
             histogramAchievements,
             conservationStatusAchievements,
             favoriteAchievements,
+            rarityAchievements,
             true // observationsLoaded = true
           );
           achievementsContainer.innerHTML = result.html;
@@ -550,6 +564,34 @@
           loading.style.display = "none";
           showError("Error fetching data. Please try again.");
         }
+      }
+
+      async function loadAllSpeciesCounts(userId) {
+        const perPage = 500;
+        let page = 1;
+        let allSpecies = [];
+        let hasMore = true;
+
+        while (hasMore) {
+          const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}&captive=false&verifiable=true`;
+          const response = await fetch(url);
+          const data = await response.json();
+
+          if (!data.results || data.results.length === 0) {
+            hasMore = false;
+          } else {
+            allSpecies = allSpecies.concat(data.results);
+
+            // Check if there are more pages
+            if (allSpecies.length >= data.total_results) {
+              hasMore = false;
+            } else {
+              page++;
+            }
+          }
+        }
+
+        return allSpecies;
       }
 
       async function loadThreatenedSpecies(userId) {
@@ -1059,6 +1101,55 @@
         };
       }
 
+      function calculateRareSpeciesAchievementFromSpeciesCounts(
+        speciesCounts,
+        maxObsCount,
+        goal
+      ) {
+        const rareSpecies = [];
+
+        speciesCounts.forEach((species) => {
+          if (species.taxon && species.taxon.id && species.taxon.observations_count) {
+            if (species.taxon.observations_count < maxObsCount) {
+              rareSpecies.push(species.taxon.id);
+            }
+          }
+        });
+
+        return {
+          current: rareSpecies.length,
+          total: goal,
+          completed: rareSpecies.length >= goal,
+          taxonIds: rareSpecies,
+        };
+      }
+
+      function calculateOnlyObserverAchievementFromSpeciesCounts(speciesCounts) {
+        // Find species where user's count equals the global observation count
+        // (meaning user is the only observer)
+        const onlyObserverTaxonIds = [];
+
+        speciesCounts.forEach((species) => {
+          if (species.taxon && species.taxon.id && species.taxon.observations_count) {
+            // User's observation count for this species
+            const userCount = species.count;
+            // Global observation count for this species
+            const globalCount = species.taxon.observations_count;
+
+            if (userCount === globalCount && globalCount > 0) {
+              onlyObserverTaxonIds.push(species.taxon.id);
+            }
+          }
+        });
+
+        return {
+          current: onlyObserverTaxonIds.length,
+          total: 1,
+          taxonIds: onlyObserverTaxonIds,
+          completed: onlyObserverTaxonIds.length >= 1,
+        };
+      }
+
       function calculateNewYearAchievement(observations, goal) {
         let count = 0;
 
@@ -1070,60 +1161,6 @@
 
             if (month === 0 && day === 1) {
               count++;
-            }
-          }
-        });
-
-        return {
-          current: count,
-          total: goal,
-          completed: count >= goal,
-        };
-      }
-
-      function calculateTimeOfDayAchievement(
-        observations,
-        startHour,
-        endHour,
-        goal
-      ) {
-        let count = 0;
-
-        observations.forEach((obs) => {
-          if (obs.time_observed_at) {
-            let hour;
-
-            // Use observation's timezone if available
-            if (obs.observed_time_zone) {
-              try {
-                const date = new Date(obs.time_observed_at);
-                const formatter = new Intl.DateTimeFormat("en-US", {
-                  hour: "numeric",
-                  hour12: false,
-                  timeZone: obs.observed_time_zone,
-                });
-                hour = parseInt(formatter.format(date), 10);
-              } catch (e) {
-                // Fallback to UTC if timezone is invalid
-                const date = new Date(obs.time_observed_at);
-                hour = date.getUTCHours();
-              }
-            } else {
-              // Fallback to UTC
-              const date = new Date(obs.time_observed_at);
-              hour = date.getUTCHours();
-            }
-
-            if (startHour < endHour) {
-              // Normal range (e.g., 0-7 for early bird)
-              if (hour >= startHour && hour < endHour) {
-                count++;
-              }
-            } else {
-              // Wrap around range (e.g., 20-24 for night owl)
-              if (hour >= startHour || hour < endHour) {
-                count++;
-              }
             }
           }
         });
@@ -1400,6 +1437,7 @@
         histogramAchievements,
         conservationStatusAchievements,
         favoriteAchievements,
+        rarityAchievements,
         observationsLoaded = true
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
@@ -1519,8 +1557,8 @@
           1000
         );
 
-        // Only observer achievement
-        const onlyObserver = calculateOnlyObserverAchievement(allObservations);
+        // Only observer achievement - use pre-calculated from species counts
+        const onlyObserver = rarityAchievements.onlyObserver;
 
         // Continents achievement
         const continentsAchievement =
@@ -1531,20 +1569,6 @@
         const monthsAchievement = histogramAchievements.monthsAchievement;
         const streak7 = histogramAchievements.streak7;
         const streak30 = histogramAchievements.streak30;
-
-        // Time of day achievements
-        const earlyBird = calculateTimeOfDayAchievement(
-          allObservations,
-          0,
-          7,
-          50
-        );
-        const nightOwl = calculateTimeOfDayAchievement(
-          allObservations,
-          20,
-          24,
-          50
-        );
 
         // Use histogram-based achievements for New Year and Veteran
         const newYear = histogramAchievements.newYear;
@@ -1564,17 +1588,9 @@
         // Commented achievement still requires all observations
         const commented10 = calculateCommentedAchievement(allObservations, 10);
 
-        // Rare species achievements
-        const rareSpecies100 = calculateRareSpeciesAchievement(
-          allObservations,
-          100,
-          10
-        );
-        const rareSpecies10 = calculateRareSpeciesAchievement(
-          allObservations,
-          10,
-          10
-        );
+        // Rare species achievements - use pre-calculated from species counts
+        const rareSpecies100 = rarityAchievements.rareSpecies100;
+        const rareSpecies10 = rarityAchievements.rareSpecies10;
 
         // Species in a day achievements
         const speciesDay10 = calculateSpeciesInDayAchievement(
@@ -1739,8 +1755,6 @@
           monthsAchievement,
           streak7,
           streak30,
-          earlyBird,
-          nightOwl,
           newYear,
           speciesDay10,
           speciesDay100,
@@ -2094,7 +2108,7 @@
                       ","
                     )}&view=species`
                   : null,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 rareSpecies100,
@@ -2106,7 +2120,7 @@
                       ","
                     )}&view=species`
                   : null,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 rareSpecies10,
@@ -2118,7 +2132,7 @@
                       ","
                     )}&view=species`
                   : null,
-                !observationsLoaded
+                false
               )}
             </div>
 
@@ -2139,22 +2153,6 @@
                 "30-day observation streak",
                 null,
                 false
-              )}
-              ${renderAchievementCard(
-                earlyBird,
-                "🌅",
-                "Early Bird",
-                "50 observations before 7am",
-                null,
-                !observationsLoaded
-              )}
-              ${renderAchievementCard(
-                nightOwl,
-                "🦉",
-                "Night Owl",
-                "50 observations after 8pm",
-                null,
-                !observationsLoaded
               )}
               ${renderAchievementCard(
                 newYear,
