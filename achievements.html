@@ -438,15 +438,18 @@
           const observationsTotalResults = user.observations_count || 0;
 
           // Calculate histogram-based achievements
-          const histogramAchievements = calculateHistogramAchievements(histogramData.results?.day || {});
+          const histogramAchievements = calculateHistogramAchievements(
+            histogramData.results?.day || {}
+          );
 
           // Calculate conservation status achievements from threatened species
           const conservationStatusAchievements = {
-            nearThreatened10: calculateStatusSpeciesAchievementFromSpeciesCounts(
-              threatenedSpecies,
-              ["nt", "near_threatened", "near threatened"],
-              10
-            ),
+            nearThreatened10:
+              calculateStatusSpeciesAchievementFromSpeciesCounts(
+                threatenedSpecies,
+                ["nt", "near_threatened", "near threatened"],
+                10
+              ),
             vulnerable10: calculateStatusSpeciesAchievementFromSpeciesCounts(
               threatenedSpecies,
               ["vu", "vulnerable"],
@@ -457,11 +460,12 @@
               ["en", "endangered"],
               5
             ),
-            criticallyEndangered1: calculateStatusSpeciesAchievementFromSpeciesCounts(
-              threatenedSpecies,
-              ["cr", "critically_endangered", "critically endangered"],
-              1
-            ),
+            criticallyEndangered1:
+              calculateStatusSpeciesAchievementFromSpeciesCounts(
+                threatenedSpecies,
+                ["cr", "critically_endangered", "critically endangered"],
+                1
+              ),
             extinctInWild1: calculateStatusSpeciesAchievementFromSpeciesCounts(
               threatenedSpecies,
               ["ew", "extinct_in_the_wild", "extinct in the wild"],
@@ -470,13 +474,25 @@
           };
 
           // Calculate favorite achievements from favorite observations
-          const favoriteAchievements = calculateFavoriteAchievements(favoriteObservations);
+          const favoriteAchievements =
+            calculateFavoriteAchievements(favoriteObservations);
 
           // Calculate rarity achievements from species counts
           const rarityAchievements = {
-            onlyObserver: calculateOnlyObserverAchievementFromSpeciesCounts(allSpeciesCounts),
-            rareSpecies100: calculateRareSpeciesAchievementFromSpeciesCounts(allSpeciesCounts, 100, 10),
-            rareSpecies10: calculateRareSpeciesAchievementFromSpeciesCounts(allSpeciesCounts, 10, 10),
+            onlyObserver:
+              calculateOnlyObserverAchievementFromSpeciesCounts(
+                allSpeciesCounts
+              ),
+            rareSpecies100: calculateRareSpeciesAchievementFromSpeciesCounts(
+              allSpeciesCounts,
+              100,
+              10
+            ),
+            rareSpecies10: calculateRareSpeciesAchievementFromSpeciesCounts(
+              allSpeciesCounts,
+              10,
+              10
+            ),
           };
 
           // Display achievements immediately with available data (without observations)
@@ -629,7 +645,8 @@
         let hasMore = true;
 
         // Fetch observations ordered by votes/faves
-        while (hasMore && page <= 5) { // Limit to 5 pages (1000 observations) to avoid excessive loading
+        while (hasMore && page <= 5) {
+          // Limit to 5 pages (1000 observations) to avoid excessive loading
           const url = `https://api.inaturalist.org/v2/observations?per_page=${perPage}&order_by=votes&order=desc&user_id=${userId}&fields=id,faves_count&page=${page}`;
           const response = await fetch(url);
           const data = await response.json();
@@ -741,7 +758,8 @@
             speciesData.taxon.conservation_status &&
             speciesData.taxon.conservation_status.status
           ) {
-            const status = speciesData.taxon.conservation_status.status.toLowerCase();
+            const status =
+              speciesData.taxon.conservation_status.status.toLowerCase();
             if (statusCodes.includes(status)) {
               species.add(speciesData.taxon.id);
             }
@@ -758,13 +776,15 @@
 
       function calculateFavoriteAchievements(favoriteObservations) {
         // Count observations with at least 1 favorite
-        const obsWithFaves = favoriteObservations.filter(obs => obs.faves_count > 0);
+        const obsWithFaves = favoriteObservations.filter(
+          (obs) => obs.faves_count > 0
+        );
 
         // Find max faves count and the observation IDs with 10+ faves
         let maxFaves = 0;
         const obsWithTenPlusFaves = [];
 
-        favoriteObservations.forEach(obs => {
+        favoriteObservations.forEach((obs) => {
           if (obs.faves_count > maxFaves) {
             maxFaves = obs.faves_count;
           }
@@ -1109,7 +1129,11 @@
         const rareSpecies = [];
 
         speciesCounts.forEach((species) => {
-          if (species.taxon && species.taxon.id && species.taxon.observations_count) {
+          if (
+            species.taxon &&
+            species.taxon.id &&
+            species.taxon.observations_count
+          ) {
             if (species.taxon.observations_count < maxObsCount) {
               rareSpecies.push(species.taxon.id);
             }
@@ -1124,13 +1148,19 @@
         };
       }
 
-      function calculateOnlyObserverAchievementFromSpeciesCounts(speciesCounts) {
+      function calculateOnlyObserverAchievementFromSpeciesCounts(
+        speciesCounts
+      ) {
         // Find species where user's count equals the global observation count
         // (meaning user is the only observer)
         const onlyObserverTaxonIds = [];
 
         speciesCounts.forEach((species) => {
-          if (species.taxon && species.taxon.id && species.taxon.observations_count) {
+          if (
+            species.taxon &&
+            species.taxon.id &&
+            species.taxon.observations_count
+          ) {
             // User's observation count for this species
             const userCount = species.count;
             // Global observation count for this species
@@ -1269,7 +1299,9 @@
         };
       }
 
-      function calculateIconicTaxonAchievementFromCounts(iconicTaxonSpeciesCounts) {
+      function calculateIconicTaxonAchievementFromCounts(
+        iconicTaxonSpeciesCounts
+      ) {
         const observedTaxons = new Set();
         const taxonKeys = Object.keys(ICONIC_TAXONS);
 
@@ -1309,7 +1341,7 @@
         // histogram is an object like: { "2020-01-01": 5, "2020-01-02": 3, ... }
         // Filter out dates with 0 observations
         const dates = Object.keys(histogram)
-          .filter(date => histogram[date] > 0)
+          .filter((date) => histogram[date] > 0)
           .sort();
 
         if (dates.length === 0) {
@@ -1320,22 +1352,44 @@
             streak7: { current: 0, total: 7, completed: false },
             streak30: { current: 0, total: 30, completed: false },
             newYear: { current: 0, total: 10, completed: false },
-            monthsAchievement: { current: 0, total: 12, completed: false, observedMonths: new Set() },
-            seasonsAchievement: { current: 0, total: 4, completed: false, observedSeasons: new Set() },
+            monthsAchievement: {
+              current: 0,
+              total: 12,
+              completed: false,
+              observedMonths: new Set(),
+            },
+            seasonsAchievement: {
+              current: 0,
+              total: 4,
+              completed: false,
+              observedSeasons: new Set(),
+            },
           };
         }
 
         // Veteran achievements (observations from X years ago)
         const now = new Date();
-        const cutoff2Years = new Date(now.getFullYear() - 2, now.getMonth(), now.getDate());
-        const cutoff5Years = new Date(now.getFullYear() - 5, now.getMonth(), now.getDate());
-        const cutoff10Years = new Date(now.getFullYear() - 10, now.getMonth(), now.getDate());
+        const cutoff2Years = new Date(
+          now.getFullYear() - 2,
+          now.getMonth(),
+          now.getDate()
+        );
+        const cutoff5Years = new Date(
+          now.getFullYear() - 5,
+          now.getMonth(),
+          now.getDate()
+        );
+        const cutoff10Years = new Date(
+          now.getFullYear() - 10,
+          now.getMonth(),
+          now.getDate()
+        );
 
         let veteran2Count = 0;
         let veteran5Count = 0;
         let veteran10Count = 0;
 
-        dates.forEach(dateStr => {
+        dates.forEach((dateStr) => {
           const date = new Date(dateStr);
           const count = histogram[dateStr];
           if (date <= cutoff2Years) veteran2Count += count;
@@ -1350,7 +1404,9 @@
         for (let i = 1; i < dates.length; i++) {
           const prevDate = new Date(dates[i - 1]);
           const currDate = new Date(dates[i]);
-          const diffDays = Math.round((currDate - prevDate) / (1000 * 60 * 60 * 24));
+          const diffDays = Math.round(
+            (currDate - prevDate) / (1000 * 60 * 60 * 24)
+          );
 
           if (diffDays === 1) {
             currentStreak++;
@@ -1362,7 +1418,7 @@
 
         // New Year achievement (observations on January 1st)
         let newYearCount = 0;
-        dates.forEach(dateStr => {
+        dates.forEach((dateStr) => {
           const date = new Date(dateStr);
           if (date.getMonth() === 0 && date.getDate() === 1) {
             newYearCount += histogram[dateStr];
@@ -1371,8 +1427,21 @@
 
         // Months achievement
         const observedMonths = new Set();
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        dates.forEach(dateStr => {
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        dates.forEach((dateStr) => {
           const date = new Date(dateStr);
           const monthIndex = date.getMonth();
           observedMonths.add(monthNames[monthIndex]);
@@ -1380,7 +1449,7 @@
 
         // Seasons achievement
         const observedSeasons = new Set();
-        dates.forEach(dateStr => {
+        dates.forEach((dateStr) => {
           const date = new Date(dateStr);
           const month = date.getMonth(); // 0-11
           let season;
@@ -1392,23 +1461,47 @@
         });
 
         return {
-          veteran2: { current: veteran2Count >= 1 ? 1 : 0, total: 1, completed: veteran2Count >= 1 },
-          veteran5: { current: veteran5Count >= 1 ? 1 : 0, total: 1, completed: veteran5Count >= 1 },
-          veteran10: { current: veteran10Count >= 1 ? 1 : 0, total: 1, completed: veteran10Count >= 1 },
-          streak7: { current: longestStreak, total: 7, completed: longestStreak >= 7 },
-          streak30: { current: longestStreak, total: 30, completed: longestStreak >= 30 },
-          newYear: { current: newYearCount, total: 10, completed: newYearCount >= 10 },
+          veteran2: {
+            current: veteran2Count >= 1 ? 1 : 0,
+            total: 1,
+            completed: veteran2Count >= 1,
+          },
+          veteran5: {
+            current: veteran5Count >= 1 ? 1 : 0,
+            total: 1,
+            completed: veteran5Count >= 1,
+          },
+          veteran10: {
+            current: veteran10Count >= 1 ? 1 : 0,
+            total: 1,
+            completed: veteran10Count >= 1,
+          },
+          streak7: {
+            current: longestStreak,
+            total: 7,
+            completed: longestStreak >= 7,
+          },
+          streak30: {
+            current: longestStreak,
+            total: 30,
+            completed: longestStreak >= 30,
+          },
+          newYear: {
+            current: newYearCount,
+            total: 10,
+            completed: newYearCount >= 10,
+          },
           monthsAchievement: {
             current: observedMonths.size,
             total: 12,
             completed: observedMonths.size >= 12,
-            observedMonths: observedMonths
+            observedMonths: observedMonths,
           },
           seasonsAchievement: {
             current: observedSeasons.size,
             total: 4,
             completed: observedSeasons.size >= 4,
-            observedSeasons: observedSeasons
+            observedSeasons: observedSeasons,
           },
         };
       }
@@ -1441,7 +1534,8 @@
         observationsLoaded = true
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
-        const iconicTaxonAchievement = calculateIconicTaxonAchievementFromCounts(iconicTaxonSpeciesCounts);
+        const iconicTaxonAchievement =
+          calculateIconicTaxonAchievementFromCounts(iconicTaxonSpeciesCounts);
         const iconicPercentage =
           (iconicTaxonAchievement.current / iconicTaxonAchievement.total) * 100;
 
@@ -1462,10 +1556,12 @@
         };
 
         // Use conservation status achievements from API data
-        const nearThreatened10 = conservationStatusAchievements.nearThreatened10;
+        const nearThreatened10 =
+          conservationStatusAchievements.nearThreatened10;
         const vulnerable10 = conservationStatusAchievements.vulnerable10;
         const endangered5 = conservationStatusAchievements.endangered5;
-        const criticallyEndangered1 = conservationStatusAchievements.criticallyEndangered1;
+        const criticallyEndangered1 =
+          conservationStatusAchievements.criticallyEndangered1;
         const extinctInWild1 = conservationStatusAchievements.extinctInWild1;
 
         // Introduced species achievements
