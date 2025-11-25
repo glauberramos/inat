@@ -387,17 +387,29 @@
             threatenedSpeciesPromise,
           ]);
 
-          // Process iconic taxa data
+          // Process iconic taxa data - map taxon IDs to names
           const iconicTaxonSpeciesCounts = {};
           if (iconicTaxaData.results) {
+            // Create a reverse mapping from taxon ID to name
+            const idToName = {};
+            Object.entries(ICONIC_TAXONS).forEach(([name, data]) => {
+              idToName[data.id] = name;
+            });
+
             iconicTaxaData.results.forEach((item) => {
-              // Map the iconic_taxon_name to our ICONIC_TAXONS keys
-              const taxonName = item.iconic_taxon_name;
-              if (taxonName && ICONIC_TAXONS[taxonName]) {
-                iconicTaxonSpeciesCounts[taxonName] = item.count || 0;
+              const taxonId = item.taxon?.id;
+              if (taxonId && idToName[taxonId]) {
+                iconicTaxonSpeciesCounts[idToName[taxonId]] = item.count || 0;
               }
             });
           }
+
+          // Ensure all iconic taxons have a count (even if 0)
+          Object.keys(ICONIC_TAXONS).forEach((taxonName) => {
+            if (!(taxonName in iconicTaxonSpeciesCounts)) {
+              iconicTaxonSpeciesCounts[taxonName] = 0;
+            }
+          });
 
           const lepidopteraSpeciesCount = lepidopteraData.total_results || 0;
           const raptorSpeciesCount = raptorData.total_results || 0;
