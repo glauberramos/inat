@@ -357,6 +357,9 @@
             `https://api.inaturalist.org/v2/observations/histogram?interval=day&d1=1900-01-01&user_id=${userId}&captive=false&verifiable=true`
           ).then((res) => res.json());
 
+          // Fetch threatened species with conservation status details
+          const threatenedSpeciesPromise = loadThreatenedSpecies(userId);
+
           const [
             lepidopteraData,
             raptorData,
@@ -371,6 +374,7 @@
             endemicData,
             researchGradeData,
             histogramData,
+            threatenedSpecies,
           ] = await Promise.all([
             lepidopteraPromise,
             raptorPromise,
@@ -385,6 +389,7 @@
             endemicPromise,
             researchGradePromise,
             histogramPromise,
+            threatenedSpeciesPromise,
             ...taxonPromises,
           ]);
 
@@ -406,6 +411,35 @@
 
           // Calculate histogram-based achievements
           const histogramAchievements = calculateHistogramAchievements(histogramData.results?.day || {});
+
+          // Calculate conservation status achievements from threatened species
+          const conservationStatusAchievements = {
+            nearThreatened10: calculateStatusSpeciesAchievementFromSpeciesCounts(
+              threatenedSpecies,
+              ["nt", "near_threatened", "near threatened"],
+              10
+            ),
+            vulnerable10: calculateStatusSpeciesAchievementFromSpeciesCounts(
+              threatenedSpecies,
+              ["vu", "vulnerable"],
+              10
+            ),
+            endangered5: calculateStatusSpeciesAchievementFromSpeciesCounts(
+              threatenedSpecies,
+              ["en", "endangered"],
+              5
+            ),
+            criticallyEndangered1: calculateStatusSpeciesAchievementFromSpeciesCounts(
+              threatenedSpecies,
+              ["cr", "critically_endangered", "critically endangered"],
+              1
+            ),
+            extinctInWild1: calculateStatusSpeciesAchievementFromSpeciesCounts(
+              threatenedSpecies,
+              ["ew", "extinct_in_the_wild", "extinct in the wild"],
+              1
+            ),
+          };
 
           // Display achievements immediately with available data (without observations)
           loading.style.display = "none";
@@ -431,6 +465,7 @@
             endemicSpeciesCount,
             researchGradeCount,
             histogramAchievements,
+            conservationStatusAchievements,
             false // observationsLoaded = false
           );
           achievementsContainer.innerHTML = result.html;
@@ -471,6 +506,7 @@
             endemicSpeciesCount,
             researchGradeCount,
             histogramAchievements,
+            conservationStatusAchievements,
             true // observationsLoaded = true
           );
           achievementsContainer.innerHTML = result.html;
@@ -486,6 +522,34 @@
           loading.style.display = "none";
           showError("Error fetching data. Please try again.");
         }
+      }
+
+      async function loadThreatenedSpecies(userId) {
+        const perPage = 500;
+        let page = 1;
+        let allSpecies = [];
+        let hasMore = true;
+
+        while (hasMore) {
+          const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&threatened=true&per_page=${perPage}&page=${page}&captive=false&verifiable=true`;
+          const response = await fetch(url);
+          const data = await response.json();
+
+          if (!data.results || data.results.length === 0) {
+            hasMore = false;
+          } else {
+            allSpecies = allSpecies.concat(data.results);
+
+            // Check if there are more pages
+            if (allSpecies.length >= data.total_results) {
+              hasMore = false;
+            } else {
+              page++;
+            }
+          }
+        }
+
+        return allSpecies;
       }
 
       async function loadAllObservations(userId) {
@@ -552,6 +616,35 @@
             const status = obs.taxon.conservation_status.status.toLowerCase();
             if (statusCodes.includes(status)) {
               species.add(obs.taxon.id);
+            }
+          }
+        });
+
+        return {
+          current: species.size,
+          total: goal,
+          completed: species.size >= goal,
+          taxonIds: Array.from(species),
+        };
+      }
+
+      function calculateStatusSpeciesAchievementFromSpeciesCounts(
+        threatenedSpecies,
+        statusCodes,
+        goal
+      ) {
+        const species = new Set();
+
+        threatenedSpecies.forEach((speciesData) => {
+          if (
+            speciesData.taxon &&
+            speciesData.taxon.id &&
+            speciesData.taxon.conservation_status &&
+            speciesData.taxon.conservation_status.status
+          ) {
+            const status = speciesData.taxon.conservation_status.status.toLowerCase();
+            if (statusCodes.includes(status)) {
+              species.add(speciesData.taxon.id);
             }
           }
         });
@@ -1216,6 +1309,7 @@
         endemicSpeciesCount,
         researchGradeCount,
         histogramAchievements,
+        conservationStatusAchievements,
         observationsLoaded = true
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
@@ -1239,32 +1333,12 @@
           completed: threatenedSpeciesCount >= 100,
         };
 
-        // Status-specific achievements
-        const nearThreatened10 = calculateStatusSpeciesAchievement(
-          allObservations,
-          ["nt", "near_threatened", "near threatened"],
-          10
-        );
-        const vulnerable10 = calculateStatusSpeciesAchievement(
-          allObservations,
-          ["vu", "vulnerable"],
-          10
-        );
-        const endangered5 = calculateStatusSpeciesAchievement(
-          allObservations,
-          ["en", "endangered"],
-          5
-        );
-        const criticallyEndangered1 = calculateStatusSpeciesAchievement(
-          allObservations,
-          ["cr", "critically_endangered", "critically endangered"],
-          1
-        );
-        const extinctInWild1 = calculateStatusSpeciesAchievement(
-          allObservations,
-          ["ew", "extinct_in_the_wild", "extinct in the wild"],
-          1
-        );
+        // Use conservation status achievements from API data
+        const nearThreatened10 = conservationStatusAchievements.nearThreatened10;
+        const vulnerable10 = conservationStatusAchievements.vulnerable10;
+        const endangered5 = conservationStatusAchievements.endangered5;
+        const criticallyEndangered1 = conservationStatusAchievements.criticallyEndangered1;
+        const extinctInWild1 = conservationStatusAchievements.extinctInWild1;
 
         // Introduced species achievements
         const introduced10 = {
@@ -1835,7 +1909,7 @@
                       ","
                     )}&view=species`
                   : null,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 vulnerable10,
@@ -1847,7 +1921,7 @@
                       ","
                     )}&view=species`
                   : null,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 endangered5,
@@ -1859,7 +1933,7 @@
                       ","
                     )}&view=species`
                   : null,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 criticallyEndangered1,
@@ -1871,7 +1945,7 @@
                       ","
                     )}&view=species`
                   : null,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 extinctInWild1,
@@ -1883,7 +1957,7 @@
                       ","
                     )}&view=species`
                   : null,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 introduced10,
