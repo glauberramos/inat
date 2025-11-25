@@ -1122,11 +1122,21 @@
           completed: introducedSpeciesCount >= 100,
         };
 
-        // Endemic species achievement
+        // Endemic species achievements
         const endemic10 = {
           current: endemicSpeciesCount,
           total: 10,
           completed: endemicSpeciesCount >= 10,
+        };
+        const endemic50 = {
+          current: endemicSpeciesCount,
+          total: 50,
+          completed: endemicSpeciesCount >= 50,
+        };
+        const endemic100 = {
+          current: endemicSpeciesCount,
+          total: 100,
+          completed: endemicSpeciesCount >= 100,
         };
 
         // Observation achievements
@@ -1383,6 +1393,8 @@
           introduced50,
           introduced100,
           endemic10,
+          endemic50,
+          endemic100,
           onlyObserver,
           iconicTaxonAchievement,
           seasonsAchievement,
@@ -1723,6 +1735,22 @@
                 "🏝️",
                 "Endemic Explorer",
                 "Observe 10 endemic species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&endemic=true&view=species`,
+                false
+              )}
+              ${renderAchievementCard(
+                endemic50,
+                "🏝️",
+                "Endemic Tracker",
+                "Observe 50 endemic species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&endemic=true&view=species`,
+                false
+              )}
+              ${renderAchievementCard(
+                endemic100,
+                "🏝️",
+                "Endemic Expert",
+                "Observe 100 endemic species",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&endemic=true&view=species`,
                 false
               )}
