@@ -1056,22 +1056,6 @@
         };
       }
 
-      function calculateCommentedAchievement(observations, goal) {
-        let count = 0;
-
-        observations.forEach((obs) => {
-          if (obs.comments_count && obs.comments_count > 0) {
-            count++;
-          }
-        });
-
-        return {
-          current: count,
-          total: goal,
-          completed: count >= goal,
-        };
-      }
-
       function calculateObservationsInDayAchievement(observations, goal) {
         // Group observations by date
         const obsByDate = {};
@@ -1681,9 +1665,6 @@
         const favorited10 = favoriteAchievements.favorited10;
         const mostFavorited10 = favoriteAchievements.mostFavorited10;
 
-        // Commented achievement still requires all observations
-        const commented10 = calculateCommentedAchievement(allObservations, 10);
-
         // Rare species achievements - use pre-calculated from species counts
         const rareSpecies100 = rarityAchievements.rareSpecies100;
         const rareSpecies10 = rarityAchievements.rareSpecies10;
@@ -1863,7 +1844,6 @@
           account10,
           favorited10,
           mostFavorited10,
-          commented10,
           rareSpecies100,
           rareSpecies10,
           lepidopterist,
@@ -2301,14 +2281,6 @@
                 "Have an observation with 10+ favorites",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&popular=true&order_by=votes&order=desc`,
                 false
-              )}
-              ${renderAchievementCard(
-                commented10,
-                "💬",
-                "Conversation Starter",
-                "Have 10 observations that received comments",
-                null,
-                !observationsLoaded
               )}
             </div>
 
