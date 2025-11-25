@@ -585,3 +585,17 @@ body.dark-mode .achievement-card.loading::before {
     transform: rotate(360deg);
   }
 }
+
+/* Mobile responsive styles */
+@media (max-width: 600px) {
+  .summary-search {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .summary-search .achievements-progress {
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+  }
+}

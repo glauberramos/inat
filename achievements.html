@@ -2040,24 +2040,6 @@
                   )
                 )
                 .join("")}
-              <div class="achievement-card ${
-                iconicTaxonAchievement.completed ? "completed" : ""
-              }">
-                <div class="achievement-icon">🌍</div>
-                <div class="achievement-content">
-                  <div class="achievement-name">Biodiversity Explorer</div>
-                  <div class="achievement-description">Observe all iconic taxons</div>
-                  <div class="achievement-progress">
-                    <div class="progress-bar">
-                      <div class="progress-fill" style="width: ${iconicPercentage}%"></div>
-                    </div>
-                    <div class="progress-text">${
-                      iconicTaxonAchievement.current
-                    }/${iconicTaxonAchievement.total}</div>
-                  </div>
-                  <div class="taxon-icons">${taxonIconsHtml}</div>
-                </div>
-              </div>
               ${renderAchievementCard(
                 lepidopterist,
                 "🦋",
@@ -2114,6 +2096,24 @@
                 "Observe 15 turtle & tortoise species",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=39532&view=species`
               )}
+              <div class="achievement-card ${
+                iconicTaxonAchievement.completed ? "completed" : ""
+              }">
+                <div class="achievement-icon">🌍</div>
+                <div class="achievement-content">
+                  <div class="achievement-name">Biodiversity Explorer</div>
+                  <div class="achievement-description">Observe all iconic taxons</div>
+                  <div class="achievement-progress">
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: ${iconicPercentage}%"></div>
+                    </div>
+                    <div class="progress-text">${
+                      iconicTaxonAchievement.current
+                    }/${iconicTaxonAchievement.total}</div>
+                  </div>
+                  <div class="taxon-icons">${taxonIconsHtml}</div>
+                </div>
+              </div>
             </div>
 
             <h3 class="category-title">Geography & Seasons</h3>
