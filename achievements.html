@@ -1050,6 +1050,26 @@
         };
       }
 
+      function calculateIconicTaxonAchievementFromCounts(iconicTaxonSpeciesCounts) {
+        const observedTaxons = new Set();
+        const taxonKeys = Object.keys(ICONIC_TAXONS);
+
+        // Check which iconic taxons have at least 1 species observed
+        taxonKeys.forEach((taxon) => {
+          const count = iconicTaxonSpeciesCounts[taxon] || 0;
+          if (count > 0) {
+            observedTaxons.add(taxon);
+          }
+        });
+
+        return {
+          current: observedTaxons.size,
+          total: taxonKeys.length,
+          completed: observedTaxons.size === taxonKeys.length,
+          observedTaxons: observedTaxons,
+        };
+      }
+
       function calculateAccountAgeAchievement(createdAt, years) {
         if (!createdAt) {
           return { current: 0, total: 1, completed: false };
@@ -1198,8 +1218,8 @@
         histogramAchievements,
         observationsLoaded = true
       ) {
-        const iconicTaxonAchievement =
-          calculateIconicTaxonAchievement(allObservations);
+        // Calculate iconic taxon achievement from species counts (not observations)
+        const iconicTaxonAchievement = calculateIconicTaxonAchievementFromCounts(iconicTaxonSpeciesCounts);
         const iconicPercentage =
           (iconicTaxonAchievement.current / iconicTaxonAchievement.total) * 100;
 
@@ -2126,7 +2146,7 @@
                 .join("")}
               <div class="achievement-card ${
                 iconicTaxonAchievement.completed ? "completed" : ""
-              } ${!observationsLoaded ? "loading" : ""}">
+              }">
                 <div class="achievement-icon">🌍</div>
                 <div class="achievement-content">
                   <div class="achievement-name">Biodiversity Explorer</div>
