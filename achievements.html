@@ -301,13 +301,25 @@
           const allSpeciesCountsPromise = loadAllSpeciesCounts(userId);
 
           // Fetch threatened species counts separately for conservation achievements
-          const threatenedSpeciesCountsPromise = loadThreatenedSpeciesCounts(userId);
+          const threatenedSpeciesCountsPromise =
+            loadThreatenedSpeciesCounts(userId);
 
           // Fetch introduced species counts separately
-          const introducedSpeciesCountsPromise = loadIntroducedSpeciesCounts(userId);
+          const introducedSpeciesCountsPromise =
+            loadIntroducedSpeciesCounts(userId);
 
           // Fetch endemic species counts separately
           const endemicSpeciesCountsPromise = loadEndemicSpeciesCounts(userId);
+
+          // Fetch sound observations count
+          const soundObservationsPromise = fetch(
+            `https://api.inaturalist.org/v1/observations?user_id=${userId}&sounds=true&per_page=1&captive=false&verifiable=true`
+          ).then((res) => res.json());
+
+          // Fetch sound+photo observations count
+          const soundPhotoObservationsPromise = fetch(
+            `https://api.inaturalist.org/v1/observations?user_id=${userId}&sounds=true&photos=true&per_page=1&captive=false&verifiable=true`
+          ).then((res) => res.json());
 
           const [
             researchGradeData,
@@ -317,6 +329,8 @@
             threatenedSpeciesCounts,
             introducedSpeciesCounts,
             endemicSpeciesCounts,
+            soundObservationsData,
+            soundPhotoObservationsData,
           ] = await Promise.all([
             researchGradePromise,
             histogramPromise,
@@ -325,7 +339,15 @@
             threatenedSpeciesCountsPromise,
             introducedSpeciesCountsPromise,
             endemicSpeciesCountsPromise,
+            soundObservationsPromise,
+            soundPhotoObservationsPromise,
           ]);
+
+          // Calculate sound-related achievements
+          const soundObservationsCount =
+            soundObservationsData.total_results || 0;
+          const soundPhotoObservationsCount =
+            soundPhotoObservationsData.total_results || 0;
 
           // Calculate iconic taxon species counts from allSpeciesCounts
           const iconicTaxonSpeciesCounts = {};
@@ -511,7 +533,9 @@
             histogramAchievements,
             conservationStatusAchievements,
             favoriteAchievements,
-            rarityAchievements
+            rarityAchievements,
+            soundObservationsCount,
+            soundPhotoObservationsCount
           );
           achievementsContainer.innerHTML = result.html;
 
@@ -1072,7 +1096,9 @@
         histogramAchievements,
         conservationStatusAchievements,
         favoriteAchievements,
-        rarityAchievements
+        rarityAchievements,
+        soundObservationsCount,
+        soundPhotoObservationsCount
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
         const iconicTaxonAchievement =
@@ -1159,6 +1185,20 @@
           current: researchGradeCount,
           total: 10000,
           completed: researchGradeCount >= 10000,
+        };
+
+        // Sound observation achievements
+        const soundObservation = {
+          current: soundObservationsCount,
+          total: 1,
+          completed: soundObservationsCount >= 1,
+        };
+
+        // Sound + photo observation achievements
+        const soundPhotoObservation = {
+          current: soundPhotoObservationsCount,
+          total: 1,
+          completed: soundPhotoObservationsCount >= 1,
         };
 
         // Species achievements
@@ -1367,6 +1407,8 @@
           researchGrade100,
           researchGrade1000,
           researchGrade10000,
+          soundObservation,
+          soundPhotoObservation,
           species100,
           species1000,
           species10000,
@@ -1533,6 +1575,24 @@
                 "Quality Master",
                 "Have 10,000 research grade observations",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&quality_grade=research`
+              )}
+              ${renderAchievementCard(
+                soundObservation,
+                "🔊",
+                "Sound Recorder",
+                "Record an observation with sound",
+                soundObservation.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&sounds`
+                  : null
+              )}
+              ${renderAchievementCard(
+                soundPhotoObservation,
+                "🎬",
+                "Multimedia Master",
+                "Record an observation with sound and photo",
+                soundPhotoObservation.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&sounds&photos`
+                  : null
               )}
               ${renderAchievementCard(
                 species100,
@@ -1872,7 +1932,9 @@
                 "Superstar",
                 "Have an observation with 10+ favorites",
                 mostFavorited10.obsIds && mostFavorited10.obsIds.length > 0
-                  ? `https://www.inaturalist.org/observations?id=${mostFavorited10.obsIds.join(",")}`
+                  ? `https://www.inaturalist.org/observations?id=${mostFavorited10.obsIds.join(
+                      ","
+                    )}`
                   : null,
                 false
               )}
@@ -1960,7 +2022,9 @@
                     taxonAchievements[taxon],
                     data.emoji,
                     `${data.name} Expert`,
-                    `Observe ${taxonAchievements[taxon].total} ${data.name.toLowerCase()} species`,
+                    `Observe ${
+                      taxonAchievements[taxon].total
+                    } ${data.name.toLowerCase()} species`,
                     `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=${data.id}&view=species`
                   )
                 )
