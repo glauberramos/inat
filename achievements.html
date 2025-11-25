@@ -280,17 +280,10 @@
             maxSpeciesName = taxon.preferred_common_name || taxon.name || "";
           }
 
-          // Fetch species counts for each iconic taxon in parallel
-          const iconicTaxonSpeciesCounts = {};
-          const taxonPromises = Object.entries(ICONIC_TAXONS).map(
-            async ([taxonName, taxonData]) => {
-              const response = await fetch(
-                `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=${taxonData.id}&per_page=1&captive=false&verifiable=true`
-              );
-              const data = await response.json();
-              iconicTaxonSpeciesCounts[taxonName] = data.total_results || 0;
-            }
-          );
+          // Fetch iconic taxon species counts using the v2 endpoint
+          const iconicTaxaPromise = fetch(
+            `https://api.inaturalist.org/v2/observations/iconic_taxa_species_counts?user_id=${userId}&captive=false&verifiable=true`
+          ).then((res) => res.json());
 
           // Fetch Lepidoptera species count (butterflies & moths - taxon_id 47157)
           const lepidopteraPromise = fetch(
@@ -361,6 +354,7 @@
           const threatenedSpeciesPromise = loadThreatenedSpecies(userId);
 
           const [
+            iconicTaxaData,
             lepidopteraData,
             raptorData,
             beetleData,
@@ -376,6 +370,7 @@
             histogramData,
             threatenedSpecies,
           ] = await Promise.all([
+            iconicTaxaPromise,
             lepidopteraPromise,
             raptorPromise,
             beetlePromise,
@@ -390,8 +385,19 @@
             researchGradePromise,
             histogramPromise,
             threatenedSpeciesPromise,
-            ...taxonPromises,
           ]);
+
+          // Process iconic taxa data
+          const iconicTaxonSpeciesCounts = {};
+          if (iconicTaxaData.results) {
+            iconicTaxaData.results.forEach((item) => {
+              // Map the iconic_taxon_name to our ICONIC_TAXONS keys
+              const taxonName = item.iconic_taxon_name;
+              if (taxonName && ICONIC_TAXONS[taxonName]) {
+                iconicTaxonSpeciesCounts[taxonName] = item.count || 0;
+              }
+            });
+          }
 
           const lepidopteraSpeciesCount = lepidopteraData.total_results || 0;
           const raptorSpeciesCount = raptorData.total_results || 0;
