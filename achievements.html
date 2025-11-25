@@ -1056,32 +1056,6 @@
         };
       }
 
-      function calculateObservationsInDayAchievement(observations, goal) {
-        // Group observations by date
-        const obsByDate = {};
-
-        observations.forEach((obs) => {
-          if (obs.observed_on) {
-            if (!obsByDate[obs.observed_on]) {
-              obsByDate[obs.observed_on] = 0;
-            }
-            obsByDate[obs.observed_on]++;
-          }
-        });
-
-        // Find max observations in a single day
-        let maxObs = 0;
-        Object.values(obsByDate).forEach((count) => {
-          maxObs = Math.max(maxObs, count);
-        });
-
-        return {
-          current: maxObs,
-          total: goal,
-          completed: maxObs >= goal,
-        };
-      }
-
       function calculateRareSpeciesAchievement(
         observations,
         maxObsCount,
@@ -1336,6 +1310,8 @@
             streak7: { current: 0, total: 7, completed: false },
             streak30: { current: 0, total: 30, completed: false },
             newYear: { current: 0, total: 10, completed: false },
+            obsDay10: { current: 0, total: 10, completed: false },
+            obsDay100: { current: 0, total: 100, completed: false },
             monthsAchievement: {
               current: 0,
               total: 12,
@@ -1409,6 +1385,15 @@
           }
         });
 
+        // Max observations in a single day (Photo Marathon)
+        let maxObsInDay = 0;
+        dates.forEach((dateStr) => {
+          const count = histogram[dateStr];
+          if (count > maxObsInDay) {
+            maxObsInDay = count;
+          }
+        });
+
         // Months achievement
         const observedMonths = new Set();
         const monthNames = [
@@ -1474,6 +1459,16 @@
             current: newYearCount,
             total: 10,
             completed: newYearCount >= 10,
+          },
+          obsDay10: {
+            current: maxObsInDay,
+            total: 10,
+            completed: maxObsInDay >= 10,
+          },
+          obsDay100: {
+            current: maxObsInDay,
+            total: 100,
+            completed: maxObsInDay >= 100,
           },
           monthsAchievement: {
             current: observedMonths.size,
@@ -1679,11 +1674,9 @@
           100
         );
 
-        // Observations in a day achievement
-        const obsDay100 = calculateObservationsInDayAchievement(
-          allObservations,
-          100
-        );
+        // Observations in a day achievements - use histogram data
+        const obsDay10 = histogramAchievements.obsDay10;
+        const obsDay100 = histogramAchievements.obsDay100;
 
         // Species per iconic taxon achievements (100 each)
         const taxonAchievements = {};
@@ -1835,6 +1828,7 @@
           newYear,
           speciesDay10,
           speciesDay100,
+          obsDay10,
           obsDay100,
           veteran2,
           veteran5,
@@ -2255,12 +2249,20 @@
                 !observationsLoaded
               )}
               ${renderAchievementCard(
+                obsDay10,
+                "📸",
+                "Productive Day",
+                "10 observations in a single day",
+                null,
+                false
+              )}
+              ${renderAchievementCard(
                 obsDay100,
                 "📸",
                 "Photo Marathon",
                 "100 observations in a single day",
                 null,
-                !observationsLoaded
+                false
               )}
             </div>
 
