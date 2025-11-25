@@ -299,9 +299,12 @@
 
           // Fetch all species counts for rarity achievements
           const loadingCount = document.getElementById("loadingCount");
-          const allSpeciesCountsPromise = loadAllSpeciesCounts(userId, (percentage) => {
-            loadingCount.textContent = `${percentage}%`;
-          });
+          const allSpeciesCountsPromise = loadAllSpeciesCounts(
+            userId,
+            (percentage) => {
+              loadingCount.textContent = `${percentage}%`;
+            }
+          );
 
           // Fetch threatened species counts separately for conservation achievements
           const threatenedSpeciesCountsPromise =
@@ -351,6 +354,10 @@
             soundObservationsData.total_results || 0;
           const soundPhotoObservationsCount =
             soundPhotoObservationsData.total_results || 0;
+
+          // Get annotated observations count from user data
+          const annotatedObservationsCount =
+            userData.results[0].annotated_observations_count || 0;
 
           // Calculate iconic taxon species counts from allSpeciesCounts
           const iconicTaxonSpeciesCounts = {};
@@ -538,7 +545,8 @@
             favoriteAchievements,
             rarityAchievements,
             soundObservationsCount,
-            soundPhotoObservationsCount
+            soundPhotoObservationsCount,
+            annotatedObservationsCount
           );
           achievementsContainer.innerHTML = result.html;
 
@@ -575,7 +583,9 @@
 
             // Update progress
             if (onProgress && totalResults > 0) {
-              const percentage = Math.round((allSpecies.length / totalResults) * 100);
+              const percentage = Math.round(
+                (allSpecies.length / totalResults) * 100
+              );
               onProgress(percentage);
             }
 
@@ -1109,7 +1119,8 @@
         favoriteAchievements,
         rarityAchievements,
         soundObservationsCount,
-        soundPhotoObservationsCount
+        soundPhotoObservationsCount,
+        annotatedObservationsCount
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
         const iconicTaxonAchievement =
@@ -1210,6 +1221,13 @@
           current: soundPhotoObservationsCount,
           total: 1,
           completed: soundPhotoObservationsCount >= 1,
+        };
+
+        // Annotated observations achievement
+        const annotatedObservation = {
+          current: annotatedObservationsCount,
+          total: 50,
+          completed: annotatedObservationsCount >= 50,
         };
 
         // Species achievements
@@ -1420,6 +1438,7 @@
           researchGrade10000,
           soundObservation,
           soundPhotoObservation,
+          annotatedObservation,
           species100,
           species1000,
           species10000,
@@ -1603,6 +1622,15 @@
                 "Record an observation with sound and photo",
                 soundPhotoObservation.current > 0
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&sounds&photos`
+                  : null
+              )}
+              ${renderAchievementCard(
+                annotatedObservation,
+                "🏷️",
+                "Annotator",
+                "Annotate 50 observations",
+                annotatedObservation.current > 0
+                  ? `https://www.inaturalist.org/observations?annotation_user_id=${currentUsername}&verifiable=any`
                   : null
               )}
               ${renderAchievementCard(
