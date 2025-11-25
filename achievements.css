@@ -318,6 +318,16 @@ body.dark-mode .achievements-progress {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
+/* Ensure cursor pointer on clickable achievement cards */
+.achievement-card[style*="cursor: pointer"] {
+  cursor: pointer;
+}
+
+.achievement-card a {
+  cursor: pointer;
+  text-decoration: none;
+}
+
 .achievement-card.completed {
   border: 2px solid #74ac00;
   background: linear-gradient(
