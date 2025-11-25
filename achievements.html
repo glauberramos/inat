@@ -352,6 +352,11 @@
             `https://api.inaturalist.org/v1/observations?user_id=${userId}&quality_grade=research&per_page=1&captive=false`
           ).then((res) => res.json());
 
+          // Fetch observation histogram for date-based achievements
+          const histogramPromise = fetch(
+            `https://api.inaturalist.org/v2/observations/histogram?interval=day&d1=1900-01-01&user_id=${userId}&captive=false&verifiable=true`
+          ).then((res) => res.json());
+
           const [
             lepidopteraData,
             raptorData,
@@ -365,6 +370,7 @@
             introducedData,
             endemicData,
             researchGradeData,
+            histogramData,
           ] = await Promise.all([
             lepidopteraPromise,
             raptorPromise,
@@ -378,6 +384,7 @@
             introducedPromise,
             endemicPromise,
             researchGradePromise,
+            histogramPromise,
             ...taxonPromises,
           ]);
 
@@ -396,6 +403,9 @@
 
           // Get initial observation count from user data
           const observationsTotalResults = user.observations_count || 0;
+
+          // Calculate histogram-based achievements
+          const histogramAchievements = calculateHistogramAchievements(histogramData.results?.day || {});
 
           // Display achievements immediately with available data (without observations)
           loading.style.display = "none";
@@ -420,6 +430,7 @@
             introducedSpeciesCount,
             endemicSpeciesCount,
             researchGradeCount,
+            histogramAchievements,
             false // observationsLoaded = false
           );
           achievementsContainer.innerHTML = result.html;
@@ -459,6 +470,7 @@
             introducedSpeciesCount,
             endemicSpeciesCount,
             researchGradeCount,
+            histogramAchievements,
             true // observationsLoaded = true
           );
           achievementsContainer.innerHTML = result.html;
@@ -1054,6 +1066,114 @@
         };
       }
 
+      function calculateHistogramAchievements(histogram) {
+        // histogram is an object like: { "2020-01-01": 5, "2020-01-02": 3, ... }
+        // Filter out dates with 0 observations
+        const dates = Object.keys(histogram)
+          .filter(date => histogram[date] > 0)
+          .sort();
+
+        if (dates.length === 0) {
+          return {
+            veteran2: { current: 0, total: 1, completed: false },
+            veteran5: { current: 0, total: 1, completed: false },
+            veteran10: { current: 0, total: 1, completed: false },
+            streak7: { current: 0, total: 7, completed: false },
+            streak30: { current: 0, total: 30, completed: false },
+            newYear: { current: 0, total: 10, completed: false },
+            monthsAchievement: { current: 0, total: 12, completed: false, observedMonths: new Set() },
+            seasonsAchievement: { current: 0, total: 4, completed: false, observedSeasons: new Set() },
+          };
+        }
+
+        // Veteran achievements (observations from X years ago)
+        const now = new Date();
+        const cutoff2Years = new Date(now.getFullYear() - 2, now.getMonth(), now.getDate());
+        const cutoff5Years = new Date(now.getFullYear() - 5, now.getMonth(), now.getDate());
+        const cutoff10Years = new Date(now.getFullYear() - 10, now.getMonth(), now.getDate());
+
+        let veteran2Count = 0;
+        let veteran5Count = 0;
+        let veteran10Count = 0;
+
+        dates.forEach(dateStr => {
+          const date = new Date(dateStr);
+          const count = histogram[dateStr];
+          if (date <= cutoff2Years) veteran2Count += count;
+          if (date <= cutoff5Years) veteran5Count += count;
+          if (date <= cutoff10Years) veteran10Count += count;
+        });
+
+        // Streak achievements
+        let longestStreak = 1;
+        let currentStreak = 1;
+
+        for (let i = 1; i < dates.length; i++) {
+          const prevDate = new Date(dates[i - 1]);
+          const currDate = new Date(dates[i]);
+          const diffDays = Math.round((currDate - prevDate) / (1000 * 60 * 60 * 24));
+
+          if (diffDays === 1) {
+            currentStreak++;
+            longestStreak = Math.max(longestStreak, currentStreak);
+          } else {
+            currentStreak = 1;
+          }
+        }
+
+        // New Year achievement (observations on January 1st)
+        let newYearCount = 0;
+        dates.forEach(dateStr => {
+          const date = new Date(dateStr);
+          if (date.getMonth() === 0 && date.getDate() === 1) {
+            newYearCount += histogram[dateStr];
+          }
+        });
+
+        // Months achievement
+        const observedMonths = new Set();
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        dates.forEach(dateStr => {
+          const date = new Date(dateStr);
+          const monthIndex = date.getMonth();
+          observedMonths.add(monthNames[monthIndex]);
+        });
+
+        // Seasons achievement
+        const observedSeasons = new Set();
+        dates.forEach(dateStr => {
+          const date = new Date(dateStr);
+          const month = date.getMonth(); // 0-11
+          let season;
+          if (month >= 2 && month <= 4) season = "Spring";
+          else if (month >= 5 && month <= 7) season = "Summer";
+          else if (month >= 8 && month <= 10) season = "Fall";
+          else season = "Winter";
+          observedSeasons.add(season);
+        });
+
+        return {
+          veteran2: { current: veteran2Count >= 1 ? 1 : 0, total: 1, completed: veteran2Count >= 1 },
+          veteran5: { current: veteran5Count >= 1 ? 1 : 0, total: 1, completed: veteran5Count >= 1 },
+          veteran10: { current: veteran10Count >= 1 ? 1 : 0, total: 1, completed: veteran10Count >= 1 },
+          streak7: { current: longestStreak, total: 7, completed: longestStreak >= 7 },
+          streak30: { current: longestStreak, total: 30, completed: longestStreak >= 30 },
+          newYear: { current: newYearCount, total: 10, completed: newYearCount >= 10 },
+          monthsAchievement: {
+            current: observedMonths.size,
+            total: 12,
+            completed: observedMonths.size >= 12,
+            observedMonths: observedMonths
+          },
+          seasonsAchievement: {
+            current: observedSeasons.size,
+            total: 4,
+            completed: observedSeasons.size >= 4,
+            observedSeasons: observedSeasons
+          },
+        };
+      }
+
       function renderAchievements(
         observationsCount,
         speciesCount,
@@ -1075,6 +1195,7 @@
         introducedSpeciesCount,
         endemicSpeciesCount,
         researchGradeCount,
+        histogramAchievements,
         observationsLoaded = true
       ) {
         const iconicTaxonAchievement =
@@ -1221,15 +1342,11 @@
         const continentsAchievement =
           calculateContinentsAchievement(allObservations);
 
-        // Seasons achievement
-        const seasonsAchievement = calculateSeasonsAchievement(allObservations);
-
-        // Months achievement
-        const monthsAchievement = calculateMonthsAchievement(allObservations);
-
-        // Streak achievements
-        const streak7 = calculateStreakAchievement(allObservations, 7);
-        const streak30 = calculateStreakAchievement(allObservations, 30);
+        // Use histogram-based achievements for seasons, months, and streaks
+        const seasonsAchievement = histogramAchievements.seasonsAchievement;
+        const monthsAchievement = histogramAchievements.monthsAchievement;
+        const streak7 = histogramAchievements.streak7;
+        const streak30 = histogramAchievements.streak30;
 
         // Time of day achievements
         const earlyBird = calculateTimeOfDayAchievement(
@@ -1245,13 +1362,11 @@
           50
         );
 
-        // New Year achievement
-        const newYear = calculateNewYearAchievement(allObservations, 10);
-
-        // Veteran achievements
-        const veteran2 = calculateVeteranAchievement(allObservations, 2, 1);
-        const veteran5 = calculateVeteranAchievement(allObservations, 5, 1);
-        const veteran10 = calculateVeteranAchievement(allObservations, 10, 1);
+        // Use histogram-based achievements for New Year and Veteran
+        const newYear = histogramAchievements.newYear;
+        const veteran2 = histogramAchievements.veteran2;
+        const veteran5 = histogramAchievements.veteran5;
+        const veteran10 = histogramAchievements.veteran10;
 
         // Account age achievements
         const account2 = calculateAccountAgeAchievement(userCreatedAt, 2);
@@ -1612,7 +1727,7 @@
                     .toISOString()
                     .split("T")[0]
                 }`,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 veteran5,
@@ -1627,7 +1742,7 @@
                     .toISOString()
                     .split("T")[0]
                 }`,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 veteran10,
@@ -1642,7 +1757,7 @@
                     .toISOString()
                     .split("T")[0]
                 }`,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 account2,
@@ -1832,7 +1947,7 @@
                 "Week Warrior",
                 "7-day observation streak",
                 null,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 streak30,
@@ -1840,7 +1955,7 @@
                 "Monthly Dedication",
                 "30-day observation streak",
                 null,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 earlyBird,
@@ -1864,7 +1979,7 @@
                 "New Year, New Observations",
                 "10 observations on January 1st",
                 null,
-                !observationsLoaded
+                false
               )}
               ${renderAchievementCard(
                 speciesDay10,
@@ -2111,7 +2226,7 @@
               </div>
               <div class="achievement-card ${
                 seasonsAchievement.completed ? "completed" : ""
-              } ${!observationsLoaded ? "loading" : ""}">
+              }">
                 <div class="achievement-icon">📅</div>
                 <div class="achievement-content">
                   <div class="achievement-name">Year-Round Observer</div>
@@ -2133,7 +2248,7 @@
               </div>
               <div class="achievement-card ${
                 monthsAchievement.completed ? "completed" : ""
-              } ${!observationsLoaded ? "loading" : ""}">
+              }">
                 <div class="achievement-icon">📆</div>
                 <div class="achievement-content">
                   <div class="achievement-name">Monthly Observer</div>
