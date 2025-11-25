@@ -327,6 +327,11 @@
             `https://api.inaturalist.org/v1/observations?user_id=${userId}&sounds=true&photos=true&per_page=1&captive=false&verifiable=true`
           ).then((res) => res.json());
 
+          // Fetch projects the user is a member of
+          const projectsPromise = fetch(
+            `https://api.inaturalist.org/v1/projects?member_id=${userId}&per_page=1`
+          ).then((res) => res.json());
+
           const [
             researchGradeData,
             histogramData,
@@ -337,6 +342,7 @@
             endemicSpeciesCounts,
             soundObservationsData,
             soundPhotoObservationsData,
+            projectsData,
           ] = await Promise.all([
             researchGradePromise,
             histogramPromise,
@@ -347,6 +353,7 @@
             endemicSpeciesCountsPromise,
             soundObservationsPromise,
             soundPhotoObservationsPromise,
+            projectsPromise,
           ]);
 
           // Calculate sound-related achievements
@@ -358,6 +365,9 @@
           // Get annotated observations count from user data
           const annotatedObservationsCount =
             userData.results[0].annotated_observations_count || 0;
+
+          // Get projects count
+          const projectsCount = projectsData.total_results || 0;
 
           // Calculate iconic taxon species counts from allSpeciesCounts
           const iconicTaxonSpeciesCounts = {};
@@ -546,7 +556,8 @@
             rarityAchievements,
             soundObservationsCount,
             soundPhotoObservationsCount,
-            annotatedObservationsCount
+            annotatedObservationsCount,
+            projectsCount
           );
           achievementsContainer.innerHTML = result.html;
 
@@ -1120,7 +1131,8 @@
         rarityAchievements,
         soundObservationsCount,
         soundPhotoObservationsCount,
-        annotatedObservationsCount
+        annotatedObservationsCount,
+        projectsCount
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
         const iconicTaxonAchievement =
@@ -1228,6 +1240,13 @@
           current: annotatedObservationsCount,
           total: 50,
           completed: annotatedObservationsCount >= 50,
+        };
+
+        // Project participation achievement
+        const projectParticipant = {
+          current: projectsCount,
+          total: 1,
+          completed: projectsCount >= 1,
         };
 
         // Species achievements
@@ -1439,6 +1458,7 @@
           soundObservation,
           soundPhotoObservation,
           annotatedObservation,
+          projectParticipant,
           species100,
           species1000,
           species10000,
@@ -1631,6 +1651,15 @@
                 "Annotate 50 observations",
                 annotatedObservation.current > 0
                   ? `https://www.inaturalist.org/observations?annotation_user_id=${currentUsername}&verifiable=any`
+                  : null
+              )}
+              ${renderAchievementCard(
+                projectParticipant,
+                "📋",
+                "Project Participant",
+                "Join a project",
+                projectParticipant.current > 0
+                  ? `https://www.inaturalist.org/projects/user/${currentUsername}`
                   : null
               )}
               ${renderAchievementCard(
