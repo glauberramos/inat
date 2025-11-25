@@ -394,44 +394,80 @@
           const endemicSpeciesCount = endemicData.total_results || 0;
           const researchGradeCount = researchGradeData.total_results || 0;
 
-          // Load all observations
-          const obsResult = await loadAllObservations(userId);
-          allObservations = obsResult.observations;
-          const observationsTotalResults = obsResult.totalResults;
+          // Get initial observation count from user data
+          const observationsTotalResults = user.observations_count || 0;
 
+          // Display achievements immediately with available data (without observations)
           loading.style.display = "none";
-
-          // Display achievements and get progress
-          const { html, completedCount, totalAchievements } =
-            renderAchievements(
-              observationsTotalResults,
-              speciesCount,
-              identificationsCount,
-              idCategories,
-              maxSpeciesIdCount,
-              maxSpeciesName,
-              userCreatedAt,
-              iconicTaxonSpeciesCounts,
-              lepidopteraSpeciesCount,
-              raptorSpeciesCount,
-              beetleSpeciesCount,
-              beeSpeciesCount,
-              cetaceaSpeciesCount,
-              anuraSpeciesCount,
-              serpentesSpeciesCount,
-              turtleSpeciesCount,
-              threatenedSpeciesCount,
-              introducedSpeciesCount,
-              endemicSpeciesCount,
-              researchGradeCount
-            );
-          achievementsContainer.innerHTML = html;
+          let result = renderAchievements(
+            observationsTotalResults,
+            speciesCount,
+            identificationsCount,
+            idCategories,
+            maxSpeciesIdCount,
+            maxSpeciesName,
+            userCreatedAt,
+            iconicTaxonSpeciesCounts,
+            lepidopteraSpeciesCount,
+            raptorSpeciesCount,
+            beetleSpeciesCount,
+            beeSpeciesCount,
+            cetaceaSpeciesCount,
+            anuraSpeciesCount,
+            serpentesSpeciesCount,
+            turtleSpeciesCount,
+            threatenedSpeciesCount,
+            introducedSpeciesCount,
+            endemicSpeciesCount,
+            researchGradeCount,
+            false // observationsLoaded = false
+          );
+          achievementsContainer.innerHTML = result.html;
 
           // Update achievements progress
-          const percentage = Math.round(
-            (completedCount / totalAchievements) * 100
+          let percentage = Math.round(
+            (result.completedCount / result.totalAchievements) * 100
           );
-          achievementsProgress.textContent = `${completedCount}/${totalAchievements} (${percentage}%)`;
+          achievementsProgress.textContent = `${result.completedCount}/${result.totalAchievements} (${percentage}%)`;
+          achievementsProgress.classList.add("show");
+
+          // Load all observations in the background for observation-dependent achievements
+          loading.style.display = "block";
+          const obsResult = await loadAllObservations(userId);
+          allObservations = obsResult.observations;
+          loading.style.display = "none";
+
+          // Re-render achievements with observation data
+          result = renderAchievements(
+            observationsTotalResults,
+            speciesCount,
+            identificationsCount,
+            idCategories,
+            maxSpeciesIdCount,
+            maxSpeciesName,
+            userCreatedAt,
+            iconicTaxonSpeciesCounts,
+            lepidopteraSpeciesCount,
+            raptorSpeciesCount,
+            beetleSpeciesCount,
+            beeSpeciesCount,
+            cetaceaSpeciesCount,
+            anuraSpeciesCount,
+            serpentesSpeciesCount,
+            turtleSpeciesCount,
+            threatenedSpeciesCount,
+            introducedSpeciesCount,
+            endemicSpeciesCount,
+            researchGradeCount,
+            true // observationsLoaded = true
+          );
+          achievementsContainer.innerHTML = result.html;
+
+          // Update achievements progress again
+          percentage = Math.round(
+            (result.completedCount / result.totalAchievements) * 100
+          );
+          achievementsProgress.textContent = `${result.completedCount}/${result.totalAchievements} (${percentage}%)`;
           achievementsProgress.classList.add("show");
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -1038,7 +1074,8 @@
         threatenedSpeciesCount,
         introducedSpeciesCount,
         endemicSpeciesCount,
-        researchGradeCount
+        researchGradeCount,
+        observationsLoaded = true
       ) {
         const iconicTaxonAchievement =
           calculateIconicTaxonAchievement(allObservations);
@@ -1441,7 +1478,8 @@
           icon,
           name,
           description,
-          link = null
+          link = null,
+          isLoading = false
         ) {
           const percentage = Math.min(
             (achievement.current / achievement.total) * 100,
@@ -1451,12 +1489,13 @@
             ? `<a href="${link}" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 14px; flex: 1;">`
             : "";
           const linkEnd = link ? "</a>" : "";
+          const loadingClass = isLoading ? "loading" : "";
 
           if (link) {
             return `
               <div class="achievement-card ${
                 achievement.completed ? "completed" : ""
-              }" style="cursor: pointer;">
+              } ${loadingClass}" style="cursor: pointer;">
                 ${linkStart}
                 <div class="achievement-icon">${icon}</div>
                 <div class="achievement-content">
@@ -1477,7 +1516,7 @@
           return `
             <div class="achievement-card ${
               achievement.completed ? "completed" : ""
-            }">
+            } ${loadingClass}">
               <div class="achievement-icon">${icon}</div>
               <div class="achievement-content">
                 <div class="achievement-name">${name}</div>
@@ -1572,7 +1611,8 @@
                   )
                     .toISOString()
                     .split("T")[0]
-                }`
+                }`,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 veteran5,
@@ -1586,7 +1626,8 @@
                   )
                     .toISOString()
                     .split("T")[0]
-                }`
+                }`,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 veteran10,
@@ -1600,7 +1641,8 @@
                   )
                     .toISOString()
                     .split("T")[0]
-                }`
+                }`,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 account2,
@@ -1629,21 +1671,24 @@
                 "🦁",
                 "Conservation Ally",
                 "Observe 10 threatened species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true&view=species`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true&view=species`,
+                false
               )}
               ${renderAchievementCard(
                 threatened50,
                 "🦁",
                 "Conservation Champion",
                 "Observe 50 threatened species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true&view=species`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true&view=species`,
+                false
               )}
               ${renderAchievementCard(
                 threatened100,
                 "🦁",
                 "Conservation Hero",
                 "Observe 100 threatened species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true&view=species`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true&view=species`,
+                false
               )}
               ${renderAchievementCard(
                 nearThreatened10,
@@ -1654,7 +1699,8 @@
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${nearThreatened10.taxonIds.join(
                       ","
                     )}&view=species`
-                  : null
+                  : null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 vulnerable10,
@@ -1665,7 +1711,8 @@
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${vulnerable10.taxonIds.join(
                       ","
                     )}&view=species`
-                  : null
+                  : null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 endangered5,
@@ -1676,7 +1723,8 @@
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${endangered5.taxonIds.join(
                       ","
                     )}&view=species`
-                  : null
+                  : null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 criticallyEndangered1,
@@ -1687,7 +1735,8 @@
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${criticallyEndangered1.taxonIds.join(
                       ","
                     )}&view=species`
-                  : null
+                  : null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 extinctInWild1,
@@ -1698,35 +1747,40 @@
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${extinctInWild1.taxonIds.join(
                       ","
                     )}&view=species`
-                  : null
+                  : null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 introduced10,
                 "🌍",
                 "Invasive Spotter",
                 "Observe 10 introduced species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true&view=species`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true&view=species`,
+                false
               )}
               ${renderAchievementCard(
                 introduced50,
                 "🌍",
                 "Invasive Tracker",
                 "Observe 50 introduced species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true&view=species`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true&view=species`,
+                false
               )}
               ${renderAchievementCard(
                 introduced100,
                 "🌍",
                 "Invasive Expert",
                 "Observe 100 introduced species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true&view=species`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&introduced=true&view=species`,
+                false
               )}
               ${renderAchievementCard(
                 endemic10,
                 "🏝️",
                 "Endemic Explorer",
                 "Observe 10 endemic species",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&endemic=true&view=species`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&endemic=true&view=species`,
+                false
               )}
             </div>
 
@@ -1741,7 +1795,8 @@
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${onlyObserver.taxonIds.join(
                       ","
                     )}&view=species`
-                  : null
+                  : null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 rareSpecies100,
@@ -1752,7 +1807,8 @@
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${rareSpecies100.taxonIds.join(
                       ","
                     )}&view=species`
-                  : null
+                  : null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 rareSpecies10,
@@ -1763,7 +1819,8 @@
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${rareSpecies10.taxonIds.join(
                       ","
                     )}&view=species`
-                  : null
+                  : null,
+                !observationsLoaded
               )}
             </div>
 
@@ -1773,49 +1830,65 @@
                 streak7,
                 "🔥",
                 "Week Warrior",
-                "7-day observation streak"
+                "7-day observation streak",
+                null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 streak30,
                 "🔥",
                 "Monthly Dedication",
-                "30-day observation streak"
+                "30-day observation streak",
+                null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 earlyBird,
                 "🌅",
                 "Early Bird",
-                "50 observations before 7am"
+                "50 observations before 7am",
+                null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 nightOwl,
                 "🦉",
                 "Night Owl",
-                "50 observations after 8pm"
+                "50 observations after 8pm",
+                null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 newYear,
                 "🎆",
                 "New Year, New Observations",
-                "10 observations on January 1st"
+                "10 observations on January 1st",
+                null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 speciesDay10,
                 "🌈",
                 "Diversity Day",
-                "10 species in a single day"
+                "10 species in a single day",
+                null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 speciesDay100,
                 "🌈",
                 "Biodiversity Blitz",
-                "100 species in a single day"
+                "100 species in a single day",
+                null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 obsDay100,
                 "📸",
                 "Photo Marathon",
-                "100 observations in a single day"
+                "100 observations in a single day",
+                null,
+                !observationsLoaded
               )}
             </div>
 
@@ -1826,7 +1899,8 @@
                 "❤️",
                 "Fan Favorite",
                 "Have 10 observations that were favorited",
-                `https://www.inaturalist.org/observations?user_id=${currentUsername}&popular=true`
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&popular=true`,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 mostFavorited10,
@@ -1835,13 +1909,16 @@
                 "Have an observation with 10+ favorites",
                 mostFavorited10.obsIds && mostFavorited10.obsIds.length > 0
                   ? `https://www.inaturalist.org/observations?id=${mostFavorited10.obsIds.join(",")}`
-                  : null
+                  : null,
+                !observationsLoaded
               )}
               ${renderAchievementCard(
                 commented10,
                 "💬",
                 "Conversation Starter",
-                "Have 10 observations that received comments"
+                "Have 10 observations that received comments",
+                null,
+                !observationsLoaded
               )}
             </div>
 
@@ -1934,7 +2011,7 @@
                 .join("")}
               <div class="achievement-card ${
                 iconicTaxonAchievement.completed ? "completed" : ""
-              }">
+              } ${!observationsLoaded ? "loading" : ""}">
                 <div class="achievement-icon">🌍</div>
                 <div class="achievement-content">
                   <div class="achievement-name">Biodiversity Explorer</div>
@@ -2012,7 +2089,7 @@
             <div class="achievements-grid">
               <div class="achievement-card ${
                 continentsAchievement.completed ? "completed" : ""
-              }">
+              } ${!observationsLoaded ? "loading" : ""}">
                 <div class="achievement-icon">✈️</div>
                 <div class="achievement-content">
                   <div class="achievement-name">World Traveler</div>
@@ -2034,7 +2111,7 @@
               </div>
               <div class="achievement-card ${
                 seasonsAchievement.completed ? "completed" : ""
-              }">
+              } ${!observationsLoaded ? "loading" : ""}">
                 <div class="achievement-icon">📅</div>
                 <div class="achievement-content">
                   <div class="achievement-name">Year-Round Observer</div>
@@ -2056,7 +2133,7 @@
               </div>
               <div class="achievement-card ${
                 monthsAchievement.completed ? "completed" : ""
-              }">
+              } ${!observationsLoaded ? "loading" : ""}">
                 <div class="achievement-icon">📆</div>
                 <div class="achievement-content">
                   <div class="achievement-name">Monthly Observer</div>

@@ -526,3 +526,52 @@ body.dark-mode .achievements-progress {
 .category-title:first-of-type {
   margin-top: 0;
 }
+
+/* Achievement loading overlay */
+.achievement-card.loading::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+body.dark-mode .achievement-card.loading::after {
+  background: rgba(45, 45, 45, 0.85);
+}
+
+.achievement-card.loading::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  margin-left: -16px;
+  margin-top: -16px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #74ac00;
+  border-radius: 50%;
+  z-index: 11;
+  animation: spinner-rotate 0.8s linear infinite;
+}
+
+body.dark-mode .achievement-card.loading::before {
+  border-color: #444;
+  border-top-color: #74ac00;
+}
+
+@keyframes spinner-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
