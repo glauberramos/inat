@@ -298,7 +298,10 @@
           const favoriteObservationsPromise = loadFavoriteObservations(userId);
 
           // Fetch all species counts for rarity achievements
-          const allSpeciesCountsPromise = loadAllSpeciesCounts(userId);
+          const loadingCount = document.getElementById("loadingCount");
+          const allSpeciesCountsPromise = loadAllSpeciesCounts(userId, (percentage) => {
+            loadingCount.textContent = `${percentage}%`;
+          });
 
           // Fetch threatened species counts separately for conservation achievements
           const threatenedSpeciesCountsPromise =
@@ -552,11 +555,12 @@
         }
       }
 
-      async function loadAllSpeciesCounts(userId) {
+      async function loadAllSpeciesCounts(userId, onProgress) {
         const perPage = 500;
         let page = 1;
         let allSpecies = [];
         let hasMore = true;
+        let totalResults = 0;
 
         while (hasMore) {
           const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}&captive=false&verifiable=true`;
@@ -567,6 +571,13 @@
             hasMore = false;
           } else {
             allSpecies = allSpecies.concat(data.results);
+            totalResults = data.total_results;
+
+            // Update progress
+            if (onProgress && totalResults > 0) {
+              const percentage = Math.round((allSpecies.length / totalResults) * 100);
+              onProgress(percentage);
+            }
 
             // Check if there are more pages
             if (allSpecies.length >= data.total_results) {
