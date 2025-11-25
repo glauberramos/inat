@@ -255,13 +255,6 @@
           localStorage.setItem("inatUsername", username);
           currentUsername = username;
 
-          // Fetch species count (with same filters as observations)
-          const speciesResponse = await fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=1&captive=false&verifiable=true`
-          );
-          const speciesData = await speciesResponse.json();
-
-          const speciesCount = speciesData.total_results || 0;
           const identificationsCount = user.identifications_count || 0;
           const userCreatedAt = user.created_at || null;
 
@@ -291,33 +284,15 @@
             maxSpeciesName = taxon.preferred_common_name || taxon.name || "";
           }
 
-          // Fetch Threatened species count
-          const threatenedPromise = fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&threatened=true&per_page=1&captive=false&verifiable=true`
-          ).then((res) => res.json());
-
-          // Fetch Introduced species count
-          const introducedPromise = fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&introduced=true&per_page=1&captive=false&verifiable=true`
-          ).then((res) => res.json());
-
-          // Fetch Endemic species count
-          const endemicPromise = fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&endemic=true&per_page=1&captive=false&verifiable=true`
-          ).then((res) => res.json());
-
           // Fetch Research Grade observations count
           const researchGradePromise = fetch(
-            `https://api.inaturalist.org/v1/observations?user_id=${userId}&quality_grade=research&per_page=1&captive=false`
+            `https://api.inaturalist.org/v1/observations/quality_grades?user_id=${userId}&captive=false&verifiable=true`
           ).then((res) => res.json());
 
           // Fetch observation histogram for date-based achievements
           const histogramPromise = fetch(
             `https://api.inaturalist.org/v2/observations/histogram?interval=day&d1=1900-01-01&user_id=${userId}&captive=false&verifiable=true`
           ).then((res) => res.json());
-
-          // Fetch threatened species with conservation status details
-          const threatenedSpeciesPromise = loadThreatenedSpecies(userId);
 
           // Fetch favorite observations for favorite achievements
           const favoriteObservationsPromise = loadFavoriteObservations(userId);
@@ -326,21 +301,13 @@
           const allSpeciesCountsPromise = loadAllSpeciesCounts(userId);
 
           const [
-            threatenedData,
-            introducedData,
-            endemicData,
             researchGradeData,
             histogramData,
-            threatenedSpecies,
             favoriteObservations,
             allSpeciesCounts,
           ] = await Promise.all([
-            threatenedPromise,
-            introducedPromise,
-            endemicPromise,
             researchGradePromise,
             histogramPromise,
-            threatenedSpeciesPromise,
             favoriteObservationsPromise,
             allSpeciesCountsPromise,
           ]);
@@ -351,7 +318,7 @@
             iconicTaxonSpeciesCounts[taxonName] = 0;
           });
 
-          // Calculate specialty taxon counts from allSpeciesCounts
+          // Calculate all species-based counts from allSpeciesCounts
           let lepidopteraSpeciesCount = 0;
           let raptorSpeciesCount = 0;
           let beetleSpeciesCount = 0;
@@ -360,6 +327,10 @@
           let anuraSpeciesCount = 0;
           let serpentesSpeciesCount = 0;
           let turtleSpeciesCount = 0;
+          let threatenedSpeciesCount = 0;
+          let introducedSpeciesCount = 0;
+          let endemicSpeciesCount = 0;
+          const threatenedSpecies = [];
 
           allSpeciesCounts.forEach((species) => {
             const iconicTaxonName = species.taxon?.iconic_taxon_name;
@@ -395,12 +366,29 @@
             if (ancestorIds.includes(SPECIALTY_TAXONS.testudines) || taxonId === SPECIALTY_TAXONS.testudines) {
               turtleSpeciesCount++;
             }
-          });
 
-          const threatenedSpeciesCount = threatenedData.total_results || 0;
-          const introducedSpeciesCount = introducedData.total_results || 0;
-          const endemicSpeciesCount = endemicData.total_results || 0;
-          const researchGradeCount = researchGradeData.total_results || 0;
+            // Check conservation status for threatened species
+            if (species.taxon?.threatened) {
+              threatenedSpeciesCount++;
+              threatenedSpecies.push(species);
+            }
+
+            // Check introduced status
+            if (species.taxon?.introduced) {
+              introducedSpeciesCount++;
+            }
+
+            // Check endemic status
+            if (species.taxon?.endemic) {
+              endemicSpeciesCount++;
+            }
+          });
+          // Extract research grade count from quality_grades response
+          const researchGradeResult = researchGradeData.results?.find(r => r.quality_grade === 'research');
+          const researchGradeCount = researchGradeResult?.count || 0;
+
+          // Get species count from allSpeciesCounts
+          const speciesCount = allSpeciesCounts.length;
 
           // Get initial observation count from user data
           const observationsTotalResults = user.observations_count || 0;
@@ -534,62 +522,12 @@
         return allSpecies;
       }
 
-      async function loadThreatenedSpecies(userId) {
-        const perPage = 500;
-        let page = 1;
-        let allSpecies = [];
-        let hasMore = true;
-
-        while (hasMore) {
-          const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&threatened=true&per_page=${perPage}&page=${page}&captive=false&verifiable=true`;
-          const response = await fetch(url);
-          const data = await response.json();
-
-          if (!data.results || data.results.length === 0) {
-            hasMore = false;
-          } else {
-            allSpecies = allSpecies.concat(data.results);
-
-            // Check if there are more pages
-            if (allSpecies.length >= data.total_results) {
-              hasMore = false;
-            } else {
-              page++;
-            }
-          }
-        }
-
-        return allSpecies;
-      }
-
       async function loadFavoriteObservations(userId) {
-        const perPage = 200;
-        let page = 1;
-        let allObservations = [];
-        let hasMore = true;
-
-        // Fetch observations ordered by votes/faves
-        while (hasMore && page <= 5) {
-          // Limit to 5 pages (1000 observations) to avoid excessive loading
-          const url = `https://api.inaturalist.org/v2/observations?per_page=${perPage}&order_by=votes&order=desc&user_id=${userId}&fields=id,faves_count&page=${page}`;
-          const response = await fetch(url);
-          const data = await response.json();
-
-          if (!data.results || data.results.length === 0) {
-            hasMore = false;
-          } else {
-            allObservations = allObservations.concat(data.results);
-
-            // Check if there are more pages
-            if (data.results.length < perPage) {
-              hasMore = false;
-            } else {
-              page++;
-            }
-          }
-        }
-
-        return allObservations;
+        // Fetch observations ordered by votes/faves - only first page needed
+        const url = `https://api.inaturalist.org/v2/observations?per_page=200&order_by=votes&order=desc&user_id=${userId}&fields=id,faves_count`;
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.results || [];
       }
 
       function showError(message) {
