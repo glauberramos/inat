@@ -121,6 +121,18 @@
         Mammalia: { emoji: "🦌", name: "Mammals", id: 40151 },
       };
 
+      // Specialty taxon IDs for achievements
+      const SPECIALTY_TAXONS = {
+        lepidoptera: 47157, // Butterflies & Moths
+        raptors: [71261, 67570, 19350, 559244], // Accipitriformes, Falconiformes, Strigiformes, Cathartiformes
+        coleoptera: 47208, // Beetles
+        anthophila: 630955, // Bees
+        cetacea: 152871, // Whales & Dolphins
+        anura: 20979, // Frogs & Toads
+        serpentes: 85553, // Snakes
+        testudines: 39532, // Turtles & Tortoises
+      };
+
       // Load saved username from localStorage (shared with other tools)
       const savedUsername = localStorage.getItem("inatUsername");
       if (savedUsername) {
@@ -279,51 +291,6 @@
             maxSpeciesName = taxon.preferred_common_name || taxon.name || "";
           }
 
-          // Fetch iconic taxon species counts using the v2 endpoint
-          const iconicTaxaPromise = fetch(
-            `https://api.inaturalist.org/v2/observations/iconic_taxa_species_counts?user_id=${userId}&captive=false&verifiable=true`
-          ).then((res) => res.json());
-
-          // Fetch Lepidoptera species count (butterflies & moths - taxon_id 47157)
-          const lepidopteraPromise = fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=47157&per_page=1&captive=false&verifiable=true`
-          ).then((res) => res.json());
-
-          // Fetch Raptor species count (birds of prey - taxon_ids 71261, 67570, 19350, 559244)
-          const raptorPromise = fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=71261,67570,19350,559244&per_page=1&captive=false&verifiable=true`
-          ).then((res) => res.json());
-
-          // Fetch Beetle species count (Coleoptera - taxon_id 47208)
-          const beetlePromise = fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=47208&per_page=1&captive=false&verifiable=true`
-          ).then((res) => res.json());
-
-          // Fetch Bee species count (Anthophila - taxon_id 630955)
-          const beePromise = fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=630955&per_page=1&captive=false&verifiable=true`
-          ).then((res) => res.json());
-
-          // Fetch Cetacea species count (Whales & Dolphins - taxon_id 152871)
-          const cetaceaPromise = fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=152871&per_page=1&captive=false&verifiable=true`
-          ).then((res) => res.json());
-
-          // Fetch Anura species count (Frogs & Toads - taxon_id 20979)
-          const anuraPromise = fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=20979&per_page=1&captive=false&verifiable=true`
-          ).then((res) => res.json());
-
-          // Fetch Serpentes species count (Snakes - taxon_id 85553)
-          const serpentesPromise = fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=85553&per_page=1&captive=false&verifiable=true`
-          ).then((res) => res.json());
-
-          // Fetch Testudines species count (Turtles - taxon_id 39532)
-          const turtlePromise = fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&taxon_id=39532&per_page=1&captive=false&verifiable=true`
-          ).then((res) => res.json());
-
           // Fetch Threatened species count
           const threatenedPromise = fetch(
             `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&threatened=true&per_page=1&captive=false&verifiable=true`
@@ -359,15 +326,6 @@
           const allSpeciesCountsPromise = loadAllSpeciesCounts(userId);
 
           const [
-            iconicTaxaData,
-            lepidopteraData,
-            raptorData,
-            beetleData,
-            beeData,
-            cetaceaData,
-            anuraData,
-            serpentesData,
-            turtleData,
             threatenedData,
             introducedData,
             endemicData,
@@ -377,15 +335,6 @@
             favoriteObservations,
             allSpeciesCounts,
           ] = await Promise.all([
-            iconicTaxaPromise,
-            lepidopteraPromise,
-            raptorPromise,
-            beetlePromise,
-            beePromise,
-            cetaceaPromise,
-            anuraPromise,
-            serpentesPromise,
-            turtlePromise,
             threatenedPromise,
             introducedPromise,
             endemicPromise,
@@ -396,38 +345,58 @@
             allSpeciesCountsPromise,
           ]);
 
-          // Process iconic taxa data - map taxon IDs to names
+          // Calculate iconic taxon species counts from allSpeciesCounts
           const iconicTaxonSpeciesCounts = {};
-          if (iconicTaxaData.results) {
-            // Create a reverse mapping from taxon ID to name
-            const idToName = {};
-            Object.entries(ICONIC_TAXONS).forEach(([name, data]) => {
-              idToName[data.id] = name;
-            });
-
-            iconicTaxaData.results.forEach((item) => {
-              const taxonId = item.taxon?.id;
-              if (taxonId && idToName[taxonId]) {
-                iconicTaxonSpeciesCounts[idToName[taxonId]] = item.count || 0;
-              }
-            });
-          }
-
-          // Ensure all iconic taxons have a count (even if 0)
           Object.keys(ICONIC_TAXONS).forEach((taxonName) => {
-            if (!(taxonName in iconicTaxonSpeciesCounts)) {
-              iconicTaxonSpeciesCounts[taxonName] = 0;
+            iconicTaxonSpeciesCounts[taxonName] = 0;
+          });
+
+          // Calculate specialty taxon counts from allSpeciesCounts
+          let lepidopteraSpeciesCount = 0;
+          let raptorSpeciesCount = 0;
+          let beetleSpeciesCount = 0;
+          let beeSpeciesCount = 0;
+          let cetaceaSpeciesCount = 0;
+          let anuraSpeciesCount = 0;
+          let serpentesSpeciesCount = 0;
+          let turtleSpeciesCount = 0;
+
+          allSpeciesCounts.forEach((species) => {
+            const iconicTaxonName = species.taxon?.iconic_taxon_name;
+            if (iconicTaxonName && iconicTaxonName in iconicTaxonSpeciesCounts) {
+              iconicTaxonSpeciesCounts[iconicTaxonName]++;
+            }
+
+            // Check ancestor_ids for specialty taxons
+            const ancestorIds = species.taxon?.ancestor_ids || [];
+            const taxonId = species.taxon?.id;
+
+            if (ancestorIds.includes(SPECIALTY_TAXONS.lepidoptera) || taxonId === SPECIALTY_TAXONS.lepidoptera) {
+              lepidopteraSpeciesCount++;
+            }
+            if (SPECIALTY_TAXONS.raptors.some(id => ancestorIds.includes(id) || taxonId === id)) {
+              raptorSpeciesCount++;
+            }
+            if (ancestorIds.includes(SPECIALTY_TAXONS.coleoptera) || taxonId === SPECIALTY_TAXONS.coleoptera) {
+              beetleSpeciesCount++;
+            }
+            if (ancestorIds.includes(SPECIALTY_TAXONS.anthophila) || taxonId === SPECIALTY_TAXONS.anthophila) {
+              beeSpeciesCount++;
+            }
+            if (ancestorIds.includes(SPECIALTY_TAXONS.cetacea) || taxonId === SPECIALTY_TAXONS.cetacea) {
+              cetaceaSpeciesCount++;
+            }
+            if (ancestorIds.includes(SPECIALTY_TAXONS.anura) || taxonId === SPECIALTY_TAXONS.anura) {
+              anuraSpeciesCount++;
+            }
+            if (ancestorIds.includes(SPECIALTY_TAXONS.serpentes) || taxonId === SPECIALTY_TAXONS.serpentes) {
+              serpentesSpeciesCount++;
+            }
+            if (ancestorIds.includes(SPECIALTY_TAXONS.testudines) || taxonId === SPECIALTY_TAXONS.testudines) {
+              turtleSpeciesCount++;
             }
           });
 
-          const lepidopteraSpeciesCount = lepidopteraData.total_results || 0;
-          const raptorSpeciesCount = raptorData.total_results || 0;
-          const beetleSpeciesCount = beetleData.total_results || 0;
-          const beeSpeciesCount = beeData.total_results || 0;
-          const cetaceaSpeciesCount = cetaceaData.total_results || 0;
-          const anuraSpeciesCount = anuraData.total_results || 0;
-          const serpentesSpeciesCount = serpentesData.total_results || 0;
-          const turtleSpeciesCount = turtleData.total_results || 0;
           const threatenedSpeciesCount = threatenedData.total_results || 0;
           const introducedSpeciesCount = introducedData.total_results || 0;
           const endemicSpeciesCount = endemicData.total_results || 0;
