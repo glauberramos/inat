@@ -134,6 +134,8 @@
         anura: 20979, // Frogs & Toads
         serpentes: 85553, // Snakes
         testudines: 39532, // Turtles & Tortoises
+        rodentia: 43698, // Rodents
+        primates: 43367, // Primates
       };
 
       // Load saved username from localStorage (shared with other tools)
@@ -521,6 +523,8 @@
           let anuraSpeciesCount = 0;
           let serpentesSpeciesCount = 0;
           let turtleSpeciesCount = 0;
+          let rodentiaSpeciesCount = 0;
+          let primatesSpeciesCount = 0;
 
           allSpeciesCounts.forEach((species) => {
             const iconicTaxonName = species.taxon?.iconic_taxon_name;
@@ -583,6 +587,18 @@
               taxonId === SPECIALTY_TAXONS.testudines
             ) {
               turtleSpeciesCount++;
+            }
+            if (
+              ancestorIds.includes(SPECIALTY_TAXONS.rodentia) ||
+              taxonId === SPECIALTY_TAXONS.rodentia
+            ) {
+              rodentiaSpeciesCount++;
+            }
+            if (
+              ancestorIds.includes(SPECIALTY_TAXONS.primates) ||
+              taxonId === SPECIALTY_TAXONS.primates
+            ) {
+              primatesSpeciesCount++;
             }
           });
 
@@ -699,6 +715,8 @@
             anuraSpeciesCount,
             serpentesSpeciesCount,
             turtleSpeciesCount,
+            rodentiaSpeciesCount,
+            primatesSpeciesCount,
             threatenedSpeciesCount,
             introducedSpeciesCount,
             endemicSpeciesCount,
@@ -1283,6 +1301,8 @@
         anuraSpeciesCount,
         serpentesSpeciesCount,
         turtleSpeciesCount,
+        rodentiaSpeciesCount,
+        primatesSpeciesCount,
         threatenedSpeciesCount,
         introducedSpeciesCount,
         endemicSpeciesCount,
@@ -1619,6 +1639,16 @@
           total: 15,
           completed: turtleSpeciesCount >= 15,
         };
+        const rodentRider = {
+          current: rodentiaSpeciesCount,
+          total: 25,
+          completed: rodentiaSpeciesCount >= 25,
+        };
+        const primatePatrol = {
+          current: primatesSpeciesCount,
+          total: 15,
+          completed: primatesSpeciesCount >= 15,
+        };
 
         const taxonIconsHtml = Object.entries(ICONIC_TAXONS)
           .map(([key, value]) => {
@@ -1749,6 +1779,8 @@
           frogFinder,
           snakeSpotter,
           shellSeeker,
+          rodentRider,
+          primatePatrol,
           ...Object.values(taxonAchievements),
         ];
         const completedCount = allAchievements.filter(
@@ -2427,6 +2459,20 @@
                 "Shell Seeker",
                 "Observe 15 turtle & tortoise species",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=39532&view=species`
+              )}
+              ${renderAchievementCard(
+                rodentRider,
+                "🐿️",
+                "Rodent Rider",
+                "Observe 25 rodent species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=43698&view=species`
+              )}
+              ${renderAchievementCard(
+                primatePatrol,
+                "🐒",
+                "Primate Patrol",
+                "Observe 15 primate species",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=43367&view=species`
               )}
               <div class="achievement-card ${
                 iconicTaxonAchievement.completed ? "completed" : ""
