@@ -30,33 +30,6 @@
         align-items: center;
       }
 
-      .summary-stats {
-        display: none;
-        gap: 20px;
-        align-items: center;
-      }
-
-      .summary-stats.show {
-        display: flex;
-      }
-
-      .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .stat-value {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #74ac00;
-      }
-
-      .stat-label {
-        font-size: 0.9rem;
-        color: #666;
-      }
-
       .controls {
         display: flex;
         gap: 15px;
@@ -387,6 +360,113 @@
       #speciesContainer.table-view {
         display: block;
       }
+
+      .user-info-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        padding: 15px 20px;
+        margin-top: 15px;
+        display: none;
+      }
+
+      .user-info-card.show {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+      }
+
+      .user-info-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .user-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #74ac00;
+      }
+
+      .user-avatar-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: #bbb;
+        border: 2px solid #ddd;
+      }
+
+      .user-name {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .user-meta {
+        display: flex;
+        gap: 15px;
+        color: #666;
+        font-size: 0.8rem;
+      }
+
+      .user-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .user-stats-grid {
+        display: flex;
+        gap: 20px;
+        margin-left: auto;
+      }
+
+      .user-stat-item {
+        text-align: center;
+      }
+
+      .user-stat-value {
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: #74ac00;
+      }
+
+      .user-stat-label {
+        font-size: 0.75rem;
+        color: #666;
+      }
+
+      @media (max-width: 768px) {
+        .user-info-card.show {
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        .user-stats-grid {
+          margin-left: 0;
+        }
+
+        .user-info-header {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .user-details {
+          text-align: center;
+        }
+
+        .user-meta {
+          justify-content: center;
+        }
+      }
     </style>
   </head>
   <body>
@@ -447,22 +527,37 @@
             </div>
             <button id="searchButton">Search</button>
           </div>
-          <div class="summary-stats" id="summaryStats">
-            <div class="stat-item">
-              <div class="stat-value" id="totalObservations">0</div>
-              <div class="stat-label">Observations</div>
+        </div>
+
+        <div class="user-info-card" id="userInfoCard">
+          <div class="user-info-header">
+            <div id="userAvatarContainer"></div>
+            <div class="user-details">
+              <div class="user-name" id="userName"></div>
+              <div class="user-meta">
+                <div class="user-meta-item">
+                  <span>📅</span>
+                  <span id="userJoinDate"></span>
+                </div>
+                <div class="user-meta-item">
+                  <span>🏷️</span>
+                  <span><span id="userAnnotations">0</span> annotations</span>
+                </div>
+              </div>
             </div>
-            <div class="stat-item">
-              <div class="stat-value" id="totalSpecies">0</div>
-              <div class="stat-label">Species</div>
+          </div>
+          <div class="user-stats-grid">
+            <div class="user-stat-item">
+              <div class="user-stat-value" id="totalObservations">0</div>
+              <div class="user-stat-label">Observations</div>
             </div>
-            <div class="stat-item">
-              <div class="stat-value" id="atRiskSpecies">0</div>
-              <div class="stat-label">Threatened Species</div>
+            <div class="user-stat-item">
+              <div class="user-stat-value" id="totalSpecies">0</div>
+              <div class="user-stat-label">Species</div>
             </div>
-            <div class="stat-item">
-              <div class="stat-value" id="onlyObserverSpecies">0</div>
-              <div class="stat-label">Only Observer</div>
+            <div class="user-stat-item">
+              <div class="user-stat-value" id="atRiskSpecies">0</div>
+              <div class="user-stat-label">Threatened</div>
             </div>
           </div>
         </div>
@@ -570,10 +665,11 @@
       const totalObservations = document.getElementById("totalObservations");
       const totalSpecies = document.getElementById("totalSpecies");
       const atRiskSpecies = document.getElementById("atRiskSpecies");
-      const onlyObserverSpecies = document.getElementById(
-        "onlyObserverSpecies"
-      );
-      const summaryStats = document.getElementById("summaryStats");
+      const userInfoCard = document.getElementById("userInfoCard");
+      const userAvatarContainer = document.getElementById("userAvatarContainer");
+      const userName = document.getElementById("userName");
+      const userJoinDate = document.getElementById("userJoinDate");
+      const userAnnotations = document.getElementById("userAnnotations");
       const controls = document.getElementById("controls");
       const iconicTaxonSelect = document.getElementById("iconicTaxonSelect");
       const conservationStatusFilter = document.getElementById(
@@ -724,7 +820,7 @@
         hideError();
         loading.style.display = "block";
         speciesContainer.innerHTML = "";
-        summaryStats.classList.remove("show");
+        userInfoCard.classList.remove("show");
         controls.style.display = "none";
 
         try {
@@ -748,6 +844,31 @@
 
           // Save username to localStorage (shared with SpeciesDex)
           localStorage.setItem("inatUsername", username);
+
+          // Populate user info
+          userName.textContent = user.name || user.login;
+
+          // User avatar
+          if (user.icon) {
+            userAvatarContainer.innerHTML = `<img src="${user.icon}" alt="${user.login}" class="user-avatar">`;
+          } else {
+            userAvatarContainer.innerHTML = `<div class="user-avatar-placeholder">👤</div>`;
+          }
+
+          // Join date
+          if (user.created_at) {
+            const joinDate = new Date(user.created_at);
+            userJoinDate.textContent = joinDate.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            });
+          } else {
+            userJoinDate.textContent = "Unknown";
+          }
+
+          // Annotations count
+          userAnnotations.textContent = (user.annotated_observations_count || 0).toLocaleString();
 
           // Display user stats
           totalObservations.textContent =
@@ -842,15 +963,7 @@
 
           atRiskSpecies.textContent = threatenedTaxonIds.size.toLocaleString();
 
-          // Calculate only observer count
-          const onlyObserverCount = speciesData.filter((item) => {
-            const userCount = item.count;
-            const globalCount = item.taxon.observations_count || 0;
-            return userCount === globalCount && globalCount > 0;
-          }).length;
-          onlyObserverSpecies.textContent = onlyObserverCount.toLocaleString();
-
-          summaryStats.classList.add("show");
+          userInfoCard.classList.add("show");
           controls.style.display = "flex";
           viewControls.style.display = "flex";
 
