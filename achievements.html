@@ -413,6 +413,17 @@
                 }))
           );
 
+          // Fetch individual famous island observations
+          const galapagosPromise = fetch(
+            `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=12990`
+          ).then((res) => res.json());
+          const hawaiiPromise = fetch(
+            `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=11`
+          ).then((res) => res.json());
+          const madagascarPromise = fetch(
+            `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=7783`
+          ).then((res) => res.json());
+
           const [
             researchGradeData,
             histogramData,
@@ -430,6 +441,9 @@
             oldTimerData,
             continentResults,
             megadiverseResults,
+            galapagosData,
+            hawaiiData,
+            madagascarData,
           ] = await Promise.all([
             researchGradePromise,
             histogramPromise,
@@ -447,6 +461,9 @@
             oldTimerPromise,
             Promise.all(continentPromises),
             Promise.all(megadiversePromises),
+            galapagosPromise,
+            hawaiiPromise,
+            madagascarPromise,
           ]);
 
           // Calculate sound-related achievements
@@ -483,6 +500,11 @@
               .filter((r) => r.hasObservations)
               .map((r) => r.country)
           );
+
+          // Get individual island observation counts
+          const galapagosCount = galapagosData.total_results || 0;
+          const hawaiiCount = hawaiiData.total_results || 0;
+          const madagascarCount = madagascarData.total_results || 0;
 
           // Calculate iconic taxon species counts from allSpeciesCounts
           const iconicTaxonSpeciesCounts = {};
@@ -694,7 +716,10 @@
             observedContinents,
             fromArchivesCount,
             oldTimerCount,
-            observedMegadiverseCountries
+            observedMegadiverseCountries,
+            galapagosCount,
+            hawaiiCount,
+            madagascarCount
           );
           achievementsContainer.innerHTML = result.html;
 
@@ -1275,7 +1300,10 @@
         observedContinents,
         fromArchivesCount,
         oldTimerCount,
-        observedMegadiverseCountries
+        observedMegadiverseCountries,
+        galapagosCount,
+        hawaiiCount,
+        madagascarCount
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
         const iconicTaxonAchievement =
@@ -1482,6 +1510,23 @@
           observedCountries: observedMegadiverseCountries,
         };
 
+        // Individual famous island achievements
+        const galapagosAchievement = {
+          current: galapagosCount,
+          total: 1,
+          completed: galapagosCount >= 1,
+        };
+        const hawaiiAchievement = {
+          current: hawaiiCount,
+          total: 1,
+          completed: hawaiiCount >= 1,
+        };
+        const madagascarAchievement = {
+          current: madagascarCount,
+          total: 1,
+          completed: madagascarCount >= 1,
+        };
+
         // Use histogram-based achievements for seasons, months, and streaks
         const seasonsAchievement = histogramAchievements.seasonsAchievement;
         const monthsAchievement = histogramAchievements.monthsAchievement;
@@ -1676,6 +1721,9 @@
           iconicTaxonAchievement,
           continentsAchievement,
           megadiverseAchievement,
+          galapagosAchievement,
+          hawaiiAchievement,
+          madagascarAchievement,
           seasonsAchievement,
           monthsAchievement,
           streak7,
@@ -2518,6 +2566,33 @@
                   </div>
                 </div>
               </div>
+              ${renderAchievementCard(
+                galapagosAchievement,
+                "🐢",
+                "Galápagos Explorer",
+                "Observe in the Galápagos Islands",
+                galapagosAchievement.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&place_id=12990`
+                  : null
+              )}
+              ${renderAchievementCard(
+                hawaiiAchievement,
+                "🌺",
+                "Aloha Naturalist",
+                "Observe in Hawaii",
+                hawaiiAchievement.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&place_id=11`
+                  : null
+              )}
+              ${renderAchievementCard(
+                madagascarAchievement,
+                "🦎",
+                "Madagascar Explorer",
+                "Observe in Madagascar",
+                madagascarAchievement.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&place_id=7783`
+                  : null
+              )}
             </div>
           </div>
         `;
