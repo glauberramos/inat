@@ -1719,42 +1719,6 @@
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&quality_grade=research`
               )}
               ${renderAchievementCard(
-                soundObservation,
-                "🔊",
-                "Sound Recorder",
-                "Record an observation with sound",
-                soundObservation.current > 0
-                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&sounds`
-                  : null
-              )}
-              ${renderAchievementCard(
-                soundPhotoObservation,
-                "🎬",
-                "Multimedia Master",
-                "Record an observation with sound and image",
-                soundPhotoObservation.current > 0
-                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&sounds&photos`
-                  : null
-              )}
-              ${renderAchievementCard(
-                annotatedObservation,
-                "🏷️",
-                "Annotator",
-                "Annotate 50 observations",
-                annotatedObservation.current > 0
-                  ? `https://www.inaturalist.org/observations?annotation_user_id=${currentUsername}&verifiable=any`
-                  : null
-              )}
-              ${renderAchievementCard(
-                projectParticipant,
-                "📋",
-                "Project Participant",
-                "Join a project",
-                projectParticipant.current > 0
-                  ? `https://www.inaturalist.org/projects/user/${currentUsername}`
-                  : null
-              )}
-              ${renderAchievementCard(
                 species100,
                 "🔬",
                 "Species Spotter",
@@ -1837,6 +1801,42 @@
                 "📅",
                 "10-Year Member",
                 "Have an account for 10+ years"
+              )}
+              ${renderAchievementCard(
+                soundObservation,
+                "🔊",
+                "Sound Recorder",
+                "Record an observation with sound",
+                soundObservation.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&sounds`
+                  : null
+              )}
+              ${renderAchievementCard(
+                soundPhotoObservation,
+                "🎬",
+                "Multimedia Master",
+                "Record an observation with sound and image",
+                soundPhotoObservation.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&sounds&photos`
+                  : null
+              )}
+              ${renderAchievementCard(
+                annotatedObservation,
+                "🏷️",
+                "Annotator",
+                "Annotate 50 observations",
+                annotatedObservation.current > 0
+                  ? `https://www.inaturalist.org/observations?annotation_user_id=${currentUsername}&verifiable=any`
+                  : null
+              )}
+              ${renderAchievementCard(
+                projectParticipant,
+                "📋",
+                "Project Participant",
+                "Join a project",
+                projectParticipant.current > 0
+                  ? `https://www.inaturalist.org/projects/user/${currentUsername}`
+                  : null
               )}
             </div>
 
