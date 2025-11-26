@@ -332,6 +332,16 @@
             `https://api.inaturalist.org/v1/projects?member_id=${userId}&per_page=1`
           ).then((res) => res.json());
 
+          // Fetch early bird observations (5-7 AM)
+          const earlyBirdPromise = fetch(
+            `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&hour=5,6,7`
+          ).then((res) => res.json());
+
+          // Fetch night owl observations (9 PM - 4 AM)
+          const nightOwlPromise = fetch(
+            `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&hour=21,22,23,0,1,2,3,4`
+          ).then((res) => res.json());
+
           // Fetch continent observations for World Traveler achievement
           const continentPlaceIds = {
             Europe: 67952,
@@ -361,6 +371,8 @@
             soundObservationsData,
             soundPhotoObservationsData,
             projectsData,
+            earlyBirdData,
+            nightOwlData,
             continentResults,
           ] = await Promise.all([
             researchGradePromise,
@@ -373,6 +385,8 @@
             soundObservationsPromise,
             soundPhotoObservationsPromise,
             projectsPromise,
+            earlyBirdPromise,
+            nightOwlPromise,
             Promise.all(continentPromises),
           ]);
 
@@ -388,6 +402,10 @@
 
           // Get projects count
           const projectsCount = projectsData.total_results || 0;
+
+          // Get early bird and night owl counts
+          const earlyBirdCount = earlyBirdData.total_results || 0;
+          const nightOwlCount = nightOwlData.total_results || 0;
 
           // Calculate observed continents from continent API calls
           const observedContinents = new Set(
@@ -585,6 +603,8 @@
             soundPhotoObservationsCount,
             annotatedObservationsCount,
             projectsCount,
+            earlyBirdCount,
+            nightOwlCount,
             observedContinents
           );
           achievementsContainer.innerHTML = result.html;
@@ -1161,6 +1181,8 @@
         soundPhotoObservationsCount,
         annotatedObservationsCount,
         projectsCount,
+        earlyBirdCount,
+        nightOwlCount,
         observedContinents
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
@@ -1276,6 +1298,20 @@
           current: projectsCount,
           total: 1,
           completed: projectsCount >= 1,
+        };
+
+        // Early bird achievement (observations between 5-7 AM)
+        const earlyBird = {
+          current: earlyBirdCount,
+          total: 1,
+          completed: earlyBirdCount >= 1,
+        };
+
+        // Night owl achievement (observations between 9 PM - 4 AM)
+        const nightOwl = {
+          current: nightOwlCount,
+          total: 1,
+          completed: nightOwlCount >= 1,
         };
 
         // Species achievements
@@ -1488,6 +1524,8 @@
           soundPhotoObservation,
           annotatedObservation,
           projectParticipant,
+          earlyBird,
+          nightOwl,
           species100,
           species1000,
           species10000,
@@ -1690,6 +1728,24 @@
                 "Join a project",
                 projectParticipant.current > 0
                   ? `https://www.inaturalist.org/projects/user/${currentUsername}`
+                  : null
+              )}
+              ${renderAchievementCard(
+                earlyBird,
+                "🌅",
+                "Early Bird",
+                "Make an observation between 5-7 AM",
+                earlyBird.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&hour=5,6,7`
+                  : null
+              )}
+              ${renderAchievementCard(
+                nightOwl,
+                "🦉",
+                "Night Owl",
+                "Make an observation between 9 PM - 4 AM",
+                nightOwl.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&hour=21,22,23,0,1,2,3,4`
                   : null
               )}
               ${renderAchievementCard(
