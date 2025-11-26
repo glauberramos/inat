@@ -111,6 +111,9 @@
       const ICONIC_TAXONS = {
         Plantae: { emoji: "🌿", name: "Plants", id: 47126 },
         Fungi: { emoji: "🍄", name: "Fungi", id: 47170 },
+        Chromista: { emoji: "🟤", name: "Chromista", id: 48222 },
+        Protozoa: { emoji: "🦠", name: "Protozoa", id: 47686 },
+        Animalia: { emoji: "🐾", name: "Animals", id: 1 },
         Mollusca: { emoji: "🐌", name: "Mollusks", id: 47115 },
         Arachnida: { emoji: "🕷️", name: "Arachnids", id: 47119 },
         Insecta: { emoji: "🦋", name: "Insects", id: 47158 },
@@ -357,7 +360,10 @@
                 `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=${placeId}`
               )
                 .then((res) => res.json())
-                .then((data) => ({ continent, hasObservations: data.total_results > 0 }))
+                .then((data) => ({
+                  continent,
+                  hasObservations: data.total_results > 0,
+                }))
           );
 
           const [
@@ -492,6 +498,22 @@
             ) {
               turtleSpeciesCount++;
             }
+          });
+
+          // Add animal iconic taxon counts to Animalia
+          const animalIconicTaxons = [
+            "Mollusca",
+            "Arachnida",
+            "Insecta",
+            "Actinopterygii",
+            "Amphibia",
+            "Reptilia",
+            "Aves",
+            "Mammalia",
+          ];
+          animalIconicTaxons.forEach((taxon) => {
+            iconicTaxonSpeciesCounts["Animalia"] +=
+              iconicTaxonSpeciesCounts[taxon] || 0;
           });
 
           // Threatened species count comes from the separate API call
@@ -1406,6 +1428,8 @@
         const taxonGoals = {
           Mammalia: 50,
           Amphibia: 50,
+          Chromista: 10,
+          Protozoa: 10,
         };
         Object.keys(ICONIC_TAXONS).forEach((taxon) => {
           const count = iconicTaxonSpeciesCounts[taxon] || 0;
@@ -1707,7 +1731,7 @@
                 soundPhotoObservation,
                 "🎬",
                 "Multimedia Master",
-                "Record an observation with sound and photo",
+                "Record an observation with sound and image",
                 soundPhotoObservation.current > 0
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&sounds&photos`
                   : null
@@ -1728,24 +1752,6 @@
                 "Join a project",
                 projectParticipant.current > 0
                   ? `https://www.inaturalist.org/projects/user/${currentUsername}`
-                  : null
-              )}
-              ${renderAchievementCard(
-                earlyBird,
-                "🌅",
-                "Early Bird",
-                "Make an observation between 5-7 AM",
-                earlyBird.current > 0
-                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&hour=5,6,7`
-                  : null
-              )}
-              ${renderAchievementCard(
-                nightOwl,
-                "🦉",
-                "Night Owl",
-                "Make an observation between 9 PM - 4 AM",
-                nightOwl.current > 0
-                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&hour=21,22,23,0,1,2,3,4`
                   : null
               )}
               ${renderAchievementCard(
@@ -2052,7 +2058,26 @@
                 null,
                 false
               )}
-              ${/* WIP - Diversity Day and Biodiversity Blitz
+              ${renderAchievementCard(
+                earlyBird,
+                "🌅",
+                "Early Bird",
+                "Make an observation between 5-7 AM",
+                earlyBird.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&hour=5,6,7`
+                  : null
+              )}
+              ${renderAchievementCard(
+                nightOwl,
+                "🦉",
+                "Night Owl",
+                "Make an observation between 9 PM - 4 AM",
+                nightOwl.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&hour=21,22,23,0,1,2,3,4`
+                  : null
+              )}
+              ${
+                /* WIP - Diversity Day and Biodiversity Blitz
               ${renderAchievementCard(
                 speciesDay10,
                 "🌈",
@@ -2069,7 +2094,8 @@
                 null,
                 false
               )}
-              */ ""}
+              */ ""
+              }
             </div>
 
             <h3 class="category-title">Community</h3>
