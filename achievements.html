@@ -345,6 +345,21 @@
             `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&hour=21,22,23,0,1,2,3,4`
           ).then((res) => res.json());
 
+          // Fetch "From the Archives" observations (RG observations from before user joined)
+          const userJoinDate = userCreatedAt
+            ? new Date(userCreatedAt).toISOString().split("T")[0]
+            : null;
+          const fromArchivesPromise = userJoinDate
+            ? fetch(
+                `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&quality_grade=research&d2=${userJoinDate}`
+              ).then((res) => res.json())
+            : Promise.resolve({ total_results: 0 });
+
+          // Fetch "Old Timer" observations (RG observations from before iNaturalist existed - March 2008)
+          const oldTimerPromise = fetch(
+            `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&quality_grade=research&d2=2008-03-01`
+          ).then((res) => res.json());
+
           // Fetch continent observations for World Traveler achievement
           const continentPlaceIds = {
             Europe: 67952,
@@ -379,6 +394,8 @@
             projectsData,
             earlyBirdData,
             nightOwlData,
+            fromArchivesData,
+            oldTimerData,
             continentResults,
           ] = await Promise.all([
             researchGradePromise,
@@ -393,6 +410,8 @@
             projectsPromise,
             earlyBirdPromise,
             nightOwlPromise,
+            fromArchivesPromise,
+            oldTimerPromise,
             Promise.all(continentPromises),
           ]);
 
@@ -412,6 +431,10 @@
           // Get early bird and night owl counts
           const earlyBirdCount = earlyBirdData.total_results || 0;
           const nightOwlCount = nightOwlData.total_results || 0;
+
+          // Get from archives and old timer counts
+          const fromArchivesCount = fromArchivesData.total_results || 0;
+          const oldTimerCount = oldTimerData.total_results || 0;
 
           // Calculate observed continents from continent API calls
           const observedContinents = new Set(
@@ -627,7 +650,9 @@
             projectsCount,
             earlyBirdCount,
             nightOwlCount,
-            observedContinents
+            observedContinents,
+            fromArchivesCount,
+            oldTimerCount
           );
           achievementsContainer.innerHTML = result.html;
 
@@ -1205,7 +1230,9 @@
         projectsCount,
         earlyBirdCount,
         nightOwlCount,
-        observedContinents
+        observedContinents,
+        fromArchivesCount,
+        oldTimerCount
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
         const iconicTaxonAchievement =
@@ -1334,6 +1361,20 @@
           current: nightOwlCount,
           total: 1,
           completed: nightOwlCount >= 1,
+        };
+
+        // From the Archives achievement (RG observations from before user joined)
+        const fromArchives = {
+          current: fromArchivesCount,
+          total: 1,
+          completed: fromArchivesCount >= 1,
+        };
+
+        // Old Timer achievement (RG observations from before iNaturalist existed)
+        const oldTimer = {
+          current: oldTimerCount,
+          total: 1,
+          completed: oldTimerCount >= 1,
         };
 
         // Species achievements
@@ -1550,6 +1591,8 @@
           projectParticipant,
           earlyBird,
           nightOwl,
+          fromArchives,
+          oldTimer,
           species100,
           species1000,
           species10000,
@@ -2056,6 +2099,24 @@
                 "Make an observation between 9 PM - 4 AM",
                 nightOwl.current > 0
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&hour=21,22,23,0,1,2,3,4`
+                  : null
+              )}
+              ${renderAchievementCard(
+                fromArchives,
+                "📜",
+                "From the Archives",
+                "Add a research grade observation from before you joined iNaturalist",
+                fromArchives.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&quality_grade=research&d2=${userCreatedAt ? new Date(userCreatedAt).toISOString().split("T")[0] : ""}`
+                  : null
+              )}
+              ${renderAchievementCard(
+                oldTimer,
+                "🏛️",
+                "Old Timer",
+                "Add a research grade observation from before iNaturalist existed (March 2008)",
+                oldTimer.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&quality_grade=research&d2=2008-03-01`
                   : null
               )}
               ${
