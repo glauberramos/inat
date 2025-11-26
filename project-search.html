@@ -312,6 +312,13 @@
         if (query.length < 2) {
           locationAutocomplete.innerHTML = "";
           locationAutocomplete.style.display = "none";
+
+          // Clear location from cache if input is empty
+          if (query.length === 0) {
+            selectedLocation = null;
+            localStorage.removeItem("inatPlaceId");
+            localStorage.removeItem("inatPlaceName");
+          }
           return;
         }
 
