@@ -1820,24 +1820,6 @@
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&sounds&photos`
                   : null
               )}
-              ${renderAchievementCard(
-                annotatedObservation,
-                "🏷️",
-                "Annotator",
-                "Annotate 50 observations",
-                annotatedObservation.current > 0
-                  ? `https://www.inaturalist.org/observations?annotation_user_id=${currentUsername}&verifiable=any`
-                  : null
-              )}
-              ${renderAchievementCard(
-                projectParticipant,
-                "📋",
-                "Project Participant",
-                "Join a project",
-                projectParticipant.current > 0
-                  ? `https://www.inaturalist.org/projects/user/${currentUsername}`
-                  : null
-              )}
             </div>
 
             <h3 class="category-title">Conservation</h3>
@@ -2119,6 +2101,24 @@
                     )}`
                   : null,
                 false
+              )}
+              ${renderAchievementCard(
+                annotatedObservation,
+                "🏷️",
+                "Annotator",
+                "Annotate 50 observations",
+                annotatedObservation.current > 0
+                  ? `https://www.inaturalist.org/observations?annotation_user_id=${currentUsername}&verifiable=any`
+                  : null
+              )}
+              ${renderAchievementCard(
+                projectParticipant,
+                "📋",
+                "Project Participant",
+                "Join a project",
+                projectParticipant.current > 0
+                  ? `https://www.inaturalist.org/projects/user/${currentUsername}`
+                  : null
               )}
             </div>
 
