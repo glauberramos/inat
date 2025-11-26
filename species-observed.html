@@ -586,6 +586,7 @@
       const tableViewBtn = document.getElementById("tableViewBtn");
 
       let speciesData = [];
+      let threatenedTaxonIds = new Set();
       let currentUserId = null;
       let searchTimeout = null;
       let currentView = "grid"; // 'grid' or 'table'
@@ -795,29 +796,51 @@
           speciesData = allResults;
           totalSpecies.textContent = speciesData.length.toLocaleString();
 
-          // Calculate threatened species count
-          const atRiskStatuses = [
-            "cr",
-            "critically_endangered",
-            "en",
-            "endangered",
-            "vu",
-            "vulnerable",
-            "nt",
-            "near_threatened",
-          ];
-          const atRiskCount = speciesData.filter((item) => {
-            if (
-              item.taxon.conservation_status &&
-              item.taxon.conservation_status.status
-            ) {
-              return atRiskStatuses.includes(
-                item.taxon.conservation_status.status.toLowerCase()
+          // Fetch all threatened species using separate API call with pagination
+          threatenedTaxonIds = new Set();
+          const threatenedPerPage = 500;
+          const firstThreatenedResponse = await fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${threatenedPerPage}&page=1&threatened=true`
+          );
+          const firstThreatenedData = await firstThreatenedResponse.json();
+          const threatenedTotalResults = firstThreatenedData.total_results || 0;
+
+          // Add first page results to set
+          if (firstThreatenedData.results) {
+            firstThreatenedData.results.forEach((item) => {
+              if (item.taxon && item.taxon.id) {
+                threatenedTaxonIds.add(item.taxon.id);
+              }
+            });
+          }
+
+          // Fetch remaining pages if needed
+          const threatenedTotalPages = Math.ceil(
+            threatenedTotalResults / threatenedPerPage
+          );
+          if (threatenedTotalPages > 1) {
+            const threatenedPromises = [];
+            for (let page = 2; page <= threatenedTotalPages; page++) {
+              threatenedPromises.push(
+                fetch(
+                  `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${threatenedPerPage}&page=${page}&threatened=true`
+                )
+                  .then((response) => response.json())
+                  .then((data) => data.results || [])
               );
             }
-            return false;
-          }).length;
-          atRiskSpecies.textContent = atRiskCount.toLocaleString();
+            const additionalThreatenedResults =
+              await Promise.all(threatenedPromises);
+            additionalThreatenedResults.forEach((results) => {
+              results.forEach((item) => {
+                if (item.taxon && item.taxon.id) {
+                  threatenedTaxonIds.add(item.taxon.id);
+                }
+              });
+            });
+          }
+
+          atRiskSpecies.textContent = threatenedTaxonIds.size.toLocaleString();
 
           // Calculate only observer count
           const onlyObserverCount = speciesData.filter((item) => {
@@ -853,28 +876,10 @@
           });
         }
 
-        // Filter by threatened conservation status
+        // Filter by threatened species (using API-fetched threatened taxon IDs)
         if (onlyWithConservationStatus) {
-          const atRiskStatuses = [
-            "cr",
-            "critically_endangered",
-            "en",
-            "endangered",
-            "vu",
-            "vulnerable",
-            "nt",
-            "near_threatened",
-          ];
           filteredData = filteredData.filter((item) => {
-            if (
-              item.taxon.conservation_status &&
-              item.taxon.conservation_status.status
-            ) {
-              return atRiskStatuses.includes(
-                item.taxon.conservation_status.status.toLowerCase()
-              );
-            }
-            return false;
+            return item.taxon && threatenedTaxonIds.has(item.taxon.id);
           });
         }
 
