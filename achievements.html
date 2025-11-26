@@ -332,6 +332,24 @@
             `https://api.inaturalist.org/v1/projects?member_id=${userId}&per_page=1`
           ).then((res) => res.json());
 
+          // Fetch continent observations for World Traveler achievement
+          const continentPlaceIds = {
+            Europe: 67952,
+            "South America": 97389,
+            "North America": 9853,
+            Asia: 97395,
+            Oceania: 97393,
+            Africa: 91708,
+          };
+          const continentPromises = Object.entries(continentPlaceIds).map(
+            ([continent, placeId]) =>
+              fetch(
+                `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=${placeId}`
+              )
+                .then((res) => res.json())
+                .then((data) => ({ continent, hasObservations: data.total_results > 0 }))
+          );
+
           const [
             researchGradeData,
             histogramData,
@@ -343,6 +361,7 @@
             soundObservationsData,
             soundPhotoObservationsData,
             projectsData,
+            continentResults,
           ] = await Promise.all([
             researchGradePromise,
             histogramPromise,
@@ -354,6 +373,7 @@
             soundObservationsPromise,
             soundPhotoObservationsPromise,
             projectsPromise,
+            Promise.all(continentPromises),
           ]);
 
           // Calculate sound-related achievements
@@ -368,6 +388,13 @@
 
           // Get projects count
           const projectsCount = projectsData.total_results || 0;
+
+          // Calculate observed continents from continent API calls
+          const observedContinents = new Set(
+            continentResults
+              .filter((r) => r.hasObservations)
+              .map((r) => r.continent)
+          );
 
           // Calculate iconic taxon species counts from allSpeciesCounts
           const iconicTaxonSpeciesCounts = {};
@@ -557,7 +584,8 @@
             soundObservationsCount,
             soundPhotoObservationsCount,
             annotatedObservationsCount,
-            projectsCount
+            projectsCount,
+            observedContinents
           );
           achievementsContainer.innerHTML = result.html;
 
@@ -792,7 +820,7 @@
         Africa: "🦁",
         Asia: "🐼",
         Oceania: "🦘",
-        Antarctica: "🐧",
+        // Antarctica: "🐧", // TODO: Add back when we have place_id
       };
 
       const SEASONS = {
@@ -1132,7 +1160,8 @@
         soundObservationsCount,
         soundPhotoObservationsCount,
         annotatedObservationsCount,
-        projectsCount
+        projectsCount,
+        observedContinents
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
         const iconicTaxonAchievement =
@@ -1295,12 +1324,12 @@
         // Only observer achievement - use pre-calculated from species counts
         const onlyObserver = rarityAchievements.onlyObserver;
 
-        // Continents achievement - WIP: requires all observations
+        // Continents achievement - uses API calls for each continent
         const continentsAchievement = {
-          current: 0,
-          total: 7,
-          completed: false,
-          observedContinents: new Set(),
+          current: observedContinents.size,
+          total: Object.keys(CONTINENTS).length,
+          completed: observedContinents.size >= Object.keys(CONTINENTS).length,
+          observedContinents: observedContinents,
         };
 
         // Use histogram-based achievements for seasons, months, and streaks
@@ -1447,7 +1476,7 @@
           })
           .join("");
 
-        // Count total achievements (excluding WIP: continentsAchievement, speciesDay10, speciesDay100)
+        // Count total achievements (excluding WIP: speciesDay10, speciesDay100)
         const allAchievements = [
           obs100,
           obs1000,
@@ -1489,6 +1518,7 @@
           endemic100,
           onlyObserver,
           iconicTaxonAchievement,
+          continentsAchievement,
           seasonsAchievement,
           monthsAchievement,
           streak7,
@@ -2220,14 +2250,13 @@
                   <div class="taxon-icons">${monthIconsHtml}</div>
                 </div>
               </div>
-              ${/* WIP - World Traveler
               <div class="achievement-card ${
                 continentsAchievement.completed ? "completed" : ""
               }">
                 <div class="achievement-icon">✈️</div>
                 <div class="achievement-content">
-                  <div class="achievement-name">World Traveler (WIP)</div>
-                  <div class="achievement-description">Observe in all 7 continents</div>
+                  <div class="achievement-name">World Traveler</div>
+                  <div class="achievement-description">Observe in all 6 continents</div>
                   <div class="achievement-progress">
                     <div class="progress-bar">
                       <div class="progress-fill" style="width: ${
@@ -2243,7 +2272,6 @@
                   <div class="taxon-icons">${continentIconsHtml}</div>
                 </div>
               </div>
-              */ ""}
             </div>
           </div>
         `;
