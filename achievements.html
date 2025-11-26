@@ -381,6 +381,38 @@
                 }))
           );
 
+          // Fetch megadiverse country observations for Megadiverse achievement
+          const megadiverseCountryIds = {
+            Australia: 6744,
+            Brazil: 6878,
+            China: 6903,
+            Colombia: 7196,
+            "DR Congo": 7054,
+            Ecuador: 7512,
+            India: 6681,
+            Indonesia: 6966,
+            Madagascar: 7783,
+            Malaysia: 7155,
+            Mexico: 6793,
+            "Papua New Guinea": 7013,
+            Peru: 7513,
+            Philippines: 6873,
+            "South Africa": 6986,
+            "United States": 1,
+            Venezuela: 1303,
+          };
+          const megadiversePromises = Object.entries(megadiverseCountryIds).map(
+            ([country, placeId]) =>
+              fetch(
+                `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=${placeId}`
+              )
+                .then((res) => res.json())
+                .then((data) => ({
+                  country,
+                  hasObservations: data.total_results > 0,
+                }))
+          );
+
           const [
             researchGradeData,
             histogramData,
@@ -397,6 +429,7 @@
             fromArchivesData,
             oldTimerData,
             continentResults,
+            megadiverseResults,
           ] = await Promise.all([
             researchGradePromise,
             histogramPromise,
@@ -413,6 +446,7 @@
             fromArchivesPromise,
             oldTimerPromise,
             Promise.all(continentPromises),
+            Promise.all(megadiversePromises),
           ]);
 
           // Calculate sound-related achievements
@@ -441,6 +475,13 @@
             continentResults
               .filter((r) => r.hasObservations)
               .map((r) => r.continent)
+          );
+
+          // Calculate observed megadiverse countries from API calls
+          const observedMegadiverseCountries = new Set(
+            megadiverseResults
+              .filter((r) => r.hasObservations)
+              .map((r) => r.country)
           );
 
           // Calculate iconic taxon species counts from allSpeciesCounts
@@ -652,7 +693,8 @@
             nightOwlCount,
             observedContinents,
             fromArchivesCount,
-            oldTimerCount
+            oldTimerCount,
+            observedMegadiverseCountries
           );
           achievementsContainer.innerHTML = result.html;
 
@@ -1232,7 +1274,8 @@
         nightOwlCount,
         observedContinents,
         fromArchivesCount,
-        oldTimerCount
+        oldTimerCount,
+        observedMegadiverseCountries
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
         const iconicTaxonAchievement =
@@ -1431,6 +1474,14 @@
           observedContinents: observedContinents,
         };
 
+        // Megadiverse country achievement (observe in all 17 megadiverse countries)
+        const megadiverseAchievement = {
+          current: observedMegadiverseCountries.size,
+          total: 17,
+          completed: observedMegadiverseCountries.size >= 17,
+          observedCountries: observedMegadiverseCountries,
+        };
+
         // Use histogram-based achievements for seasons, months, and streaks
         const seasonsAchievement = histogramAchievements.seasonsAchievement;
         const monthsAchievement = histogramAchievements.monthsAchievement;
@@ -1624,6 +1675,7 @@
           onlyObserver,
           iconicTaxonAchievement,
           continentsAchievement,
+          megadiverseAchievement,
           seasonsAchievement,
           monthsAchievement,
           streak7,
@@ -2413,6 +2465,57 @@
                     }/${continentsAchievement.total}</div>
                   </div>
                   <div class="taxon-icons">${continentIconsHtml}</div>
+                </div>
+              </div>
+              <div class="achievement-card ${
+                megadiverseAchievement.completed ? "completed" : ""
+              }">
+                <div class="achievement-icon">🌍</div>
+                <div class="achievement-content">
+                  <div class="achievement-name">Megadiverse Explorer</div>
+                  <div class="achievement-description">Observe in all 17 megadiverse countries</div>
+                  <div class="achievement-progress">
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: ${
+                        (megadiverseAchievement.current /
+                          megadiverseAchievement.total) *
+                        100
+                      }%"></div>
+                    </div>
+                    <div class="progress-text">${
+                      megadiverseAchievement.current
+                    }/${megadiverseAchievement.total}</div>
+                  </div>
+                  <div class="taxon-icons">
+                    ${[
+                      { code: "🇦🇺", name: "Australia" },
+                      { code: "🇧🇷", name: "Brazil" },
+                      { code: "🇨🇳", name: "China" },
+                      { code: "🇨🇴", name: "Colombia" },
+                      { code: "🇨🇩", name: "DR Congo" },
+                      { code: "🇪🇨", name: "Ecuador" },
+                      { code: "🇮🇳", name: "India" },
+                      { code: "🇮🇩", name: "Indonesia" },
+                      { code: "🇲🇬", name: "Madagascar" },
+                      { code: "🇲🇾", name: "Malaysia" },
+                      { code: "🇲🇽", name: "Mexico" },
+                      { code: "🇵🇬", name: "Papua New Guinea" },
+                      { code: "🇵🇪", name: "Peru" },
+                      { code: "🇵🇭", name: "Philippines" },
+                      { code: "🇿🇦", name: "South Africa" },
+                      { code: "🇺🇸", name: "United States" },
+                      { code: "🇻🇪", name: "Venezuela" },
+                    ]
+                      .map(
+                        (country) =>
+                          `<span class="taxon-icon ${
+                            megadiverseAchievement.observedCountries.has(country.name)
+                              ? "observed"
+                              : ""
+                          }" title="${country.name}">${country.code}</span>`
+                      )
+                      .join("")}
+                  </div>
                 </div>
               </div>
             </div>
