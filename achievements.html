@@ -303,7 +303,13 @@
           const favoriteObservationsPromise = loadFavoriteObservations(userId);
 
           // Fetch all species counts for rarity achievements
-          const allSpeciesCountsPromise = loadAllSpeciesCounts(userId);
+          const loadingCount = document.getElementById("loadingCount");
+          const allSpeciesCountsPromise = loadAllSpeciesCounts(
+            userId,
+            (percentage) => {
+              loadingCount.textContent = `${percentage}%`;
+            }
+          );
 
           // Fetch threatened species counts separately for conservation achievements
           const threatenedSpeciesCountsPromise =
@@ -732,109 +738,42 @@
         }
       }
 
-      async function loadAllSpeciesCounts(userId) {
-        // Use observations/taxonomy endpoint with leaf,species options
-        const url = `https://api.inaturalist.org/v1/observations/taxonomy?user_id=${userId}&options=leaf,species&captive=false&verifiable=true`;
-        const response = await fetch(url);
-        const data = await response.json();
+      async function loadAllSpeciesCounts(userId, onProgress) {
+        const perPage = 500;
+        let page = 1;
+        let allSpecies = [];
+        let hasMore = true;
+        let totalResults = 0;
 
-        const results = data.results || [];
+        while (hasMore) {
+          const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}&captive=false&verifiable=true`;
+          const response = await fetch(url);
+          const data = await response.json();
 
-        // Infraspecific ranks that should roll up to parent species
-        const infraspecificRanks = ["subspecies", "variety", "form", "infrahybrid"];
-
-        // Build a map of all taxa by id for parent lookups
-        const taxaById = new Map();
-        results.forEach(taxon => taxaById.set(taxon.id, taxon));
-
-        // Build set of taxa that have children with direct observations
-        // These are NOT true leaves
-        const hasChildWithObs = new Set();
-        results.forEach(taxon => {
-          if (taxon.direct_obs_count > 0 && taxon.parent_id) {
-            let parentId = taxon.parent_id;
-            while (parentId) {
-              hasChildWithObs.add(parentId);
-              const parent = taxaById.get(parentId);
-              if (!parent) break;
-              parentId = parent.parent_id;
-            }
-          }
-        });
-
-        // Find true leaves - taxa with direct obs but no children with obs
-        const trueLeaves = results.filter(t =>
-          t.direct_obs_count > 0 && !hasChildWithObs.has(t.id)
-        );
-
-        // Find parent species by walking up parent_id chain
-        const findParentSpecies = (taxon) => {
-          let current = taxon;
-          while (current && current.parent_id) {
-            const parent = taxaById.get(current.parent_id);
-            if (!parent) break;
-            if (parent.rank === "species") return parent;
-            current = parent;
-          }
-          return null;
-        };
-
-        // Build ancestor_ids by walking up parent chain
-        const buildAncestorIds = (taxon) => {
-          const ancestors = [];
-          let current = taxon;
-          while (current) {
-            ancestors.unshift(current.id);
-            if (!current.parent_id) break;
-            current = taxaById.get(current.parent_id);
-          }
-          return ancestors;
-        };
-
-        // Count true leaves, rolling up infraspecific to parent species
-        const leafNodes = [];
-        const countedIds = new Set();
-
-        trueLeaves.forEach(taxon => {
-          if (infraspecificRanks.includes(taxon.rank)) {
-            // Roll up to parent species
-            const parentSpecies = findParentSpecies(taxon);
-            if (parentSpecies && !countedIds.has(parentSpecies.id)) {
-              countedIds.add(parentSpecies.id);
-              leafNodes.push({
-                taxon: {
-                  ...parentSpecies,
-                  ancestor_ids: buildAncestorIds(parentSpecies),
-                },
-                count: taxon.direct_obs_count,
-              });
-            } else if (!parentSpecies && !countedIds.has(taxon.id)) {
-              // If no parent species found, count the infraspecific itself
-              countedIds.add(taxon.id);
-              leafNodes.push({
-                taxon: {
-                  ...taxon,
-                  ancestor_ids: buildAncestorIds(taxon),
-                },
-                count: taxon.direct_obs_count,
-              });
-            }
+          if (!data.results || data.results.length === 0) {
+            hasMore = false;
           } else {
-            // Species or higher rank - count directly
-            if (!countedIds.has(taxon.id)) {
-              countedIds.add(taxon.id);
-              leafNodes.push({
-                taxon: {
-                  ...taxon,
-                  ancestor_ids: buildAncestorIds(taxon),
-                },
-                count: taxon.direct_obs_count,
-              });
+            allSpecies = allSpecies.concat(data.results);
+            totalResults = data.total_results;
+
+            // Update progress
+            if (onProgress && totalResults > 0) {
+              const percentage = Math.round(
+                (allSpecies.length / totalResults) * 100
+              );
+              onProgress(percentage);
+            }
+
+            // Check if there are more pages
+            if (allSpecies.length >= data.total_results) {
+              hasMore = false;
+            } else {
+              page++;
             }
           }
-        });
+        }
 
-        return leafNodes;
+        return allSpecies;
       }
 
       async function loadThreatenedSpeciesCounts(userId) {
