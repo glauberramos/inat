@@ -493,7 +493,6 @@
           }
 
           const observedGridSquares = observedGridCells.size;
-          console.log('Observed squares:', observedGridSquares);
 
           // Calculate iconic taxon species counts from allSpeciesCounts
           const iconicTaxonSpeciesCounts = {};
@@ -609,10 +608,10 @@
           const threatenedSpeciesCount = threatenedSpeciesCounts.length;
 
           // Introduced species count comes from the separate API call
-          const introducedSpeciesCount = introducedSpeciesCounts.length;
+          const introducedSpeciesCount = introducedSpeciesCounts;
 
           // Endemic species count comes from the separate API call
-          const endemicSpeciesCount = endemicSpeciesCounts.length;
+          const endemicSpeciesCount = endemicSpeciesCounts;
           // Extract research grade count from quality_grades response
           const researchGradeResult = researchGradeData.results?.find(
             (r) => r.quality_grade === "research"
@@ -793,7 +792,6 @@
           } else {
             allSpecies = allSpecies.concat(data.results);
 
-            // Check if there are more pages
             if (allSpecies.length >= data.total_results) {
               hasMore = false;
             } else {
@@ -806,59 +804,17 @@
       }
 
       async function loadIntroducedSpeciesCounts(userId) {
-        const perPage = 500;
-        let page = 1;
-        let allSpecies = [];
-        let hasMore = true;
-
-        while (hasMore) {
-          const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}&captive=false&verifiable=true&introduced=true`;
-          const response = await fetch(url);
-          const data = await response.json();
-
-          if (!data.results || data.results.length === 0) {
-            hasMore = false;
-          } else {
-            allSpecies = allSpecies.concat(data.results);
-
-            // Check if there are more pages
-            if (allSpecies.length >= data.total_results) {
-              hasMore = false;
-            } else {
-              page++;
-            }
-          }
-        }
-
-        return allSpecies;
+        const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=0&captive=false&verifiable=true&introduced=true`;
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.total_results || 0;
       }
 
       async function loadEndemicSpeciesCounts(userId) {
-        const perPage = 500;
-        let page = 1;
-        let allSpecies = [];
-        let hasMore = true;
-
-        while (hasMore) {
-          const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}&captive=false&verifiable=true&endemic=true`;
-          const response = await fetch(url);
-          const data = await response.json();
-
-          if (!data.results || data.results.length === 0) {
-            hasMore = false;
-          } else {
-            allSpecies = allSpecies.concat(data.results);
-
-            // Check if there are more pages
-            if (allSpecies.length >= data.total_results) {
-              hasMore = false;
-            } else {
-              page++;
-            }
-          }
-        }
-
-        return allSpecies;
+        const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=0&captive=false&verifiable=true&endemic=true`;
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.total_results || 0;
       }
 
       async function loadFavoriteObservations(userId) {
@@ -884,6 +840,7 @@
         goal
       ) {
         const species = new Set();
+        const taxonIds = [];
 
         threatenedSpecies.forEach((speciesData) => {
           if (
@@ -896,6 +853,7 @@
               speciesData.taxon.conservation_status.status.toLowerCase();
             if (statusCodes.includes(status)) {
               species.add(speciesData.taxon.id);
+              taxonIds.push(speciesData.taxon.id);
             }
           }
         });
@@ -904,7 +862,7 @@
           current: species.size,
           total: goal,
           completed: species.size >= goal,
-          taxonIds: Array.from(species),
+          taxonIds: taxonIds,
         };
       }
 
