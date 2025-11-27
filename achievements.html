@@ -383,48 +383,6 @@
                 }))
           );
 
-          // Fetch megadiverse country observations for Megadiverse achievement
-          const megadiverseCountryIds = {
-            Australia: 6744,
-            Brazil: 6878,
-            China: 6903,
-            Colombia: 7196,
-            "DR Congo": 7054,
-            Ecuador: 7512,
-            India: 6681,
-            Indonesia: 6966,
-            Madagascar: 7783,
-            Malaysia: 7155,
-            Mexico: 6793,
-            "Papua New Guinea": 7013,
-            Peru: 7513,
-            Philippines: 6873,
-            "South Africa": 6986,
-            "United States": 1,
-            Venezuela: 1303,
-          };
-          const megadiversePromises = Object.entries(megadiverseCountryIds).map(
-            ([country, placeId]) =>
-              fetch(
-                `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=${placeId}`
-              )
-                .then((res) => res.json())
-                .then((data) => ({
-                  country,
-                  hasObservations: data.total_results > 0,
-                }))
-          );
-
-          // Fetch individual famous island observations
-          const galapagosPromise = fetch(
-            `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=12990`
-          ).then((res) => res.json());
-          const hawaiiPromise = fetch(
-            `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=11`
-          ).then((res) => res.json());
-          const madagascarPromise = fetch(
-            `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=7783`
-          ).then((res) => res.json());
 
           const [
             researchGradeData,
@@ -442,10 +400,6 @@
             fromArchivesData,
             oldTimerData,
             continentResults,
-            megadiverseResults,
-            galapagosData,
-            hawaiiData,
-            madagascarData,
           ] = await Promise.all([
             researchGradePromise,
             histogramPromise,
@@ -462,10 +416,6 @@
             fromArchivesPromise,
             oldTimerPromise,
             Promise.all(continentPromises),
-            Promise.all(megadiversePromises),
-            galapagosPromise,
-            hawaiiPromise,
-            madagascarPromise,
           ]);
 
           // Calculate sound-related achievements
@@ -496,17 +446,54 @@
               .map((r) => r.continent)
           );
 
-          // Calculate observed megadiverse countries from API calls
-          const observedMegadiverseCountries = new Set(
-            megadiverseResults
-              .filter((r) => r.hasObservations)
-              .map((r) => r.country)
-          );
+          // Calculate observed world grid squares using UTF Grid API (single call)
+          // Fetch grid at zoom level 0 (entire world in one tile)
+          const worldGridData = await fetch(
+            `https://api.inaturalist.org/v1/grid/0/0/0.grid.json?user_id=${userId}`
+          ).then(res => res.json()).catch(() => null);
 
-          // Get individual island observation counts
-          const galapagosCount = galapagosData.total_results || 0;
-          const hawaiiCount = hawaiiData.total_results || 0;
-          const madagascarCount = madagascarData.total_results || 0;
+          // Parse UTF Grid to find cells with observations
+          // Use the data object keys - each key represents an observed cell
+          const displayGridSize = 32;
+          const observedGridCells = new Map();
+
+          if (worldGridData && worldGridData.grid && worldGridData.keys && worldGridData.data) {
+            const utfGridSize = worldGridData.grid.length; // 64
+            const groupSize = utfGridSize / displayGridSize; // 2
+
+            // Get keys that have data (these are the observed cells)
+            const dataKeys = Object.keys(worldGridData.data);
+
+            // For each data key, find its position in the grid
+            dataKeys.forEach(dataKey => {
+              const keyIndex = worldGridData.keys.indexOf(dataKey);
+              if (keyIndex <= 0) return; // Skip if not found or index 0 (no data)
+
+              // Find where this key appears in the grid
+              for (let row = 0; row < utfGridSize; row++) {
+                const gridRow = worldGridData.grid[row];
+                if (!gridRow) continue;
+
+                for (let col = 0; col < gridRow.length; col++) {
+                  let id = gridRow.charCodeAt(col);
+                  if (id >= 93) id--;
+                  if (id >= 35) id--;
+                  id -= 32;
+
+                  if (id === keyIndex) {
+                    const displayRow = Math.floor(row / groupSize);
+                    const displayCol = Math.floor(col / groupSize);
+                    const cellKey = displayRow + "," + displayCol;
+                    observedGridCells.set(cellKey, true);
+                    return; // Found position for this key, move to next
+                  }
+                }
+              }
+            });
+          }
+
+          const observedGridSquares = observedGridCells.size;
+          console.log('Observed squares:', observedGridSquares);
 
           // Calculate iconic taxon species counts from allSpeciesCounts
           const iconicTaxonSpeciesCounts = {};
@@ -734,10 +721,8 @@
             observedContinents,
             fromArchivesCount,
             oldTimerCount,
-            observedMegadiverseCountries,
-            galapagosCount,
-            hawaiiCount,
-            madagascarCount
+            observedGridCells,
+            observedGridSquares
           );
           achievementsContainer.innerHTML = result.html;
 
@@ -1320,10 +1305,8 @@
         observedContinents,
         fromArchivesCount,
         oldTimerCount,
-        observedMegadiverseCountries,
-        galapagosCount,
-        hawaiiCount,
-        madagascarCount
+        observedGridCells,
+        observedGridSquares
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
         const iconicTaxonAchievement =
@@ -1522,29 +1505,12 @@
           observedContinents: observedContinents,
         };
 
-        // Megadiverse country achievement (observe in all 17 megadiverse countries)
-        const megadiverseAchievement = {
-          current: observedMegadiverseCountries.size,
-          total: 17,
-          completed: observedMegadiverseCountries.size >= 17,
-          observedCountries: observedMegadiverseCountries,
-        };
-
-        // Individual famous island achievements
-        const galapagosAchievement = {
-          current: galapagosCount,
-          total: 1,
-          completed: galapagosCount >= 1,
-        };
-        const hawaiiAchievement = {
-          current: hawaiiCount,
-          total: 1,
-          completed: hawaiiCount >= 1,
-        };
-        const madagascarAchievement = {
-          current: madagascarCount,
-          total: 1,
-          completed: madagascarCount >= 1,
+        // Globe Trotter achievement (observe in 25+ grid squares around the world)
+        const globeTrotterAchievement = {
+          current: observedGridSquares,
+          total: 25,
+          completed: observedGridSquares >= 25,
+          gridCells: observedGridCells,
         };
 
         // Use histogram-based achievements for seasons, months, and streaks
@@ -1750,10 +1716,7 @@
           onlyObserver,
           iconicTaxonAchievement,
           continentsAchievement,
-          megadiverseAchievement,
-          galapagosAchievement,
-          hawaiiAchievement,
-          madagascarAchievement,
+          globeTrotterAchievement,
           seasonsAchievement,
           monthsAchievement,
           streak7,
@@ -2562,83 +2525,42 @@
                 </div>
               </div>
               <div class="achievement-card ${
-                megadiverseAchievement.completed ? "completed" : ""
+                globeTrotterAchievement.completed ? "completed" : ""
               }">
-                <div class="achievement-icon">🌍</div>
+                <div class="achievement-icon">🌐</div>
                 <div class="achievement-content">
-                  <div class="achievement-name">Megadiverse Explorer</div>
-                  <div class="achievement-description">Observe in all 17 megadiverse countries</div>
+                  <div class="achievement-name">Globe Trotter</div>
+                  <div class="achievement-description">Observe in 25+ world grid squares (1024 total)</div>
                   <div class="achievement-progress">
                     <div class="progress-bar">
                       <div class="progress-fill" style="width: ${
-                        (megadiverseAchievement.current /
-                          megadiverseAchievement.total) *
-                        100
+                        Math.min((globeTrotterAchievement.current /
+                          globeTrotterAchievement.total) *
+                        100, 100)
                       }%"></div>
                     </div>
                     <div class="progress-text">${
-                      megadiverseAchievement.current
-                    }/${megadiverseAchievement.total}</div>
+                      globeTrotterAchievement.current
+                    }/${globeTrotterAchievement.total}</div>
                   </div>
-                  <div class="taxon-icons">
-                    ${[
-                      { code: "🇦🇺", name: "Australia" },
-                      { code: "🇧🇷", name: "Brazil" },
-                      { code: "🇨🇳", name: "China" },
-                      { code: "🇨🇴", name: "Colombia" },
-                      { code: "🇨🇩", name: "DR Congo" },
-                      { code: "🇪🇨", name: "Ecuador" },
-                      { code: "🇮🇳", name: "India" },
-                      { code: "🇮🇩", name: "Indonesia" },
-                      { code: "🇲🇬", name: "Madagascar" },
-                      { code: "🇲🇾", name: "Malaysia" },
-                      { code: "🇲🇽", name: "Mexico" },
-                      { code: "🇵🇬", name: "Papua New Guinea" },
-                      { code: "🇵🇪", name: "Peru" },
-                      { code: "🇵🇭", name: "Philippines" },
-                      { code: "🇿🇦", name: "South Africa" },
-                      { code: "🇺🇸", name: "United States" },
-                      { code: "🇻🇪", name: "Venezuela" },
-                    ]
-                      .map(
-                        (country) =>
-                          `<span class="taxon-icon ${
-                            megadiverseAchievement.observedCountries.has(country.name)
-                              ? "observed"
-                              : ""
-                          }" title="${country.name}">${country.code}</span>`
-                      )
-                      .join("")}
+                  <div class="world-grid-map" style="display: grid; grid-template-columns: repeat(32, 1fr); gap: 0; border-radius: 6px; margin-top: 10px; background: #1a1a1a; position: relative; overflow: hidden;">
+                    <img src="https://tile.openstreetmap.org/0/0/0.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; filter: grayscale(1) brightness(0.7) contrast(1.3);"/>
+                    ${(() => {
+                      const gridSize = 32;
+                      let cells = '';
+                      for (let row = 0; row < gridSize; row++) {
+                        for (let col = 0; col < gridSize; col++) {
+                          const cellKey = row + ',' + col;
+                          const hasObservation = globeTrotterAchievement.gridCells.has(cellKey);
+                          const bgColor = hasObservation ? 'rgba(116, 172, 0, 0.8)' : 'transparent';
+                          cells += '<div style="aspect-ratio: 1; background: ' + bgColor + '; position: relative; z-index: 1;" title="' + (hasObservation ? 'Observed' : '') + '"></div>';
+                        }
+                      }
+                      return cells;
+                    })()}
                   </div>
                 </div>
               </div>
-              ${renderAchievementCard(
-                galapagosAchievement,
-                "🐢",
-                "Galápagos Explorer",
-                "Observe in the Galápagos Islands",
-                galapagosAchievement.current > 0
-                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&place_id=12990`
-                  : null
-              )}
-              ${renderAchievementCard(
-                hawaiiAchievement,
-                "🌺",
-                "Aloha Naturalist",
-                "Observe in Hawaii",
-                hawaiiAchievement.current > 0
-                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&place_id=11`
-                  : null
-              )}
-              ${renderAchievementCard(
-                madagascarAchievement,
-                "🦎",
-                "Madagascar Explorer",
-                "Observe in Madagascar",
-                madagascarAchievement.current > 0
-                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&place_id=7783`
-                  : null
-              )}
             </div>
           </div>
         `;
