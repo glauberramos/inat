@@ -1066,6 +1066,8 @@
               completed: false,
               observedSeasons: new Set(),
             },
+            weekendWarrior: { current: 0, total: 25, completed: false },
+            observationDays100: { current: 0, total: 100, completed: false },
           };
         }
 
@@ -1171,6 +1173,19 @@
           observedSeasons.add(season);
         });
 
+        // Weekend warrior achievement (Saturday = 6, Sunday = 0)
+        const weekendDays = new Set();
+        dates.forEach((dateStr) => {
+          const date = new Date(dateStr);
+          const dayOfWeek = date.getDay();
+          if (dayOfWeek === 0 || dayOfWeek === 6) {
+            weekendDays.add(dateStr);
+          }
+        });
+
+        // Total observation days
+        const totalObservationDays = dates.length;
+
         return {
           veteran2: {
             current: veteran2Count,
@@ -1223,6 +1238,16 @@
             total: 4,
             completed: observedSeasons.size >= 4,
             observedSeasons: observedSeasons,
+          },
+          weekendWarrior: {
+            current: weekendDays.size,
+            total: 25,
+            completed: weekendDays.size >= 25,
+          },
+          observationDays100: {
+            current: totalObservationDays,
+            total: 100,
+            completed: totalObservationDays >= 100,
           },
         };
       }
@@ -1368,10 +1393,15 @@
         };
 
         // Annotated observations achievement
-        const annotatedObservation = {
+        const annotatedObservation50 = {
           current: annotatedObservationsCount,
           total: 50,
           completed: annotatedObservationsCount >= 50,
+        };
+        const annotatedObservation100 = {
+          current: annotatedObservationsCount,
+          total: 100,
+          completed: annotatedObservationsCount >= 100,
         };
 
         // Project participation achievement
@@ -1482,6 +1512,8 @@
         const veteran2 = histogramAchievements.veteran2;
         const veteran5 = histogramAchievements.veteran5;
         const veteran10 = histogramAchievements.veteran10;
+        const weekendWarrior = histogramAchievements.weekendWarrior;
+        const observationDays100 = histogramAchievements.observationDays100;
 
         // Account age achievements
         const account2 = calculateAccountAgeAchievement(userCreatedAt, 2);
@@ -1637,7 +1669,8 @@
           researchGrade10000,
           soundObservation,
           soundPhotoObservation,
-          annotatedObservation,
+          annotatedObservation50,
+          annotatedObservation100,
           projectParticipant,
           earlyBird,
           nightOwl,
@@ -1682,6 +1715,8 @@
           newYear,
           obsDay10,
           obsDay100,
+          weekendWarrior,
+          observationDays100,
           veteran2,
           veteran5,
           veteran10,
@@ -1768,9 +1803,78 @@
           `;
         }
 
+        function renderCategoryTitle(title, icon, achievements) {
+          const completed = achievements.filter(a => a.completed).length;
+          const total = achievements.length;
+          const isPlatinum = completed === total && total > 0;
+          const platinumClass = isPlatinum ? 'platinum' : '';
+          const platinumBadge = isPlatinum ? '<span class="platinum-badge">✓</span>' : '';
+          const countDisplay = isPlatinum
+            ? `<span class="category-count">COMPLETE ${platinumBadge}</span>`
+            : `<span class="category-count">${completed}/${total}</span>`;
+
+          return `
+            <h3 class="category-title ${platinumClass}">
+              <span class="category-icon">${icon}</span>
+              <span class="category-title-text">${title}</span>
+              ${countDisplay}
+            </h3>
+          `;
+        }
+
+        // Define category achievements for tracking
+        const milestonesAchievements = [
+          obs100, obs1000, obs10000,
+          researchGrade100, researchGrade1000, researchGrade10000,
+          species100, species1000, species10000,
+          veteran2, veteran5, veteran10,
+          account2, account5, account10,
+          soundObservation, soundPhotoObservation
+        ];
+
+        const conservationAchievements = [
+          threatened10, threatened50, threatened100,
+          nearThreatened10, vulnerable10, endangered5, criticallyEndangered1, extinctInWild1,
+          introduced10, introduced50, introduced100,
+          endemic10, endemic50, endemic100
+        ];
+
+        const rarityAchievementsArray = [
+          onlyObserver, rareSpecies100, rareSpecies10
+        ];
+
+        const timeDedicationAchievements = [
+          streak7, streak30, newYear, obsDay10, obsDay100,
+          earlyBird, nightOwl, fromArchives, oldTimer,
+          weekendWarrior, observationDays100
+        ];
+
+        const communityAchievements = [
+          favorited10, mostFavorited10, annotatedObservation50, annotatedObservation100, projectParticipant
+        ];
+
+        const identificationsAchievements = [
+          ids100, ids1000, ids10000,
+          idsSupporting100, idsSupporting1000,
+          idsImproving100, idsImproving1000,
+          idsLeading100, idsLeading1000,
+          idsSpecies100, idsSpecies1000
+        ];
+
+        const taxonomyAchievementsArray = [
+          ...Object.values(taxonAchievements),
+          lepidopterist, raptorWatcher, coleopterist, pollinatorPal,
+          whaleWatcher, frogFinder, snakeSpotter, shellSeeker,
+          rodentRider, primatePatrol, iconicTaxonAchievement
+        ];
+
+        const geographySeasonsAchievements = [
+          seasonsAchievement, monthsAchievement, continentsAchievement, globeTrotterAchievement
+        ];
+
         const html = `
           <div class="achievements-section">
-            <h3 class="category-title">Milestones</h3>
+            ${renderCategoryTitle('Milestones', '🏆', milestonesAchievements)}
             <div class="achievements-grid">
               ${renderAchievementCard(
                 obs100,
@@ -1918,7 +2022,7 @@
               )}
             </div>
 
-            <h3 class="category-title">Conservation</h3>
+            ${renderCategoryTitle('Conservation', '🌱', conservationAchievements)}
             <div class="achievements-grid">
               ${renderAchievementCard(
                 threatened10,
@@ -2054,7 +2158,7 @@
               )}
             </div>
 
-            <h3 class="category-title">Rarity</h3>
+            ${renderCategoryTitle('Rarity', '💎', rarityAchievementsArray)}
             <div class="achievements-grid">
               ${renderAchievementCard(
                 onlyObserver,
@@ -2094,7 +2198,7 @@
               )}
             </div>
 
-            <h3 class="category-title">Time & Dedication</h3>
+            ${renderCategoryTitle('Time & Dedication', '⏰', timeDedicationAchievements)}
             <div class="achievements-grid">
               ${renderAchievementCard(
                 streak7,
@@ -2111,6 +2215,20 @@
                 "30-day observation streak",
                 null,
                 false
+              )}
+              ${renderAchievementCard(
+                weekendWarrior,
+                "🎉",
+                "Weekend Warrior",
+                "Observe on 25 different weekend days",
+                null
+              )}
+              ${renderAchievementCard(
+                observationDays100,
+                "📆",
+                "Dedicated Days",
+                "Observe on 100 different days",
+                null
               )}
               ${renderAchievementCard(
                 newYear,
@@ -2194,7 +2312,7 @@
               }
             </div>
 
-            <h3 class="category-title">Community</h3>
+            ${renderCategoryTitle('Community', '👥', communityAchievements)}
             <div class="achievements-grid">
               ${renderAchievementCard(
                 favorited10,
@@ -2217,11 +2335,20 @@
                 false
               )}
               ${renderAchievementCard(
-                annotatedObservation,
+                annotatedObservation50,
                 "🏷️",
                 "Annotator",
                 "Annotate 50 observations",
-                annotatedObservation.current > 0
+                annotatedObservation50.current > 0
+                  ? `https://www.inaturalist.org/observations?annotation_user_id=${currentUsername}&verifiable=any`
+                  : null
+              )}
+              ${renderAchievementCard(
+                annotatedObservation100,
+                "🏷️",
+                "Super Annotator",
+                "Annotate 100 observations",
+                annotatedObservation100.current > 0
                   ? `https://www.inaturalist.org/observations?annotation_user_id=${currentUsername}&verifiable=any`
                   : null
               )}
@@ -2236,7 +2363,7 @@
               )}
             </div>
 
-            <h3 class="category-title">Identifications</h3>
+            ${renderCategoryTitle('Identifications', '🏷️', identificationsAchievements)}
             <div class="achievements-grid">
               ${renderAchievementCard(
                 ids100,
@@ -2310,7 +2437,7 @@
               )}
             </div>
 
-            <h3 class="category-title">Taxonomy</h3>
+            ${renderCategoryTitle('Taxonomy', '🔬', taxonomyAchievementsArray)}
             <div class="achievements-grid">
               ${Object.entries(ICONIC_TAXONS)
                 .map(([taxon, data]) =>
@@ -2415,7 +2542,7 @@
               </div>
             </div>
 
-            <h3 class="category-title">Geography & Seasons</h3>
+            ${renderCategoryTitle('Geography & Seasons', '🌍', geographySeasonsAchievements)}
             <div class="achievements-grid">
               <div class="achievement-card ${
                 seasonsAchievement.completed ? "completed" : ""
