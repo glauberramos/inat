@@ -781,6 +781,11 @@
           );
           achievementsProgress.textContent = `${result.completedCount}/${result.totalAchievements} (${percentage}%)`;
           achievementsProgress.classList.add("show");
+
+          // Add event listener for optional achievements section
+          document.getElementById('load-observations-btn')?.addEventListener('click', () => {
+            loadAllObservations(userId);
+          });
         } catch (error) {
           console.error("Error fetching user data:", error);
           loading.style.display = "none";
@@ -865,6 +870,137 @@
         const response = await fetch(url);
         const data = await response.json();
         return data.total_results || 0;
+      }
+
+      // Hardcoded country place IDs to names mapping
+      const COUNTRY_PLACES = {
+        1: "United States", 1303: "Venezuela", 6681: "India", 6712: "Canada",
+        6718: "Ireland", 6734: "Singapore", 6737: "Japan", 6744: "Australia",
+        6748: "French Polynesia", 6774: "Spain", 6783: "Bolivia", 6793: "Mexico",
+        6815: "Israel", 6818: "Iran", 6845: "Senegal", 6847: "Vietnam",
+        6857: "United Kingdom", 6873: "Philippines", 6878: "Brazil", 6903: "China",
+        6924: "Costa Rica", 6925: "Nicaragua", 6929: "Honduras", 6931: "Dominican Republic",
+        6940: "Guatemala", 6944: "Cuba", 6949: "French Guiana", 6953: "Belize",
+        6966: "Indonesia", 6967: "Thailand", 6968: "Uganda", 6992: "Myanmar",
+        7001: "Laos", 7002: "Cambodia", 7003: "Panama", 7008: "Belgium",
+        7016: "Norway", 7020: "Finland", 7042: "Kenya", 7046: "Republic of Congo",
+        7054: "DR Congo", 7055: "Egypt", 7063: "Gambia", 7064: "Sudan",
+        7074: "Chad", 7076: "Pakistan", 7077: "Sri Lanka", 7082: "Vanuatu",
+        7083: "New Caledonia", 7100: "Angola", 7112: "Gabon", 7113: "Malawi",
+        7122: "Portugal", 7133: "Mauritania", 7134: "Mozambique", 7141: "Nigeria",
+        7142: "Rwanda", 7143: "Eswatini", 7144: "Tanzania", 7145: "Zambia",
+        7147: "Serbia", 7154: "Bangladesh", 7155: "Malaysia", 7161: "Russia",
+        7182: "Chile", 7183: "Türkiye", 7190: "Argentina", 7196: "Colombia",
+        7207: "Germany", 7228: "Ghana", 7236: "Switzerland", 7254: "Paraguay",
+        7259: "Uruguay", 7278: "Iceland", 7300: "Algeria", 7305: "Libya",
+        7306: "Morocco", 7312: "Tunisia", 7313: "Bahamas", 7332: "Fiji",
+        7333: "Norfolk Island", 7334: "Wallis and Futuna", 7335: "Nepal",
+        7341: "Afghanistan", 7342: "Kazakhstan", 7346: "Kyrgyzstan", 7347: "Mongolia",
+        7353: "Svalbard", 7355: "Kuwait", 7356: "Oman", 7358: "Saudi Arabia",
+        7375: "Trinidad and Tobago", 7399: "Hungary", 7487: "Sierra Leone",
+        7488: "Cayman Islands", 7506: "Netherlands", 7512: "Ecuador", 7513: "Peru",
+        7526: "Haiti", 7563: "El Salvador", 7578: "Belarus", 7599: "Sweden",
+        7613: "Hong Kong", 7616: "Christmas Island", 7690: "Falkland Islands",
+        7704: "Greenland", 7707: "Bhutan", 7783: "Madagascar", 7800: "Poland",
+        7827: "Suriname", 7833: "Jordan", 7837: "Yemen", 7838: "Brunei",
+        7841: "Tonga", 7846: "Mali", 7887: "Taiwan", 7985: "South Georgia",
+        8004: "Côte d'Ivoire", 8050: "Latvia", 8142: "Guyana", 8147: "Luxembourg",
+        8177: "Guadeloupe", 8196: "Croatia", 8206: "Iraq", 8226: "Andorra",
+        8227: "Monaco", 8228: "Slovenia", 8240: "Malta", 8241: "Bulgaria",
+        8263: "Liechtenstein", 8266: "Lithuania", 8267: "Slovakia", 8357: "Mauritius",
+        8358: "Seychelles", 8360: "Caribbean Netherlands", 8421: "Comoros",
+        8425: "Maldives", 8433: "Armenia", 8434: "Azerbaijan", 8504: "Samoa",
+        8511: "Djibouti", 8512: "Guinea", 8513: "Guinea-Bissau", 8514: "Liberia",
+        8515: "Niger", 8516: "Togo", 8638: "Bermuda", 8748: "Jamaica",
+        8834: "Réunion", 8857: "Georgia", 8858: "Romania", 8859: "Montenegro",
+        8860: "Ukraine", 9173: "São Tomé and Príncipe", 9184: "Dominica",
+        9213: "Vatican City", 9240: "Equatorial Guinea", 9445: "Cape Verde",
+        9992: "Grenada", 10281: "Anguilla", 10282: "Åland", 10283: "Antigua and Barbuda",
+        10284: "Bahrain", 10285: "Barbados", 10286: "Bouvet Island", 10287: "Cocos Islands",
+        10288: "Cook Islands", 10289: "Cyprus", 10290: "Faroe Islands", 10291: "Guernsey",
+        10292: "Gibraltar", 10293: "Heard Island", 10294: "Isle of Man", 10295: "British Indian Ocean",
+        10296: "Jersey", 10297: "Saint Kitts and Nevis", 10298: "Kosovo", 10299: "Lebanon",
+        10300: "Saint Lucia", 10301: "Macao", 10302: "Moldova", 10303: "North Macedonia",
+        10304: "Montserrat", 10305: "Martinique", 10306: "Mayotte", 10307: "Niue",
+        10308: "Nauru", 10309: "Pitcairn Islands", 10310: "San Marino",
+        10311: "Saint Pierre and Miquelon", 10313: "Tokelau", 10314: "East Timor",
+        10315: "Tuvalu", 10316: "US Minor Outlying Islands", 10317: "Saint Vincent",
+        10318: "British Virgin Islands", 10320: "Clipperton Island", 10322: "Micronesia",
+        10323: "Kiribati", 10324: "Marshall Islands", 10408: "Curaçao", 10411: "Sint Maarten",
+        51356: "Saint-Barthélemy", 51360: "Saint-Martin", 51754: "South Sudan",
+        54505: "Antarctica", 96773: "Northern Cyprus", 96774: "Akrotiri and Dhekelia"
+      };
+
+      async function loadAllObservations(userId) {
+        const btn = document.getElementById('load-observations-btn');
+        const progress = document.getElementById('loading-progress');
+        const pctSpan = document.getElementById('loading-pct');
+        const fill = document.getElementById('loading-fill');
+        const grid = document.getElementById('optional-achievements');
+
+        btn.style.display = 'none';
+        progress.style.display = 'block';
+
+        // Get total observation count
+        const countRes = await fetch(
+          `https://api.inaturalist.org/v1/observations?user_id=${userId}&per_page=0`
+        ).then(r => r.json());
+        const total = countRes.total_results;
+
+        // Paginated fetch of observations
+        const perPage = 200;
+        const pages = Math.ceil(total / perPage);
+        const userCountries = new Set();
+        let loaded = 0;
+
+        for (let page = 1; page <= pages; page++) {
+          const res = await fetch(
+            `https://api.inaturalist.org/v1/observations?user_id=${userId}&per_page=${perPage}&page=${page}`
+          ).then(r => r.json());
+
+          res.results.forEach(obs => {
+            // Check place_ids against country place IDs
+            if (obs.place_ids && obs.place_ids.length > 0) {
+              obs.place_ids.forEach(placeId => {
+                if (COUNTRY_PLACES[placeId]) {
+                  userCountries.add(COUNTRY_PLACES[placeId]);
+                }
+              });
+            }
+          });
+
+          loaded += res.results.length;
+          const pct = Math.round((loaded / total) * 100);
+          pctSpan.textContent = pct;
+          fill.style.width = pct + '%';
+        }
+
+        progress.style.display = 'none';
+        grid.style.display = 'grid';
+
+        // Render countries achievement
+        const countriesCount = userCountries.size;
+        const countriesGoal = 10;
+        const countriesCompleted = countriesCount >= countriesGoal;
+        const percentage = Math.min((countriesCount / countriesGoal) * 100, 100);
+        const countriesList = Array.from(userCountries).sort().join(', ');
+        const countriesText = countriesCount > 0 ? ` (${countriesList})` : '';
+
+        grid.innerHTML = `
+          <div class="achievement-card ${countriesCompleted ? 'completed' : ''}">
+            <div class="achievement-icon">🌍</div>
+            <div class="achievement-content">
+              <div class="achievement-name">World Explorer</div>
+              <div class="achievement-description">Observe in 10 different countries${countriesText}</div>
+              <div class="achievement-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: ${percentage}%"></div>
+                </div>
+                <div class="progress-text">${countriesCount}/${countriesGoal}</div>
+              </div>
+            </div>
+          </div>
+        `;
       }
 
       async function loadFavoriteObservations(userId) {
@@ -2844,6 +2980,26 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <div class="category-section" id="optional-section" style="margin-top: 40px;">
+            <div class="category-title">
+              <span class="category-icon">🔍</span>
+              <span>Deep Analysis (Optional)</span>
+            </div>
+            <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+              These achievements require loading all your observations, which may take a while.
+            </p>
+            <button id="load-observations-btn" style="padding: 10px 20px; cursor: pointer; background: #74ac00; color: white; border: none; border-radius: 5px; font-size: 14px;">
+              Load All Observations
+            </button>
+            <div id="loading-progress" style="display: none; margin-top: 15px;">
+              <div class="progress-bar" style="height: 20px;">
+                <div class="progress-fill" id="loading-fill" style="width: 0%; transition: width 0.3s;"></div>
+              </div>
+              <div style="text-align: center; margin-top: 5px;">Loading... <span id="loading-pct">0</span>%</div>
+            </div>
+            <div id="optional-achievements" class="achievements-grid" style="display: none; margin-top: 15px;"></div>
           </div>
         `;
 
