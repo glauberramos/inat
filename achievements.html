@@ -928,7 +928,29 @@
         10318: "British Virgin Islands", 10320: "Clipperton Island", 10322: "Micronesia",
         10323: "Kiribati", 10324: "Marshall Islands", 10408: "Curaçao", 10411: "Sint Maarten",
         51356: "Saint-Barthélemy", 51360: "Saint-Martin", 51754: "South Sudan",
-        54505: "Antarctica", 96773: "Northern Cyprus", 96774: "Akrotiri and Dhekelia"
+        54505: "Antarctica", 96773: "Northern Cyprus", 96774: "Akrotiri and Dhekelia",
+        6986: "South Africa", 7013: "Papua New Guinea"
+      };
+
+      // The 17 megadiverse countries (harbor majority of Earth's species)
+      const MEGADIVERSE_COUNTRIES = {
+        6744: { name: "Australia", flag: "🇦🇺" },
+        6878: { name: "Brazil", flag: "🇧🇷" },
+        6903: { name: "China", flag: "🇨🇳" },
+        7196: { name: "Colombia", flag: "🇨🇴" },
+        7054: { name: "DR Congo", flag: "🇨🇩" },
+        7512: { name: "Ecuador", flag: "🇪🇨" },
+        6681: { name: "India", flag: "🇮🇳" },
+        6966: { name: "Indonesia", flag: "🇮🇩" },
+        7783: { name: "Madagascar", flag: "🇲🇬" },
+        7155: { name: "Malaysia", flag: "🇲🇾" },
+        6793: { name: "Mexico", flag: "🇲🇽" },
+        7013: { name: "Papua New Guinea", flag: "🇵🇬" },
+        7513: { name: "Peru", flag: "🇵🇪" },
+        6873: { name: "Philippines", flag: "🇵🇭" },
+        6986: { name: "South Africa", flag: "🇿🇦" },
+        1: { name: "United States", flag: "🇺🇸" },
+        1303: { name: "Venezuela", flag: "🇻🇪" }
       };
 
       async function loadAllObservations(userId) {
@@ -951,6 +973,7 @@
         const perPage = 200;
         const pages = Math.ceil(total / perPage);
         const userCountries = new Set();
+        const userMegadiverseCountries = new Set();
         let loaded = 0;
 
         for (let page = 1; page <= pages; page++) {
@@ -964,6 +987,9 @@
               obs.place_ids.forEach(placeId => {
                 if (COUNTRY_PLACES[placeId]) {
                   userCountries.add(COUNTRY_PLACES[placeId]);
+                }
+                if (MEGADIVERSE_COUNTRIES[placeId]) {
+                  userMegadiverseCountries.add(MEGADIVERSE_COUNTRIES[placeId].name);
                 }
               });
             }
@@ -986,6 +1012,18 @@
         const countriesList = Array.from(userCountries).sort().join(', ');
         const countriesText = countriesCount > 0 ? ` (${countriesList})` : '';
 
+        // Megadiverse countries achievement
+        const megadiverseCount = userMegadiverseCountries.size;
+        const megadiverseGoal = 17;
+        const megadiverseCompleted = megadiverseCount >= megadiverseGoal;
+        const megadiversePercentage = Math.min((megadiverseCount / megadiverseGoal) * 100, 100);
+        const megadiverseFlagsHtml = Object.values(MEGADIVERSE_COUNTRIES)
+          .map(({ name, flag }) => {
+            const isObserved = userMegadiverseCountries.has(name);
+            return `<div class="taxon-icon continent-icon ${isObserved ? 'observed' : ''}" title="${name}">${flag}</div>`;
+          })
+          .join('');
+
         grid.innerHTML = `
           <div class="achievement-card ${countriesCompleted ? 'completed' : ''}">
             <div class="achievement-icon">🌍</div>
@@ -997,6 +1035,20 @@
                   <div class="progress-fill" style="width: ${percentage}%"></div>
                 </div>
                 <div class="progress-text">${countriesCount}/${countriesGoal}</div>
+              </div>
+            </div>
+          </div>
+          <div class="achievement-card ${megadiverseCompleted ? 'completed' : ''}">
+            <div class="achievement-icon">🦋</div>
+            <div class="achievement-content">
+              <div class="achievement-name">Megadiversity Seeker</div>
+              <div class="achievement-description">Observe in the 17 megadiverse countries</div>
+              <div class="taxon-icons">${megadiverseFlagsHtml}</div>
+              <div class="achievement-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: ${megadiversePercentage}%"></div>
+                </div>
+                <div class="progress-text">${megadiverseCount}/${megadiverseGoal}</div>
               </div>
             </div>
           </div>
