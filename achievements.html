@@ -391,6 +391,7 @@
             Asia: 97395,
             Oceania: 97393,
             Africa: 91708,
+            Antarctica: 54505,
           };
           const continentPromises = Object.entries(continentPlaceIds).map(
             ([continent, placeId]) =>
@@ -964,7 +965,7 @@
         Africa: "🦁",
         Asia: "🐼",
         Oceania: "🦘",
-        // Antarctica: "🐧", // TODO: Add back when we have place_id
+        Antarctica: "🐧",
       };
 
       const SEASONS = {
@@ -2781,7 +2782,7 @@
                 <div class="achievement-icon">✈️</div>
                 <div class="achievement-content">
                   <div class="achievement-name">World Traveler</div>
-                  <div class="achievement-description">Observe in all 6 continents</div>
+                  <div class="achievement-description">Observe in all 7 continents</div>
                   <div class="achievement-progress">
                     <div class="progress-bar">
                       <div class="progress-fill" style="width: ${
