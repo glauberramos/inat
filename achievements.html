@@ -1103,8 +1103,8 @@
             streak30: { current: 0, total: 30, completed: false },
             streak60: { current: 0, total: 60, completed: false },
             newYear: { current: 0, total: 10, completed: false },
-            obsDay10: { current: 0, total: 10, completed: false },
-            obsDay100: { current: 0, total: 100, completed: false },
+            obsDay10: { current: 0, total: 10, completed: false, bestDay: null },
+            obsDay100: { current: 0, total: 100, completed: false, bestDay: null },
             monthsAchievement: {
               current: 0,
               total: 12,
@@ -1183,10 +1183,12 @@
 
         // Max observations in a single day (Photo Marathon)
         let maxObsInDay = 0;
+        let bestDay = null;
         dates.forEach((dateStr) => {
           const count = histogram[dateStr];
           if (count > maxObsInDay) {
             maxObsInDay = count;
+            bestDay = dateStr;
           }
         });
 
@@ -1278,10 +1280,12 @@
             current: maxObsInDay,
             total: 10,
             completed: maxObsInDay >= 10,
+            bestDay: bestDay,
           },
           obsDay100: {
             current: maxObsInDay,
             total: 100,
+            bestDay: bestDay,
             completed: maxObsInDay >= 100,
           },
           monthsAchievement: {
@@ -2412,7 +2416,9 @@
                 "📸",
                 "Busy Day",
                 "10 observations in a single day",
-                null,
+                obsDay10.bestDay
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&d1=${obsDay10.bestDay}&d2=${obsDay10.bestDay}`
+                  : null,
                 false
               )}
               ${renderAchievementCard(
@@ -2420,7 +2426,9 @@
                 "📸",
                 "Photo Marathon",
                 "100 observations in a single day",
-                null,
+                obsDay100.bestDay
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&d1=${obsDay100.bestDay}&d2=${obsDay100.bestDay}`
+                  : null,
                 false
               )}
               ${renderAchievementCard(
