@@ -1423,6 +1423,7 @@
         const obs100 = calculateCountAchievement(observationsCount, 100);
         const obs1000 = calculateCountAchievement(observationsCount, 1000);
         const obs10000 = calculateCountAchievement(observationsCount, 10000);
+        const obs50000 = calculateCountAchievement(observationsCount, 50000);
 
         // Research Grade observation achievements
         const researchGrade100 = {
@@ -1530,6 +1531,7 @@
         const ids100 = calculateCountAchievement(identificationsCount, 100);
         const ids1000 = calculateCountAchievement(identificationsCount, 1000);
         const ids10000 = calculateCountAchievement(identificationsCount, 10000);
+        const ids100000 = calculateCountAchievement(identificationsCount, 100000);
 
         // Identification category achievements (for others' observations)
         const idsSupporting100 = calculateCountAchievement(
@@ -1752,6 +1754,7 @@
           obs100,
           obs1000,
           obs10000,
+          obs50000,
           researchGrade100,
           researchGrade1000,
           researchGrade10000,
@@ -1773,6 +1776,7 @@
           ids100,
           ids1000,
           ids10000,
+          ids100000,
           idsSupporting100,
           idsSupporting1000,
           idsImproving100,
@@ -1920,7 +1924,7 @@
 
         // Define category achievements for tracking
         const milestonesAchievements = [
-          obs100, obs1000, obs10000,
+          obs100, obs1000, obs10000, obs50000,
           researchGrade100, researchGrade1000, researchGrade10000,
           species100, species1000, species10000,
           veteran2, veteran5, veteran10,
@@ -1951,7 +1955,7 @@
         ];
 
         const identificationsAchievements = [
-          ids100, ids1000, ids10000,
+          ids100, ids1000, ids10000, ids100000,
           idsSupporting100, idsSupporting1000,
           idsImproving100, idsImproving1000,
           idsLeading100, idsLeading1000,
@@ -1992,6 +1996,13 @@
                 "📷",
                 "Master Observer",
                 "Record 10,000 observations",
+                `https://www.inaturalist.org/observations?user_id=${currentUsername}`
+              )}
+              ${renderAchievementCard(
+                obs50000,
+                "📷",
+                "Legend Observer",
+                "Record 50,000 observations",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}`
               )}
               ${renderAchievementCard(
@@ -2553,6 +2564,12 @@
                 "🏷️",
                 "Master Identifier",
                 "Make 10,000 identifications"
+              )}
+              ${renderAchievementCard(
+                ids100000,
+                "🏷️",
+                "Legend Identifier",
+                "Make 100,000 identifications"
               )}
               ${renderAchievementCard(
                 idsSupporting100,
