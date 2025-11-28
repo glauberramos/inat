@@ -685,6 +685,16 @@
               10,
               10
             ),
+            rareSpecies10_50: calculateRareSpeciesAchievementFromSpeciesCounts(
+              allSpeciesCounts,
+              10,
+              50
+            ),
+            rareSpecies100_100: calculateRareSpeciesAchievementFromSpeciesCounts(
+              allSpeciesCounts,
+              100,
+              100
+            ),
           };
 
           // Display achievements immediately with available data (without observations)
@@ -1056,6 +1066,7 @@
             veteran10: { current: 0, total: 1, completed: false },
             streak7: { current: 0, total: 7, completed: false },
             streak30: { current: 0, total: 30, completed: false },
+            streak60: { current: 0, total: 60, completed: false },
             newYear: { current: 0, total: 10, completed: false },
             obsDay10: { current: 0, total: 10, completed: false },
             obsDay100: { current: 0, total: 100, completed: false },
@@ -1073,6 +1084,7 @@
             },
             weekendWarrior: { current: 0, total: 25, completed: false },
             observationDays100: { current: 0, total: 100, completed: false },
+            observationDays500: { current: 0, total: 500, completed: false },
           };
         }
 
@@ -1217,6 +1229,11 @@
             total: 30,
             completed: longestStreak >= 30,
           },
+          streak60: {
+            current: longestStreak,
+            total: 60,
+            completed: longestStreak >= 60,
+          },
           newYear: {
             current: newYearCount,
             total: 10,
@@ -1253,6 +1270,11 @@
             current: totalObservationDays,
             total: 100,
             completed: totalObservationDays >= 100,
+          },
+          observationDays500: {
+            current: totalObservationDays,
+            total: 500,
+            completed: totalObservationDays >= 500,
           },
         };
       }
@@ -1390,6 +1412,11 @@
           total: 1,
           completed: soundObservationsCount >= 1,
         };
+        const soundObservation100 = {
+          current: soundObservationsCount,
+          total: 100,
+          completed: soundObservationsCount >= 100,
+        };
 
         // Sound + photo observation achievements
         const soundPhotoObservation = {
@@ -1512,6 +1539,7 @@
         const monthsAchievement = histogramAchievements.monthsAchievement;
         const streak7 = histogramAchievements.streak7;
         const streak30 = histogramAchievements.streak30;
+        const streak60 = histogramAchievements.streak60;
 
         // Use histogram-based achievements for New Year and Veteran
         const newYear = histogramAchievements.newYear;
@@ -1520,6 +1548,7 @@
         const veteran10 = histogramAchievements.veteran10;
         const weekendWarrior = histogramAchievements.weekendWarrior;
         const observationDays100 = histogramAchievements.observationDays100;
+        const observationDays500 = histogramAchievements.observationDays500;
 
         // Account age achievements
         const account2 = calculateAccountAgeAchievement(userCreatedAt, 2);
@@ -1533,6 +1562,8 @@
         // Rare species achievements - use pre-calculated from species counts
         const rareSpecies100 = rarityAchievements.rareSpecies100;
         const rareSpecies10 = rarityAchievements.rareSpecies10;
+        const rareSpecies10_50 = rarityAchievements.rareSpecies10_50;
+        const rareSpecies100_100 = rarityAchievements.rareSpecies100_100;
 
         // Species in a day achievements - WIP: requires all observations
         const speciesDay10 = { current: 0, total: 10, completed: false };
@@ -1545,6 +1576,8 @@
         // Species per iconic taxon achievements
         const taxonAchievements = {};
         const taxonGoals = {
+          Animalia: 250,
+          Insecta: 150,
           Mammalia: 50,
           Amphibia: 50,
           Chromista: 10,
@@ -1568,8 +1601,8 @@
         };
         const raptorWatcher = {
           current: raptorSpeciesCount,
-          total: 25,
-          completed: raptorSpeciesCount >= 25,
+          total: 15,
+          completed: raptorSpeciesCount >= 15,
         };
         const coleopterist = {
           current: beetleSpeciesCount,
@@ -1593,8 +1626,8 @@
         };
         const snakeSpotter = {
           current: serpentesSpeciesCount,
-          total: 25,
-          completed: serpentesSpeciesCount >= 25,
+          total: 20,
+          completed: serpentesSpeciesCount >= 20,
         };
         const shellSeeker = {
           current: turtleSpeciesCount,
@@ -1674,6 +1707,7 @@
           researchGrade1000,
           researchGrade10000,
           soundObservation,
+          soundObservation100,
           soundPhotoObservation,
           annotatedObservation50,
           annotatedObservation100,
@@ -1719,11 +1753,13 @@
           monthsAchievement,
           streak7,
           streak30,
+          streak60,
           newYear,
           obsDay10,
           obsDay100,
           weekendWarrior,
           observationDays100,
+          observationDays500,
           veteran2,
           veteran5,
           veteran10,
@@ -1734,6 +1770,8 @@
           mostFavorited10,
           rareSpecies100,
           rareSpecies10,
+          rareSpecies10_50,
+          rareSpecies100_100,
           lepidopterist,
           raptorWatcher,
           coleopterist,
@@ -1836,7 +1874,7 @@
           species100, species1000, species10000,
           veteran2, veteran5, veteran10,
           account2, account5, account10,
-          soundObservation, soundPhotoObservation
+          soundObservation, soundObservation100, soundPhotoObservation
         ];
 
         const conservationAchievements = [
@@ -1847,13 +1885,13 @@
         ];
 
         const rarityAchievementsArray = [
-          onlyObserver, rareSpecies100, rareSpecies10
+          onlyObserver, rareSpecies10, rareSpecies10_50, rareSpecies100, rareSpecies100_100
         ];
 
         const timeDedicationAchievements = [
-          streak7, streak30, newYear, obsDay10, obsDay100,
+          streak7, streak30, streak60, newYear, obsDay10, obsDay100,
           earlyBird, nightOwl, fromArchives, oldTimer,
-          weekendWarrior, observationDays100
+          weekendWarrior, observationDays100, observationDays500
         ];
 
         const communityAchievements = [
@@ -2019,6 +2057,15 @@
                   : null
               )}
               ${renderAchievementCard(
+                soundObservation100,
+                "🔊",
+                "Sound Expert",
+                "Record 100 observations with sound",
+                soundObservation100.current > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&sounds`
+                  : null
+              )}
+              ${renderAchievementCard(
                 soundPhotoObservation,
                 "🎬",
                 "Multimedia Master",
@@ -2035,7 +2082,7 @@
                 threatened10,
                 "🦁",
                 "Conservation Ally",
-                "Observe 10 threatened species",
+                "Observe 10 conservation status species",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true&view=species`,
                 false
               )}
@@ -2043,7 +2090,7 @@
                 threatened50,
                 "🦁",
                 "Conservation Champion",
-                "Observe 50 threatened species",
+                "Observe 50 conservation status species",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true&view=species`,
                 false
               )}
@@ -2051,7 +2098,7 @@
                 threatened100,
                 "🦁",
                 "Conservation Hero",
-                "Observe 100 threatened species",
+                "Observe 100 conservation status species",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&threatened=true&view=species`,
                 false
               )}
@@ -2192,6 +2239,30 @@
                 false
               )}
               ${renderAchievementCard(
+                rareSpecies10,
+                "🦄",
+                "Unicorn Spotter",
+                "Observe 10 species with less than 10 total observations",
+                rareSpecies10.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${rareSpecies10.taxonIds.join(
+                      ","
+                    )}&view=species`
+                  : null,
+                false
+              )}
+              ${renderAchievementCard(
+                rareSpecies10_50,
+                "🦄",
+                "Unicorn Hunter",
+                "Observe 50 species with less than 10 total observations",
+                rareSpecies10_50.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${rareSpecies10_50.taxonIds.join(
+                      ","
+                    )}&view=species`
+                  : null,
+                false
+              )}
+              ${renderAchievementCard(
                 rareSpecies100,
                 "💎",
                 "Diamond Hunter",
@@ -2204,12 +2275,12 @@
                 false
               )}
               ${renderAchievementCard(
-                rareSpecies10,
-                "🦄",
-                "Unicorn Spotter",
-                "Observe 10 species with less than 10 total observations",
-                rareSpecies10.taxonIds.length > 0
-                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${rareSpecies10.taxonIds.join(
+                rareSpecies100_100,
+                "💎",
+                "Diamond Expert",
+                "Observe 100 species with less than 100 total observations",
+                rareSpecies100_100.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${rareSpecies100_100.taxonIds.join(
                       ","
                     )}&view=species`
                   : null,
@@ -2236,6 +2307,14 @@
                 false
               )}
               ${renderAchievementCard(
+                streak60,
+                "🔥",
+                "Streak Master",
+                "60-day observation streak",
+                null,
+                false
+              )}
+              ${renderAchievementCard(
                 weekendWarrior,
                 "🎉",
                 "Weekend Warrior",
@@ -2247,6 +2326,13 @@
                 "📆",
                 "Dedicated Days",
                 "Observe on 100 different days",
+                null
+              )}
+              ${renderAchievementCard(
+                observationDays500,
+                "📆",
+                "Year-Round Observer",
+                "Observe on 500 different days",
                 null
               )}
               ${renderAchievementCard(
@@ -2482,7 +2568,7 @@
                 raptorWatcher,
                 "🦅",
                 "Raptor Watcher",
-                "Observe 25 birds of prey species",
+                "Observe 15 birds of prey species",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=71261,67570,19350,559244&view=species`
               )}
               ${renderAchievementCard(
@@ -2517,7 +2603,7 @@
                 snakeSpotter,
                 "🐍",
                 "Snake Spotter",
-                "Observe 25 snake species",
+                "Observe 20 snake species",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=85553&view=species`
               )}
               ${renderAchievementCard(
