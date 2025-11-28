@@ -658,6 +658,11 @@
               ["ew", "extinct_in_the_wild", "extinct in the wild"],
               1
             ),
+            extinct1: calculateStatusSpeciesAchievementFromSpeciesCounts(
+              threatenedSpeciesCounts,
+              ["ex", "extinct"],
+              1
+            ),
           };
 
           // Calculate favorite achievements from favorite observations
@@ -1321,6 +1326,7 @@
         const criticallyEndangered1 =
           conservationStatusAchievements.criticallyEndangered1;
         const extinctInWild1 = conservationStatusAchievements.extinctInWild1;
+        const extinct1 = conservationStatusAchievements.extinct1;
 
         // Introduced species achievements
         const introduced10 = {
@@ -1698,6 +1704,7 @@
           endangered5,
           criticallyEndangered1,
           extinctInWild1,
+          extinct1,
           introduced10,
           introduced50,
           introduced100,
@@ -1834,7 +1841,7 @@
 
         const conservationAchievements = [
           threatened10, threatened50, threatened100,
-          nearThreatened10, vulnerable10, endangered5, criticallyEndangered1, extinctInWild1,
+          nearThreatened10, vulnerable10, endangered5, criticallyEndangered1, extinctInWild1, extinct1,
           introduced10, introduced50, introduced100,
           endemic10, endemic50, endemic100
         ];
@@ -2103,6 +2110,18 @@
                 "Observe 1 species extinct in the wild",
                 extinctInWild1.taxonIds.length > 0
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${extinctInWild1.taxonIds.join(
+                      ","
+                    )}&view=species`
+                  : null,
+                false
+              )}
+              ${renderAchievementCard(
+                extinct1,
+                "🦤",
+                "Extinct Species Spotter",
+                "Observe 1 extinct species",
+                extinct1.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${extinct1.taxonIds.join(
                       ","
                     )}&view=species`
                   : null,
