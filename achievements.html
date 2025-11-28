@@ -138,6 +138,20 @@
         primates: 43367, // Primates
       };
 
+      // City Nature Challenge umbrella project IDs (2016-2025)
+      const CNC_PROJECTS = [
+        { id: 11765, year: 2016 },
+        { id: 11753, year: 2017 },
+        { id: 19126, year: 2018 },
+        { id: 29625, year: 2019 },
+        { id: 40364, year: 2020 },
+        { id: 82727, year: 2021 },
+        { id: 117404, year: 2022 },
+        { id: 146322, year: 2023 },
+        { id: 189155, year: 2024 },
+        { id: 227779, year: 2025 },
+      ];
+
       // Load saved username from localStorage (shared with other tools)
       const savedUsername = localStorage.getItem("inatUsername");
       if (savedUsername) {
@@ -337,6 +351,13 @@
             `https://api.inaturalist.org/v1/projects?member_id=${userId}&per_page=1`
           ).then((res) => res.json());
 
+          // Fetch City Nature Challenge participation (check each project separately)
+          const cncPromises = CNC_PROJECTS.map((project) =>
+            fetch(
+              `https://api.inaturalist.org/v1/observations?user_id=${userId}&project_id=${project.id}&per_page=1`
+            ).then((res) => res.json())
+          );
+
           // Fetch early bird observations (5-7 AM)
           const earlyBirdPromise = fetch(
             `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&hour=5,6,7`
@@ -395,6 +416,7 @@
             soundObservationsData,
             soundPhotoObservationsData,
             projectsData,
+            cncResults,
             earlyBirdData,
             nightOwlData,
             fromArchivesData,
@@ -411,6 +433,7 @@
             soundObservationsPromise,
             soundPhotoObservationsPromise,
             projectsPromise,
+            Promise.all(cncPromises),
             earlyBirdPromise,
             nightOwlPromise,
             fromArchivesPromise,
@@ -430,6 +453,16 @@
 
           // Get projects count
           const projectsCount = projectsData.total_results || 0;
+
+          // Count City Nature Challenge participations and track years
+          const cncYears = cncResults
+            .map((result, index) => ({
+              year: CNC_PROJECTS[index].year,
+              participated: (result.total_results || 0) > 0,
+            }))
+            .filter((item) => item.participated)
+            .map((item) => item.year);
+          const cncCount = cncYears.length;
 
           // Get early bird and night owl counts
           const earlyBirdCount = earlyBirdData.total_results || 0;
@@ -730,6 +763,7 @@
             soundPhotoObservationsCount,
             annotatedObservationsCount,
             projectsCount,
+            cncYears,
             earlyBirdCount,
             nightOwlCount,
             observedContinents,
@@ -1310,6 +1344,7 @@
         soundPhotoObservationsCount,
         annotatedObservationsCount,
         projectsCount,
+        cncYears,
         earlyBirdCount,
         nightOwlCount,
         observedContinents,
@@ -1442,6 +1477,20 @@
           current: projectsCount,
           total: 1,
           completed: projectsCount >= 1,
+        };
+
+        // City Nature Challenge achievements
+        const cncCount = cncYears.length;
+        const cncYearsText = cncYears.length > 0 ? ` (${cncYears.join(', ')})` : '';
+        const cityNatureChallenge1 = {
+          current: cncCount,
+          total: 1,
+          completed: cncCount >= 1,
+        };
+        const cityNatureChallenge3 = {
+          current: cncCount,
+          total: 3,
+          completed: cncCount >= 3,
         };
 
         // Early bird achievement (observations between 5-7 AM)
@@ -1712,6 +1761,8 @@
           annotatedObservation50,
           annotatedObservation100,
           projectParticipant,
+          cityNatureChallenge1,
+          cityNatureChallenge3,
           earlyBird,
           nightOwl,
           fromArchives,
@@ -1895,7 +1946,8 @@
         ];
 
         const communityAchievements = [
-          favorited10, mostFavorited10, annotatedObservation50, annotatedObservation100, projectParticipant
+          favorited10, mostFavorited10, annotatedObservation50, annotatedObservation100, projectParticipant,
+          cityNatureChallenge1, cityNatureChallenge3
         ];
 
         const identificationsAchievements = [
@@ -2465,6 +2517,20 @@
                 projectParticipant.current > 0
                   ? `https://www.inaturalist.org/projects/user/${currentUsername}`
                   : null
+              )}
+              ${renderAchievementCard(
+                cityNatureChallenge1,
+                "🌆",
+                "City Nature Challenger",
+                "Participate in a City Nature Challenge" + cncYearsText,
+                null
+              )}
+              ${renderAchievementCard(
+                cityNatureChallenge3,
+                "🌆",
+                "City Nature Champion",
+                "Participate in 3 City Nature Challenges" + cncYearsText,
+                null
               )}
             </div>
 
