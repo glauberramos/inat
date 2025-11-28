@@ -378,7 +378,7 @@
               ).then((res) => res.json())
             : Promise.resolve({ total_results: 0 });
 
-          // Fetch "Old Timer" observations (RG observations from before iNaturalist existed - March 2008)
+          // Fetch "Sepia Toned" observations (RG observations from before iNaturalist existed - March 2008)
           const oldTimerPromise = fetch(
             `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&quality_grade=research&d2=2008-03-01`
           ).then((res) => res.json());
@@ -1520,7 +1520,7 @@
           completed: fromArchivesCount >= 1,
         };
 
-        // Old Timer achievement (RG observations from before iNaturalist existed)
+        // Sepia Toned achievement (RG observations from before iNaturalist existed)
         const oldTimer = {
           current: oldTimerCount,
           total: 1,
@@ -1578,7 +1578,7 @@
         const continentsAchievement = {
           current: observedContinents.size,
           total: Object.keys(CONTINENTS).length,
-          completed: observedContinents.size >= Object.keys(CONTINENTS).length,
+          completed: observedContinents.size >= 6,
           observedContinents: observedContinents,
         };
 
@@ -2461,7 +2461,7 @@
               ${renderAchievementCard(
                 oldTimer,
                 "🏛️",
-                "Old Timer",
+                "Sepia Toned",
                 "Add a research grade observation from before iNaturalist existed (March 2008)",
                 oldTimer.current > 0
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&quality_grade=research&d2=2008-03-01`
@@ -2790,18 +2790,16 @@
                 <div class="achievement-icon">✈️</div>
                 <div class="achievement-content">
                   <div class="achievement-name">World Traveler</div>
-                  <div class="achievement-description">Observe in all 7 continents</div>
+                  <div class="achievement-description">Observe in 6 of the 7 continents</div>
                   <div class="achievement-progress">
                     <div class="progress-bar">
-                      <div class="progress-fill" style="width: ${
-                        (continentsAchievement.current /
-                          continentsAchievement.total) *
-                        100
-                      }%"></div>
+                      <div class="progress-fill" style="width: ${Math.min(
+                        (continentsAchievement.current / 6) * 100, 100
+                      )}%"></div>
                     </div>
                     <div class="progress-text">${
                       continentsAchievement.current
-                    }/${continentsAchievement.total}</div>
+                    }/6</div>
                   </div>
                   <div class="taxon-icons">${continentIconsHtml}</div>
                 </div>
