@@ -302,85 +302,99 @@
             maxSpeciesName = taxon.preferred_common_name || taxon.name || "";
           }
 
+          const loadingCount = document.getElementById("loadingCount");
+          let completedRequests = 0;
+          // Estimate: 12 main requests + CNC projects + 6 continents + ~10 pages for species counts
+          const estimatedTotal = 12 + CNC_PROJECTS.length + 6 + 10;
+          const updateProgress = () => {
+            completedRequests++;
+            const percentage = Math.min(99, Math.round((completedRequests / estimatedTotal) * 100));
+            loadingCount.textContent = `${percentage}%`;
+          };
+
           // Fetch Research Grade observations count
-          const researchGradePromise = fetch(
+          const researchGradeData = await fetch(
             `https://api.inaturalist.org/v1/observations/quality_grades?user_id=${userId}&captive=false&verifiable=true`
           ).then((res) => res.json());
+          updateProgress();
 
           // Fetch observation histogram for date-based achievements
-          const histogramPromise = fetch(
+          const histogramData = await fetch(
             `https://api.inaturalist.org/v2/observations/histogram?interval=day&d1=1900-01-01&user_id=${userId}&captive=false&verifiable=true`
           ).then((res) => res.json());
+          updateProgress();
 
           // Fetch favorite observations for favorite achievements
-          const favoriteObservationsPromise = loadFavoriteObservations(userId);
+          const favoriteObservations = await loadFavoriteObservations(userId, updateProgress);
 
           // Fetch all species counts for rarity achievements
-          const loadingCount = document.getElementById("loadingCount");
-          const allSpeciesCountsPromise = loadAllSpeciesCounts(
-            userId,
-            (percentage) => {
-              loadingCount.textContent = `${percentage}%`;
-            }
-          );
+          const allSpeciesCounts = await loadAllSpeciesCounts(userId, updateProgress);
 
           // Fetch threatened species counts separately for conservation achievements
-          const threatenedSpeciesCountsPromise =
-            loadThreatenedSpeciesCounts(userId);
+          const threatenedSpeciesCounts = await loadThreatenedSpeciesCounts(userId, updateProgress);
 
           // Fetch introduced species counts separately
-          const introducedSpeciesCountsPromise =
-            loadIntroducedSpeciesCounts(userId);
+          const introducedSpeciesCounts = await loadIntroducedSpeciesCounts(userId, updateProgress);
 
           // Fetch endemic species counts separately
-          const endemicSpeciesCountsPromise = loadEndemicSpeciesCounts(userId);
+          const endemicSpeciesCounts = await loadEndemicSpeciesCounts(userId, updateProgress);
 
           // Fetch sound observations count
-          const soundObservationsPromise = fetch(
+          const soundObservationsData = await fetch(
             `https://api.inaturalist.org/v1/observations?user_id=${userId}&sounds=true&per_page=1&captive=false&verifiable=true`
           ).then((res) => res.json());
+          updateProgress();
 
           // Fetch sound+photo observations count
-          const soundPhotoObservationsPromise = fetch(
+          const soundPhotoObservationsData = await fetch(
             `https://api.inaturalist.org/v1/observations?user_id=${userId}&sounds=true&photos=true&per_page=1&captive=false&verifiable=true`
           ).then((res) => res.json());
+          updateProgress();
 
           // Fetch projects the user is a member of
-          const projectsPromise = fetch(
+          const projectsData = await fetch(
             `https://api.inaturalist.org/v1/projects?member_id=${userId}&per_page=1`
           ).then((res) => res.json());
+          updateProgress();
 
           // Fetch City Nature Challenge participation (check each project separately)
-          const cncPromises = CNC_PROJECTS.map((project) =>
-            fetch(
+          const cncResults = [];
+          for (const project of CNC_PROJECTS) {
+            const result = await fetch(
               `https://api.inaturalist.org/v1/observations?user_id=${userId}&project_id=${project.id}&per_page=1`
-            ).then((res) => res.json())
-          );
+            ).then((res) => res.json());
+            cncResults.push(result);
+            updateProgress();
+          }
 
           // Fetch early bird observations (5-7 AM)
-          const earlyBirdPromise = fetch(
+          const earlyBirdData = await fetch(
             `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&hour=5,6,7`
           ).then((res) => res.json());
+          updateProgress();
 
           // Fetch night owl observations (9 PM - 4 AM)
-          const nightOwlPromise = fetch(
+          const nightOwlData = await fetch(
             `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&hour=21,22,23,0,1,2,3,4`
           ).then((res) => res.json());
+          updateProgress();
 
           // Fetch "From the Archives" observations (RG observations from before user joined)
           const userJoinDate = userCreatedAt
             ? new Date(userCreatedAt).toISOString().split("T")[0]
             : null;
-          const fromArchivesPromise = userJoinDate
-            ? fetch(
+          const fromArchivesData = userJoinDate
+            ? await fetch(
                 `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&quality_grade=research&d2=${userJoinDate}`
               ).then((res) => res.json())
-            : Promise.resolve({ total_results: 0 });
+            : { total_results: 0 };
+          updateProgress();
 
           // Fetch "Sepia Toned" observations (RG observations from before iNaturalist existed - March 2008)
-          const oldTimerPromise = fetch(
+          const oldTimerData = await fetch(
             `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&quality_grade=research&d2=2008-03-01`
           ).then((res) => res.json());
+          updateProgress();
 
           // Fetch continent observations for World Traveler achievement
           const continentPlaceIds = {
@@ -391,54 +405,17 @@
             Oceania: 97393,
             Africa: 91708,
           };
-          const continentPromises = Object.entries(continentPlaceIds).map(
-            ([continent, placeId]) =>
-              fetch(
-                `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=${placeId}`
-              )
-                .then((res) => res.json())
-                .then((data) => ({
-                  continent,
-                  hasObservations: data.total_results > 0,
-                }))
-          );
-
-
-          const [
-            researchGradeData,
-            histogramData,
-            favoriteObservations,
-            allSpeciesCounts,
-            threatenedSpeciesCounts,
-            introducedSpeciesCounts,
-            endemicSpeciesCounts,
-            soundObservationsData,
-            soundPhotoObservationsData,
-            projectsData,
-            cncResults,
-            earlyBirdData,
-            nightOwlData,
-            fromArchivesData,
-            oldTimerData,
-            continentResults,
-          ] = await Promise.all([
-            researchGradePromise,
-            histogramPromise,
-            favoriteObservationsPromise,
-            allSpeciesCountsPromise,
-            threatenedSpeciesCountsPromise,
-            introducedSpeciesCountsPromise,
-            endemicSpeciesCountsPromise,
-            soundObservationsPromise,
-            soundPhotoObservationsPromise,
-            projectsPromise,
-            Promise.all(cncPromises),
-            earlyBirdPromise,
-            nightOwlPromise,
-            fromArchivesPromise,
-            oldTimerPromise,
-            Promise.all(continentPromises),
-          ]);
+          const continentResults = [];
+          for (const [continent, placeId] of Object.entries(continentPlaceIds)) {
+            const data = await fetch(
+              `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=${placeId}`
+            ).then((res) => res.json());
+            continentResults.push({
+              continent,
+              hasObservations: data.total_results > 0,
+            });
+            updateProgress();
+          }
 
           // Calculate sound-related achievements
           const soundObservationsCount =
@@ -791,26 +768,17 @@
         let page = 1;
         let allSpecies = [];
         let hasMore = true;
-        let totalResults = 0;
 
         while (hasMore) {
           const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}&captive=false&verifiable=true`;
           const response = await fetch(url);
           const data = await response.json();
+          if (onProgress) onProgress();
 
           if (!data.results || data.results.length === 0) {
             hasMore = false;
           } else {
             allSpecies = allSpecies.concat(data.results);
-            totalResults = data.total_results;
-
-            // Update progress
-            if (onProgress && totalResults > 0) {
-              const percentage = Math.round(
-                (allSpecies.length / totalResults) * 100
-              );
-              onProgress(percentage);
-            }
 
             // Check if there are more pages
             if (allSpecies.length >= data.total_results) {
@@ -824,7 +792,7 @@
         return allSpecies;
       }
 
-      async function loadThreatenedSpeciesCounts(userId) {
+      async function loadThreatenedSpeciesCounts(userId, onProgress) {
         const perPage = 500;
         let page = 1;
         let allSpecies = [];
@@ -834,6 +802,7 @@
           const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}&captive=false&verifiable=true&threatened=true`;
           const response = await fetch(url);
           const data = await response.json();
+          if (onProgress) onProgress();
 
           if (!data.results || data.results.length === 0) {
             hasMore = false;
@@ -851,25 +820,28 @@
         return allSpecies;
       }
 
-      async function loadIntroducedSpeciesCounts(userId) {
+      async function loadIntroducedSpeciesCounts(userId, onProgress) {
         const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=0&captive=false&verifiable=true&introduced=true`;
         const response = await fetch(url);
         const data = await response.json();
+        if (onProgress) onProgress();
         return data.total_results || 0;
       }
 
-      async function loadEndemicSpeciesCounts(userId) {
+      async function loadEndemicSpeciesCounts(userId, onProgress) {
         const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=0&captive=false&verifiable=true&endemic=true`;
         const response = await fetch(url);
         const data = await response.json();
+        if (onProgress) onProgress();
         return data.total_results || 0;
       }
 
-      async function loadFavoriteObservations(userId) {
+      async function loadFavoriteObservations(userId, onProgress) {
         // Fetch observations ordered by votes/faves - only first page needed
         const url = `https://api.inaturalist.org/v2/observations?per_page=200&order_by=votes&order=desc&user_id=${userId}&fields=id,faves_count`;
         const response = await fetch(url);
         const data = await response.json();
+        if (onProgress) onProgress();
         return data.results || [];
       }
 
