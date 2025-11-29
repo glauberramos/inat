@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>First Observer Checker</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        padding-top: 70px;
+        background: #f5f5f5;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .subtitle {
+        color: #666;
+        margin-bottom: 20px;
+      }
+      .search-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        position: relative;
+      }
+      .input-wrapper {
+        flex: 1;
+        position: relative;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+      }
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #74ac00;
+      }
+      .autocomplete {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+        display: none;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .autocomplete.active {
+        display: block;
+      }
+      .autocomplete-item {
+        padding: 10px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+      }
+      .autocomplete-item:last-child {
+        border-bottom: none;
+      }
+      .autocomplete-item:hover {
+        background: #f5f5f5;
+      }
+      .autocomplete-name {
+        font-weight: 600;
+        color: #333;
+      }
+      .autocomplete-login {
+        font-size: 13px;
+        color: #666;
+      }
+      button {
+        padding: 12px 24px;
+        font-size: 16px;
+        background: #74ac00;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #5a8a00;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      .progress-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+      .progress-bar-bg {
+        background: #eee;
+        border-radius: 4px;
+        height: 24px;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+      .progress-bar {
+        background: #74ac00;
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s;
+      }
+      .progress-text {
+        color: #666;
+        font-size: 14px;
+      }
+      .current-check {
+        color: #999;
+        font-size: 13px;
+        margin-top: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .results-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        display: none;
+      }
+      .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .results-count {
+        font-size: 18px;
+        font-weight: bold;
+        color: #74ac00;
+      }
+      .species-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .species-item {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+      .species-item:last-child {
+        border-bottom: none;
+      }
+      .species-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        background: #eee;
+      }
+      .species-info {
+        flex: 1;
+      }
+      .species-name {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 4px;
+      }
+      .species-scientific {
+        font-style: italic;
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+      .species-date {
+        color: #999;
+        font-size: 13px;
+      }
+      .species-link {
+        color: #74ac00;
+        text-decoration: none;
+      }
+      .species-link:hover {
+        text-decoration: underline;
+      }
+      .no-results {
+        text-align: center;
+        color: #666;
+        padding: 40px;
+      }
+      .error {
+        background: #fee;
+        color: #c00;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <a
+      href="/inat"
+      style="
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: #74ac00;
+        color: white;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 10px 16px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s;
+      "
+      onmouseover="this.style.background='#659900'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.2)'"
+      onmouseout="this.style.background='#74ac00'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.15)'"
+    >
+      <span style="font-size: 1rem">←</span> More iNat tools
+    </a>
+
+    <h1>First Observer Checker</h1>
+    <p class="subtitle">
+      Find species where a user was the first to observe them on iNaturalist.
+      Checks the rarest 500 species (≤500 global obs), plus all subspecies
+      and lower ranks.
+    </p>
+
+    <div class="search-container">
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="username"
+          placeholder="Enter iNaturalist username"
+          autocomplete="off"
+        />
+        <div class="autocomplete" id="autocomplete"></div>
+      </div>
+      <button id="searchBtn" onclick="startSearch()">Search</button>
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <div class="progress-container" id="progress">
+      <div class="progress-bar-bg">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="progress-text" id="progressText">Loading observations...</div>
+      <div class="current-check" id="currentCheck"></div>
+    </div>
+
+    <div class="results-container" id="results">
+      <div class="results-header">
+        <span class="results-count" id="resultsCount"></span>
+      </div>
+      <ul class="species-list" id="speciesList"></ul>
+    </div>
+
+    <script>
+      const API_BASE = "https://api.inaturalist.org/v1";
+      const DELAY_MS = 1000;
+      const MAX_OBSERVATIONS_THRESHOLD = 500; // Only check species with 500 or less observations
+
+      let isSearching = false;
+      let searchTimeout = null;
+
+      const usernameInput = document.getElementById("username");
+      const autocompleteEl = document.getElementById("autocomplete");
+
+      // Load saved username
+      const savedUsername = localStorage.getItem("inatUsername");
+      if (savedUsername) {
+        usernameInput.value = savedUsername;
+      }
+
+      // Username autocomplete
+      usernameInput.addEventListener("input", (e) => {
+        clearTimeout(searchTimeout);
+        const query = e.target.value.trim();
+
+        if (query.length < 2) {
+          autocompleteEl.innerHTML = "";
+          autocompleteEl.classList.remove("active");
+          return;
+        }
+
+        searchTimeout = setTimeout(() => searchUsers(query), 300);
+      });
+
+      async function searchUsers(query) {
+        try {
+          const response = await fetch(
+            `${API_BASE}/users/autocomplete?q=${encodeURIComponent(
+              query
+            )}&per_page=10`
+          );
+          const data = await response.json();
+
+          if (data.results && data.results.length > 0) {
+            autocompleteEl.innerHTML = data.results
+              .map(
+                (user) => `
+            <div class="autocomplete-item" data-login="${user.login}">
+              <div class="autocomplete-name">${user.login}</div>
+              <div class="autocomplete-login">${user.name || ""} · ${(user.observations_count || 0).toLocaleString()} observations</div>
+            </div>
+          `
+              )
+              .join("");
+
+            autocompleteEl
+              .querySelectorAll(".autocomplete-item")
+              .forEach((item) => {
+                item.addEventListener("click", () => {
+                  usernameInput.value = item.dataset.login;
+                  localStorage.setItem("inatUsername", item.dataset.login);
+                  autocompleteEl.classList.remove("active");
+                });
+              });
+
+            autocompleteEl.classList.add("active");
+          } else {
+            autocompleteEl.innerHTML = "";
+            autocompleteEl.classList.remove("active");
+          }
+        } catch (error) {
+          console.error("Error searching users:", error);
+        }
+      }
+
+      // Hide autocomplete when clicking outside
+      document.addEventListener("click", (e) => {
+        if (
+          !usernameInput.contains(e.target) &&
+          !autocompleteEl.contains(e.target)
+        ) {
+          autocompleteEl.classList.remove("active");
+        }
+      });
+
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      async function fetchJSON(url) {
+        const response = await fetch(url, {
+          headers: { Accept: "application/json" },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+      }
+
+      async function getUserSpeciesCounts(username) {
+        const allSpecies = [];
+        const perPage = 500;
+        let page = 1;
+
+        while (true) {
+          const url = `${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&page=${page}&verifiable=true`;
+
+          updateProgress(0, `Fetching species list (page ${page})...`, "");
+
+          const data = await fetchJSON(url);
+
+          if (!data.results || data.results.length === 0) {
+            break;
+          }
+
+          allSpecies.push(...data.results);
+
+          if (data.results.length < perPage) {
+            break;
+          }
+
+          page++;
+          await sleep(500);
+        }
+
+        return allSpecies;
+      }
+
+      async function getSubspeciesTaxa(username) {
+        const taxaMap = new Map();
+        const perPage = 200;
+        let page = 1;
+        let totalFetched = 0;
+
+        while (true) {
+          // Use hrank=subspecies to only get observations at subspecies rank or below
+          const url = `${API_BASE}/observations?user_login=${username}&per_page=${perPage}&page=${page}&verifiable=true&order_by=observed_on&order=asc&hrank=subspecies`;
+
+          updateProgress(0, `Fetching subspecies observations (${totalFetched} obs, ${taxaMap.size} unique taxa)...`, "");
+
+          const data = await fetchJSON(url);
+
+          if (!data.results || data.results.length === 0) {
+            break;
+          }
+
+          // Extract unique taxa
+          for (const obs of data.results) {
+            const taxon = obs.taxon;
+            if (taxon && taxon.id) {
+              if (!taxaMap.has(taxon.id)) {
+                taxaMap.set(taxon.id, {
+                  taxon: {
+                    id: taxon.id,
+                    name: taxon.name,
+                    rank: taxon.rank,
+                    rank_level: taxon.rank_level,
+                    observations_count: taxon.observations_count || 0,
+                    preferred_common_name: taxon.preferred_common_name,
+                    default_photo: taxon.default_photo
+                  }
+                });
+              }
+            }
+          }
+
+          totalFetched += data.results.length;
+
+          if (data.results.length < perPage) {
+            break;
+          }
+
+          page++;
+          await sleep(500);
+        }
+
+        return Array.from(taxaMap.values());
+      }
+
+      async function checkFirstObserver(username, taxonId) {
+        const url = `${API_BASE}/observations?taxon_id=${taxonId}&order=asc&order_by=observed_on&per_page=1&verifiable=true`;
+        const data = await fetchJSON(url);
+
+        if (data.results && data.results.length > 0) {
+          const firstObs = data.results[0];
+          const isFirst =
+            firstObs.user?.login?.toLowerCase() === username.toLowerCase();
+          return {
+            isFirst,
+            observationId: firstObs.id,
+            observedOn: firstObs.observed_on,
+            imageUrl: firstObs.photos?.[0]?.url?.replace("square", "small"),
+            firstObserver: firstObs.user?.login,
+          };
+        }
+
+        return { isFirst: false };
+      }
+
+      function updateProgress(percent, text, currentSpecies) {
+        document.getElementById("progressBar").style.width = percent + "%";
+        document.getElementById("progressText").textContent = text;
+        document.getElementById("currentCheck").textContent = currentSpecies;
+      }
+
+      function showError(message) {
+        const errorEl = document.getElementById("error");
+        errorEl.textContent = message;
+        errorEl.style.display = "block";
+      }
+
+      function hideError() {
+        document.getElementById("error").style.display = "none";
+      }
+
+      function updateResultsCount(count) {
+        const countEl = document.getElementById("resultsCount");
+        countEl.textContent = `Found ${count} first observation${
+          count !== 1 ? "s" : ""
+        }`;
+      }
+
+      function addResultItem(sp) {
+        const listEl = document.getElementById("speciesList");
+        const li = document.createElement("li");
+        li.className = "species-item";
+        const rankLabel = sp.rank && sp.rank !== "species" ? ` (${sp.rank})` : "";
+        li.innerHTML = `
+        <img class="species-image" src="${
+          sp.imageUrl || "https://via.placeholder.com/80?text=No+Image"
+        }" alt="${sp.commonName}">
+        <div class="species-info">
+          <div class="species-name">${sp.commonName}${rankLabel}</div>
+          <div class="species-scientific">${sp.taxonName}</div>
+          <div class="species-date">First observed: ${sp.observedOn} (${
+          sp.totalObservations
+        } total obs)</div>
+          <a class="species-link" href="https://www.inaturalist.org/observations/${
+            sp.observationId
+          }" target="_blank">View observation</a>
+        </div>
+      `;
+        listEl.appendChild(li);
+      }
+
+      function showNoResults() {
+        const listEl = document.getElementById("speciesList");
+        if (listEl.children.length === 0) {
+          listEl.innerHTML =
+            '<li class="no-results">No first observations found in the checked observations.</li>';
+        }
+      }
+
+      async function startSearch() {
+        if (isSearching) return;
+
+        const username = document.getElementById("username").value.trim();
+        if (!username) {
+          showError("Please enter a username");
+          return;
+        }
+
+        // Save username
+        localStorage.setItem("inatUsername", username);
+
+        hideError();
+        autocompleteEl.classList.remove("active");
+        isSearching = true;
+        document.getElementById("searchBtn").disabled = true;
+        document.getElementById("progress").style.display = "block";
+        document.getElementById("results").style.display = "block";
+        document.getElementById("speciesList").innerHTML = "";
+        updateResultsCount(0);
+
+        let firstObserverCount = 0;
+
+        try {
+          // Step 1: Get all species counts for the user
+          const allSpecies = await getUserSpeciesCounts(username);
+
+          if (allSpecies.length === 0) {
+            showError("No observations found for this user");
+            document.getElementById("progress").style.display = "none";
+            isSearching = false;
+            document.getElementById("searchBtn").disabled = false;
+            return;
+          }
+
+          // Step 2: Get all subspecies/lower ranks
+          const subspeciesTaxa = await getSubspeciesTaxa(username);
+
+          // Combine: rare species + rare subspecies (avoid duplicates)
+          const checkedTaxonIds = new Set();
+          const taxaToCheck = [];
+
+          // Filter and sort species by observations_count (ascending), take bottom 500
+          const rareSpeciesList = allSpecies
+            .filter(item => item.taxon && (item.taxon.observations_count || 0) <= MAX_OBSERVATIONS_THRESHOLD)
+            .sort((a, b) => (a.taxon.observations_count || 0) - (b.taxon.observations_count || 0))
+            .slice(0, 500);
+
+          // Add rare species
+          for (const item of rareSpeciesList) {
+            const taxon = item.taxon;
+            if (!checkedTaxonIds.has(taxon.id)) {
+              checkedTaxonIds.add(taxon.id);
+              taxaToCheck.push({ taxon, source: 'species' });
+            }
+          }
+
+          const rareSpeciesCount = taxaToCheck.length;
+
+          // Add rare subspecies/lower ranks (≤500 global obs)
+          for (const item of subspeciesTaxa) {
+            const taxon = item.taxon;
+            if (taxon && (taxon.observations_count || 0) <= MAX_OBSERVATIONS_THRESHOLD) {
+              if (!checkedTaxonIds.has(taxon.id)) {
+                checkedTaxonIds.add(taxon.id);
+                taxaToCheck.push({ taxon, source: 'subspecies' });
+              }
+            }
+          }
+
+          const rareSubspeciesCount = taxaToCheck.length - rareSpeciesCount;
+
+          updateProgress(
+            0,
+            `Found ${rareSpeciesCount} rare species + ${rareSubspeciesCount} subspecies/lower (${taxaToCheck.length} total to check)`,
+            ""
+          );
+
+          if (taxaToCheck.length === 0) {
+            document.getElementById("progress").style.display = "none";
+            showNoResults();
+            isSearching = false;
+            document.getElementById("searchBtn").disabled = false;
+            return;
+          }
+
+          await sleep(1000);
+
+          // Step 3: Check each rare taxon for first observer
+          for (let i = 0; i < taxaToCheck.length; i++) {
+            const { taxon } = taxaToCheck[i];
+            const globalCount = taxon.observations_count || 0;
+            const commonName = taxon.preferred_common_name || taxon.name;
+            const percent = Math.round(((i + 1) / taxaToCheck.length) * 100);
+
+            updateProgress(
+              percent,
+              `Checking ${i + 1} of ${taxaToCheck.length} taxa (${firstObserverCount} first obs found)...`,
+              `${commonName} (${taxon.name})`
+            );
+
+            const result = await checkFirstObserver(username, taxon.id);
+            await sleep(DELAY_MS);
+
+            if (result.isFirst) {
+              firstObserverCount++;
+              updateResultsCount(firstObserverCount);
+              addResultItem({
+                taxonId: taxon.id,
+                taxonName: taxon.name,
+                commonName: taxon.preferred_common_name || "No common name",
+                rank: taxon.rank,
+                observationId: result.observationId,
+                observedOn: result.observedOn,
+                imageUrl: result.imageUrl || taxon.default_photo?.medium_url,
+                totalObservations: globalCount,
+              });
+            }
+          }
+
+          // Step 4: Finalize
+          document.getElementById("progress").style.display = "none";
+          showNoResults();
+        } catch (error) {
+          showError("Error: " + error.message);
+          document.getElementById("progress").style.display = "none";
+        }
+
+        isSearching = false;
+        document.getElementById("searchBtn").disabled = false;
+      }
+
+      // Allow Enter key to trigger search
+      document.getElementById("username").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") startSearch();
+      });
+    </script>
+  </body>
+</html>
