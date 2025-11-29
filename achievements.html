@@ -304,8 +304,8 @@
 
           const loadingCount = document.getElementById("loadingCount");
           let completedRequests = 0;
-          // Estimate: 12 main requests + CNC projects + 6 continents + ~10 pages for species counts
-          const estimatedTotal = 12 + CNC_PROJECTS.length + 6 + 10;
+          // Estimate: 11 direct requests + CNC projects + 6 continents + ~25 for paginated species loaders
+          const estimatedTotal = 11 + CNC_PROJECTS.length + 6 + 25;
           const updateProgress = () => {
             completedRequests++;
             const percentage = Math.min(99, Math.round((completedRequests / estimatedTotal) * 100));
@@ -2779,7 +2779,7 @@
                 <div class="achievement-icon">🌎</div>
                 <div class="achievement-content">
                   <div class="achievement-name">Globe Trotter</div>
-                  <div class="achievement-description">Explore 25 of the world's 1024 map regions</div>
+                  <div class="achievement-description">Observe in 25 different grid squares around the world</div>
                   <div class="achievement-progress">
                     <div class="progress-bar">
                       <div class="progress-fill" style="width: ${
