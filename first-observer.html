@@ -239,8 +239,8 @@
     <h1>First Observer Checker</h1>
     <p class="subtitle">
       Find species where a user was the first to observe them on iNaturalist.
-      Checks the rarest 500 species (≤500 global obs), plus all subspecies
-      and lower ranks.
+      Checks the rarest 500 species (≤500 global obs), all subspecies, and
+      the 50 oldest observations.
     </p>
 
     <div class="search-container">
@@ -561,6 +561,30 @@
           // Step 2: Get all subspecies/lower ranks
           const subspeciesTaxa = await getSubspeciesTaxa(username);
 
+          // Step 3: Get oldest 50 observations (more likely to be first observer)
+          updateProgress(0, "Fetching oldest 50 observations...", "");
+          const oldestObsUrl = `${API_BASE}/observations?user_login=${username}&per_page=50&page=1&verifiable=true&order_by=observed_on&order=asc`;
+          const oldestObsData = await fetchJSON(oldestObsUrl);
+          const oldestTaxa = [];
+          if (oldestObsData.results) {
+            for (const obs of oldestObsData.results) {
+              const taxon = obs.taxon;
+              if (taxon && taxon.id && taxon.rank_level <= 10) {
+                oldestTaxa.push({
+                  taxon: {
+                    id: taxon.id,
+                    name: taxon.name,
+                    rank: taxon.rank,
+                    rank_level: taxon.rank_level,
+                    observations_count: taxon.observations_count || 0,
+                    preferred_common_name: taxon.preferred_common_name,
+                    default_photo: taxon.default_photo
+                  }
+                });
+              }
+            }
+          }
+
           // Combine: rare species + rare subspecies (avoid duplicates)
           const checkedTaxonIds = new Set();
           const taxaToCheck = [];
@@ -595,9 +619,20 @@
 
           const rareSubspeciesCount = taxaToCheck.length - rareSpeciesCount;
 
+          // Add oldest observations taxa (no obs count filter - check all)
+          for (const item of oldestTaxa) {
+            const taxon = item.taxon;
+            if (taxon && !checkedTaxonIds.has(taxon.id)) {
+              checkedTaxonIds.add(taxon.id);
+              taxaToCheck.push({ taxon, source: 'oldest' });
+            }
+          }
+
+          const oldestCount = taxaToCheck.length - rareSpeciesCount - rareSubspeciesCount;
+
           updateProgress(
             0,
-            `Found ${rareSpeciesCount} rare species + ${rareSubspeciesCount} subspecies/lower (${taxaToCheck.length} total to check)`,
+            `Found ${rareSpeciesCount} rare species + ${rareSubspeciesCount} subspecies + ${oldestCount} oldest (${taxaToCheck.length} total to check)`,
             ""
           );
 
