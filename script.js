@@ -70,7 +70,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (savedUsername) {
     usernameInput.value = savedUsername;
-    searchEspecies();
   }
 
   updateLocationName();
