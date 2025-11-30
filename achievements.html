@@ -275,36 +275,211 @@
 
           const identificationsCount = user.identifications_count || 0;
           const userCreatedAt = user.created_at || null;
+          const annotatedObservationsCount = user.annotated_observations_count || 0;
+          const observationsTotalResults = user.observations_count || 0;
 
-          // Fetch identification categories (for others' observations)
-          const idCategoriesResponse = await fetch(
-            `https://api.inaturalist.org/v1/identifications/categories?own_observation=false&user_id=${userId}`
-          );
-          const idCategoriesData = await idCategoriesResponse.json();
-          const idCategories = {};
-          if (idCategoriesData.results) {
-            idCategoriesData.results.forEach((item) => {
-              idCategories[item.category] = item.count;
+          // Initialize all state with defaults for progressive rendering
+          let state = {
+            idCategories: {},
+            maxSpeciesIdCount: 0,
+            maxSpeciesName: "",
+            researchGradeData: { results: [] },
+            histogramData: { results: { day: {} } },
+            favoriteObservations: [],
+            allSpeciesCounts: [],
+            threatenedSpeciesCounts: [],
+            introducedSpeciesCounts: 0,
+            endemicSpeciesCounts: 0,
+            soundObservationsCount: 0,
+            soundPhotoObservationsCount: 0,
+            projectsCount: 0,
+            cncYears: [],
+            earlyBirdCount: 0,
+            nightOwlCount: 0,
+            fromArchivesCount: 0,
+            oldTimerCount: 0,
+            observedContinents: new Set(),
+            worldGridData: null,
+          };
+
+          // Helper function to compute derived values and render achievements
+          function refreshAchievements() {
+            // Parse UTF Grid to find cells with observations
+            const displayGridSize = 32;
+            const observedGridCells = new Map();
+
+            if (state.worldGridData && state.worldGridData.grid && state.worldGridData.keys && state.worldGridData.data) {
+              const utfGridSize = state.worldGridData.grid.length;
+              const groupSize = utfGridSize / displayGridSize;
+              const dataKeys = Object.keys(state.worldGridData.data);
+
+              dataKeys.forEach(dataKey => {
+                const keyIndex = state.worldGridData.keys.indexOf(dataKey);
+                if (keyIndex <= 0) return;
+
+                for (let row = 0; row < utfGridSize; row++) {
+                  const gridRow = state.worldGridData.grid[row];
+                  if (!gridRow) continue;
+
+                  for (let col = 0; col < gridRow.length; col++) {
+                    let id = gridRow.charCodeAt(col);
+                    if (id >= 93) id--;
+                    if (id >= 35) id--;
+                    id -= 32;
+
+                    if (id === keyIndex) {
+                      const displayRow = Math.floor(row / groupSize);
+                      const displayCol = Math.floor(col / groupSize);
+                      const cellKey = displayRow + "," + displayCol;
+                      observedGridCells.set(cellKey, true);
+                      return;
+                    }
+                  }
+                }
+              });
+            }
+
+            const observedGridSquares = observedGridCells.size;
+
+            // Calculate iconic taxon species counts
+            const iconicTaxonSpeciesCounts = {};
+            Object.keys(ICONIC_TAXONS).forEach((taxonName) => {
+              iconicTaxonSpeciesCounts[taxonName] = 0;
             });
-          }
 
-          // Fetch identification species counts (for others' observations)
-          const idSpeciesResponse = await fetch(
-            `https://api.inaturalist.org/v1/identifications/species_counts?own_observation=false&user_id=${userId}&per_page=1`
-          );
-          const idSpeciesData = await idSpeciesResponse.json();
-          // Find max count for any single species
-          let maxSpeciesIdCount = 0;
-          let maxSpeciesName = "";
-          if (idSpeciesData.results && idSpeciesData.results.length > 0) {
-            maxSpeciesIdCount = idSpeciesData.results[0].count;
-            const taxon = idSpeciesData.results[0].taxon;
-            maxSpeciesName = taxon.preferred_common_name || taxon.name || "";
+            let lepidopteraSpeciesCount = 0;
+            let raptorSpeciesCount = 0;
+            let beetleSpeciesCount = 0;
+            let beeSpeciesCount = 0;
+            let cetaceaSpeciesCount = 0;
+            let anuraSpeciesCount = 0;
+            let serpentesSpeciesCount = 0;
+            let turtleSpeciesCount = 0;
+            let rodentiaSpeciesCount = 0;
+            let primatesSpeciesCount = 0;
+
+            state.allSpeciesCounts.forEach((species) => {
+              const iconicTaxonName = species.taxon?.iconic_taxon_name;
+              if (iconicTaxonName && iconicTaxonName in iconicTaxonSpeciesCounts) {
+                iconicTaxonSpeciesCounts[iconicTaxonName]++;
+              }
+
+              const ancestorIds = species.taxon?.ancestor_ids || [];
+              const taxonId = species.taxon?.id;
+
+              if (ancestorIds.includes(SPECIALTY_TAXONS.lepidoptera) || taxonId === SPECIALTY_TAXONS.lepidoptera) {
+                lepidopteraSpeciesCount++;
+              }
+              if (SPECIALTY_TAXONS.raptors.some((id) => ancestorIds.includes(id) || taxonId === id)) {
+                raptorSpeciesCount++;
+              }
+              if (ancestorIds.includes(SPECIALTY_TAXONS.coleoptera) || taxonId === SPECIALTY_TAXONS.coleoptera) {
+                beetleSpeciesCount++;
+              }
+              if (ancestorIds.includes(SPECIALTY_TAXONS.anthophila) || taxonId === SPECIALTY_TAXONS.anthophila) {
+                beeSpeciesCount++;
+              }
+              if (ancestorIds.includes(SPECIALTY_TAXONS.cetacea) || taxonId === SPECIALTY_TAXONS.cetacea) {
+                cetaceaSpeciesCount++;
+              }
+              if (ancestorIds.includes(SPECIALTY_TAXONS.anura) || taxonId === SPECIALTY_TAXONS.anura) {
+                anuraSpeciesCount++;
+              }
+              if (ancestorIds.includes(SPECIALTY_TAXONS.serpentes) || taxonId === SPECIALTY_TAXONS.serpentes) {
+                serpentesSpeciesCount++;
+              }
+              if (ancestorIds.includes(SPECIALTY_TAXONS.testudines) || taxonId === SPECIALTY_TAXONS.testudines) {
+                turtleSpeciesCount++;
+              }
+              if (ancestorIds.includes(SPECIALTY_TAXONS.rodentia) || taxonId === SPECIALTY_TAXONS.rodentia) {
+                rodentiaSpeciesCount++;
+              }
+              if (ancestorIds.includes(SPECIALTY_TAXONS.primates) || taxonId === SPECIALTY_TAXONS.primates) {
+                primatesSpeciesCount++;
+              }
+            });
+
+            // Add animal iconic taxon counts to Animalia
+            const animalIconicTaxons = ["Mollusca", "Arachnida", "Insecta", "Actinopterygii", "Amphibia", "Reptilia", "Aves", "Mammalia"];
+            animalIconicTaxons.forEach((taxon) => {
+              iconicTaxonSpeciesCounts["Animalia"] += iconicTaxonSpeciesCounts[taxon] || 0;
+            });
+
+            const threatenedSpeciesCount = state.threatenedSpeciesCounts.length;
+            const researchGradeResult = state.researchGradeData.results?.find((r) => r.quality_grade === "research");
+            const researchGradeCount = researchGradeResult?.count || 0;
+            const speciesCount = state.allSpeciesCounts.length;
+
+            const histogramAchievements = calculateHistogramAchievements(state.histogramData.results?.day || {});
+
+            const conservationStatusAchievements = {
+              nearThreatened10: calculateStatusSpeciesAchievementFromSpeciesCounts(state.threatenedSpeciesCounts, ["nt", "near_threatened", "near threatened"], 10),
+              vulnerable10: calculateStatusSpeciesAchievementFromSpeciesCounts(state.threatenedSpeciesCounts, ["vu", "vulnerable"], 10),
+              endangered5: calculateStatusSpeciesAchievementFromSpeciesCounts(state.threatenedSpeciesCounts, ["en", "endangered"], 5),
+              criticallyEndangered1: calculateStatusSpeciesAchievementFromSpeciesCounts(state.threatenedSpeciesCounts, ["cr", "critically_endangered", "critically endangered"], 1),
+              extinctInWild1: calculateStatusSpeciesAchievementFromSpeciesCounts(state.threatenedSpeciesCounts, ["ew", "extinct_in_the_wild", "extinct in the wild"], 1),
+              extinct1: calculateStatusSpeciesAchievementFromSpeciesCounts(state.threatenedSpeciesCounts, ["ex", "extinct"], 1),
+            };
+
+            const favoriteAchievements = calculateFavoriteAchievements(state.favoriteObservations);
+
+            const rarityAchievements = {
+              onlyObserver: calculateOnlyObserverAchievementFromSpeciesCounts(state.allSpeciesCounts),
+              rareSpecies100: calculateRareSpeciesAchievementFromSpeciesCounts(state.allSpeciesCounts, 100, 10),
+              rareSpecies10: calculateRareSpeciesAchievementFromSpeciesCounts(state.allSpeciesCounts, 10, 10),
+              rareSpecies10_50: calculateRareSpeciesAchievementFromSpeciesCounts(state.allSpeciesCounts, 10, 50),
+              rareSpecies100_100: calculateRareSpeciesAchievementFromSpeciesCounts(state.allSpeciesCounts, 100, 100),
+            };
+
+            let result = renderAchievements(
+              observationsTotalResults,
+              speciesCount,
+              identificationsCount,
+              state.idCategories,
+              state.maxSpeciesIdCount,
+              state.maxSpeciesName,
+              userCreatedAt,
+              iconicTaxonSpeciesCounts,
+              lepidopteraSpeciesCount,
+              raptorSpeciesCount,
+              beetleSpeciesCount,
+              beeSpeciesCount,
+              cetaceaSpeciesCount,
+              anuraSpeciesCount,
+              serpentesSpeciesCount,
+              turtleSpeciesCount,
+              rodentiaSpeciesCount,
+              primatesSpeciesCount,
+              threatenedSpeciesCount,
+              state.introducedSpeciesCounts,
+              state.endemicSpeciesCounts,
+              researchGradeCount,
+              histogramAchievements,
+              conservationStatusAchievements,
+              favoriteAchievements,
+              rarityAchievements,
+              state.soundObservationsCount,
+              state.soundPhotoObservationsCount,
+              annotatedObservationsCount,
+              state.projectsCount,
+              state.cncYears,
+              state.earlyBirdCount,
+              state.nightOwlCount,
+              state.observedContinents,
+              state.fromArchivesCount,
+              state.oldTimerCount,
+              observedGridCells,
+              observedGridSquares
+            );
+
+            achievementsContainer.innerHTML = result.html;
+            let percentage = Math.round((result.completedCount / result.totalAchievements) * 100);
+            achievementsProgress.textContent = `${result.completedCount}/${result.totalAchievements} (${percentage}%)`;
+            achievementsProgress.classList.add("show");
           }
 
           const loadingCount = document.getElementById("loadingCount");
           let completedRequests = 0;
-          // Estimate: 11 direct requests + CNC projects + 6 continents + ~25 for paginated species loaders
           const estimatedTotal = 11 + CNC_PROJECTS.length + 6 + 25;
           const updateProgress = () => {
             completedRequests++;
@@ -312,91 +487,144 @@
             loadingCount.textContent = `${percentage}%`;
           };
 
-          // Fetch Research Grade observations count
-          const researchGradeData = await fetch(
-            `https://api.inaturalist.org/v1/observations/quality_grades?user_id=${userId}&captive=false&verifiable=true`
-          ).then((res) => res.json());
-          updateProgress();
-
-          // Fetch observation histogram for date-based achievements
-          const histogramData = await fetch(
-            `https://api.inaturalist.org/v2/observations/histogram?interval=day&d1=1900-01-01&user_id=${userId}&captive=false&verifiable=true`
-          ).then((res) => res.json());
-          updateProgress();
-
-          // Fetch favorite observations for favorite achievements
-          const favoriteObservations = await loadFavoriteObservations(userId, updateProgress);
-
-          // Fetch all species counts for rarity achievements
-          const allSpeciesCounts = await loadAllSpeciesCounts(userId, updateProgress);
-
-          // Fetch threatened species counts separately for conservation achievements
-          const threatenedSpeciesCounts = await loadThreatenedSpeciesCounts(userId, updateProgress);
-
-          // Fetch introduced species counts separately
-          const introducedSpeciesCounts = await loadIntroducedSpeciesCounts(userId, updateProgress);
-
-          // Fetch endemic species counts separately
-          const endemicSpeciesCounts = await loadEndemicSpeciesCounts(userId, updateProgress);
-
-          // Fetch sound observations count
-          const soundObservationsData = await fetch(
-            `https://api.inaturalist.org/v1/observations?user_id=${userId}&sounds=true&per_page=1&captive=false&verifiable=true`
-          ).then((res) => res.json());
-          updateProgress();
-
-          // Fetch sound+photo observations count
-          const soundPhotoObservationsData = await fetch(
-            `https://api.inaturalist.org/v1/observations?user_id=${userId}&sounds=true&photos=true&per_page=1&captive=false&verifiable=true`
-          ).then((res) => res.json());
-          updateProgress();
-
-          // Fetch projects the user is a member of
-          const projectsData = await fetch(
-            `https://api.inaturalist.org/v1/projects?member_id=${userId}&per_page=1`
-          ).then((res) => res.json());
-          updateProgress();
-
-          // Fetch City Nature Challenge participation (check each project separately)
-          const cncResults = [];
-          for (const project of CNC_PROJECTS) {
-            const result = await fetch(
-              `https://api.inaturalist.org/v1/observations?user_id=${userId}&project_id=${project.id}&per_page=1`
-            ).then((res) => res.json());
-            cncResults.push(result);
-            updateProgress();
+          async function runInBatches(tasks, batchSize = 3) {
+            const results = [];
+            for (let i = 0; i < tasks.length; i += batchSize) {
+              const batch = tasks.slice(i, i + batchSize);
+              const batchResults = await Promise.all(batch.map(task => task()));
+              results.push(...batchResults);
+            }
+            return results;
           }
 
-          // Fetch early bird observations (5-7 AM)
-          const earlyBirdData = await fetch(
-            `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&hour=5,6,7`
-          ).then((res) => res.json());
-          updateProgress();
+          // Show initial achievements with user data only (keep loading visible)
+          refreshAchievements();
 
-          // Fetch night owl observations (9 PM - 4 AM)
-          const nightOwlData = await fetch(
-            `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&hour=21,22,23,0,1,2,3,4`
-          ).then((res) => res.json());
-          updateProgress();
+          // Batch 0: ID categories and species (2 parallel)
+          const [idCategoriesData, idSpeciesData] = await Promise.all([
+            fetch(`https://api.inaturalist.org/v1/identifications/categories?own_observation=false&user_id=${userId}`).then((res) => res.json()),
+            fetch(`https://api.inaturalist.org/v1/identifications/species_counts?own_observation=false&user_id=${userId}&per_page=1`).then((res) => res.json()),
+          ]);
 
-          // Fetch "From the Archives" observations (RG observations from before user joined)
-          const userJoinDate = userCreatedAt
-            ? new Date(userCreatedAt).toISOString().split("T")[0]
-            : null;
-          const fromArchivesData = userJoinDate
-            ? await fetch(
-                `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&quality_grade=research&d2=${userJoinDate}`
-              ).then((res) => res.json())
-            : { total_results: 0 };
-          updateProgress();
+          if (idCategoriesData.results) {
+            idCategoriesData.results.forEach((item) => {
+              state.idCategories[item.category] = item.count;
+            });
+          }
+          if (idSpeciesData.results && idSpeciesData.results.length > 0) {
+            state.maxSpeciesIdCount = idSpeciesData.results[0].count;
+            const taxon = idSpeciesData.results[0].taxon;
+            state.maxSpeciesName = taxon.preferred_common_name || taxon.name || "";
+          }
+          refreshAchievements();
 
-          // Fetch "Sepia Toned" observations (RG observations from before iNaturalist existed - March 2008)
-          const oldTimerData = await fetch(
-            `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&quality_grade=research&d2=2008-03-01`
-          ).then((res) => res.json());
-          updateProgress();
+          // Batch 1: Research grade, histogram, favorite observations (3 parallel)
+          const [researchGradeData, histogramData, favoriteObservations] = await Promise.all([
+            fetch(`https://api.inaturalist.org/v1/observations/quality_grades?user_id=${userId}&captive=false&verifiable=true`)
+              .then((res) => res.json())
+              .then((data) => { updateProgress(); return data; }),
+            fetch(`https://api.inaturalist.org/v2/observations/histogram?interval=day&d1=1900-01-01&user_id=${userId}&captive=false&verifiable=true`)
+              .then((res) => res.json())
+              .then((data) => { updateProgress(); return data; }),
+            loadFavoriteObservations(userId, updateProgress),
+          ]);
 
-          // Fetch continent observations for World Traveler achievement
+          state.researchGradeData = researchGradeData;
+          state.histogramData = histogramData;
+          state.favoriteObservations = favoriteObservations;
+          refreshAchievements();
+
+          // Species counts (sequential - refresh after each page)
+          const allSpeciesCounts = await loadAllSpeciesCounts(userId, updateProgress, (species) => {
+            state.allSpeciesCounts = species;
+            refreshAchievements();
+          });
+          state.allSpeciesCounts = allSpeciesCounts;
+
+          const threatenedSpeciesCounts = await loadThreatenedSpeciesCounts(userId, updateProgress, (species) => {
+            state.threatenedSpeciesCounts = species;
+            refreshAchievements();
+          });
+          state.threatenedSpeciesCounts = threatenedSpeciesCounts;
+
+          const introducedSpeciesCounts = await loadIntroducedSpeciesCounts(userId, updateProgress);
+          state.introducedSpeciesCounts = introducedSpeciesCounts;
+          refreshAchievements();
+
+          // Batch 3: Endemic, sounds, sound+photo (3 parallel)
+          const [endemicSpeciesCounts, soundObservationsData, soundPhotoObservationsData] = await Promise.all([
+            loadEndemicSpeciesCounts(userId, updateProgress),
+            fetch(`https://api.inaturalist.org/v1/observations?user_id=${userId}&sounds=true&per_page=1&captive=false&verifiable=true`)
+              .then((res) => res.json())
+              .then((data) => { updateProgress(); return data; }),
+            fetch(`https://api.inaturalist.org/v1/observations?user_id=${userId}&sounds=true&photos=true&per_page=1&captive=false&verifiable=true`)
+              .then((res) => res.json())
+              .then((data) => { updateProgress(); return data; }),
+          ]);
+
+          state.endemicSpeciesCounts = endemicSpeciesCounts;
+          state.soundObservationsCount = soundObservationsData.total_results || 0;
+          state.soundPhotoObservationsCount = soundPhotoObservationsData.total_results || 0;
+          refreshAchievements();
+
+          // Batch 4: Projects, early bird, night owl (3 parallel)
+          const [projectsData, earlyBirdData, nightOwlData] = await Promise.all([
+            fetch(`https://api.inaturalist.org/v1/projects?member_id=${userId}&per_page=1`)
+              .then((res) => res.json())
+              .then((data) => { updateProgress(); return data; }),
+            fetch(`https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&hour=5,6,7`)
+              .then((res) => res.json())
+              .then((data) => { updateProgress(); return data; }),
+            fetch(`https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&hour=21,22,23,0,1,2,3,4`)
+              .then((res) => res.json())
+              .then((data) => { updateProgress(); return data; }),
+          ]);
+
+          state.projectsCount = projectsData.total_results || 0;
+          state.earlyBirdCount = earlyBirdData.total_results || 0;
+          state.nightOwlCount = nightOwlData.total_results || 0;
+          refreshAchievements();
+
+          // Batch 5: From archives, old timer, world grid (3 parallel)
+          const userJoinDate = userCreatedAt ? new Date(userCreatedAt).toISOString().split("T")[0] : null;
+          const [fromArchivesData, oldTimerData, worldGridData] = await Promise.all([
+            userJoinDate
+              ? fetch(`https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&quality_grade=research&d2=${userJoinDate}`)
+                  .then((res) => res.json())
+                  .then((data) => { updateProgress(); return data; })
+              : Promise.resolve({ total_results: 0 }).then((data) => { updateProgress(); return data; }),
+            fetch(`https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&quality_grade=research&d2=2008-03-01`)
+              .then((res) => res.json())
+              .then((data) => { updateProgress(); return data; }),
+            fetch(`https://api.inaturalist.org/v1/grid/0/0/0.grid.json?user_id=${userId}`)
+              .then(res => res.json())
+              .then((data) => { updateProgress(); return data; })
+              .catch(() => { updateProgress(); return null; }),
+          ]);
+
+          state.fromArchivesCount = fromArchivesData.total_results || 0;
+          state.oldTimerCount = oldTimerData.total_results || 0;
+          state.worldGridData = worldGridData;
+          refreshAchievements();
+
+          // Fetch City Nature Challenge participation (3 parallel batches)
+          const cncTasks = CNC_PROJECTS.map(project => () =>
+            fetch(`https://api.inaturalist.org/v1/observations?user_id=${userId}&project_id=${project.id}&per_page=1`)
+              .then((res) => res.json())
+              .then((data) => { updateProgress(); return data; })
+          );
+          const cncResults = await runInBatches(cncTasks, 3);
+
+          state.cncYears = cncResults
+            .map((result, index) => ({
+              year: CNC_PROJECTS[index].year,
+              participated: (result.total_results || 0) > 0,
+            }))
+            .filter((item) => item.participated)
+            .map((item) => item.year);
+          refreshAchievements();
+
+          // Fetch continent observations (3 parallel batches)
           const continentPlaceIds = {
             Europe: 67952,
             "South America": 97389,
@@ -405,357 +633,24 @@
             Oceania: 97393,
             Africa: 91708,
           };
-          const continentResults = [];
-          for (const [continent, placeId] of Object.entries(continentPlaceIds)) {
-            const data = await fetch(
-              `https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=${placeId}`
-            ).then((res) => res.json());
-            continentResults.push({
-              continent,
-              hasObservations: data.total_results > 0,
-            });
-            updateProgress();
-          }
-
-          // Calculate sound-related achievements
-          const soundObservationsCount =
-            soundObservationsData.total_results || 0;
-          const soundPhotoObservationsCount =
-            soundPhotoObservationsData.total_results || 0;
-
-          // Get annotated observations count from user data
-          const annotatedObservationsCount =
-            userData.results[0].annotated_observations_count || 0;
-
-          // Get projects count
-          const projectsCount = projectsData.total_results || 0;
-
-          // Count City Nature Challenge participations and track years
-          const cncYears = cncResults
-            .map((result, index) => ({
-              year: CNC_PROJECTS[index].year,
-              participated: (result.total_results || 0) > 0,
-            }))
-            .filter((item) => item.participated)
-            .map((item) => item.year);
-          const cncCount = cncYears.length;
-
-          // Get early bird and night owl counts
-          const earlyBirdCount = earlyBirdData.total_results || 0;
-          const nightOwlCount = nightOwlData.total_results || 0;
-
-          // Get from archives and old timer counts
-          const fromArchivesCount = fromArchivesData.total_results || 0;
-          const oldTimerCount = oldTimerData.total_results || 0;
-
-          // Calculate observed continents from continent API calls
-          const observedContinents = new Set(
-            continentResults
-              .filter((r) => r.hasObservations)
-              .map((r) => r.continent)
+          const continentTasks = Object.entries(continentPlaceIds).map(([continent, placeId]) => () =>
+            fetch(`https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&place_id=${placeId}`)
+              .then((res) => res.json())
+              .then((data) => {
+                updateProgress();
+                return { continent, hasObservations: data.total_results > 0 };
+              })
           );
+          const continentResults = await runInBatches(continentTasks, 3);
 
-          // Calculate observed world grid squares using UTF Grid API (single call)
-          // Fetch grid at zoom level 0 (entire world in one tile)
-          const worldGridData = await fetch(
-            `https://api.inaturalist.org/v1/grid/0/0/0.grid.json?user_id=${userId}`
-          ).then(res => res.json()).catch(() => null);
-
-          // Parse UTF Grid to find cells with observations
-          // Use the data object keys - each key represents an observed cell
-          const displayGridSize = 32;
-          const observedGridCells = new Map();
-
-          if (worldGridData && worldGridData.grid && worldGridData.keys && worldGridData.data) {
-            const utfGridSize = worldGridData.grid.length; // 64
-            const groupSize = utfGridSize / displayGridSize; // 2
-
-            // Get keys that have data (these are the observed cells)
-            const dataKeys = Object.keys(worldGridData.data);
-
-            // For each data key, find its position in the grid
-            dataKeys.forEach(dataKey => {
-              const keyIndex = worldGridData.keys.indexOf(dataKey);
-              if (keyIndex <= 0) return; // Skip if not found or index 0 (no data)
-
-              // Find where this key appears in the grid
-              for (let row = 0; row < utfGridSize; row++) {
-                const gridRow = worldGridData.grid[row];
-                if (!gridRow) continue;
-
-                for (let col = 0; col < gridRow.length; col++) {
-                  let id = gridRow.charCodeAt(col);
-                  if (id >= 93) id--;
-                  if (id >= 35) id--;
-                  id -= 32;
-
-                  if (id === keyIndex) {
-                    const displayRow = Math.floor(row / groupSize);
-                    const displayCol = Math.floor(col / groupSize);
-                    const cellKey = displayRow + "," + displayCol;
-                    observedGridCells.set(cellKey, true);
-                    return; // Found position for this key, move to next
-                  }
-                }
-              }
-            });
-          }
-
-          const observedGridSquares = observedGridCells.size;
-
-          // Calculate iconic taxon species counts from allSpeciesCounts
-          const iconicTaxonSpeciesCounts = {};
-          Object.keys(ICONIC_TAXONS).forEach((taxonName) => {
-            iconicTaxonSpeciesCounts[taxonName] = 0;
-          });
-
-          // Calculate all species-based counts from allSpeciesCounts
-          let lepidopteraSpeciesCount = 0;
-          let raptorSpeciesCount = 0;
-          let beetleSpeciesCount = 0;
-          let beeSpeciesCount = 0;
-          let cetaceaSpeciesCount = 0;
-          let anuraSpeciesCount = 0;
-          let serpentesSpeciesCount = 0;
-          let turtleSpeciesCount = 0;
-          let rodentiaSpeciesCount = 0;
-          let primatesSpeciesCount = 0;
-
-          allSpeciesCounts.forEach((species) => {
-            const iconicTaxonName = species.taxon?.iconic_taxon_name;
-            if (
-              iconicTaxonName &&
-              iconicTaxonName in iconicTaxonSpeciesCounts
-            ) {
-              iconicTaxonSpeciesCounts[iconicTaxonName]++;
-            }
-
-            // Check ancestor_ids for specialty taxons
-            const ancestorIds = species.taxon?.ancestor_ids || [];
-            const taxonId = species.taxon?.id;
-
-            if (
-              ancestorIds.includes(SPECIALTY_TAXONS.lepidoptera) ||
-              taxonId === SPECIALTY_TAXONS.lepidoptera
-            ) {
-              lepidopteraSpeciesCount++;
-            }
-            if (
-              SPECIALTY_TAXONS.raptors.some(
-                (id) => ancestorIds.includes(id) || taxonId === id
-              )
-            ) {
-              raptorSpeciesCount++;
-            }
-            if (
-              ancestorIds.includes(SPECIALTY_TAXONS.coleoptera) ||
-              taxonId === SPECIALTY_TAXONS.coleoptera
-            ) {
-              beetleSpeciesCount++;
-            }
-            if (
-              ancestorIds.includes(SPECIALTY_TAXONS.anthophila) ||
-              taxonId === SPECIALTY_TAXONS.anthophila
-            ) {
-              beeSpeciesCount++;
-            }
-            if (
-              ancestorIds.includes(SPECIALTY_TAXONS.cetacea) ||
-              taxonId === SPECIALTY_TAXONS.cetacea
-            ) {
-              cetaceaSpeciesCount++;
-            }
-            if (
-              ancestorIds.includes(SPECIALTY_TAXONS.anura) ||
-              taxonId === SPECIALTY_TAXONS.anura
-            ) {
-              anuraSpeciesCount++;
-            }
-            if (
-              ancestorIds.includes(SPECIALTY_TAXONS.serpentes) ||
-              taxonId === SPECIALTY_TAXONS.serpentes
-            ) {
-              serpentesSpeciesCount++;
-            }
-            if (
-              ancestorIds.includes(SPECIALTY_TAXONS.testudines) ||
-              taxonId === SPECIALTY_TAXONS.testudines
-            ) {
-              turtleSpeciesCount++;
-            }
-            if (
-              ancestorIds.includes(SPECIALTY_TAXONS.rodentia) ||
-              taxonId === SPECIALTY_TAXONS.rodentia
-            ) {
-              rodentiaSpeciesCount++;
-            }
-            if (
-              ancestorIds.includes(SPECIALTY_TAXONS.primates) ||
-              taxonId === SPECIALTY_TAXONS.primates
-            ) {
-              primatesSpeciesCount++;
-            }
-          });
-
-          // Add animal iconic taxon counts to Animalia
-          const animalIconicTaxons = [
-            "Mollusca",
-            "Arachnida",
-            "Insecta",
-            "Actinopterygii",
-            "Amphibia",
-            "Reptilia",
-            "Aves",
-            "Mammalia",
-          ];
-          animalIconicTaxons.forEach((taxon) => {
-            iconicTaxonSpeciesCounts["Animalia"] +=
-              iconicTaxonSpeciesCounts[taxon] || 0;
-          });
-
-          // Threatened species count comes from the separate API call
-          const threatenedSpeciesCount = threatenedSpeciesCounts.length;
-
-          // Introduced species count comes from the separate API call
-          const introducedSpeciesCount = introducedSpeciesCounts;
-
-          // Endemic species count comes from the separate API call
-          const endemicSpeciesCount = endemicSpeciesCounts;
-          // Extract research grade count from quality_grades response
-          const researchGradeResult = researchGradeData.results?.find(
-            (r) => r.quality_grade === "research"
+          state.observedContinents = new Set(
+            continentResults.filter((r) => r.hasObservations).map((r) => r.continent)
           );
-          const researchGradeCount = researchGradeResult?.count || 0;
+          refreshAchievements();
 
-          // Get species count from allSpeciesCounts
-          const speciesCount = allSpeciesCounts.length;
-
-          // Get initial observation count from user data
-          const observationsTotalResults = user.observations_count || 0;
-
-          // Calculate histogram-based achievements
-          const histogramAchievements = calculateHistogramAchievements(
-            histogramData.results?.day || {}
-          );
-
-          // Calculate conservation status achievements from threatened species
-          const conservationStatusAchievements = {
-            nearThreatened10:
-              calculateStatusSpeciesAchievementFromSpeciesCounts(
-                threatenedSpeciesCounts,
-                ["nt", "near_threatened", "near threatened"],
-                10
-              ),
-            vulnerable10: calculateStatusSpeciesAchievementFromSpeciesCounts(
-              threatenedSpeciesCounts,
-              ["vu", "vulnerable"],
-              10
-            ),
-            endangered5: calculateStatusSpeciesAchievementFromSpeciesCounts(
-              threatenedSpeciesCounts,
-              ["en", "endangered"],
-              5
-            ),
-            criticallyEndangered1:
-              calculateStatusSpeciesAchievementFromSpeciesCounts(
-                threatenedSpeciesCounts,
-                ["cr", "critically_endangered", "critically endangered"],
-                1
-              ),
-            extinctInWild1: calculateStatusSpeciesAchievementFromSpeciesCounts(
-              threatenedSpeciesCounts,
-              ["ew", "extinct_in_the_wild", "extinct in the wild"],
-              1
-            ),
-            extinct1: calculateStatusSpeciesAchievementFromSpeciesCounts(
-              threatenedSpeciesCounts,
-              ["ex", "extinct"],
-              1
-            ),
-          };
-
-          // Calculate favorite achievements from favorite observations
-          const favoriteAchievements =
-            calculateFavoriteAchievements(favoriteObservations);
-
-          // Calculate rarity achievements from species counts
-          const rarityAchievements = {
-            onlyObserver:
-              calculateOnlyObserverAchievementFromSpeciesCounts(
-                allSpeciesCounts
-              ),
-            rareSpecies100: calculateRareSpeciesAchievementFromSpeciesCounts(
-              allSpeciesCounts,
-              100,
-              10
-            ),
-            rareSpecies10: calculateRareSpeciesAchievementFromSpeciesCounts(
-              allSpeciesCounts,
-              10,
-              10
-            ),
-            rareSpecies10_50: calculateRareSpeciesAchievementFromSpeciesCounts(
-              allSpeciesCounts,
-              10,
-              50
-            ),
-            rareSpecies100_100: calculateRareSpeciesAchievementFromSpeciesCounts(
-              allSpeciesCounts,
-              100,
-              100
-            ),
-          };
-
-          // Display achievements immediately with available data (without observations)
+          // Final progress update - hide loading
+          loadingCount.textContent = "100%";
           loading.style.display = "none";
-          let result = renderAchievements(
-            observationsTotalResults,
-            speciesCount,
-            identificationsCount,
-            idCategories,
-            maxSpeciesIdCount,
-            maxSpeciesName,
-            userCreatedAt,
-            iconicTaxonSpeciesCounts,
-            lepidopteraSpeciesCount,
-            raptorSpeciesCount,
-            beetleSpeciesCount,
-            beeSpeciesCount,
-            cetaceaSpeciesCount,
-            anuraSpeciesCount,
-            serpentesSpeciesCount,
-            turtleSpeciesCount,
-            rodentiaSpeciesCount,
-            primatesSpeciesCount,
-            threatenedSpeciesCount,
-            introducedSpeciesCount,
-            endemicSpeciesCount,
-            researchGradeCount,
-            histogramAchievements,
-            conservationStatusAchievements,
-            favoriteAchievements,
-            rarityAchievements,
-            soundObservationsCount,
-            soundPhotoObservationsCount,
-            annotatedObservationsCount,
-            projectsCount,
-            cncYears,
-            earlyBirdCount,
-            nightOwlCount,
-            observedContinents,
-            fromArchivesCount,
-            oldTimerCount,
-            observedGridCells,
-            observedGridSquares
-          );
-          achievementsContainer.innerHTML = result.html;
-
-          // Update achievements progress
-          let percentage = Math.round(
-            (result.completedCount / result.totalAchievements) * 100
-          );
-          achievementsProgress.textContent = `${result.completedCount}/${result.totalAchievements} (${percentage}%)`;
-          achievementsProgress.classList.add("show");
         } catch (error) {
           console.error("Error fetching user data:", error);
           loading.style.display = "none";
@@ -763,7 +658,7 @@
         }
       }
 
-      async function loadAllSpeciesCounts(userId, onProgress) {
+      async function loadAllSpeciesCounts(userId, onProgress, onPageLoaded) {
         const perPage = 500;
         let page = 1;
         let allSpecies = [];
@@ -779,8 +674,7 @@
             hasMore = false;
           } else {
             allSpecies = allSpecies.concat(data.results);
-
-            // Check if there are more pages
+            if (onPageLoaded) onPageLoaded(allSpecies);
             if (allSpecies.length >= data.total_results) {
               hasMore = false;
             } else {
@@ -792,7 +686,7 @@
         return allSpecies;
       }
 
-      async function loadThreatenedSpeciesCounts(userId, onProgress) {
+      async function loadThreatenedSpeciesCounts(userId, onProgress, onPageLoaded) {
         const perPage = 500;
         let page = 1;
         let allSpecies = [];
@@ -808,7 +702,7 @@
             hasMore = false;
           } else {
             allSpecies = allSpecies.concat(data.results);
-
+            if (onPageLoaded) onPageLoaded(allSpecies);
             if (allSpecies.length >= data.total_results) {
               hasMore = false;
             } else {
