@@ -403,96 +403,103 @@
         onFirstFound,
         onProgress
       ) {
-        // taxaMap: Map of taxon_id -> taxon data
-        // Returns when all taxa have been checked
+        const PARALLEL_REQUESTS = 3;
+        const BATCH_SIZE = 200;
 
         const totalTaxa = Array.from(taxaMap.entries()); // All taxa to process
-        const currentBatch = new Map(); // Current batch being checked (up to 200)
-        const foundFirstObs = new Map(); // taxon_id -> first observation data
+        const currentBatches = [new Map(), new Map(), new Map()]; // 3 parallel batches
+        const foundFirstObs = new Map();
         let processedCount = 0;
         let apiCalls = 0;
 
-        console.log("=== Starting batch processing ===");
-        console.log("Total taxa to process:", totalTaxa.length);
+        while (totalTaxa.length > 0 || currentBatches.some((b) => b.size > 0)) {
+          // If less than 200 taxa left, use single batch
+          const useSingleBatch = totalTaxa.length < BATCH_SIZE && currentBatches.every((b) => b.size === 0);
 
-        while (totalTaxa.length > 0 || currentBatch.size > 0) {
-          // Fill currentBatch up to 200 from totalTaxa
-          const addedToBatch = [];
-          while (currentBatch.size < 200 && totalTaxa.length > 0) {
-            const [id, taxon] = totalTaxa.shift();
-            currentBatch.set(id, taxon);
-            addedToBatch.push(id);
+          if (useSingleBatch) {
+            // Load everything in one call
+            const singleBatch = currentBatches[0];
+            while (totalTaxa.length > 0) {
+              const [id, taxon] = totalTaxa.shift();
+              singleBatch.set(id, taxon);
+            }
+          } else {
+            // Fill each batch up to BATCH_SIZE from totalTaxa
+            for (const batch of currentBatches) {
+              while (batch.size < BATCH_SIZE && totalTaxa.length > 0) {
+                const [id, taxon] = totalTaxa.shift();
+                batch.set(id, taxon);
+              }
+            }
           }
 
-          if (addedToBatch.length > 0) {
-            console.log(`Added ${addedToBatch.length} taxa to currentBatch:`, addedToBatch);
-          }
+          // Filter to only non-empty batches
+          const activeBatches = currentBatches.filter((b) => b.size > 0);
+          if (activeBatches.length === 0) break;
 
-          console.log("--- Loop iteration ---");
-          console.log("totalTaxa remaining:", totalTaxa.length);
-          console.log("currentBatch size:", currentBatch.size);
-          console.log("currentBatch IDs:", Array.from(currentBatch.keys()));
-
-          if (currentBatch.size === 0) break;
-
-          const batchIds = Array.from(currentBatch.keys());
-          const url = `${API_BASE}/observations?taxon_id=${batchIds.join(
-            ","
-          )}&per_page=200&order_by=observed_on&order=asc&verifiable=true`;
-
-          apiCalls++;
+          apiCalls += activeBatches.length;
           onProgress(processedCount, taxaMap.size, apiCalls);
 
-          console.log("Fetching observations for batch...");
-          const data = await fetchJSON(url);
-          console.log("Results returned:", data.results?.length || 0);
+          // Fetch all batches in parallel
+          const results = await Promise.all(
+            activeBatches.map(async (batch, index) => {
+              const batchIds = Array.from(batch.keys());
+              const url = `${API_BASE}/observations?taxon_id=${batchIds.join(",")}&per_page=200&order_by=observed_on&order=asc&verifiable=true`;
 
-          if (data.results && data.results.length > 0) {
-            const removedThisIteration = [];
-            for (const obs of data.results) {
-              const taxonId = obs.taxon?.id;
+              try {
+                const data = await fetchJSON(url);
+                return { batch, data, index };
+              } catch (e) {
+                console.error("Error fetching batch:", e);
+                return { batch, data: { results: [] }, index };
+              }
+            })
+          );
 
-              // Check if this taxon is in currentBatch and we haven't found its first obs yet
-              if (
-                taxonId &&
-                currentBatch.has(taxonId) &&
-                !foundFirstObs.has(taxonId)
-              ) {
-                const taxon = currentBatch.get(taxonId);
-                const isFirst =
-                  obs.user?.login?.toLowerCase() === username.toLowerCase();
+          // Process results from each batch
+          for (const { batch, data } of results) {
+            const foundInBatch = new Set();
 
-                foundFirstObs.set(taxonId, {
-                  isFirst,
-                  observationId: obs.id,
-                  observedOn: obs.observed_on,
-                  imageUrl: obs.photos?.[0]?.url?.replace("square", "small"),
-                  firstObserver: obs.user?.login,
-                });
+            if (data.results && data.results.length > 0) {
+              for (const obs of data.results) {
+                const taxonId = obs.taxon?.id;
 
-                // Remove from currentBatch (found its first obs)
-                currentBatch.delete(taxonId);
-                removedThisIteration.push({ id: taxonId, name: taxon.name, isFirst });
-                processedCount++;
+                if (taxonId && batch.has(taxonId) && !foundFirstObs.has(taxonId)) {
+                  const taxon = batch.get(taxonId);
+                  const isFirst =
+                    obs.user?.login?.toLowerCase() === username.toLowerCase();
 
-                // Notify if this user is the first observer
-                if (isFirst) {
-                  onFirstFound(taxon, foundFirstObs.get(taxonId));
+                  foundFirstObs.set(taxonId, {
+                    isFirst,
+                    observationId: obs.id,
+                    observedOn: obs.observed_on,
+                    imageUrl: obs.photos?.[0]?.url?.replace("square", "small"),
+                    firstObserver: obs.user?.login,
+                  });
+
+                  foundInBatch.add(taxonId);
+                  processedCount++;
+
+                  if (isFirst) {
+                    onFirstFound(taxon, foundFirstObs.get(taxonId));
+                  }
                 }
               }
             }
-            console.log(`Removed ${removedThisIteration.length} taxa from currentBatch:`, removedThisIteration);
-          }
 
-          console.log("After processing - currentBatch size:", currentBatch.size);
-          console.log("processedCount:", processedCount);
+            // Move taxa not found to the bottom of totalTaxa
+            for (const [taxonId, taxon] of batch) {
+              if (!foundInBatch.has(taxonId)) {
+                totalTaxa.push([taxonId, taxon]);
+              }
+            }
+
+            // Clear the batch
+            batch.clear();
+          }
         }
 
-        console.log("=== Batch processing complete ===");
-        console.log("Total processed:", processedCount);
-        console.log("Total first observations found:", foundFirstObs.size);
-
-        return foundFirstObs;
+        onProgress(processedCount, taxaMap.size, apiCalls);
       }
 
       function updateProgress(percent, text, currentSpecies) {
@@ -585,15 +592,22 @@
             return;
           }
 
+          // Step 2: Sort by global observation count (rarest first)
+          allTaxa.sort(
+            (a, b) =>
+              (a.taxon.observations_count || 0) -
+              (b.taxon.observations_count || 0)
+          );
+
           updateProgress(0, `Found ${allTaxa.length} taxa to check`, "");
 
-          // Step 2: Build taxa map for batch processing
+          // Step 3: Build taxa map for batch processing
           const taxaMap = new Map();
           for (const { taxon } of allTaxa) {
             taxaMap.set(taxon.id, taxon);
           }
 
-          // Step 3: Batch check for first observers
+          // Step 4: Batch check for first observers
           await checkFirstObserversBatch(
             username,
             taxaMap,
