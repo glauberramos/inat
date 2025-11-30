@@ -482,7 +482,7 @@
                     },
                     observationId: obs.id,
                     observedOn: obs.observed_on,
-                    imageUrl: obs.photos?.[0]?.url?.replace("square", "small") || obsTaxon.default_photo?.medium_url,
+                    imageUrl: obs.photos?.[0]?.url || obsTaxon.default_photo?.square_url,
                   };
                   results.set(taxonId, result);
                   foundInBatch.add(taxonId);
