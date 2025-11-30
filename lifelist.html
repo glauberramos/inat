@@ -261,7 +261,7 @@
 
     <h1>Lifelist Timeline</h1>
     <p class="subtitle">
-      View all species a user has observed, ordered by the date they first saw each species.
+      View all species a user has observed, from most recent to oldest first observation.
     </p>
 
     <div class="search-container">
@@ -664,16 +664,14 @@
               );
             },
             (result) => {
-              // Add result as it's found
+              // Add result as it's found (unsorted for performance)
               foundCount++;
               allResults.push(result);
               updateResultsCount(foundCount);
-
-              // Add to display immediately (will be re-sorted at the end)
               addResultItem({
                 taxonId: result.taxon.id,
                 taxonName: result.taxon.name,
-                commonName: result.taxon.preferred_common_name || result.taxon.name,
+                commonName: result.taxon.preferred_common_name,
                 observationId: result.observationId,
                 observedOn: result.observedOn,
                 imageUrl: result.imageUrl,
@@ -686,7 +684,7 @@
 
           const sortedLifelist = allResults
             .filter(item => item.observedOn)
-            .sort((a, b) => new Date(a.observedOn) - new Date(b.observedOn));
+            .sort((a, b) => new Date(b.observedOn) - new Date(a.observedOn));
 
           updateResultsCount(sortedLifelist.length);
 
