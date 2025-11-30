@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>First Observer Checker</title>
+    <meta
+      name="description"
+      content="Find species where you were the first to observe them on iNaturalist."
+    />
     <style>
       * {
         box-sizing: border-box;
@@ -238,9 +242,7 @@
 
     <h1>First Observer Checker</h1>
     <p class="subtitle">
-      Find species where a user was the first to observe them on iNaturalist.
-      Checks the rarest 500 species (≤500 global obs), all subspecies, and
-      the 50 oldest observations.
+      Find species where you were the first to observe them on iNaturalist.
     </p>
 
     <div class="search-container">
@@ -276,7 +278,6 @@
     <script>
       const API_BASE = "https://api.inaturalist.org/v1";
       const DELAY_MS = 1000;
-      const MAX_OBSERVATIONS_THRESHOLD = 500; // Only check species with 500 or less observations
 
       let isSearching = false;
       let searchTimeout = null;
@@ -319,7 +320,9 @@
                 (user) => `
             <div class="autocomplete-item" data-login="${user.login}">
               <div class="autocomplete-name">${user.login}</div>
-              <div class="autocomplete-login">${user.name || ""} · ${(user.observations_count || 0).toLocaleString()} observations</div>
+              <div class="autocomplete-login">${user.name || ""} · ${(
+                  user.observations_count || 0
+                ).toLocaleString()} observations</div>
             </div>
           `
               )
@@ -370,103 +373,126 @@
       }
 
       async function getUserSpeciesCounts(username) {
-        const allSpecies = [];
-        const perPage = 500;
-        let page = 1;
+        updateProgress(0, "Fetching species list...", "");
 
-        while (true) {
-          const url = `${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&page=${page}&verifiable=true`;
-
-          updateProgress(0, `Fetching species list (page ${page})...`, "");
-
-          const data = await fetchJSON(url);
-
-          if (!data.results || data.results.length === 0) {
-            break;
-          }
-
-          allSpecies.push(...data.results);
-
-          if (data.results.length < perPage) {
-            break;
-          }
-
-          page++;
-          await sleep(500);
-        }
-
-        return allSpecies;
-      }
-
-      async function getSubspeciesTaxa(username) {
-        const taxaMap = new Map();
-        const perPage = 200;
-        let page = 1;
-        let totalFetched = 0;
-
-        while (true) {
-          // Use hrank=subspecies to only get observations at subspecies rank or below
-          const url = `${API_BASE}/observations?user_login=${username}&per_page=${perPage}&page=${page}&verifiable=true&order_by=observed_on&order=asc&hrank=subspecies`;
-
-          updateProgress(0, `Fetching subspecies observations (${totalFetched} obs, ${taxaMap.size} unique taxa)...`, "");
-
-          const data = await fetchJSON(url);
-
-          if (!data.results || data.results.length === 0) {
-            break;
-          }
-
-          // Extract unique taxa
-          for (const obs of data.results) {
-            const taxon = obs.taxon;
-            if (taxon && taxon.id) {
-              if (!taxaMap.has(taxon.id)) {
-                taxaMap.set(taxon.id, {
-                  taxon: {
-                    id: taxon.id,
-                    name: taxon.name,
-                    rank: taxon.rank,
-                    rank_level: taxon.rank_level,
-                    observations_count: taxon.observations_count || 0,
-                    preferred_common_name: taxon.preferred_common_name,
-                    default_photo: taxon.default_photo
-                  }
-                });
-              }
-            }
-          }
-
-          totalFetched += data.results.length;
-
-          if (data.results.length < perPage) {
-            break;
-          }
-
-          page++;
-          await sleep(500);
-        }
-
-        return Array.from(taxaMap.values());
-      }
-
-      async function checkFirstObserver(username, taxonId) {
-        const url = `${API_BASE}/observations?taxon_id=${taxonId}&order=asc&order_by=observed_on&per_page=1&verifiable=true`;
+        const url = `${API_BASE}/observations/taxonomy?user_login=${username}&verifiable=true`;
         const data = await fetchJSON(url);
 
-        if (data.results && data.results.length > 0) {
-          const firstObs = data.results[0];
-          const isFirst =
-            firstObs.user?.login?.toLowerCase() === username.toLowerCase();
-          return {
-            isFirst,
-            observationId: firstObs.id,
-            observedOn: firstObs.observed_on,
-            imageUrl: firstObs.photos?.[0]?.url?.replace("square", "small"),
-            firstObserver: firstObs.user?.login,
-          };
+        if (!data.results) {
+          return [];
         }
 
-        return { isFirst: false };
+        // Filter to species and subspecies, format to match expected structure
+        return data.results
+          .filter((item) => item.rank === "species" || item.rank === "subspecies")
+          .map((item) => ({
+            taxon: {
+              id: item.id,
+              name: item.name,
+              rank: item.rank,
+              observations_count: item.direct_obs_count || 0,
+              preferred_common_name: item.preferred_common_name,
+              default_photo: item.default_photo,
+            },
+          }));
+      }
+
+      async function checkFirstObserversBatch(
+        username,
+        taxaMap,
+        onFirstFound,
+        onProgress
+      ) {
+        // taxaMap: Map of taxon_id -> taxon data
+        // Returns when all taxa have been checked
+
+        const totalTaxa = Array.from(taxaMap.entries()); // All taxa to process
+        const currentBatch = new Map(); // Current batch being checked (up to 200)
+        const foundFirstObs = new Map(); // taxon_id -> first observation data
+        let processedCount = 0;
+        let apiCalls = 0;
+
+        console.log("=== Starting batch processing ===");
+        console.log("Total taxa to process:", totalTaxa.length);
+
+        while (totalTaxa.length > 0 || currentBatch.size > 0) {
+          // Fill currentBatch up to 200 from totalTaxa
+          const addedToBatch = [];
+          while (currentBatch.size < 200 && totalTaxa.length > 0) {
+            const [id, taxon] = totalTaxa.shift();
+            currentBatch.set(id, taxon);
+            addedToBatch.push(id);
+          }
+
+          if (addedToBatch.length > 0) {
+            console.log(`Added ${addedToBatch.length} taxa to currentBatch:`, addedToBatch);
+          }
+
+          console.log("--- Loop iteration ---");
+          console.log("totalTaxa remaining:", totalTaxa.length);
+          console.log("currentBatch size:", currentBatch.size);
+          console.log("currentBatch IDs:", Array.from(currentBatch.keys()));
+
+          if (currentBatch.size === 0) break;
+
+          const batchIds = Array.from(currentBatch.keys());
+          const url = `${API_BASE}/observations?taxon_id=${batchIds.join(
+            ","
+          )}&per_page=200&order_by=observed_on&order=asc&verifiable=true`;
+
+          apiCalls++;
+          onProgress(processedCount, taxaMap.size, apiCalls);
+
+          console.log("Fetching observations for batch...");
+          const data = await fetchJSON(url);
+          console.log("Results returned:", data.results?.length || 0);
+
+          if (data.results && data.results.length > 0) {
+            const removedThisIteration = [];
+            for (const obs of data.results) {
+              const taxonId = obs.taxon?.id;
+
+              // Check if this taxon is in currentBatch and we haven't found its first obs yet
+              if (
+                taxonId &&
+                currentBatch.has(taxonId) &&
+                !foundFirstObs.has(taxonId)
+              ) {
+                const taxon = currentBatch.get(taxonId);
+                const isFirst =
+                  obs.user?.login?.toLowerCase() === username.toLowerCase();
+
+                foundFirstObs.set(taxonId, {
+                  isFirst,
+                  observationId: obs.id,
+                  observedOn: obs.observed_on,
+                  imageUrl: obs.photos?.[0]?.url?.replace("square", "small"),
+                  firstObserver: obs.user?.login,
+                });
+
+                // Remove from currentBatch (found its first obs)
+                currentBatch.delete(taxonId);
+                removedThisIteration.push({ id: taxonId, name: taxon.name, isFirst });
+                processedCount++;
+
+                // Notify if this user is the first observer
+                if (isFirst) {
+                  onFirstFound(taxon, foundFirstObs.get(taxonId));
+                }
+              }
+            }
+            console.log(`Removed ${removedThisIteration.length} taxa from currentBatch:`, removedThisIteration);
+          }
+
+          console.log("After processing - currentBatch size:", currentBatch.size);
+          console.log("processedCount:", processedCount);
+        }
+
+        console.log("=== Batch processing complete ===");
+        console.log("Total processed:", processedCount);
+        console.log("Total first observations found:", foundFirstObs.size);
+
+        return foundFirstObs;
       }
 
       function updateProgress(percent, text, currentSpecies) {
@@ -496,7 +522,8 @@
         const listEl = document.getElementById("speciesList");
         const li = document.createElement("li");
         li.className = "species-item";
-        const rankLabel = sp.rank && sp.rank !== "species" ? ` (${sp.rank})` : "";
+        const rankLabel =
+          sp.rank && sp.rank !== "species" ? ` (${sp.rank})` : "";
         li.innerHTML = `
         <img class="species-image" src="${
           sp.imageUrl || "https://via.placeholder.com/80?text=No+Image"
@@ -547,10 +574,10 @@
         let firstObserverCount = 0;
 
         try {
-          // Step 1: Get all species counts for the user
-          const allSpecies = await getUserSpeciesCounts(username);
+          // Step 1: Get all species and subspecies for the user
+          const allTaxa = await getUserSpeciesCounts(username);
 
-          if (allSpecies.length === 0) {
+          if (allTaxa.length === 0) {
             showError("No observations found for this user");
             document.getElementById("progress").style.display = "none";
             isSearching = false;
@@ -558,111 +585,20 @@
             return;
           }
 
-          // Step 2: Get all subspecies/lower ranks
-          const subspeciesTaxa = await getSubspeciesTaxa(username);
+          updateProgress(0, `Found ${allTaxa.length} taxa to check`, "");
 
-          // Step 3: Get oldest 50 observations (more likely to be first observer)
-          updateProgress(0, "Fetching oldest 50 observations...", "");
-          const oldestObsUrl = `${API_BASE}/observations?user_login=${username}&per_page=50&page=1&verifiable=true&order_by=observed_on&order=asc`;
-          const oldestObsData = await fetchJSON(oldestObsUrl);
-          const oldestTaxa = [];
-          if (oldestObsData.results) {
-            for (const obs of oldestObsData.results) {
-              const taxon = obs.taxon;
-              if (taxon && taxon.id && taxon.rank_level <= 10) {
-                oldestTaxa.push({
-                  taxon: {
-                    id: taxon.id,
-                    name: taxon.name,
-                    rank: taxon.rank,
-                    rank_level: taxon.rank_level,
-                    observations_count: taxon.observations_count || 0,
-                    preferred_common_name: taxon.preferred_common_name,
-                    default_photo: taxon.default_photo
-                  }
-                });
-              }
-            }
+          // Step 2: Build taxa map for batch processing
+          const taxaMap = new Map();
+          for (const { taxon } of allTaxa) {
+            taxaMap.set(taxon.id, taxon);
           }
 
-          // Combine: rare species + rare subspecies (avoid duplicates)
-          const checkedTaxonIds = new Set();
-          const taxaToCheck = [];
-
-          // Filter and sort species by observations_count (ascending), take bottom 500
-          const rareSpeciesList = allSpecies
-            .filter(item => item.taxon && (item.taxon.observations_count || 0) <= MAX_OBSERVATIONS_THRESHOLD)
-            .sort((a, b) => (a.taxon.observations_count || 0) - (b.taxon.observations_count || 0))
-            .slice(0, 500);
-
-          // Add rare species
-          for (const item of rareSpeciesList) {
-            const taxon = item.taxon;
-            if (!checkedTaxonIds.has(taxon.id)) {
-              checkedTaxonIds.add(taxon.id);
-              taxaToCheck.push({ taxon, source: 'species' });
-            }
-          }
-
-          const rareSpeciesCount = taxaToCheck.length;
-
-          // Add rare subspecies/lower ranks (≤500 global obs)
-          for (const item of subspeciesTaxa) {
-            const taxon = item.taxon;
-            if (taxon && (taxon.observations_count || 0) <= MAX_OBSERVATIONS_THRESHOLD) {
-              if (!checkedTaxonIds.has(taxon.id)) {
-                checkedTaxonIds.add(taxon.id);
-                taxaToCheck.push({ taxon, source: 'subspecies' });
-              }
-            }
-          }
-
-          const rareSubspeciesCount = taxaToCheck.length - rareSpeciesCount;
-
-          // Add oldest observations taxa (no obs count filter - check all)
-          for (const item of oldestTaxa) {
-            const taxon = item.taxon;
-            if (taxon && !checkedTaxonIds.has(taxon.id)) {
-              checkedTaxonIds.add(taxon.id);
-              taxaToCheck.push({ taxon, source: 'oldest' });
-            }
-          }
-
-          const oldestCount = taxaToCheck.length - rareSpeciesCount - rareSubspeciesCount;
-
-          updateProgress(
-            0,
-            `Found ${rareSpeciesCount} rare species + ${rareSubspeciesCount} subspecies + ${oldestCount} oldest (${taxaToCheck.length} total to check)`,
-            ""
-          );
-
-          if (taxaToCheck.length === 0) {
-            document.getElementById("progress").style.display = "none";
-            showNoResults();
-            isSearching = false;
-            document.getElementById("searchBtn").disabled = false;
-            return;
-          }
-
-          await sleep(1000);
-
-          // Step 3: Check each rare taxon for first observer
-          for (let i = 0; i < taxaToCheck.length; i++) {
-            const { taxon } = taxaToCheck[i];
-            const globalCount = taxon.observations_count || 0;
-            const commonName = taxon.preferred_common_name || taxon.name;
-            const percent = Math.round(((i + 1) / taxaToCheck.length) * 100);
-
-            updateProgress(
-              percent,
-              `Checking ${i + 1} of ${taxaToCheck.length} taxa (${firstObserverCount} first obs found)...`,
-              `${commonName} (${taxon.name})`
-            );
-
-            const result = await checkFirstObserver(username, taxon.id);
-            await sleep(DELAY_MS);
-
-            if (result.isFirst) {
+          // Step 3: Batch check for first observers
+          await checkFirstObserversBatch(
+            username,
+            taxaMap,
+            // onFirstFound callback
+            (taxon, result) => {
               firstObserverCount++;
               updateResultsCount(firstObserverCount);
               addResultItem({
@@ -673,12 +609,21 @@
                 observationId: result.observationId,
                 observedOn: result.observedOn,
                 imageUrl: result.imageUrl || taxon.default_photo?.medium_url,
-                totalObservations: globalCount,
+                totalObservations: taxon.observations_count || 0,
               });
+            },
+            // onProgress callback
+            (checked, total, apiCalls) => {
+              const percent = Math.round((checked / total) * 100);
+              updateProgress(
+                percent,
+                `Checking first observers: ${checked}/${total} taxa (${apiCalls} batches, ${firstObserverCount} found)`,
+                ""
+              );
             }
-          }
+          );
 
-          // Step 4: Finalize
+          // Step 5: Finalize
           document.getElementById("progress").style.display = "none";
           showNoResults();
         } catch (error) {
