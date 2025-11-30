@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lifelist Timeline</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        padding-top: 70px;
+        background: #f5f5f5;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .subtitle {
+        color: #666;
+        margin-bottom: 20px;
+      }
+      .search-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        position: relative;
+      }
+      .input-wrapper {
+        flex: 1;
+        position: relative;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+      }
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #74ac00;
+      }
+      .autocomplete {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+        display: none;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .autocomplete.active {
+        display: block;
+      }
+      .autocomplete-item {
+        padding: 10px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+      }
+      .autocomplete-item:last-child {
+        border-bottom: none;
+      }
+      .autocomplete-item:hover {
+        background: #f5f5f5;
+      }
+      .autocomplete-name {
+        font-weight: 600;
+        color: #333;
+      }
+      .autocomplete-login {
+        font-size: 13px;
+        color: #666;
+      }
+      button {
+        padding: 12px 24px;
+        font-size: 16px;
+        background: #74ac00;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #5a8a00;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      .progress-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+      .progress-bar-bg {
+        background: #eee;
+        border-radius: 4px;
+        height: 24px;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+      .progress-bar {
+        background: #74ac00;
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s;
+      }
+      .progress-text {
+        color: #666;
+        font-size: 14px;
+      }
+      .current-check {
+        color: #999;
+        font-size: 13px;
+        margin-top: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .results-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        display: none;
+      }
+      .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .results-count {
+        font-size: 18px;
+        font-weight: bold;
+        color: #74ac00;
+      }
+      .species-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .species-item {
+        padding: 8px 12px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+        transition: background 0.2s;
+      }
+      .species-item:hover {
+        background: #f9f9f9;
+      }
+      .species-item:last-child {
+        border-bottom: none;
+      }
+      .species-number {
+        font-size: 14px;
+        font-weight: bold;
+        color: #74ac00;
+        min-width: 40px;
+        text-align: right;
+      }
+      .species-image {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 6px;
+        background: #eee;
+      }
+      .species-info {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+      .species-name {
+        font-weight: 600;
+        color: #333;
+        white-space: nowrap;
+      }
+      .species-scientific {
+        font-style: italic;
+        color: #666;
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .species-date {
+        color: #999;
+        font-size: 12px;
+        white-space: nowrap;
+        margin-left: auto;
+      }
+      .no-results {
+        text-align: center;
+        color: #666;
+        padding: 40px;
+      }
+      .error {
+        background: #fee;
+        color: #c00;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+      .year-separator {
+        background: #74ac00;
+        color: white;
+        padding: 10px 15px;
+        font-weight: bold;
+        font-size: 18px;
+        border-radius: 8px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <a
+      href="/inat"
+      style="
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: #74ac00;
+        color: white;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 10px 16px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s;
+      "
+      onmouseover="this.style.background='#659900'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.2)'"
+      onmouseout="this.style.background='#74ac00'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.15)'"
+    >
+      <span style="font-size: 1rem">←</span> More iNat tools
+    </a>
+
+    <h1>Lifelist Timeline</h1>
+    <p class="subtitle">
+      View all species a user has observed, ordered by the date they first saw each species.
+    </p>
+
+    <div class="search-container">
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="username"
+          placeholder="Enter iNaturalist username"
+          autocomplete="off"
+        />
+        <div class="autocomplete" id="autocomplete"></div>
+      </div>
+      <button id="searchBtn" onclick="startSearch()">Load Lifelist</button>
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <div class="progress-container" id="progress">
+      <div class="progress-bar-bg">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="progress-text" id="progressText">Loading...</div>
+      <div class="current-check" id="currentCheck"></div>
+    </div>
+
+    <div class="results-container" id="results">
+      <div class="results-header">
+        <span class="results-count" id="resultsCount"></span>
+        <button id="downloadBtn" onclick="downloadCSV()" style="display:none; padding: 8px 16px; font-size: 14px;">Download CSV</button>
+      </div>
+      <ul class="species-list" id="speciesList"></ul>
+    </div>
+
+    <script>
+      const API_BASE = "https://api.inaturalist.org/v1";
+
+      let isSearching = false;
+      let searchTimeout = null;
+      let lifelistData = []; // Store lifelist for CSV export
+
+      const usernameInput = document.getElementById("username");
+      const autocompleteEl = document.getElementById("autocomplete");
+
+      // Load saved username
+      const savedUsername = localStorage.getItem("inatUsername");
+      if (savedUsername) {
+        usernameInput.value = savedUsername;
+      }
+
+      // Username autocomplete
+      usernameInput.addEventListener("input", (e) => {
+        clearTimeout(searchTimeout);
+        const query = e.target.value.trim();
+
+        if (query.length < 2) {
+          autocompleteEl.innerHTML = "";
+          autocompleteEl.classList.remove("active");
+          return;
+        }
+
+        searchTimeout = setTimeout(() => searchUsers(query), 300);
+      });
+
+      async function searchUsers(query) {
+        try {
+          const response = await fetch(
+            `${API_BASE}/users/autocomplete?q=${encodeURIComponent(
+              query
+            )}&per_page=10`
+          );
+          const data = await response.json();
+
+          if (data.results && data.results.length > 0) {
+            autocompleteEl.innerHTML = data.results
+              .map(
+                (user) => `
+            <div class="autocomplete-item" data-login="${user.login}">
+              <div class="autocomplete-name">${user.login}</div>
+              <div class="autocomplete-login">${user.name || ""} · ${(user.observations_count || 0).toLocaleString()} observations</div>
+            </div>
+          `
+              )
+              .join("");
+
+            autocompleteEl
+              .querySelectorAll(".autocomplete-item")
+              .forEach((item) => {
+                item.addEventListener("click", () => {
+                  usernameInput.value = item.dataset.login;
+                  localStorage.setItem("inatUsername", item.dataset.login);
+                  autocompleteEl.classList.remove("active");
+                });
+              });
+
+            autocompleteEl.classList.add("active");
+          } else {
+            autocompleteEl.innerHTML = "";
+            autocompleteEl.classList.remove("active");
+          }
+        } catch (error) {
+          console.error("Error searching users:", error);
+        }
+      }
+
+      // Hide autocomplete when clicking outside
+      document.addEventListener("click", (e) => {
+        if (
+          !usernameInput.contains(e.target) &&
+          !autocompleteEl.contains(e.target)
+        ) {
+          autocompleteEl.classList.remove("active");
+        }
+      });
+
+      async function fetchJSON(url) {
+        const response = await fetch(url, {
+          headers: { Accept: "application/json" },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+      }
+
+      async function getUserSpeciesCounts(username) {
+        updateProgress(0, "Fetching species list...", "");
+
+        const url = `${API_BASE}/observations/taxonomy?user_login=${username}&verifiable=true`;
+        const data = await fetchJSON(url);
+
+        if (!data.results) {
+          return [];
+        }
+
+        // Filter to species and subspecies, format to match expected structure
+        return data.results
+          .filter((item) => item.rank === "species" || item.rank === "subspecies")
+          .map((item) => ({
+            taxon: {
+              id: item.id,
+              name: item.name,
+              rank: item.rank,
+              observations_count: item.direct_obs_count || 0,
+              preferred_common_name: item.preferred_common_name,
+              default_photo: item.default_photo,
+            },
+          }));
+      }
+
+      async function getFirstObservationsBatch(username, taxaMap, onProgress, onFound) {
+        const PARALLEL_REQUESTS = 3;
+        const BATCH_SIZE = 200;
+        const MAX_RETRIES = 3;
+
+        const totalTaxa = Array.from(taxaMap.entries());
+        const currentBatches = [new Map(), new Map(), new Map()];
+        const results = new Map();
+        const retryCount = new Map(); // Track retries per taxon
+        let processedCount = 0;
+        let apiCalls = 0;
+
+        while (totalTaxa.length > 0 || currentBatches.some((b) => b.size > 0)) {
+          // If less than 200 taxa left, use single batch
+          const useSingleBatch = totalTaxa.length < BATCH_SIZE && currentBatches.every((b) => b.size === 0);
+
+          if (useSingleBatch) {
+            const singleBatch = currentBatches[0];
+            while (totalTaxa.length > 0) {
+              const [id, taxon] = totalTaxa.shift();
+              singleBatch.set(id, taxon);
+            }
+          } else {
+            for (const batch of currentBatches) {
+              while (batch.size < BATCH_SIZE && totalTaxa.length > 0) {
+                const [id, taxon] = totalTaxa.shift();
+                batch.set(id, taxon);
+              }
+            }
+          }
+
+          const activeBatches = currentBatches.filter((b) => b.size > 0);
+          if (activeBatches.length === 0) break;
+
+          apiCalls += activeBatches.length;
+          onProgress(processedCount, taxaMap.size, apiCalls);
+
+          // Fetch all batches in parallel
+          const batchResults = await Promise.all(
+            activeBatches.map(async (batch) => {
+              const batchIds = Array.from(batch.keys());
+              const url = `${API_BASE}/observations?user_login=${username}&taxon_id=${batchIds.join(",")}&per_page=200&order_by=observed_on&order=asc&verifiable=true`;
+
+              try {
+                const data = await fetchJSON(url);
+                return { batch, data };
+              } catch (e) {
+                console.error("Error fetching batch:", e);
+                return { batch, data: { results: [] } };
+              }
+            })
+          );
+
+          // Process results from each batch
+          for (const { batch, data } of batchResults) {
+            const foundInBatch = new Set();
+
+            if (data.results && data.results.length > 0) {
+              for (const obs of data.results) {
+                const taxonId = obs.taxon?.id;
+
+                if (taxonId && batch.has(taxonId) && !results.has(taxonId)) {
+                  const taxon = batch.get(taxonId);
+                  const obsTaxon = obs.taxon || {};
+                  const result = {
+                    taxon: {
+                      ...taxon,
+                      preferred_common_name: obsTaxon.preferred_common_name,
+                    },
+                    observationId: obs.id,
+                    observedOn: obs.observed_on,
+                    imageUrl: obs.photos?.[0]?.url?.replace("square", "small") || obsTaxon.default_photo?.medium_url,
+                  };
+                  results.set(taxonId, result);
+                  foundInBatch.add(taxonId);
+                  processedCount++;
+
+                  if (onFound) {
+                    onFound(result);
+                  }
+                }
+              }
+            }
+
+            // Move taxa not found to the bottom of totalTaxa (with retry limit)
+            for (const [taxonId, taxon] of batch) {
+              if (!foundInBatch.has(taxonId)) {
+                const retries = (retryCount.get(taxonId) || 0) + 1;
+                retryCount.set(taxonId, retries);
+
+                if (retries < MAX_RETRIES) {
+                  totalTaxa.push([taxonId, taxon]);
+                } else {
+                  // Give up on this taxon after max retries
+                  processedCount++;
+                }
+              }
+            }
+
+            batch.clear();
+          }
+        }
+
+        onProgress(processedCount, taxaMap.size, apiCalls);
+        return results;
+      }
+
+      function updateProgress(percent, text, currentSpecies) {
+        document.getElementById("progressBar").style.width = percent + "%";
+        document.getElementById("progressText").textContent = text;
+        document.getElementById("currentCheck").textContent = currentSpecies;
+      }
+
+      function showError(message) {
+        const errorEl = document.getElementById("error");
+        errorEl.textContent = message;
+        errorEl.style.display = "block";
+      }
+
+      function hideError() {
+        document.getElementById("error").style.display = "none";
+      }
+
+      function updateResultsCount(count) {
+        const countEl = document.getElementById("resultsCount");
+        countEl.textContent = `${count} species in lifelist`;
+      }
+
+      function addYearSeparator(year) {
+        const listEl = document.getElementById("speciesList");
+        const li = document.createElement("li");
+        li.className = "year-separator";
+        li.textContent = year;
+        listEl.appendChild(li);
+      }
+
+      function addResultItem(sp, number) {
+        const listEl = document.getElementById("speciesList");
+        const a = document.createElement("a");
+        a.className = "species-item";
+        a.href = `https://www.inaturalist.org/observations/${sp.observationId}`;
+        a.target = "_blank";
+
+        const hasCommonName = sp.commonName && sp.commonName !== sp.taxonName;
+        const nameDisplay = hasCommonName
+          ? `<span class="species-name">${sp.commonName}</span><span class="species-scientific">${sp.taxonName}</span>`
+          : `<span class="species-name">${sp.taxonName}</span>`;
+
+        a.innerHTML = `
+        <div class="species-number">#${number}</div>
+        <img class="species-image" src="${
+          sp.imageUrl || "https://via.placeholder.com/40?text=?"
+        }" alt="${sp.commonName || sp.taxonName}">
+        <div class="species-info">
+          ${nameDisplay}
+          <span class="species-date">${sp.observedOn}</span>
+        </div>
+      `;
+        listEl.appendChild(a);
+      }
+
+      function showNoResults() {
+        const listEl = document.getElementById("speciesList");
+        if (listEl.children.length === 0) {
+          listEl.innerHTML =
+            '<li class="no-results">No species found for this user.</li>';
+        }
+      }
+
+      function downloadCSV() {
+        if (lifelistData.length === 0) return;
+
+        const username = document.getElementById("username").value.trim();
+        const headers = ["Number", "Common Name", "Scientific Name", "Date", "Observation URL"];
+        const rows = lifelistData.map((item, index) => [
+          index + 1,
+          `"${(item.commonName || "").replace(/"/g, '""')}"`,
+          `"${item.taxonName.replace(/"/g, '""')}"`,
+          item.observedOn,
+          `https://www.inaturalist.org/observations/${item.observationId}`,
+        ]);
+
+        const csvContent = [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `lifelist_${username}_${new Date().toISOString().split("T")[0]}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+
+      async function startSearch() {
+        if (isSearching) return;
+
+        const username = document.getElementById("username").value.trim();
+        if (!username) {
+          showError("Please enter a username");
+          return;
+        }
+
+        // Save username
+        localStorage.setItem("inatUsername", username);
+
+        hideError();
+        autocompleteEl.classList.remove("active");
+        isSearching = true;
+        lifelistData = [];
+        document.getElementById("searchBtn").disabled = true;
+        document.getElementById("downloadBtn").style.display = "none";
+        document.getElementById("progress").style.display = "block";
+        document.getElementById("results").style.display = "block";
+        document.getElementById("speciesList").innerHTML = "";
+        updateResultsCount(0);
+
+        try {
+          // Step 1: Get all species counts for the user
+          const allSpecies = await getUserSpeciesCounts(username);
+
+          if (allSpecies.length === 0) {
+            showError("No species found for this user");
+            document.getElementById("progress").style.display = "none";
+            isSearching = false;
+            document.getElementById("searchBtn").disabled = false;
+            return;
+          }
+
+          updateProgress(0, `Found ${allSpecies.length} taxa. Getting first observation dates...`, "");
+
+          // Step 2: Build taxa map (species and subspecies only)
+          const taxaMap = new Map();
+          for (const item of allSpecies) {
+            if (item.taxon && (item.taxon.rank === "species" || item.taxon.rank === "subspecies")) {
+              taxaMap.set(item.taxon.id, item.taxon);
+            }
+          }
+
+          // Step 3: Get first observation for each species using batch queries
+          let foundCount = 0;
+          const allResults = [];
+
+          const firstObservations = await getFirstObservationsBatch(
+            username,
+            taxaMap,
+            (checked, total, apiCalls) => {
+              const percent = Math.round((checked / total) * 100);
+              updateProgress(
+                percent,
+                `Getting first observations: ${checked}/${total} (${apiCalls} API calls, ${foundCount} found)`,
+                ""
+              );
+            },
+            (result) => {
+              // Add result as it's found
+              foundCount++;
+              allResults.push(result);
+              updateResultsCount(foundCount);
+
+              // Add to display immediately (will be re-sorted at the end)
+              addResultItem({
+                taxonId: result.taxon.id,
+                taxonName: result.taxon.name,
+                commonName: result.taxon.preferred_common_name || result.taxon.name,
+                observationId: result.observationId,
+                observedOn: result.observedOn,
+                imageUrl: result.imageUrl,
+              }, foundCount);
+            }
+          );
+
+          // Step 4: Re-sort and re-display with year separators
+          document.getElementById("speciesList").innerHTML = "";
+
+          const sortedLifelist = allResults
+            .filter(item => item.observedOn)
+            .sort((a, b) => new Date(a.observedOn) - new Date(b.observedOn));
+
+          updateResultsCount(sortedLifelist.length);
+
+          let currentYear = null;
+          let speciesNumber = 0;
+
+          for (const item of sortedLifelist) {
+            const year = item.observedOn ? new Date(item.observedOn).getFullYear() : null;
+
+            if (year && year !== currentYear) {
+              currentYear = year;
+              addYearSeparator(year);
+            }
+
+            speciesNumber++;
+            const itemData = {
+              taxonId: item.taxon.id,
+              taxonName: item.taxon.name,
+              commonName: item.taxon.preferred_common_name,
+              observationId: item.observationId,
+              observedOn: item.observedOn,
+              imageUrl: item.imageUrl,
+            };
+            lifelistData.push(itemData);
+            addResultItem(itemData, speciesNumber);
+          }
+
+          document.getElementById("progress").style.display = "none";
+          if (lifelistData.length > 0) {
+            document.getElementById("downloadBtn").style.display = "inline-block";
+          }
+          showNoResults();
+        } catch (error) {
+          showError("Error: " + error.message);
+          document.getElementById("progress").style.display = "none";
+        }
+
+        isSearching = false;
+        document.getElementById("searchBtn").disabled = false;
+      }
+
+      // Allow Enter key to trigger search
+      document.getElementById("username").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") startSearch();
+      });
+    </script>
+  </body>
+</html>
