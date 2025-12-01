@@ -169,6 +169,20 @@
       .autocomplete-item:hover {
         background-color: #f5f5f5;
       }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: #333;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .checkbox-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
 
       @media (max-width: 1400px) {
         #projectsContainer {
@@ -258,6 +272,10 @@
             <option value="distance">Distance</option>
             <option value="featured">Featured</option>
           </select>
+          <label class="checkbox-label">
+            <input type="checkbox" id="umbrellaOnly" />
+            Umbrella projects only
+          </label>
           <button id="searchButton">Search Projects</button>
         </div>
         <div class="location-info" id="locationInfo"></div>
@@ -288,6 +306,7 @@
         "locationAutocomplete"
       );
       const orderBySelect = document.getElementById("orderBySelect");
+      const umbrellaOnlyCheckbox = document.getElementById("umbrellaOnly");
       const searchButton = document.getElementById("searchButton");
       const loading = document.getElementById("loading");
       const projectsContainer = document.getElementById("projectsContainer");
@@ -421,6 +440,10 @@
           const orderBy = orderBySelect.value;
           if (orderBy) {
             url += `&order_by=${orderBy}`;
+          }
+
+          if (umbrellaOnlyCheckbox.checked) {
+            url += `&type=umbrella`;
           }
 
           console.log("Fetching projects with URL:", url);
