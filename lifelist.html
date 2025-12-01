@@ -42,10 +42,12 @@
         gap: 10px;
         margin-bottom: 20px;
         position: relative;
+        flex-wrap: wrap;
       }
       .input-wrapper {
         flex: 1;
         position: relative;
+        min-width: 200px;
       }
       input[type="text"] {
         width: 100%;
@@ -93,6 +95,16 @@
       .autocomplete-login {
         font-size: 13px;
         color: #666;
+      }
+      .autocomplete-rank {
+        font-size: 12px;
+        color: #888;
+        text-transform: capitalize;
+      }
+      .autocomplete-type {
+        font-size: 11px;
+        color: #999;
+        text-transform: uppercase;
       }
       button {
         padding: 12px 24px;
@@ -273,7 +285,7 @@
 
     <h1>iNaturalist Lifelist Timeline</h1>
     <p class="subtitle">
-      View all species a user has observed, from most recent to oldest first observation.
+      View all species a user has observed, sorted by their first observation date of each species.
     </p>
 
     <div class="search-container">
@@ -285,6 +297,26 @@
           autocomplete="off"
         />
         <div class="autocomplete" id="autocomplete"></div>
+      </div>
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="placeInput"
+          placeholder="Filter by place (optional)"
+          autocomplete="off"
+        />
+        <input type="hidden" id="placeId" />
+        <div class="autocomplete" id="placeAutocomplete"></div>
+      </div>
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="taxonInput"
+          placeholder="Filter by taxon (optional)"
+          autocomplete="off"
+        />
+        <input type="hidden" id="taxonId" />
+        <div class="autocomplete" id="taxonAutocomplete"></div>
       </div>
       <button id="searchBtn" onclick="startSearch()">Load Lifelist</button>
     </div>
@@ -386,7 +418,142 @@
         ) {
           autocompleteEl.classList.remove("active");
         }
+        if (
+          !placeInput.contains(e.target) &&
+          !placeAutocompleteEl.contains(e.target)
+        ) {
+          placeAutocompleteEl.classList.remove("active");
+        }
+        if (
+          !taxonInput.contains(e.target) &&
+          !taxonAutocompleteEl.contains(e.target)
+        ) {
+          taxonAutocompleteEl.classList.remove("active");
+        }
       });
+
+      // Place autocomplete
+      const placeInput = document.getElementById("placeInput");
+      const placeIdInput = document.getElementById("placeId");
+      const placeAutocompleteEl = document.getElementById("placeAutocomplete");
+      let placeSearchTimeout = null;
+
+      placeInput.addEventListener("input", (e) => {
+        clearTimeout(placeSearchTimeout);
+        const query = e.target.value.trim();
+
+        if (query.length < 2) {
+          placeAutocompleteEl.innerHTML = "";
+          placeAutocompleteEl.classList.remove("active");
+          // Clear place ID if input is cleared
+          if (query.length === 0) {
+            placeIdInput.value = "";
+          }
+          return;
+        }
+
+        placeSearchTimeout = setTimeout(() => searchPlaces(query), 300);
+      });
+
+      async function searchPlaces(query) {
+        try {
+          const response = await fetch(
+            `${API_BASE}/places/autocomplete?q=${encodeURIComponent(query)}&per_page=10`
+          );
+          const data = await response.json();
+
+          if (data.results && data.results.length > 0) {
+            placeAutocompleteEl.innerHTML = data.results
+              .map(
+                (place) => `
+              <div class="autocomplete-item" data-id="${place.id}" data-name="${place.display_name}">
+                <div class="autocomplete-name">${place.display_name}</div>
+              </div>
+            `
+              )
+              .join("");
+
+            placeAutocompleteEl
+              .querySelectorAll(".autocomplete-item")
+              .forEach((item) => {
+                item.addEventListener("click", () => {
+                  placeInput.value = item.dataset.name;
+                  placeIdInput.value = item.dataset.id;
+                  placeAutocompleteEl.classList.remove("active");
+                });
+              });
+
+            placeAutocompleteEl.classList.add("active");
+          } else {
+            placeAutocompleteEl.innerHTML = "";
+            placeAutocompleteEl.classList.remove("active");
+          }
+        } catch (error) {
+          console.error("Error searching places:", error);
+        }
+      }
+
+      // Taxon autocomplete
+      const taxonInput = document.getElementById("taxonInput");
+      const taxonIdInput = document.getElementById("taxonId");
+      const taxonAutocompleteEl = document.getElementById("taxonAutocomplete");
+      let taxonSearchTimeout = null;
+
+      taxonInput.addEventListener("input", (e) => {
+        clearTimeout(taxonSearchTimeout);
+        const query = e.target.value.trim();
+
+        if (query.length < 2) {
+          taxonAutocompleteEl.innerHTML = "";
+          taxonAutocompleteEl.classList.remove("active");
+          // Clear taxon ID if input is cleared
+          if (query.length === 0) {
+            taxonIdInput.value = "";
+          }
+          return;
+        }
+
+        taxonSearchTimeout = setTimeout(() => searchTaxons(query), 300);
+      });
+
+      async function searchTaxons(query) {
+        try {
+          const response = await fetch(
+            `${API_BASE}/taxa/autocomplete?q=${encodeURIComponent(query)}&per_page=10&rank=kingdom,phylum,subphylum,class,subclass,order,suborder,family,subfamily,tribe,subtribe,genus,subgenus`
+          );
+          const data = await response.json();
+
+          if (data.results && data.results.length > 0) {
+            taxonAutocompleteEl.innerHTML = data.results
+              .map(
+                (taxon) => `
+              <div class="autocomplete-item" data-id="${taxon.id}" data-name="${taxon.name}">
+                <div class="autocomplete-name">${taxon.preferred_common_name || taxon.name}</div>
+                <div class="autocomplete-rank">${taxon.rank}${taxon.preferred_common_name ? ` - ${taxon.name}` : ""}</div>
+              </div>
+            `
+              )
+              .join("");
+
+            taxonAutocompleteEl
+              .querySelectorAll(".autocomplete-item")
+              .forEach((item) => {
+                item.addEventListener("click", () => {
+                  taxonInput.value = item.dataset.name;
+                  taxonIdInput.value = item.dataset.id;
+                  taxonAutocompleteEl.classList.remove("active");
+                });
+              });
+
+            taxonAutocompleteEl.classList.add("active");
+          } else {
+            taxonAutocompleteEl.innerHTML = "";
+            taxonAutocompleteEl.classList.remove("active");
+          }
+        } catch (error) {
+          console.error("Error searching taxa:", error);
+        }
+      }
 
       async function fetchJSON(url) {
         const response = await fetch(url, {
@@ -398,7 +565,7 @@
         return response.json();
       }
 
-      async function getUserSpeciesCounts(username) {
+      async function getUserSpeciesCounts(username, placeId = null, taxonId = null) {
         updateProgress(0, "Fetching species list...", "");
 
         const perPage = 500;
@@ -406,8 +573,13 @@
         let page = 1;
         let totalPages = 1;
 
+        // Build base URL with optional filters
+        let baseUrl = `${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&lrank=subspecies&hrank=species&quality_grade=needs_id,research`;
+        if (placeId) baseUrl += `&place_id=${placeId}`;
+        if (taxonId) baseUrl += `&taxon_id=${taxonId}`;
+
         // Fetch first page to get total count
-        const firstUrl = `${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&page=1&lrank=subspecies&hrank=species&quality_grade=needs_id,research`;
+        const firstUrl = `${baseUrl}&page=1`;
         const firstData = await fetchJSON(firstUrl);
 
         if (!firstData.results || firstData.results.length === 0) {
@@ -420,7 +592,7 @@
 
         // Fetch remaining pages sequentially
         for (let p = 2; p <= totalPages; p++) {
-          const data = await fetchJSON(`${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&page=${p}&lrank=subspecies&hrank=species&quality_grade=needs_id,research`);
+          const data = await fetchJSON(`${baseUrl}&page=${p}`);
           if (data.results) {
             allResults.push(...data.results);
           }
@@ -441,7 +613,7 @@
           }));
       }
 
-      async function getFirstObservationsBatch(username, taxaMap, onProgress, onFound) {
+      async function getFirstObservationsBatch(username, taxaMap, onProgress, onFound, placeId = null) {
         const BATCH_SIZE = 1000;
         const PER_PAGE = 200;
 
@@ -449,6 +621,9 @@
         const results = new Map();
         let apiCalls = 0;
         let lastUnfoundCount = -1;
+
+        // Build place filter param
+        const placeParam = placeId ? `&place_id=${placeId}` : "";
 
         while (totalTaxa.length > 0) {
           // Check if we're stuck with the same unfound taxa - if so, paginate to find them
@@ -473,7 +648,7 @@
             apiCalls++;
             onProgress(results.size, taxaMap.size, apiCalls);
 
-            const url = `${API_BASE}/observations?user_login=${username}&taxon_id=${batchIds.join(",")}&per_page=${PER_PAGE}&page=${page}&order_by=observed_on&order=asc&lrank=subspecies&hrank=species&quality_grade=needs_id,research`;
+            const url = `${API_BASE}/observations?user_login=${username}&taxon_id=${batchIds.join(",")}&per_page=${PER_PAGE}&page=${page}&order_by=observed_on&order=asc&lrank=subspecies&hrank=species&quality_grade=needs_id,research${placeParam}`;
 
             try {
               const data = await fetchJSON(url);
@@ -642,11 +817,17 @@
           return;
         }
 
+        // Get optional filters
+        const placeId = placeIdInput.value || null;
+        const taxonId = taxonIdInput.value || null;
+
         // Save username
         localStorage.setItem("inatUsername", username);
 
         hideError();
         autocompleteEl.classList.remove("active");
+        placeAutocompleteEl.classList.remove("active");
+        taxonAutocompleteEl.classList.remove("active");
         isSearching = true;
         lifelistData = [];
         document.getElementById("searchBtn").disabled = true;
@@ -657,8 +838,8 @@
         updateResultsCount(0);
 
         try {
-          // Step 1: Get all species counts for the user
-          const allSpecies = await getUserSpeciesCounts(username);
+          // Step 1: Get all species counts for the user (with optional filters)
+          const allSpecies = await getUserSpeciesCounts(username, placeId, taxonId);
 
           if (allSpecies.length === 0) {
             showError("No species found for this user");
@@ -706,7 +887,8 @@
                 observedOn: result.observedOn,
                 imageUrl: result.imageUrl,
               }, foundCount);
-            }
+            },
+            placeId
           );
 
           // Step 4: Re-sort and re-display with year separators
