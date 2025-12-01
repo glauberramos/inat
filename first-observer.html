@@ -626,7 +626,7 @@
               addResultItem({
                 taxonId: taxon.id,
                 taxonName: taxon.name,
-                commonName: taxon.preferred_common_name || "No common name",
+                commonName: taxon.preferred_common_name || taxon.name,
                 rank: taxon.rank,
                 observationId: result.observationId,
                 observedOn: result.observedOn,
