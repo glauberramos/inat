@@ -407,7 +407,7 @@
         let totalPages = 1;
 
         // Fetch first page to get total count
-        const firstUrl = `${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&page=1`;
+        const firstUrl = `${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&page=1&lrank=subspecies&hrank=species&quality_grade=needs_id,research`;
         const firstData = await fetchJSON(firstUrl);
 
         if (!firstData.results || firstData.results.length === 0) {
@@ -418,19 +418,12 @@
         const totalResults = firstData.total_results;
         totalPages = Math.ceil(totalResults / perPage);
 
-        // Fetch remaining pages in parallel if needed
-        if (totalPages > 1) {
-          const promises = [];
-          for (let p = 2; p <= totalPages; p++) {
-            promises.push(
-              fetchJSON(`${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&page=${p}`)
-                .then(data => data.results || [])
-            );
+        // Fetch remaining pages sequentially
+        for (let p = 2; p <= totalPages; p++) {
+          const data = await fetchJSON(`${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&page=${p}&lrank=subspecies&hrank=species&quality_grade=needs_id,research`);
+          if (data.results) {
+            allResults.push(...data.results);
           }
-          const additionalResults = await Promise.all(promises);
-          additionalResults.forEach(results => {
-            allResults.push(...results);
-          });
         }
 
         // Filter to species and subspecies only
@@ -449,68 +442,67 @@
       }
 
       async function getFirstObservationsBatch(username, taxaMap, onProgress, onFound) {
-        const PARALLEL_REQUESTS = 3;
-        const BATCH_SIZE = 200;
-        const MAX_RETRIES = 3;
+        const BATCH_SIZE = 1000;
+        const PER_PAGE = 200;
 
         const totalTaxa = Array.from(taxaMap.entries());
-        const currentBatches = [new Map(), new Map(), new Map()];
         const results = new Map();
-        const retryCount = new Map(); // Track retries per taxon
-        let processedCount = 0;
         let apiCalls = 0;
+        let lastUnfoundCount = -1;
 
-        while (totalTaxa.length > 0 || currentBatches.some((b) => b.size > 0)) {
-          // If less than 200 taxa left, use single batch
-          const useSingleBatch = totalTaxa.length < BATCH_SIZE && currentBatches.every((b) => b.size === 0);
+        while (totalTaxa.length > 0) {
+          // Check if we're stuck with the same unfound taxa - if so, paginate to find them
+          const needsPagination = totalTaxa.length === lastUnfoundCount;
+          lastUnfoundCount = totalTaxa.length;
 
-          if (useSingleBatch) {
-            const singleBatch = currentBatches[0];
-            while (totalTaxa.length > 0) {
-              const [id, taxon] = totalTaxa.shift();
-              singleBatch.set(id, taxon);
-            }
-          } else {
-            for (const batch of currentBatches) {
-              while (batch.size < BATCH_SIZE && totalTaxa.length > 0) {
-                const [id, taxon] = totalTaxa.shift();
-                batch.set(id, taxon);
-              }
-            }
+          // Take a batch of taxa
+          const batch = new Map();
+          while (batch.size < BATCH_SIZE && totalTaxa.length > 0) {
+            const [id, taxon] = totalTaxa.shift();
+            batch.set(id, taxon);
           }
 
-          const activeBatches = currentBatches.filter((b) => b.size > 0);
-          if (activeBatches.length === 0) break;
+          if (batch.size === 0) break;
 
-          apiCalls += activeBatches.length;
-          onProgress(processedCount, taxaMap.size, apiCalls);
+          const batchIds = Array.from(batch.keys());
+          const remainingInBatch = new Set(batchIds);
+          let page = 1;
+          const maxPages = needsPagination ? 50 : 1; // Paginate only when stuck
 
-          // Fetch all batches in parallel
-          const batchResults = await Promise.all(
-            activeBatches.map(async (batch) => {
-              const batchIds = Array.from(batch.keys());
-              const url = `${API_BASE}/observations?user_login=${username}&taxon_id=${batchIds.join(",")}&per_page=200&order_by=observed_on&order=asc&verifiable=true`;
+          while (remainingInBatch.size > 0 && page <= maxPages) {
+            apiCalls++;
+            onProgress(results.size, taxaMap.size, apiCalls);
 
-              try {
-                const data = await fetchJSON(url);
-                return { batch, data };
-              } catch (e) {
-                console.error("Error fetching batch:", e);
-                return { batch, data: { results: [] } };
+            const url = `${API_BASE}/observations?user_login=${username}&taxon_id=${batchIds.join(",")}&per_page=${PER_PAGE}&page=${page}&order_by=observed_on&order=asc&lrank=subspecies&hrank=species&quality_grade=needs_id,research`;
+
+            try {
+              const data = await fetchJSON(url);
+
+              if (!data.results || data.results.length === 0) {
+                break;
               }
-            })
-          );
 
-          // Process results from each batch
-          for (const { batch, data } of batchResults) {
-            const foundInBatch = new Set();
-
-            if (data.results && data.results.length > 0) {
               for (const obs of data.results) {
-                const taxonId = obs.taxon?.id;
+                const obsTaxon = obs.taxon || {};
+                const obsTaxonId = obsTaxon.id;
+                const ancestorIds = obsTaxon.ancestor_ids || [];
 
-                if (taxonId && batch.has(taxonId) && !results.has(taxonId)) {
-                  const taxon = batch.get(taxonId);
+                // Find which requested taxon this observation matches (could be exact or ancestor)
+                let matchedTaxonId = null;
+                if (remainingInBatch.has(obsTaxonId)) {
+                  matchedTaxonId = obsTaxonId;
+                } else {
+                  // Check if any of the ancestors match a requested taxon
+                  for (const ancestorId of ancestorIds) {
+                    if (remainingInBatch.has(ancestorId)) {
+                      matchedTaxonId = ancestorId;
+                      break;
+                    }
+                  }
+                }
+
+                if (matchedTaxonId && !results.has(matchedTaxonId)) {
+                  const taxon = batch.get(matchedTaxonId);
                   const obsTaxon = obs.taxon || {};
                   const result = {
                     taxon: {
@@ -521,37 +513,38 @@
                     observedOn: obs.observed_on,
                     imageUrl: obs.photos?.[0]?.url || obsTaxon.default_photo?.square_url,
                   };
-                  results.set(taxonId, result);
-                  foundInBatch.add(taxonId);
-                  processedCount++;
+                  results.set(matchedTaxonId, result);
+                  remainingInBatch.delete(matchedTaxonId);
 
                   if (onFound) {
                     onFound(result);
                   }
                 }
               }
-            }
 
-            // Move taxa not found to the bottom of totalTaxa (with retry limit)
-            for (const [taxonId, taxon] of batch) {
-              if (!foundInBatch.has(taxonId)) {
-                const retries = (retryCount.get(taxonId) || 0) + 1;
-                retryCount.set(taxonId, retries);
-
-                if (retries < MAX_RETRIES) {
-                  totalTaxa.push([taxonId, taxon]);
-                } else {
-                  // Give up on this taxon after max retries
-                  processedCount++;
-                }
+              // If we got fewer results than requested, no more pages
+              if (data.results.length < PER_PAGE) {
+                break;
               }
-            }
 
-            batch.clear();
+              page++;
+            } catch (e) {
+              console.error("Error fetching batch:", e);
+              break;
+            }
           }
+
+          // Move taxa not found to the bottom of totalTaxa for later processing
+          for (const [taxonId, taxon] of batch) {
+            if (!results.has(taxonId)) {
+              totalTaxa.push([taxonId, taxon]);
+            }
+          }
+
+          onProgress(results.size, taxaMap.size, apiCalls);
         }
 
-        onProgress(processedCount, taxaMap.size, apiCalls);
+        onProgress(results.size, taxaMap.size, apiCalls);
         return results;
       }
 
@@ -726,7 +719,7 @@
           updateResultsCount(sortedLifelist.length);
 
           let currentYear = null;
-          let speciesNumber = 0;
+          let speciesNumber = sortedLifelist.length;
 
           for (const item of sortedLifelist) {
             const year = item.observedOn ? new Date(item.observedOn).getFullYear() : null;
@@ -735,8 +728,6 @@
               currentYear = year;
               addYearSeparator(year);
             }
-
-            speciesNumber++;
             const itemData = {
               taxonId: item.taxon.id,
               taxonName: item.taxon.name,
@@ -747,6 +738,7 @@
             };
             lifelistData.push(itemData);
             addResultItem(itemData, speciesNumber);
+            speciesNumber--;
           }
 
           document.getElementById("progress").style.display = "none";
