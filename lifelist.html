@@ -389,24 +389,49 @@
       async function getUserSpeciesCounts(username) {
         updateProgress(0, "Fetching species list...", "");
 
-        const url = `${API_BASE}/observations/taxonomy?user_login=${username}&verifiable=true`;
-        const data = await fetchJSON(url);
+        const perPage = 500;
+        let allResults = [];
+        let page = 1;
+        let totalPages = 1;
 
-        if (!data.results) {
+        // Fetch first page to get total count
+        const firstUrl = `${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&page=1`;
+        const firstData = await fetchJSON(firstUrl);
+
+        if (!firstData.results || firstData.results.length === 0) {
           return [];
         }
 
-        // Filter to species and subspecies, format to match expected structure
-        return data.results
-          .filter((item) => item.rank === "species" || item.rank === "subspecies")
+        allResults = [...firstData.results];
+        const totalResults = firstData.total_results;
+        totalPages = Math.ceil(totalResults / perPage);
+
+        // Fetch remaining pages in parallel if needed
+        if (totalPages > 1) {
+          const promises = [];
+          for (let p = 2; p <= totalPages; p++) {
+            promises.push(
+              fetchJSON(`${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&page=${p}`)
+                .then(data => data.results || [])
+            );
+          }
+          const additionalResults = await Promise.all(promises);
+          additionalResults.forEach(results => {
+            allResults.push(...results);
+          });
+        }
+
+        // Filter to species and subspecies only
+        return allResults
+          .filter((item) => item.taxon && (item.taxon.rank === "species" || item.taxon.rank === "subspecies"))
           .map((item) => ({
             taxon: {
-              id: item.id,
-              name: item.name,
-              rank: item.rank,
-              observations_count: item.direct_obs_count || 0,
-              preferred_common_name: item.preferred_common_name,
-              default_photo: item.default_photo,
+              id: item.taxon.id,
+              name: item.taxon.name,
+              rank: item.taxon.rank,
+              observations_count: item.taxon.observations_count || 0,
+              preferred_common_name: item.taxon.preferred_common_name,
+              default_photo: item.taxon.default_photo,
             },
           }));
       }
