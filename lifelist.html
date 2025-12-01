@@ -789,9 +789,18 @@
         if (lifelistData.length === 0) return;
 
         const username = document.getElementById("username").value.trim();
+        const placeName = placeInput.value.trim();
+        const taxonName = taxonInput.value.trim();
+
+        // Build filename with optional filters
+        let filename = `lifelist_${username}`;
+        if (placeName) filename += `_${placeName.replace(/[^a-zA-Z0-9]/g, "_")}`;
+        if (taxonName) filename += `_${taxonName.replace(/[^a-zA-Z0-9]/g, "_")}`;
+        filename += `_${new Date().toISOString().split("T")[0]}.csv`;
+
         const headers = ["Number", "Common Name", "Scientific Name", "Date", "Observation URL"];
         const rows = lifelistData.map((item, index) => [
-          index + 1,
+          lifelistData.length - index,
           `"${(item.commonName || "").replace(/"/g, '""')}"`,
           `"${item.taxonName.replace(/"/g, '""')}"`,
           item.observedOn,
@@ -803,7 +812,7 @@
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `lifelist_${username}_${new Date().toISOString().split("T")[0]}.csv`;
+        link.download = filename;
         link.click();
         URL.revokeObjectURL(url);
       }
