@@ -245,6 +245,12 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
+      .species-rank {
+        font-weight: normal;
+        color: #888;
+        font-size: 12px;
+        text-transform: capitalize;
+      }
       .species-date {
         color: #999;
         font-size: 12px;
@@ -805,10 +811,19 @@
         a.href = `https://www.inaturalist.org/observations/${sp.observationId}`;
         a.target = "_blank";
 
+        // Species-level ranks don't need to show rank label
+        const speciesLevelRanks = ["species", "subspecies", "variety", "form", "hybrid", "infraspecies"];
+        const isHigherRank = sp.rank && !speciesLevelRanks.includes(sp.rank);
+
         const hasCommonName = sp.commonName && sp.commonName !== sp.taxonName;
-        const nameDisplay = hasCommonName
-          ? `<span class="species-name">${sp.commonName}</span><span class="species-scientific">${sp.taxonName}</span>`
-          : `<span class="species-name">${sp.taxonName}</span>`;
+        let nameDisplay;
+        if (hasCommonName) {
+          const rankLabel = isHigherRank ? ` <span class="species-rank">(${sp.rank})</span>` : "";
+          nameDisplay = `<span class="species-name">${sp.commonName}${rankLabel}</span><span class="species-scientific">${sp.taxonName}</span>`;
+        } else {
+          const rankLabel = isHigherRank ? ` <span class="species-rank">(${sp.rank})</span>` : "";
+          nameDisplay = `<span class="species-name">${sp.taxonName}${rankLabel}</span>`;
+        }
 
         const iconicIcon = ICONIC_TAXON_ICONS[sp.iconicTaxon] || "🔍";
 
@@ -943,6 +958,7 @@
                 taxonName: result.taxon.name,
                 commonName: result.taxon.preferred_common_name,
                 iconicTaxon: result.taxon.iconic_taxon_name,
+                rank: result.taxon.rank,
                 observationId: result.observationId,
                 observedOn: result.observedOn,
                 imageUrl: result.imageUrl,
@@ -976,6 +992,7 @@
               taxonName: item.taxon.name,
               commonName: item.taxon.preferred_common_name,
               iconicTaxon: item.taxon.iconic_taxon_name,
+              rank: item.taxon.rank,
               observationId: item.observationId,
               observedOn: item.observedOn,
               imageUrl: item.imageUrl,
