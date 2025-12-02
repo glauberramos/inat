@@ -619,9 +619,9 @@
           }
         }
 
-        // Filter to species and subspecies only
+        // Map results (API already filters by lrank/hrank)
         return allResults
-          .filter((item) => item.taxon && (item.taxon.rank === "species" || item.taxon.rank === "subspecies"))
+          .filter((item) => item.taxon)
           .map((item) => ({
             taxon: {
               id: item.taxon.id,
@@ -885,10 +885,10 @@
 
           updateProgress(0, `Found ${allSpecies.length} taxa. Getting first observation dates...`, "");
 
-          // Step 2: Build taxa map (species and subspecies only)
+          // Step 2: Build taxa map
           const taxaMap = new Map();
           for (const item of allSpecies) {
-            if (item.taxon && (item.taxon.rank === "species" || item.taxon.rank === "subspecies")) {
+            if (item.taxon) {
               taxaMap.set(item.taxon.id, item.taxon);
             }
           }
