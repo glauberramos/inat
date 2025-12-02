@@ -49,6 +49,20 @@
         position: relative;
         min-width: 200px;
       }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: #555;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .checkbox-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
       input[type="text"] {
         width: 100%;
         padding: 12px;
@@ -323,6 +337,10 @@
         <input type="hidden" id="taxonId" />
         <div class="autocomplete" id="taxonAutocomplete"></div>
       </div>
+      <label class="checkbox-label">
+        <input type="checkbox" id="allTaxaCheckbox" />
+        All taxa levels
+      </label>
       <button id="searchBtn" onclick="startSearch()">Load Lifelist</button>
     </div>
 
@@ -518,6 +536,7 @@
       const taxonInput = document.getElementById("taxonInput");
       const taxonIdInput = document.getElementById("taxonId");
       const taxonAutocompleteEl = document.getElementById("taxonAutocomplete");
+      const allTaxaCheckbox = document.getElementById("allTaxaCheckbox");
       let taxonSearchTimeout = null;
 
       taxonInput.addEventListener("input", (e) => {
@@ -586,7 +605,7 @@
         return response.json();
       }
 
-      async function getUserSpeciesCounts(username, placeId = null, taxonId = null) {
+      async function getUserSpeciesCounts(username, placeId = null, taxonId = null, allTaxa = false) {
         updateProgress(0, "Fetching species list...", "");
 
         const perPage = 500;
@@ -595,7 +614,8 @@
         let totalPages = 1;
 
         // Build base URL with optional filters
-        let baseUrl = `${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&lrank=subspecies&hrank=species&quality_grade=needs_id,research`;
+        let baseUrl = `${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&quality_grade=needs_id,research`;
+        if (!allTaxa) baseUrl += `&lrank=subspecies&hrank=species`;
         if (placeId) baseUrl += `&place_id=${placeId}`;
         if (taxonId) baseUrl += `&taxon_id=${taxonId}`;
 
@@ -638,7 +658,7 @@
           }));
       }
 
-      async function getFirstObservationsBatch(username, taxaMap, onProgress, onFound, placeId = null) {
+      async function getFirstObservationsBatch(username, taxaMap, onProgress, onFound, placeId = null, allTaxa = false) {
         const BATCH_SIZE = 1000;
         const PER_PAGE = 200;
 
@@ -647,8 +667,9 @@
         let apiCalls = 0;
         let lastUnfoundCount = -1;
 
-        // Build place filter param
+        // Build filter params
         const placeParam = placeId ? `&place_id=${placeId}` : "";
+        const rankParam = allTaxa ? "" : "&lrank=subspecies&hrank=species";
 
         while (totalTaxa.length > 0) {
           // Check if we're stuck with the same unfound taxa - if so, paginate to find them
@@ -673,7 +694,7 @@
             apiCalls++;
             onProgress(results.size, taxaMap.size, apiCalls);
 
-            const url = `${API_BASE}/observations?user_login=${username}&taxon_id=${batchIds.join(",")}&per_page=${PER_PAGE}&page=${page}&order_by=observed_on&order=asc&lrank=subspecies&hrank=species&quality_grade=needs_id,research${placeParam}`;
+            const url = `${API_BASE}/observations?user_login=${username}&taxon_id=${batchIds.join(",")}&per_page=${PER_PAGE}&page=${page}&order_by=observed_on&order=asc&quality_grade=needs_id,research${rankParam}${placeParam}`;
 
             try {
               const data = await fetchJSON(url);
@@ -857,6 +878,7 @@
         // Get optional filters
         const placeId = placeIdInput.value || null;
         const taxonId = taxonIdInput.value || null;
+        const allTaxa = allTaxaCheckbox.checked;
 
         // Save username
         localStorage.setItem("inatUsername", username);
@@ -876,7 +898,7 @@
 
         try {
           // Step 1: Get all species counts for the user (with optional filters)
-          const allSpecies = await getUserSpeciesCounts(username, placeId, taxonId);
+          const allSpecies = await getUserSpeciesCounts(username, placeId, taxonId, allTaxa);
 
           if (allSpecies.length === 0) {
             showError("No species found for this user");
@@ -926,7 +948,8 @@
                 imageUrl: result.imageUrl,
               }, foundCount);
             },
-            placeId
+            placeId,
+            allTaxa
           );
 
           // Step 4: Re-sort and re-display with year separators
