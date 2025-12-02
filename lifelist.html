@@ -350,7 +350,7 @@
       const ICONIC_TAXON_ICONS = {
         Plantae: "🌿",
         Insecta: "🦋",
-        Aves: "🦅",
+        Aves: "🐦",
         Fungi: "🍄",
         Mammalia: "🦌",
         Reptilia: "🦎",
@@ -600,6 +600,7 @@
         if (taxonId) baseUrl += `&taxon_id=${taxonId}`;
 
         // Fetch first page to get total count
+        updateProgress(0, "Fetching species list (page 1)...", "");
         const firstUrl = `${baseUrl}&page=1`;
         const firstData = await fetchJSON(firstUrl);
 
@@ -613,6 +614,8 @@
 
         // Fetch remaining pages sequentially
         for (let p = 2; p <= totalPages; p++) {
+          const percent = Math.round((p / totalPages) * 50);
+          updateProgress(percent, `Fetching species list (page ${p} of ${totalPages})...`, "");
           const data = await fetchJSON(`${baseUrl}&page=${p}`);
           if (data.results) {
             allResults.push(...data.results);
