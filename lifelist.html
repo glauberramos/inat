@@ -199,6 +199,11 @@
         min-width: 40px;
         text-align: right;
       }
+      .species-icon {
+        font-size: 18px;
+        min-width: 24px;
+        text-align: center;
+      }
       .species-image {
         width: 40px;
         height: 40px;
@@ -341,6 +346,22 @@
 
     <script>
       const API_BASE = "https://api.inaturalist.org/v1";
+
+      const ICONIC_TAXON_ICONS = {
+        Plantae: "🌿",
+        Insecta: "🦋",
+        Aves: "🦅",
+        Fungi: "🍄",
+        Mammalia: "🦌",
+        Reptilia: "🦎",
+        Amphibia: "🐸",
+        Actinopterygii: "🐟",
+        Mollusca: "🐌",
+        Arachnida: "🕷️",
+        Animalia: "🐾",
+        Protozoa: "🦠",
+        Chromista: "🟤",
+      };
 
       let isSearching = false;
       let searchTimeout = null;
@@ -609,6 +630,7 @@
               observations_count: item.taxon.observations_count || 0,
               preferred_common_name: item.taxon.preferred_common_name,
               default_photo: item.taxon.default_photo,
+              iconic_taxon_name: item.taxon.iconic_taxon_name,
             },
           }));
       }
@@ -764,8 +786,11 @@
           ? `<span class="species-name">${sp.commonName}</span><span class="species-scientific">${sp.taxonName}</span>`
           : `<span class="species-name">${sp.taxonName}</span>`;
 
+        const iconicIcon = ICONIC_TAXON_ICONS[sp.iconicTaxon] || "🔍";
+
         a.innerHTML = `
         <div class="species-number">#${number}</div>
+        <span class="species-icon">${iconicIcon}</span>
         <img class="species-image" src="${
           sp.imageUrl || "https://via.placeholder.com/40?text=?"
         }" alt="${sp.commonName || sp.taxonName}">
@@ -892,6 +917,7 @@
                 taxonId: result.taxon.id,
                 taxonName: result.taxon.name,
                 commonName: result.taxon.preferred_common_name,
+                iconicTaxon: result.taxon.iconic_taxon_name,
                 observationId: result.observationId,
                 observedOn: result.observedOn,
                 imageUrl: result.imageUrl,
@@ -923,6 +949,7 @@
               taxonId: item.taxon.id,
               taxonName: item.taxon.name,
               commonName: item.taxon.preferred_common_name,
+              iconicTaxon: item.taxon.iconic_taxon_name,
               observationId: item.observationId,
               observedOn: item.observedOn,
               imageUrl: item.imageUrl,
