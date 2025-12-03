@@ -1,6 +1,6 @@
 // Calendar Modal Functions
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const DAYS_IN_MONTH = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; // Include Feb 29 for leap years
+const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; // 365 days (no leap year)
 
 function openCalendarModal() {
   const overlay = document.getElementById('calendarModalOverlay');
@@ -12,8 +12,12 @@ function openCalendarModal() {
   const todayMonth = today.getMonth();
   const todayDay = today.getDate();
 
-  // Update progress text
-  progressText.textContent = `${calendarObservedDays.size}/365`;
+  // Update progress text (cap at 365, exclude Feb 29)
+  let count = 0;
+  calendarObservedDays.forEach(day => {
+    if (day !== '02-29') count++;
+  });
+  progressText.textContent = `${Math.min(count, 365)}/365`;
 
   // Render calendar
   calendarGrid.innerHTML = '';
