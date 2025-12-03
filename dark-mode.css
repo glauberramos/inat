@@ -432,6 +432,14 @@ body.dark-mode .profile-header {
   background: linear-gradient(135deg, #5d8a00 0%, #4a7000 100%);
 }
 
+body.dark-mode .profile-link {
+  color: white;
+}
+
+body.dark-mode .profile-link:hover {
+  color: white;
+}
+
 body.dark-mode .search-card,
 body.dark-mode .chart-card,
 body.dark-mode .stat-card {
