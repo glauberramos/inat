@@ -7,6 +7,11 @@ function openCalendarModal() {
   const progressText = document.getElementById('calendarProgressText');
   const calendarGrid = document.getElementById('calendarGrid');
 
+  // Get today's date
+  const today = new Date();
+  const todayMonth = today.getMonth();
+  const todayDay = today.getDate();
+
   // Update progress text
   progressText.textContent = `${calendarObservedDays.size}/365`;
 
@@ -38,6 +43,10 @@ function openCalendarModal() {
 
       if (calendarObservedDays.has(dateKey)) {
         dayDiv.classList.add('observed');
+      }
+
+      if (month === todayMonth && day === todayDay) {
+        dayDiv.classList.add('today');
       }
 
       dayDiv.textContent = day;

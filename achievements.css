@@ -892,6 +892,14 @@ body.dark-mode .achievement-card.loading::before {
   color: white;
 }
 
+.calendar-day.today {
+  box-shadow: inset 0 0 0 2px #333;
+}
+
+.calendar-day.today.observed {
+  box-shadow: inset 0 0 0 2px #2d5a00;
+}
+
 .calendar-day:hover {
   transform: scale(1.2);
   z-index: 1;
@@ -936,6 +944,14 @@ body.dark-mode .calendar-day {
 
 body.dark-mode .calendar-day.observed {
   color: white;
+}
+
+body.dark-mode .calendar-day.today {
+  box-shadow: inset 0 0 0 2px #e0e0e0;
+}
+
+body.dark-mode .calendar-day.today.observed {
+  box-shadow: inset 0 0 0 2px #2d5a00;
 }
 
 /* Dark mode calendar */

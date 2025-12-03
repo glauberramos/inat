@@ -336,10 +336,11 @@
 
       .search-row .input-wrapper {
         position: relative;
+        width: 300px;
       }
 
       .search-row .input-wrapper input {
-        width: 300px;
+        width: 100%;
       }
 
       .profile-links {
@@ -445,15 +446,17 @@
 
         .profile-links {
           justify-content: center;
+          flex-wrap: wrap;
         }
 
         .recent-photos-grid {
-          width: 100%;
-          max-width: 100%;
+          width: calc(100% + 40px);
+          max-width: none;
           height: 80px;
-          margin: 0;
-          margin-top: 15px;
-          border-radius: 8px;
+          margin: 15px -20px -25px -20px;
+          border-radius: 0 0 16px 16px;
+          grid-template-columns: repeat(10, 1fr);
+          grid-template-rows: 1fr;
         }
 
         .charts-row {
@@ -467,6 +470,19 @@
 
         .stats-grid {
           grid-template-columns: repeat(2, 1fr);
+        }
+
+        .search-row .input-wrapper {
+          width: 100%;
+        }
+
+        .search-row {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .search-row button {
+          width: 100%;
         }
       }
 
@@ -488,12 +504,37 @@
 
         .profile-avatar,
         .profile-avatar-placeholder {
-          width: 80px;
-          height: 80px;
+          width: 70px;
+          height: 70px;
+          font-size: 36px;
         }
 
         .profile-name {
-          font-size: 1.5rem;
+          font-size: 1.3rem;
+        }
+
+        .profile-login {
+          font-size: 0.95rem;
+        }
+
+        .profile-meta {
+          font-size: 0.8rem;
+          gap: 12px;
+        }
+
+        .profile-links {
+          gap: 8px;
+        }
+
+        .profile-link {
+          font-size: 0.75rem;
+          padding: 6px 12px;
+        }
+
+        .recent-photos-grid {
+          height: 60px;
+          margin: 15px -15px -20px -15px;
+          width: calc(100% + 30px);
         }
 
         .stats-grid {
@@ -506,32 +547,62 @@
         }
 
         .stat-value {
-          font-size: 1.5rem;
+          font-size: 1.4rem;
         }
 
         .stat-label {
-          font-size: 0.75rem;
+          font-size: 0.7rem;
         }
 
-        .search-row {
-          flex-direction: column;
+        .chart-card {
+          padding: 15px;
         }
 
-        .search-row .input-wrapper,
-        .search-row button {
-          width: 100%;
+        .chart-title {
+          font-size: 1rem;
+        }
+
+        .taxon-chart-container {
+          height: 120px;
+          gap: 4px;
+          flex-wrap: wrap;
         }
 
         .taxon-bar-wrapper {
-          width: 28px;
+          width: 24px;
         }
 
         .taxon-bar-emoji {
-          font-size: 14px;
+          font-size: 12px;
         }
 
         .taxon-bar-value {
-          font-size: 9px;
+          font-size: 8px;
+        }
+
+        .taxon-bar-name {
+          display: none;
+        }
+
+        .pie-chart {
+          width: 150px;
+          height: 150px;
+        }
+
+        .legend-item {
+          font-size: 0.8rem;
+        }
+
+        .map-card {
+          max-width: 100%;
+        }
+
+        .world-grid-map {
+          grid-template-columns: repeat(16, 1fr);
+        }
+
+        .search-card {
+          padding: 15px;
         }
       }
     </style>
