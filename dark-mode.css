@@ -426,3 +426,47 @@ body.dark-mode #resultsCount {
 body.dark-mode .loading {
   color: #aaa;
 }
+
+/* Profile page styles */
+body.dark-mode .profile-header {
+  background: linear-gradient(135deg, #5d8a00 0%, #4a7000 100%);
+}
+
+body.dark-mode .search-card,
+body.dark-mode .chart-card,
+body.dark-mode .stat-card {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .stat-label {
+  color: #aaa;
+}
+
+body.dark-mode .chart-title {
+  color: #e0e0e0;
+}
+
+body.dark-mode .legend-label {
+  color: #aaa;
+}
+
+body.dark-mode .legend-value {
+  color: #e0e0e0;
+}
+
+body.dark-mode .taxon-bar-wrapper {
+  background: #3d3d3d;
+}
+
+body.dark-mode .taxon-bar-name {
+  color: #888;
+}
+
+body.dark-mode .empty-state {
+  color: #888;
+}
+
+body.dark-mode .empty-state-text {
+  color: #aaa;
+}
