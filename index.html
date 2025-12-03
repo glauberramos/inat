@@ -182,15 +182,73 @@
         }
 
         .tools-grid {
-          grid-template-columns: 1fr;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 15px;
         }
 
         .tool-card {
-          padding: 30px 20px;
+          padding: 20px 15px;
         }
 
         .tool-card h2 {
-          font-size: 1.5rem;
+          font-size: 1.2rem;
+        }
+
+        .tool-card p {
+          font-size: 0.85rem;
+        }
+
+        header {
+          margin-bottom: 30px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 15px;
+        }
+
+        .title-container {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        h1 {
+          font-size: 1.6rem;
+        }
+
+        .logo {
+          width: 50px;
+          height: 50px;
+        }
+
+        .description {
+          font-size: 1rem;
+        }
+
+        .tools-grid {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+
+        .tool-card {
+          padding: 20px;
+        }
+
+        .tool-icon {
+          font-size: 2rem;
+        }
+
+        .tool-card h2 {
+          font-size: 1.1rem;
+        }
+
+        footer {
+          margin-top: 40px;
+        }
+
+        footer img {
+          max-width: 140px;
         }
       }
     </style>

@@ -276,6 +276,21 @@
 
       @media (max-width: 600px) {
         #speciesContainer {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+        }
+
+        .species-image {
+          height: 100px;
+        }
+
+        .species-content {
+          padding: 6px;
+        }
+      }
+
+      @media (max-width: 400px) {
+        #speciesContainer {
           grid-template-columns: 1fr;
         }
       }
@@ -517,6 +532,156 @@
           justify-content: center;
         }
 
+        .summary-card {
+          padding: 15px;
+        }
+
+        .summary-search {
+          flex-direction: column;
+          width: 100%;
+          gap: 10px;
+        }
+
+        .summary-search .username-search-container {
+          width: 100% !important;
+        }
+
+        .summary-search button {
+          width: 100%;
+        }
+
+        .controls {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+        }
+
+        .controls label {
+          margin-left: 0 !important;
+        }
+
+        .controls select,
+        .controls input[type="text"] {
+          width: 100%;
+        }
+
+        .view-controls {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+        }
+
+        .view-buttons {
+          width: 100%;
+        }
+
+        .view-btn {
+          flex: 1;
+        }
+
+        #resultsCount {
+          text-align: center;
+        }
+
+        .species-table {
+          display: block;
+          overflow-x: auto;
+          white-space: nowrap;
+        }
+
+        .taxon-chart {
+          overflow-x: auto;
+          justify-content: flex-start;
+          padding: 10px 5px;
+        }
+
+        .taxon-bar-container {
+          width: 24px;
+        }
+
+        .taxon-bar-value {
+          font-size: 8px;
+        }
+
+        .taxon-bar-emoji {
+          font-size: 12px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding-top: 60px;
+        }
+
+        .back-button {
+          font-size: 0.8rem !important;
+          padding: 8px 12px !important;
+          top: 10px !important;
+          left: 10px !important;
+        }
+
+        .container {
+          padding: 10px;
+        }
+
+        .header-content {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .title-container {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .logo {
+          width: 50px;
+          height: 50px;
+        }
+
+        h1 {
+          font-size: 1.3rem;
+          text-align: center;
+        }
+
+        .description {
+          font-size: 0.9rem;
+          text-align: center;
+        }
+
+        .user-stat-value {
+          font-size: 1.2rem;
+        }
+
+        .user-stat-label {
+          font-size: 0.7rem;
+        }
+
+        .user-stats-grid {
+          gap: 15px;
+        }
+
+        .species-card {
+          margin: 0;
+        }
+
+        .species-common-name {
+          font-size: 14px;
+        }
+
+        .species-sci-name {
+          font-size: 12px;
+        }
+
+        .species-stats {
+          font-size: 12px;
+        }
+
+        .only-observer-badge,
+        .threatened-badge {
+          font-size: 9px;
+          padding: 3px 6px;
+        }
       }
 
       .taxon-chart {
@@ -573,6 +738,7 @@
   <body>
     <a
       href="/inat"
+      class="back-button"
       style="
         position: fixed;
         top: 20px;

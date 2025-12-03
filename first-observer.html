@@ -238,11 +238,92 @@
         margin-bottom: 20px;
         display: none;
       }
+
+      @media (max-width: 768px) {
+        .search-container {
+          flex-direction: column;
+        }
+
+        .input-wrapper {
+          width: 100%;
+        }
+
+        button {
+          width: 100%;
+        }
+
+        .results-header {
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-start;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 15px;
+          padding-top: 60px;
+        }
+
+        .back-button {
+          font-size: 0.8rem !important;
+          padding: 8px 12px !important;
+          top: 10px !important;
+          left: 10px !important;
+        }
+
+        h1 {
+          font-size: 1.4rem;
+        }
+
+        .subtitle {
+          font-size: 0.9rem;
+        }
+
+        .species-item {
+          padding: 12px;
+          gap: 10px;
+        }
+
+        .species-image {
+          width: 60px;
+          height: 60px;
+        }
+
+        .species-name {
+          font-size: 14px;
+        }
+
+        .species-scientific {
+          font-size: 12px;
+        }
+
+        .species-date {
+          font-size: 11px;
+        }
+
+        .results-count {
+          font-size: 16px;
+        }
+
+        .progress-container {
+          padding: 15px;
+        }
+
+        .progress-text {
+          font-size: 13px;
+        }
+
+        .current-check {
+          font-size: 11px;
+        }
+      }
     </style>
   </head>
   <body>
     <a
       href="/inat"
+      class="back-button"
       style="
         position: fixed;
         top: 20px;

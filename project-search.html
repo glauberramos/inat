@@ -228,11 +228,80 @@
         }
       }
 
+      @media (max-width: 768px) {
+        .search-container {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .search-container input,
+        .search-container select,
+        .search-container button {
+          width: 100%;
+        }
+
+        .place-search-container {
+          width: 100%;
+        }
+
+        .checkbox-label {
+          justify-content: center;
+          padding: 5px 0;
+        }
+
+        .pagination {
+          flex-wrap: wrap;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding-top: 60px;
+        }
+
+        .back-button {
+          font-size: 0.8rem !important;
+          padding: 8px 12px !important;
+          top: 10px !important;
+          left: 10px !important;
+        }
+
+        h1 {
+          font-size: 1.4rem;
+        }
+
+        .description {
+          font-size: 0.9rem;
+        }
+
+        .project-card-image-container {
+          height: 150px;
+        }
+
+        .project-card-icon {
+          width: 60px;
+          height: 60px;
+        }
+
+        .project-card h3 {
+          font-size: 14px;
+        }
+
+        .project-card p {
+          font-size: 13px;
+        }
+
+        .umbrella-badge {
+          font-size: 10px;
+          padding: 3px 6px;
+        }
+      }
     </style>
   </head>
   <body>
     <a
       href="/inat"
+      class="back-button"
       style="
         position: fixed;
         top: 20px;
@@ -260,7 +329,7 @@
       <header>
         <div class="header-content">
           <div class="title-container">
-            <img src="logo.png" alt="SpeciesDex Logo" class="logo" />
+            <img src="logo.png" alt="iNaturalist Logo" class="logo" />
             <h1>iNaturalist Project Search</h1>
           </div>
           <p class="description">

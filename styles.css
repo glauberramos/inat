@@ -319,19 +319,122 @@ button:hover {
 }
 
 @media (max-width: 480px) {
+  body {
+    padding-top: 60px;
+  }
+
+  .container {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .description {
+    font-size: 0.95rem;
+  }
+
   .species-grid {
     grid-template-columns: 1fr;
+    gap: 15px;
   }
 
   .search-container {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    padding: 0 10px;
   }
 
   input,
-  .taxon-select {
+  .taxon-select,
+  .limit-select,
+  .language-select {
     width: 100%;
-    max-width: 300px;
+    max-width: none;
+  }
+
+  .place-search-container,
+  .username-search-container,
+  .taxon-search-container {
+    width: 100%;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .status-bar {
+    margin: 0 10px 20px;
+    padding: 12px;
+  }
+
+  .status-text {
+    font-size: 1rem;
+  }
+
+  .checkbox-container {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 0.95rem;
+  }
+
+  .location-name {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 5px;
+    margin-right: 0;
+  }
+
+  .advanced-options-section {
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 10px;
+  }
+
+  .advanced-options-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .month-filter-container {
+    width: 100%;
+  }
+
+  .month-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+
+  .advanced-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .advanced-actions button {
+    width: 100%;
+  }
+
+  .species-card img {
+    height: 150px;
+  }
+
+  .species-card h3 {
+    font-size: 1rem;
+  }
+}
+
+/* Back button mobile styles */
+@media (max-width: 480px) {
+  .back-button {
+    font-size: 0.8rem !important;
+    padding: 8px 12px !important;
+    top: 10px !important;
+    left: 10px !important;
   }
 }
 
