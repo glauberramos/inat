@@ -366,6 +366,52 @@
         color: white;
       }
 
+      .map-card {
+        max-width: 50%;
+      }
+
+      .world-grid-map {
+        display: grid;
+        grid-template-columns: repeat(32, 1fr);
+        gap: 0;
+        border-radius: 6px;
+        background: #1a1a1a;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .world-grid-map img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: fill;
+      }
+
+      .grid-cell {
+        aspect-ratio: 1;
+        position: relative;
+        z-index: 1;
+        background: transparent;
+      }
+
+      .grid-cell.observed {
+        background: rgba(116, 172, 0, 0.8);
+      }
+
+      .map-subtitle {
+        text-align: center;
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+      }
+
+      @media (max-width: 768px) {
+        .map-card {
+          max-width: 100%;
+        }
+      }
+
       .empty-state {
         text-align: center;
         padding: 60px 20px;
@@ -627,6 +673,12 @@
               </div>
             </div>
           </div>
+
+          <div class="chart-card map-card">
+            <div class="chart-title">World Observation Map</div>
+            <div class="map-subtitle" id="mapSubtitle"></div>
+            <div class="world-grid-map" id="worldGridMap"></div>
+          </div>
         </div>
 
         <div id="emptyState" class="empty-state"></div>
@@ -850,6 +902,9 @@
 
           // Fetch recent observations with photos
           await loadRecentPhotos(user.login);
+
+          // Load world grid map
+          await loadWorldGridMap(user.id);
 
           loading.style.display = 'none';
           profileContent.style.display = 'block';
@@ -1081,6 +1136,76 @@
             </div>
           `;
         }).join('');
+      }
+
+      async function loadWorldGridMap(userId) {
+        const mapContainer = document.getElementById('worldGridMap');
+        const mapSubtitle = document.getElementById('mapSubtitle');
+
+        try {
+          const response = await fetch(
+            `https://api.inaturalist.org/v1/grid/0/0/0.grid.json?user_id=${userId}`
+          );
+          const worldGridData = await response.json();
+
+          // Parse UTF Grid to find cells with observations (same logic as achievements)
+          const displayGridSize = 32;
+          const observedGridCells = new Map();
+
+          if (worldGridData && worldGridData.grid && worldGridData.keys && worldGridData.data) {
+            const utfGridSize = worldGridData.grid.length;
+            const groupSize = utfGridSize / displayGridSize;
+            const dataKeys = Object.keys(worldGridData.data);
+
+            dataKeys.forEach(dataKey => {
+              const keyIndex = worldGridData.keys.indexOf(dataKey);
+              if (keyIndex <= 0) return;
+
+              for (let row = 0; row < utfGridSize; row++) {
+                const gridRow = worldGridData.grid[row];
+                if (!gridRow) continue;
+
+                for (let col = 0; col < gridRow.length; col++) {
+                  let id = gridRow.charCodeAt(col);
+                  if (id >= 93) id--;
+                  if (id >= 35) id--;
+                  id -= 32;
+
+                  if (id === keyIndex) {
+                    const displayRow = Math.floor(row / groupSize);
+                    const displayCol = Math.floor(col / groupSize);
+                    const cellKey = displayRow + "," + displayCol;
+                    observedGridCells.set(cellKey, true);
+                    return;
+                  }
+                }
+              }
+            });
+          }
+
+          const observedGridSquares = observedGridCells.size;
+
+          // Update subtitle
+          mapSubtitle.textContent = `${observedGridSquares} grid squares explored`;
+
+          // Render map (same as achievements)
+          let html = '<img src="https://tile.openstreetmap.org/0/0/0.png" alt="">';
+
+          for (let row = 0; row < displayGridSize; row++) {
+            for (let col = 0; col < displayGridSize; col++) {
+              const cellKey = row + ',' + col;
+              const hasObservation = observedGridCells.has(cellKey);
+              const bgColor = hasObservation ? 'rgba(116, 172, 0, 0.8)' : 'transparent';
+              html += '<div style="aspect-ratio: 1; background: ' + bgColor + '; position: relative; z-index: 1;"></div>';
+            }
+          }
+
+          mapContainer.innerHTML = html;
+
+        } catch (error) {
+          console.error('Error loading world grid map:', error);
+          mapContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">Unable to load map</div>';
+        }
       }
 
       async function loadRecentPhotos(username) {

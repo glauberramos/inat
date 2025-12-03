@@ -470,3 +470,7 @@ body.dark-mode .empty-state {
 body.dark-mode .empty-state-text {
   color: #aaa;
 }
+
+body.dark-mode .map-subtitle {
+  color: #aaa;
+}
