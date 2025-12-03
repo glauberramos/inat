@@ -351,7 +351,7 @@
 
     <h1>iNaturalist First Observer Checker</h1>
     <p class="subtitle">
-      Find species where you made the very first observation ever recorded on iNaturalist worldwide.
+      Find species where you made the very first observation ever recorded on iNaturalist.
     </p>
 
     <div class="search-container">
@@ -363,6 +363,15 @@
           autocomplete="off"
         />
         <div class="autocomplete" id="autocomplete"></div>
+      </div>
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="placeInput"
+          placeholder="Filter by place (optional)"
+          autocomplete="off"
+        />
+        <div class="autocomplete" id="placeAutocomplete"></div>
       </div>
       <button id="searchBtn" onclick="startSearch()">Search</button>
     </div>
@@ -390,9 +399,14 @@
 
       let isSearching = false;
       let searchTimeout = null;
+      let placeSearchTimeout = null;
+      let selectedPlaceId = null;
+      let selectedPlaceName = null;
 
       const usernameInput = document.getElementById("username");
       const autocompleteEl = document.getElementById("autocomplete");
+      const placeInput = document.getElementById("placeInput");
+      const placeAutocomplete = document.getElementById("placeAutocomplete");
 
       // Load saved username
       const savedUsername = localStorage.getItem("inatUsername");
@@ -465,7 +479,71 @@
         ) {
           autocompleteEl.classList.remove("active");
         }
+        if (
+          !placeInput.contains(e.target) &&
+          !placeAutocomplete.contains(e.target)
+        ) {
+          placeAutocomplete.classList.remove("active");
+        }
       });
+
+      // Place autocomplete
+      placeInput.addEventListener("input", (e) => {
+        clearTimeout(placeSearchTimeout);
+        const query = e.target.value.trim();
+
+        // Clear selection if user is typing
+        selectedPlaceId = null;
+        selectedPlaceName = null;
+
+        if (query.length < 2) {
+          placeAutocomplete.innerHTML = "";
+          placeAutocomplete.classList.remove("active");
+          return;
+        }
+
+        placeSearchTimeout = setTimeout(() => searchPlaces(query), 300);
+      });
+
+      async function searchPlaces(query) {
+        try {
+          const response = await fetch(
+            `${API_BASE}/places/autocomplete?q=${encodeURIComponent(query)}&per_page=10`
+          );
+          const data = await response.json();
+
+          if (data.results && data.results.length > 0) {
+            placeAutocomplete.innerHTML = data.results
+              .map(
+                (place) => `
+              <div class="autocomplete-item" data-id="${place.id}" data-name="${place.display_name}">
+                <div class="autocomplete-name">${place.display_name}</div>
+                <div class="autocomplete-login">${place.place_type_name || ''}</div>
+              </div>
+            `
+              )
+              .join("");
+
+            placeAutocomplete
+              .querySelectorAll(".autocomplete-item")
+              .forEach((item) => {
+                item.addEventListener("click", () => {
+                  selectedPlaceId = item.dataset.id;
+                  selectedPlaceName = item.dataset.name;
+                  placeInput.value = selectedPlaceName;
+                  placeAutocomplete.classList.remove("active");
+                });
+              });
+
+            placeAutocomplete.classList.add("active");
+          } else {
+            placeAutocomplete.innerHTML = "";
+            placeAutocomplete.classList.remove("active");
+          }
+        } catch (error) {
+          console.error("Error searching places:", error);
+        }
+      }
 
       function sleep(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
@@ -484,7 +562,10 @@
       async function getUserSpeciesCounts(username) {
         updateProgress(0, "Fetching species list...", "");
 
-        const url = `${API_BASE}/observations/taxonomy?user_login=${username}&verifiable=true`;
+        let url = `${API_BASE}/observations/taxonomy?user_login=${username}&verifiable=true`;
+        if (selectedPlaceId) {
+          url += `&place_id=${selectedPlaceId}`;
+        }
         const data = await fetchJSON(url);
 
         if (!data.results) {
@@ -493,7 +574,7 @@
 
         // Filter to species and subspecies, format to match expected structure
         return data.results
-          .filter((item) => item.rank === "species" || item.rank === "subspecies")
+          .filter((item) => ["species", "subspecies", "variety", "form"].includes(item.rank))
           .map((item) => ({
             taxon: {
               id: item.id,
@@ -553,7 +634,10 @@
           const results = await Promise.all(
             activeBatches.map(async (batch, index) => {
               const batchIds = Array.from(batch.keys());
-              const url = `${API_BASE}/observations?taxon_id=${batchIds.join(",")}&per_page=200&order_by=observed_on&order=asc&verifiable=true`;
+              let url = `${API_BASE}/observations?taxon_id=${batchIds.join(",")}&per_page=200&order_by=observed_on&order=asc&verifiable=true`;
+              if (selectedPlaceId) {
+                url += `&place_id=${selectedPlaceId}`;
+              }
 
               try {
                 const data = await fetchJSON(url);
@@ -571,26 +655,31 @@
 
             if (data.results && data.results.length > 0) {
               for (const obs of data.results) {
-                const taxonId = obs.taxon?.id;
+                const obsTaxon = obs.taxon;
+                const obsTaxonId = obsTaxon?.id;
+                const ancestorIds = obsTaxon?.ancestor_ids || [];
 
-                if (taxonId && batch.has(taxonId) && !foundFirstObs.has(taxonId)) {
-                  const taxon = batch.get(taxonId);
-                  const isFirst =
-                    obs.user?.login?.toLowerCase() === username.toLowerCase();
+                // Check if any batch taxa match this observation (direct or via ancestors)
+                for (const [batchTaxonId, batchTaxon] of batch) {
+                  if (!foundFirstObs.has(batchTaxonId) &&
+                      (obsTaxonId === batchTaxonId || ancestorIds.includes(batchTaxonId))) {
+                    const isFirst =
+                      obs.user?.login?.toLowerCase() === username.toLowerCase();
 
-                  foundFirstObs.set(taxonId, {
-                    isFirst,
-                    observationId: obs.id,
-                    observedOn: obs.observed_on,
-                    imageUrl: obs.photos?.[0]?.url?.replace("square", "small"),
-                    firstObserver: obs.user?.login,
-                  });
+                    foundFirstObs.set(batchTaxonId, {
+                      isFirst,
+                      observationId: obs.id,
+                      observedOn: obs.observed_on,
+                      imageUrl: obs.photos?.[0]?.url?.replace("square", "small"),
+                      firstObserver: obs.user?.login,
+                    });
 
-                  foundInBatch.add(taxonId);
-                  processedCount++;
+                    foundInBatch.add(batchTaxonId);
+                    processedCount++;
 
-                  if (isFirst) {
-                    onFirstFound(taxon, foundFirstObs.get(taxonId));
+                    if (isFirst) {
+                      onFirstFound(batchTaxon, foundFirstObs.get(batchTaxonId));
+                    }
                   }
                 }
               }
@@ -629,9 +718,11 @@
 
       function updateResultsCount(count) {
         const countEl = document.getElementById("resultsCount");
-        countEl.textContent = `Found ${count} first observation${
-          count !== 1 ? "s" : ""
-        }`;
+        let text = `Found ${count} first observation${count !== 1 ? "s" : ""}`;
+        if (selectedPlaceName) {
+          text += ` in ${selectedPlaceName}`;
+        }
+        countEl.textContent = text;
       }
 
       function addResultItem(sp) {
@@ -661,8 +752,9 @@
       function showNoResults() {
         const listEl = document.getElementById("speciesList");
         if (listEl.children.length === 0) {
+          const placeContext = selectedPlaceName ? ` in ${selectedPlaceName}` : "";
           listEl.innerHTML =
-            '<li class="no-results">No first observations found in the checked observations.</li>';
+            `<li class="no-results">No first observations found${placeContext}.</li>`;
         }
       }
 
@@ -708,7 +800,8 @@
               (b.taxon.observations_count || 0)
           );
 
-          updateProgress(0, `Found ${allTaxa.length} taxa to check`, "");
+          const placeContext = selectedPlaceName ? ` in ${selectedPlaceName}` : "";
+          updateProgress(0, `Found ${allTaxa.length} taxa to check${placeContext}`, "");
 
           // Step 3: Build taxa map for batch processing
           const taxaMap = new Map();
