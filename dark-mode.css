@@ -1,0 +1,353 @@
+/* Dark mode toggle button */
+.dark-mode-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #74ac00;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  font-size: 1.3rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark-mode-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 480px) {
+  .dark-mode-toggle {
+    top: 10px;
+    right: 10px;
+    width: 38px;
+    height: 38px;
+    font-size: 1.1rem;
+  }
+}
+
+/* Dark mode base styles */
+body.dark-mode {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+body.dark-mode .container {
+  background-color: #1a1a1a;
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3 {
+  color: #e0e0e0;
+}
+
+body.dark-mode .description,
+body.dark-mode .subtitle {
+  color: #aaa;
+}
+
+body.dark-mode input,
+body.dark-mode select {
+  background: #3d3d3d;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-mode input::placeholder {
+  color: #888;
+}
+
+body.dark-mode button {
+  background: #74ac00;
+}
+
+body.dark-mode button:hover {
+  background: #5d8a00;
+}
+
+body.dark-mode button:disabled {
+  background: #555;
+  color: #888;
+}
+
+/* Card styles */
+body.dark-mode .summary-card,
+body.dark-mode .stats-card,
+body.dark-mode .tool-card {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .tool-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .tool-card h2 {
+  color: #e0e0e0;
+}
+
+body.dark-mode .tool-card p {
+  color: #aaa;
+}
+
+/* Species cards and grids */
+body.dark-mode .species-card,
+body.dark-mode .project-card {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .species-card h3,
+body.dark-mode .project-card h3 {
+  color: #e0e0e0;
+}
+
+body.dark-mode .species-card p,
+body.dark-mode .project-card p {
+  color: #aaa;
+}
+
+body.dark-mode .scientific-name {
+  color: #999;
+}
+
+body.dark-mode .observations {
+  color: #888;
+}
+
+/* Species list items */
+body.dark-mode .species-item {
+  border-bottom-color: #444;
+}
+
+body.dark-mode .species-item:hover {
+  background: #333;
+}
+
+body.dark-mode .species-name {
+  color: #e0e0e0;
+}
+
+body.dark-mode .species-scientific {
+  color: #999;
+}
+
+body.dark-mode .species-date {
+  color: #777;
+}
+
+/* Results containers */
+body.dark-mode .results-container {
+  background: #2d2d2d;
+}
+
+body.dark-mode .results-header {
+  border-color: #444;
+}
+
+/* Progress bars */
+body.dark-mode .progress-container {
+  background: #2d2d2d;
+}
+
+body.dark-mode .progress-bar-bg {
+  background: #444;
+}
+
+body.dark-mode .progress-text {
+  color: #aaa;
+}
+
+body.dark-mode .current-check {
+  color: #777;
+}
+
+/* Year separator */
+body.dark-mode .year-separator {
+  background: #5d8a00;
+}
+
+/* Autocomplete */
+body.dark-mode .autocomplete,
+body.dark-mode .place-autocomplete,
+body.dark-mode .username-autocomplete,
+body.dark-mode .taxon-autocomplete {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .autocomplete-item,
+body.dark-mode .place-suggestion,
+body.dark-mode .username-suggestion,
+body.dark-mode .taxon-suggestion {
+  border-bottom-color: #444;
+}
+
+body.dark-mode .autocomplete-item:hover,
+body.dark-mode .place-suggestion:hover,
+body.dark-mode .username-suggestion:hover,
+body.dark-mode .taxon-suggestion:hover {
+  background: #3d3d3d;
+}
+
+body.dark-mode .autocomplete-name,
+body.dark-mode .place-name,
+body.dark-mode .username-name,
+body.dark-mode .taxon-name {
+  color: #e0e0e0;
+}
+
+body.dark-mode .autocomplete-login,
+body.dark-mode .place-details,
+body.dark-mode .username-info,
+body.dark-mode .taxon-rank {
+  color: #aaa;
+}
+
+/* Status bar */
+body.dark-mode .status-bar {
+  background: #2d2d2d;
+}
+
+body.dark-mode .status-text {
+  color: #e0e0e0;
+}
+
+body.dark-mode .progress-bar {
+  background: #444;
+}
+
+/* Checkbox containers */
+body.dark-mode .checkbox-container {
+  background: #2d2d2d;
+}
+
+body.dark-mode .location-name {
+  color: #e0e0e0;
+}
+
+body.dark-mode label {
+  color: #ccc;
+}
+
+/* Location info */
+body.dark-mode .location-info {
+  background: #2d2d2d;
+  color: #e0e0e0;
+}
+
+/* Error messages */
+body.dark-mode .error,
+body.dark-mode .error-message {
+  background: #3d2020;
+  color: #ff8080;
+}
+
+/* Pagination */
+body.dark-mode .pagination .page-info {
+  color: #aaa;
+}
+
+/* Links */
+body.dark-mode a {
+  color: #8bc34a;
+}
+
+body.dark-mode a:hover {
+  color: #9acd32;
+}
+
+/* Back button - keep it green in dark mode */
+body.dark-mode .back-button {
+  background: #74ac00;
+}
+
+body.dark-mode .back-button:hover {
+  background: #659900;
+}
+
+/* Badges */
+body.dark-mode .only-observer-badge,
+body.dark-mode .umbrella-badge {
+  background: #3498db;
+}
+
+body.dark-mode .threatened-badge {
+  background: #c0392b;
+}
+
+/* View controls */
+body.dark-mode .view-btn {
+  background: #3d3d3d;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-mode .view-btn.active {
+  background: #74ac00;
+  border-color: #74ac00;
+  color: white;
+}
+
+/* Table view */
+body.dark-mode .species-table {
+  background: #2d2d2d;
+}
+
+body.dark-mode .species-table th {
+  background: #3d3d3d;
+  color: #e0e0e0;
+  border-color: #555;
+}
+
+body.dark-mode .species-table td {
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+body.dark-mode .species-table tr:hover td {
+  background: #333;
+}
+
+/* Taxon chart */
+body.dark-mode .taxon-chart {
+  background: #2d2d2d;
+}
+
+body.dark-mode .taxon-bar-value {
+  color: #aaa;
+}
+
+/* User info */
+body.dark-mode .user-info-top {
+  background: #2d2d2d;
+}
+
+body.dark-mode .user-name {
+  color: #e0e0e0;
+}
+
+body.dark-mode .user-login {
+  color: #aaa;
+}
+
+body.dark-mode .user-stat-value {
+  color: #74ac00;
+}
+
+body.dark-mode .user-stat-label {
+  color: #888;
+}
+
+/* Controls */
+body.dark-mode .controls label {
+  color: #ccc;
+}

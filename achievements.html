@@ -36,16 +36,10 @@
     }
     </script>
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="dark-mode.css" />
     <link rel="stylesheet" href="achievements.css" />
   </head>
   <body>
-    <button
-      class="dark-mode-toggle"
-      id="darkModeToggle"
-      title="Toggle dark mode"
-    >
-      🌙
-    </button>
     <a
       href="/inat"
       class="back-button"
@@ -2738,24 +2732,7 @@
         return { html, completedCount, totalAchievements };
       }
     </script>
-    <script>
-      // Dark mode functionality
-      const darkModeToggle = document.getElementById("darkModeToggle");
-
-      // Load dark mode preference from localStorage
-      if (localStorage.getItem("darkMode") === "true") {
-        document.body.classList.add("dark-mode");
-        darkModeToggle.textContent = "☀️";
-      }
-
-      // Toggle dark mode
-      darkModeToggle.addEventListener("click", () => {
-        document.body.classList.toggle("dark-mode");
-        const isDarkMode = document.body.classList.contains("dark-mode");
-        localStorage.setItem("darkMode", isDarkMode);
-        darkModeToggle.textContent = isDarkMode ? "☀️" : "🌙";
-      });
-    </script>
+    <script src="dark-mode.js"></script>
     <script
       defer
       data-domain="glauberramos.github.io/inat"

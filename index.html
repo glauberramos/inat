@@ -47,6 +47,7 @@
       }
     }
     </script>
+    <link rel="stylesheet" href="dark-mode.css" />
     <style>
       * {
         margin: 0;
@@ -159,18 +160,6 @@
         margin: 0;
       }
 
-      footer {
-        text-align: center;
-        margin-top: 60px;
-        padding: 20px;
-      }
-
-      footer img {
-        max-width: 180px;
-        height: auto;
-        opacity: 0.7;
-      }
-
       @media (max-width: 768px) {
         h1 {
           font-size: 2rem;
@@ -243,13 +232,6 @@
           font-size: 1.1rem;
         }
 
-        footer {
-          margin-top: 40px;
-        }
-
-        footer img {
-          max-width: 140px;
-        }
       }
     </style>
   </head>
@@ -307,9 +289,6 @@
         </div>
       </main>
 
-      <footer>
-        <img src="powered_by.png" alt="Powered By" />
-      </footer>
     </div>
     <script
       defer
@@ -327,5 +306,6 @@
         d.getElementsByTagName("head")[0].appendChild(s);
       })();
     </script>
+    <script src="dark-mode.js"></script>
   </body>
 </html>
