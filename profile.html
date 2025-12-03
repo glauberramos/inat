@@ -741,7 +741,8 @@
           // Update profile header
           const avatarContainer = document.getElementById('avatarContainer');
           if (user.icon) {
-            avatarContainer.innerHTML = `<img src="${user.icon.replace('medium', 'original').replace('square', 'original')}" alt="${user.login}" class="profile-avatar">`;
+            const highResIcon = user.icon.replace(/medium|square|small|thumb/g, 'original');
+            avatarContainer.innerHTML = `<img src="${highResIcon}" alt="${user.login}" class="profile-avatar">`;
           } else {
             avatarContainer.innerHTML = `<div class="profile-avatar-placeholder">👤</div>`;
           }
@@ -912,13 +913,13 @@
 
         // Draw center circle for donut effect
         ctx.beginPath();
-        ctx.arc(centerX, centerY, radius * 0.5, 0, 2 * Math.PI);
+        ctx.arc(centerX, centerY, radius * 0.65, 0, 2 * Math.PI);
         ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#2d2d2d' : 'white';
         ctx.fill();
 
         // Draw total in center
         ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333';
-        ctx.font = 'bold 20px sans-serif';
+        ctx.font = 'bold 18px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(total.toLocaleString(), centerX, centerY - 8);
@@ -993,13 +994,13 @@
 
         // Draw center circle for donut effect
         ctx.beginPath();
-        ctx.arc(centerX, centerY, radius * 0.5, 0, 2 * Math.PI);
+        ctx.arc(centerX, centerY, radius * 0.65, 0, 2 * Math.PI);
         ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#2d2d2d' : 'white';
         ctx.fill();
 
         // Draw total in center
         ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333';
-        ctx.font = 'bold 20px sans-serif';
+        ctx.font = 'bold 18px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(total.toLocaleString(), centerX, centerY - 8);
