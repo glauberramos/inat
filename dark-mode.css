@@ -351,3 +351,78 @@ body.dark-mode .user-stat-label {
 body.dark-mode .controls label {
   color: #ccc;
 }
+
+/* User info card (species-observed) */
+body.dark-mode .user-info-card {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .user-meta {
+  color: #aaa;
+}
+
+body.dark-mode .user-meta-item {
+  color: #aaa;
+}
+
+body.dark-mode .user-avatar-placeholder {
+  background: #3d3d3d;
+  border-color: #555;
+}
+
+/* Taxon chart bar containers */
+body.dark-mode .taxon-bar-container {
+  background: #3d3d3d;
+}
+
+/* View buttons container */
+body.dark-mode .view-buttons {
+  border-color: #555;
+}
+
+body.dark-mode .view-btn:not(.active):hover {
+  background: #4d4d4d;
+}
+
+/* Species card content (species-observed) */
+body.dark-mode .species-common-name {
+  color: #e0e0e0;
+}
+
+body.dark-mode .species-sci-name {
+  color: #999;
+}
+
+body.dark-mode .species-stats {
+  color: #aaa;
+}
+
+body.dark-mode .species-image-placeholder {
+  background: #3d3d3d;
+  color: #888;
+}
+
+/* Table view placeholder */
+body.dark-mode .table-image-placeholder {
+  background: #3d3d3d;
+  color: #888;
+}
+
+body.dark-mode .table-common-name {
+  color: #e0e0e0;
+}
+
+body.dark-mode .table-sci-name {
+  color: #999;
+}
+
+/* Results count text */
+body.dark-mode #resultsCount {
+  color: #aaa;
+}
+
+/* Loading text */
+body.dark-mode .loading {
+  color: #aaa;
+}
