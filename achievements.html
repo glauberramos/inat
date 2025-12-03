@@ -127,6 +127,7 @@
 
       let searchTimeout = null;
       let currentUsername = "";
+      let calendarObservedDays = new Set();
 
       // All iconic taxons in iNaturalist with emojis
       const ICONIC_TAXONS = {
@@ -1505,6 +1506,7 @@
         const observationDays100 = histogramAchievements.observationDays100;
         const observationDays500 = histogramAchievements.observationDays500;
         const yearRoundObserver = histogramAchievements.yearRoundObserver;
+        calendarObservedDays = yearRoundObserver.observedDays || new Set();
 
         // Account age achievements
         const account2 = calculateAccountAgeAchievement(userCreatedAt, 2);
@@ -2304,13 +2306,20 @@
                 "Observe on 500 different days",
                 null
               )}
-              ${renderAchievementCard(
-                yearRoundObserver,
-                "🗓️",
-                "Calendar Completionist",
-                "Observe on all 365 days of the year (across any years)",
-                null
-              )}
+              <div class="achievement-card ${yearRoundObserver.completed ? 'completed' : ''}">
+                <div class="achievement-icon">🗓️</div>
+                <div class="achievement-content">
+                  <div class="achievement-name">Calendar Completionist</div>
+                  <div class="achievement-description">Observe on all 365 days of the year (across any years)</div>
+                  <div class="achievement-progress">
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: ${Math.min((yearRoundObserver.current / yearRoundObserver.total) * 100, 100)}%"></div>
+                    </div>
+                    <div class="progress-text calendar-progress">${yearRoundObserver.current.toLocaleString()}/${yearRoundObserver.total.toLocaleString()}</div>
+                  </div>
+                  <a href="#" class="calendar-link" onclick="event.preventDefault(); openCalendarModal();">Open calendar</a>
+                </div>
+              </div>
               ${renderAchievementCard(
                 newYear,
                 "🎆",
@@ -2756,6 +2765,25 @@
         return { html, completedCount, totalAchievements };
       }
     </script>
+    <script src="calendar-modal.js"></script>
+    <!-- Calendar Modal -->
+    <div class="calendar-modal-overlay" id="calendarModalOverlay" onclick="closeCalendarModal(event)">
+      <div class="calendar-modal" onclick="event.stopPropagation()">
+        <div class="calendar-modal-header">
+          <div class="calendar-modal-title">
+            <span>🗓️</span>
+            <span>Calendar Completionist</span>
+          </div>
+          <button class="calendar-modal-close" onclick="closeCalendarModal()">&times;</button>
+        </div>
+        <div class="calendar-progress-summary">
+          <div class="calendar-progress-text" id="calendarProgressText">0/365</div>
+          <div class="calendar-progress-label">unique days observed</div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+    </div>
+
     <script src="dark-mode.js"></script>
     <script
       defer

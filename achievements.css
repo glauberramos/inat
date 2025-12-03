@@ -754,3 +754,244 @@ body.dark-mode .achievement-card.loading::before {
     gap: 6px;
   }
 }
+
+/* Calendar Modal */
+.calendar-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  backdrop-filter: blur(4px);
+}
+
+.calendar-modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.calendar-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 900px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  transform: scale(0.9);
+  transition: transform 0.3s;
+}
+
+/* Prevent checkmarks in calendar modal */
+.calendar-modal *::after {
+  content: none !important;
+}
+
+.calendar-modal-overlay.show .calendar-modal {
+  transform: scale(1);
+}
+
+.calendar-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.calendar-modal-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.calendar-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+  padding: 5px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.calendar-modal-close:hover {
+  color: #333;
+}
+
+.calendar-progress-summary {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.calendar-progress-text {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #74ac00;
+}
+
+.calendar-progress-label {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px 16px;
+}
+
+.calendar-month {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calendar-month-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  background: #f0f0f0;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: #999;
+  font-weight: 500;
+}
+
+.calendar-day.observed {
+  background: #74ac00;
+  color: white;
+}
+
+.calendar-day:hover {
+  transform: scale(1.2);
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.calendar-day.empty {
+  background: transparent;
+}
+
+/* Calendar link in achievement card */
+.calendar-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: #74ac00;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.calendar-link:hover {
+  text-decoration: underline;
+  color: #5d8a00;
+}
+
+/* Remove checkmark from calendar progress */
+.achievement-card.completed .progress-text.calendar-progress::after {
+  content: none;
+}
+
+body.dark-mode .calendar-link {
+  color: #9acd32;
+}
+
+body.dark-mode .calendar-link:hover {
+  color: #74ac00;
+}
+
+body.dark-mode .calendar-day {
+  color: #888;
+}
+
+body.dark-mode .calendar-day.observed {
+  color: white;
+}
+
+/* Dark mode calendar */
+body.dark-mode .calendar-modal {
+  background: #2d2d2d;
+}
+
+body.dark-mode .calendar-modal-header {
+  border-bottom-color: #444;
+}
+
+body.dark-mode .calendar-modal-title {
+  color: #e0e0e0;
+}
+
+body.dark-mode .calendar-modal-close {
+  color: #888;
+}
+
+body.dark-mode .calendar-modal-close:hover {
+  color: #e0e0e0;
+}
+
+body.dark-mode .calendar-progress-label {
+  color: #aaa;
+}
+
+body.dark-mode .calendar-month-name {
+  color: #888;
+}
+
+body.dark-mode .calendar-day {
+  background: #444;
+}
+
+body.dark-mode .calendar-day.observed {
+  background: #74ac00;
+}
+
+@media (max-width: 768px) {
+  .calendar-modal {
+    padding: 16px;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .calendar-month-name {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
