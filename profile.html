@@ -272,10 +272,16 @@
         gap: 6px;
         cursor: pointer;
         transition: opacity 0.2s;
+        text-decoration: none;
+        color: inherit;
       }
 
       .taxon-bar-col:hover {
         opacity: 0.8;
+      }
+
+      a.taxon-bar-col:hover {
+        color: inherit;
       }
 
       .taxon-bar-wrapper {
@@ -973,7 +979,7 @@
           document.getElementById('nativeCount').textContent = (nativeData.total_results || 0).toLocaleString();
 
           // Fetch species by iconic taxon for bar chart
-          await renderTaxonChart(user.id);
+          await renderTaxonChart(user.id, user.login);
 
           // Fetch recent observations with photos
           await loadRecentPhotos(user.login);
@@ -1152,7 +1158,7 @@
         }).join('');
       }
 
-      async function renderTaxonChart(userId) {
+      async function renderTaxonChart(userId, username) {
         const taxonChart = document.getElementById('taxonChart');
 
         const iconicTaxonData = {
@@ -1175,7 +1181,7 @@
         const promises = Object.keys(iconicTaxonData).map(async (taxon) => {
           try {
             const response = await fetch(
-              `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&iconic_taxa=${taxon}&per_page=0`
+              `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&iconic_taxa=${taxon}&verifiable=true&per_page=0`
             );
             const data = await response.json();
             iconicTaxonData[taxon].count = data.total_results || 0;
@@ -1201,14 +1207,15 @@
 
         taxonChart.innerHTML = sortedTaxons.map(([key, data]) => {
           const barHeight = Math.max(6, (data.count / maxCount) * maxHeight);
+          const inatUrl = `https://www.inaturalist.org/observations?user_id=${username}&iconic_taxa=${key}&verifiable=true&view=species`;
           return `
-            <div class="taxon-bar-col" title="${data.name}: ${data.count.toLocaleString()} species">
+            <a href="${inatUrl}" target="_blank" class="taxon-bar-col" title="${data.name}: ${data.count.toLocaleString()} species">
               <span class="taxon-bar-value">${data.count}</span>
               <div class="taxon-bar-wrapper" style="height: ${maxHeight}px;">
                 <div class="taxon-bar" style="height: ${barHeight}px; background: ${data.color};"></div>
               </div>
               <span class="taxon-bar-emoji">${data.emoji}</span>
-            </div>
+            </a>
           `;
         }).join('');
       }
