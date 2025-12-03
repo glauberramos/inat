@@ -1004,6 +1004,7 @@
             weekendWarrior: { current: 0, total: 25, completed: false },
             observationDays100: { current: 0, total: 100, completed: false },
             observationDays500: { current: 0, total: 500, completed: false },
+            yearRoundObserver: { current: 0, total: 365, completed: false, observedDays: new Set() },
           };
         }
 
@@ -1124,6 +1125,14 @@
         // Total observation days
         const totalObservationDays = dates.length;
 
+        // Year-round observer (observe on each of 365 unique calendar days)
+        const uniqueCalendarDays = new Set();
+        dates.forEach((dateStr) => {
+          const date = new Date(dateStr);
+          const monthDay = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+          uniqueCalendarDays.add(monthDay);
+        });
+
         return {
           veteran2: {
             current: veteran2Count,
@@ -1198,6 +1207,12 @@
             current: totalObservationDays,
             total: 500,
             completed: totalObservationDays >= 500,
+          },
+          yearRoundObserver: {
+            current: uniqueCalendarDays.size,
+            total: 365,
+            completed: uniqueCalendarDays.size >= 365,
+            observedDays: uniqueCalendarDays,
           },
         };
       }
@@ -1489,6 +1504,7 @@
         const weekendWarrior = histogramAchievements.weekendWarrior;
         const observationDays100 = histogramAchievements.observationDays100;
         const observationDays500 = histogramAchievements.observationDays500;
+        const yearRoundObserver = histogramAchievements.yearRoundObserver;
 
         // Account age achievements
         const account2 = calculateAccountAgeAchievement(userCreatedAt, 2);
@@ -1704,6 +1720,7 @@
           weekendWarrior,
           observationDays100,
           observationDays500,
+          yearRoundObserver,
           veteran2,
           veteran5,
           veteran10,
@@ -1835,7 +1852,7 @@
         const timeDedicationAchievements = [
           streak7, streak30, streak60, newYear, obsDay10, obsDay100,
           earlyBird, nightOwl, fromArchives, oldTimer,
-          weekendWarrior, observationDays100, observationDays500
+          weekendWarrior, observationDays100, observationDays500, yearRoundObserver
         ];
 
         const communityAchievements = [
@@ -2283,8 +2300,15 @@
               ${renderAchievementCard(
                 observationDays500,
                 "📆",
-                "Year-Round Observer",
+                "Dedicated Observer",
                 "Observe on 500 different days",
+                null
+              )}
+              ${renderAchievementCard(
+                yearRoundObserver,
+                "🗓️",
+                "Calendar Completionist",
+                "Observe on all 365 days of the year (across any years)",
                 null
               )}
               ${renderAchievementCard(
