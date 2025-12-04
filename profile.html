@@ -374,7 +374,8 @@
       }
 
       .map-card {
-        max-width: 50%;
+        flex: 1;
+        min-width: 0;
       }
 
       .world-grid-map {
@@ -413,8 +414,77 @@
         margin-bottom: 15px;
       }
 
+      .countries-card {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .countries-subtitle {
+        text-align: center;
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+      }
+
+      .countries-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        max-height: 250px;
+        overflow-y: auto;
+      }
+
+      .country-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: #f5f5f5;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        text-decoration: none;
+        color: inherit;
+        transition: background 0.2s, transform 0.2s;
+      }
+
+      .country-item:hover {
+        background: #e8e8e8;
+        transform: translateY(-1px);
+      }
+
+      .country-flag {
+        font-size: 1.2rem;
+      }
+
+      .country-name {
+        font-weight: 500;
+        color: #333;
+      }
+
+      .country-count {
+        color: #666;
+        font-size: 0.8rem;
+      }
+
+      .countries-loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .countries-progress {
+        font-size: 0.85rem;
+        color: #888;
+        margin-top: 10px;
+      }
+
       @media (max-width: 768px) {
         .map-card {
+          max-width: 100%;
+        }
+
+        .countries-card {
           max-width: 100%;
         }
       }
@@ -766,10 +836,17 @@
             </div>
           </div>
 
-          <div class="chart-card map-card">
-            <div class="chart-title">World Observation Map</div>
-            <div class="map-subtitle" id="mapSubtitle"></div>
-            <div class="world-grid-map" id="worldGridMap"></div>
+          <div class="charts-row">
+            <div class="chart-card map-card">
+              <div class="chart-title">World Observation Map</div>
+              <div class="map-subtitle" id="mapSubtitle"></div>
+              <div class="world-grid-map" id="worldGridMap"></div>
+            </div>
+            <div class="chart-card countries-card">
+              <div class="chart-title">Countries & Regions Observed</div>
+              <div class="countries-subtitle" id="countriesSubtitle">Loading...</div>
+              <div class="countries-grid" id="countriesGrid"></div>
+            </div>
           </div>
         </div>
 
@@ -982,24 +1059,21 @@
           lastIdData = idData;
           drawIdPieChart(idData);
 
-          // Fetch threatened, endemic, introduced, native counts
-          const [threatenedResponse, endemicResponse, introducedResponse, nativeResponse] = await Promise.all([
-            fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&threatened=true&per_page=0`),
-            fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&endemic=true&per_page=0`),
-            fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&introduced=true&per_page=0`),
-            fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&native=true&per_page=0`)
-          ]);
-
-          const [threatenedData, endemicData, introducedData, nativeData] = await Promise.all([
-            threatenedResponse.json(),
-            endemicResponse.json(),
-            introducedResponse.json(),
-            nativeResponse.json()
-          ]);
-
+          // Fetch threatened, endemic, introduced, native counts (sequential to avoid rate limiting)
+          const threatenedResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&threatened=true&per_page=0`);
+          const threatenedData = await threatenedResponse.json();
           document.getElementById('threatenedCount').textContent = (threatenedData.total_results || 0).toLocaleString();
+
+          const endemicResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&endemic=true&per_page=0`);
+          const endemicData = await endemicResponse.json();
           document.getElementById('endemicCount').textContent = (endemicData.total_results || 0).toLocaleString();
+
+          const introducedResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&introduced=true&per_page=0`);
+          const introducedData = await introducedResponse.json();
           document.getElementById('introducedCount').textContent = (introducedData.total_results || 0).toLocaleString();
+
+          const nativeResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&native=true&per_page=0`);
+          const nativeData = await nativeResponse.json();
           document.getElementById('nativeCount').textContent = (nativeData.total_results || 0).toLocaleString();
 
           // Fetch species by iconic taxon for bar chart
@@ -1013,6 +1087,9 @@
 
           loading.style.display = 'none';
           profileContent.style.display = 'block';
+
+          // Load countries (independent, has its own loading state)
+          loadCountriesObserved(user.id, user.login);
 
         } catch (error) {
           console.error('Error loading profile:', error);
@@ -1355,6 +1432,254 @@
           grid.innerHTML = '';
           if (lastObsDateEl) lastObsDateEl.textContent = '-';
         }
+      }
+
+      // Country place IDs with flags
+      const COUNTRY_FLAGS = {
+        1: "🇺🇸", 1303: "🇻🇪", 6681: "🇮🇳", 6712: "🇨🇦", 6718: "🇮🇪", 6734: "🇸🇬",
+        6737: "🇯🇵", 6744: "🇦🇺", 6748: "🇵🇫", 6774: "🇪🇸", 6783: "🇧🇴", 6793: "🇲🇽",
+        6815: "🇮🇱", 6818: "🇮🇷", 6845: "🇸🇳", 6847: "🇻🇳", 6857: "🇬🇧", 6873: "🇵🇭",
+        6878: "🇧🇷", 6903: "🇨🇳", 6924: "🇨🇷", 6925: "🇳🇮", 6929: "🇭🇳", 6931: "🇩🇴",
+        6940: "🇬🇹", 6944: "🇨🇺", 6949: "🇬🇫", 6953: "🇧🇿", 6966: "🇮🇩", 6967: "🇹🇭",
+        6968: "🇺🇬", 6986: "🇿🇦", 6992: "🇲🇲", 7001: "🇱🇦", 7002: "🇰🇭", 7003: "🇵🇦",
+        7008: "🇧🇪", 7013: "🇵🇬", 7016: "🇳🇴", 7020: "🇫🇮", 7042: "🇰🇪", 7046: "🇨🇬",
+        7054: "🇨🇩", 7055: "🇪🇬", 7063: "🇬🇲", 7064: "🇸🇩", 7074: "🇹🇩", 7076: "🇵🇰",
+        7077: "🇱🇰", 7082: "🇻🇺", 7083: "🇳🇨", 7100: "🇦🇴", 7112: "🇬🇦", 7113: "🇲🇼",
+        7122: "🇵🇹", 7133: "🇲🇷", 7134: "🇲🇿", 7141: "🇳🇬", 7142: "🇷🇼", 7143: "🇸🇿",
+        7144: "🇹🇿", 7145: "🇿🇲", 7147: "🇷🇸", 7154: "🇧🇩", 7155: "🇲🇾", 7161: "🇷🇺",
+        7182: "🇨🇱", 7183: "🇹🇷", 7190: "🇦🇷", 7196: "🇨🇴", 7207: "🇩🇪", 7228: "🇬🇭",
+        7236: "🇨🇭", 7254: "🇵🇾", 7259: "🇺🇾", 7278: "🇮🇸", 7300: "🇩🇿", 7305: "🇱🇾",
+        7306: "🇲🇦", 7312: "🇹🇳", 7313: "🇧🇸", 7332: "🇫🇯", 7333: "🇳🇫", 7334: "🇼🇫",
+        7335: "🇳🇵", 7341: "🇦🇫", 7342: "🇰🇿", 7346: "🇰🇬", 7347: "🇲🇳", 7353: "🇸🇯",
+        7355: "🇰🇼", 7356: "🇴🇲", 7358: "🇸🇦", 7375: "🇹🇹", 7399: "🇭🇺", 7487: "🇸🇱",
+        7488: "🇰🇾", 7506: "🇳🇱", 7512: "🇪🇨", 7513: "🇵🇪", 7526: "🇭🇹", 7563: "🇸🇻",
+        7578: "🇧🇾", 7599: "🇸🇪", 7613: "🇭🇰", 7616: "🇨🇽", 7690: "🇫🇰", 7704: "🇬🇱",
+        7707: "🇧🇹", 7783: "🇲🇬", 7800: "🇵🇱", 7827: "🇸🇷", 7833: "🇯🇴", 7837: "🇾🇪",
+        7838: "🇧🇳", 7841: "🇹🇴", 7846: "🇲🇱", 7887: "🇹🇼", 7985: "🇬🇸", 8004: "🇨🇮",
+        8050: "🇱🇻", 8142: "🇬🇾", 8147: "🇱🇺", 8177: "🇬🇵", 8196: "🇭🇷", 8206: "🇮🇶",
+        8226: "🇦🇩", 8227: "🇲🇨", 8228: "🇸🇮", 8240: "🇲🇹", 8241: "🇧🇬", 8263: "🇱🇮",
+        8266: "🇱🇹", 8267: "🇸🇰", 8357: "🇲🇺", 8358: "🇸🇨", 8360: "🇧🇶", 8421: "🇰🇲",
+        8425: "🇲🇻", 8433: "🇦🇲", 8434: "🇦🇿", 8504: "🇼🇸", 8511: "🇩🇯", 8512: "🇬🇳",
+        8513: "🇬🇼", 8514: "🇱🇷", 8515: "🇳🇪", 8516: "🇹🇬", 8638: "🇧🇲", 8748: "🇯🇲",
+        8834: "🇷🇪", 8857: "🇬🇪", 8858: "🇷🇴", 8859: "🇲🇪", 8860: "🇺🇦", 9173: "🇸🇹",
+        9184: "🇩🇲", 9213: "🇻🇦", 9240: "🇬🇶", 9445: "🇨🇻", 9992: "🇬🇩", 10281: "🇦🇮",
+        10282: "🇦🇽", 10283: "🇦🇬", 10284: "🇧🇭", 10285: "🇧🇧", 10286: "🇧🇻", 10287: "🇨🇨",
+        10288: "🇨🇰", 10289: "🇨🇾", 10290: "🇫🇴", 10291: "🇬🇬", 10292: "🇬🇮", 10293: "🇭🇲",
+        10294: "🇮🇲", 10295: "🇮🇴", 10296: "🇯🇪", 10297: "🇰🇳", 10298: "🇽🇰", 10299: "🇱🇧",
+        10300: "🇱🇨", 10301: "🇲🇴", 10302: "🇲🇩", 10303: "🇲🇰", 10304: "🇲🇸", 10305: "🇲🇶",
+        10306: "🇾🇹", 10307: "🇳🇺", 10308: "🇳🇷", 10309: "🇵🇳", 10310: "🇸🇲", 10311: "🇵🇲",
+        10313: "🇹🇰", 10314: "🇹🇱", 10315: "🇹🇻", 10316: "🇺🇲", 10317: "🇻🇨", 10318: "🇻🇬",
+        10320: "🇨🇵", 10322: "🇫🇲", 10323: "🇰🇮", 10324: "🇲🇭", 10408: "🇨🇼", 10411: "🇸🇽",
+        51356: "🇧🇱", 51360: "🇲🇫", 51754: "🇸🇸", 54505: "🇦🇶", 96773: "🇨🇾", 96774: "🇬🇧"
+      };
+
+      // Country place IDs to names mapping
+      const COUNTRY_PLACES = {
+        1: "United States", 1303: "Venezuela", 6681: "India", 6712: "Canada",
+        6718: "Ireland", 6734: "Singapore", 6737: "Japan", 6744: "Australia",
+        6748: "French Polynesia", 6774: "Spain", 6783: "Bolivia", 6793: "Mexico",
+        6815: "Israel", 6818: "Iran", 6845: "Senegal", 6847: "Vietnam",
+        6857: "United Kingdom", 6873: "Philippines", 6878: "Brazil", 6903: "China",
+        6924: "Costa Rica", 6925: "Nicaragua", 6929: "Honduras", 6931: "Dominican Republic",
+        6940: "Guatemala", 6944: "Cuba", 6949: "French Guiana", 6953: "Belize",
+        6966: "Indonesia", 6967: "Thailand", 6968: "Uganda", 6986: "South Africa",
+        6992: "Myanmar", 7001: "Laos", 7002: "Cambodia", 7003: "Panama", 7008: "Belgium",
+        7013: "Papua New Guinea", 7016: "Norway", 7020: "Finland", 7042: "Kenya",
+        7046: "Republic of Congo", 7054: "DR Congo", 7055: "Egypt", 7063: "Gambia",
+        7064: "Sudan", 7074: "Chad", 7076: "Pakistan", 7077: "Sri Lanka", 7082: "Vanuatu",
+        7083: "New Caledonia", 7100: "Angola", 7112: "Gabon", 7113: "Malawi",
+        7122: "Portugal", 7133: "Mauritania", 7134: "Mozambique", 7141: "Nigeria",
+        7142: "Rwanda", 7143: "Eswatini", 7144: "Tanzania", 7145: "Zambia",
+        7147: "Serbia", 7154: "Bangladesh", 7155: "Malaysia", 7161: "Russia",
+        7182: "Chile", 7183: "Türkiye", 7190: "Argentina", 7196: "Colombia",
+        7207: "Germany", 7228: "Ghana", 7236: "Switzerland", 7254: "Paraguay",
+        7259: "Uruguay", 7278: "Iceland", 7300: "Algeria", 7305: "Libya",
+        7306: "Morocco", 7312: "Tunisia", 7313: "Bahamas", 7332: "Fiji",
+        7333: "Norfolk Island", 7334: "Wallis and Futuna", 7335: "Nepal",
+        7341: "Afghanistan", 7342: "Kazakhstan", 7346: "Kyrgyzstan", 7347: "Mongolia",
+        7353: "Svalbard", 7355: "Kuwait", 7356: "Oman", 7358: "Saudi Arabia",
+        7375: "Trinidad and Tobago", 7399: "Hungary", 7487: "Sierra Leone",
+        7488: "Cayman Islands", 7506: "Netherlands", 7512: "Ecuador", 7513: "Peru",
+        7526: "Haiti", 7563: "El Salvador", 7578: "Belarus", 7599: "Sweden",
+        7613: "Hong Kong", 7616: "Christmas Island", 7690: "Falkland Islands",
+        7704: "Greenland", 7707: "Bhutan", 7783: "Madagascar", 7800: "Poland",
+        7827: "Suriname", 7833: "Jordan", 7837: "Yemen", 7838: "Brunei",
+        7841: "Tonga", 7846: "Mali", 7887: "Taiwan", 7985: "South Georgia",
+        8004: "Côte d'Ivoire", 8050: "Latvia", 8142: "Guyana", 8147: "Luxembourg",
+        8177: "Guadeloupe", 8196: "Croatia", 8206: "Iraq", 8226: "Andorra",
+        8227: "Monaco", 8228: "Slovenia", 8240: "Malta", 8241: "Bulgaria",
+        8263: "Liechtenstein", 8266: "Lithuania", 8267: "Slovakia", 8357: "Mauritius",
+        8358: "Seychelles", 8360: "Caribbean Netherlands", 8421: "Comoros",
+        8425: "Maldives", 8433: "Armenia", 8434: "Azerbaijan", 8504: "Samoa",
+        8511: "Djibouti", 8512: "Guinea", 8513: "Guinea-Bissau", 8514: "Liberia",
+        8515: "Niger", 8516: "Togo", 8638: "Bermuda", 8748: "Jamaica",
+        8834: "Réunion", 8857: "Georgia", 8858: "Romania", 8859: "Montenegro",
+        8860: "Ukraine", 9173: "São Tomé and Príncipe", 9184: "Dominica",
+        9213: "Vatican City", 9240: "Equatorial Guinea", 9445: "Cape Verde",
+        9992: "Grenada", 10281: "Anguilla", 10282: "Åland", 10283: "Antigua and Barbuda",
+        10284: "Bahrain", 10285: "Barbados", 10286: "Bouvet Island", 10287: "Cocos Islands",
+        10288: "Cook Islands", 10289: "Cyprus", 10290: "Faroe Islands", 10291: "Guernsey",
+        10292: "Gibraltar", 10293: "Heard Island", 10294: "Isle of Man", 10295: "British Indian Ocean",
+        10296: "Jersey", 10297: "Saint Kitts and Nevis", 10298: "Kosovo", 10299: "Lebanon",
+        10300: "Saint Lucia", 10301: "Macao", 10302: "Moldova", 10303: "North Macedonia",
+        10304: "Montserrat", 10305: "Martinique", 10306: "Mayotte", 10307: "Niue",
+        10308: "Nauru", 10309: "Pitcairn Islands", 10310: "San Marino",
+        10311: "Saint Pierre and Miquelon", 10313: "Tokelau", 10314: "East Timor",
+        10315: "Tuvalu", 10316: "US Minor Outlying Islands", 10317: "Saint Vincent",
+        10318: "British Virgin Islands", 10320: "Clipperton Island", 10322: "Micronesia",
+        10323: "Kiribati", 10324: "Marshall Islands", 10408: "Curaçao", 10411: "Sint Maarten",
+        51356: "Saint-Barthélemy", 51360: "Saint-Martin", 51754: "South Sudan",
+        54505: "Antarctica", 96773: "Northern Cyprus", 96774: "Akrotiri and Dhekelia"
+      };
+
+      // Iconic places data
+      const ICONIC_PLACES = [
+        { id: 12990, name: "Galápagos", flag: "🐢" },
+        { id: 11, name: "Hawaii", flag: "🌺" },
+        { id: 130979, name: "Canary Islands", flag: "🏝️" },
+        { id: 13197, name: "Azores", flag: "🌋" },
+        { id: 7291, name: "Madeira", flag: "🏝️" },
+        { id: 6, name: "Alaska", flag: "🐻" },
+        { id: 10782, name: "Bali", flag: "🏝️" },
+      ];
+
+      // Build PLACES_DATA from countries and iconic places
+      const PLACES_DATA = [
+        ...Object.entries(COUNTRY_PLACES).map(([id, name]) => ({
+          id: parseInt(id),
+          name,
+          flag: COUNTRY_FLAGS[id] || "🏳️",
+          type: "country"
+        })),
+        ...ICONIC_PLACES.map(place => ({ ...place, type: "iconic" }))
+      ];
+
+      async function loadCountriesObserved(userId, username) {
+        const countriesGrid = document.getElementById('countriesGrid');
+        const countriesSubtitle = document.getElementById('countriesSubtitle');
+
+        // Show loading state
+        countriesGrid.innerHTML = '<div class="countries-loading">🌍 Checking countries...<div class="countries-progress" id="countriesProgress">Initializing...</div></div>';
+        countriesSubtitle.textContent = 'Loading...';
+
+        const observedPlaces = [];
+        const progressEl = document.getElementById('countriesProgress');
+        let apiCalls = 0;
+
+        // Check if a batch of place IDs has any observations
+        async function checkBatch(placeIds) {
+          apiCalls++;
+          if (progressEl) {
+            progressEl.textContent = `${apiCalls} API calls, ${observedPlaces.length} places found`;
+          }
+          try {
+            const response = await fetch(
+              `https://api.inaturalist.org/v1/observations?user_id=${userId}&place_id=${placeIds.join(',')}&per_page=0`
+            );
+            const data = await response.json();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            return data.total_results > 0;
+          } catch (error) {
+            console.error('Error checking batch:', error);
+            return false;
+          }
+        }
+
+        // Get count for a single place
+        async function getPlaceCount(placeId) {
+          apiCalls++;
+          if (progressEl) {
+            progressEl.textContent = `${apiCalls} API calls, ${observedPlaces.length} places found`;
+          }
+          try {
+            const response = await fetch(
+              `https://api.inaturalist.org/v1/observations?user_id=${userId}&place_id=${placeId}&per_page=0`
+            );
+            const data = await response.json();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            return data.total_results || 0;
+          } catch (error) {
+            console.error('Error getting count:', error);
+            return 0;
+          }
+        }
+
+        // Binary search to find places with observations
+        async function findObservedPlaces(places) {
+          if (places.length === 0) return;
+
+          // Single place - get its count directly
+          if (places.length === 1) {
+            const count = await getPlaceCount(places[0].id);
+            if (count > 0) {
+              observedPlaces.push({ ...places[0], count });
+            }
+            return;
+          }
+
+          // Check if this batch has any observations
+          const placeIds = places.map(p => p.id);
+          const hasObservations = await checkBatch(placeIds);
+
+          if (!hasObservations) {
+            return; // No observations in this entire batch
+          }
+
+          // If batch is small enough, check each individually
+          if (places.length <= 4) {
+            for (const place of places) {
+              const count = await getPlaceCount(place.id);
+              if (count > 0) {
+                observedPlaces.push({ ...place, count });
+              }
+            }
+            return;
+          }
+
+          // Split batch in half and recurse
+          const mid = Math.floor(places.length / 2);
+          await findObservedPlaces(places.slice(0, mid));
+          await findObservedPlaces(places.slice(mid));
+        }
+
+        // Start the binary search
+        await findObservedPlaces(PLACES_DATA);
+
+        // Sort by observation count (highest first)
+        observedPlaces.sort((a, b) => b.count - a.count);
+
+        // Separate countries and iconic places
+        const countries = observedPlaces.filter(p => p.type === 'country');
+        const iconicPlaces = observedPlaces.filter(p => p.type === 'iconic');
+
+        // Update subtitle
+        const countryCount = countries.length;
+        const iconicCount = iconicPlaces.length;
+        let subtitleText = `${countryCount} ${countryCount === 1 ? 'country' : 'countries'}`;
+        if (iconicCount > 0) {
+          subtitleText += ` + ${iconicCount} iconic ${iconicCount === 1 ? 'region' : 'regions'}`;
+        }
+        countriesSubtitle.textContent = subtitleText;
+
+        // Render the grid
+        if (observedPlaces.length === 0) {
+          countriesGrid.innerHTML = '<div class="countries-loading">No countries found</div>';
+          return;
+        }
+
+        // Combine: iconic places first, then countries
+        const allPlaces = [...iconicPlaces, ...countries];
+
+        countriesGrid.innerHTML = allPlaces.map(place => {
+          const inatUrl = `https://www.inaturalist.org/observations?user_id=${username}&place_id=${place.id}`;
+          return `
+            <a href="${inatUrl}" target="_blank" class="country-item" title="${place.name}: ${place.count.toLocaleString()} observations">
+              <span class="country-flag">${place.flag}</span>
+              <span class="country-name">${place.name}</span>
+              <span class="country-count">(${place.count.toLocaleString()})</span>
+            </a>
+          `;
+        }).join('');
       }
 
       function showError(message) {

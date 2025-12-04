@@ -483,6 +483,35 @@ body.dark-mode .map-subtitle {
   color: #aaa;
 }
 
+/* Countries section */
+body.dark-mode .countries-subtitle {
+  color: #aaa;
+}
+
+body.dark-mode .country-item {
+  background: #3d3d3d;
+}
+
+body.dark-mode .country-item:hover {
+  background: #4d4d4d;
+}
+
+body.dark-mode .country-name {
+  color: #e0e0e0;
+}
+
+body.dark-mode .country-count {
+  color: #aaa;
+}
+
+body.dark-mode .countries-loading {
+  color: #aaa;
+}
+
+body.dark-mode .countries-progress {
+  color: #888;
+}
+
 /* Language select */
 body.dark-mode .language-select {
   background-color: #3d3d3d;
