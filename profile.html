@@ -1101,8 +1101,8 @@
       let loadingStep = 0;
       const totalLoadingSteps = 28;
 
-      function updateLoadingProgress(step) {
-        loadingStep = step;
+      function incrementLoadingProgress() {
+        loadingStep++;
         const percent = Math.round((loadingStep / totalLoadingSteps) * 100);
         loading.textContent = `Loading profile data... ${percent}%`;
       }
@@ -1122,13 +1122,12 @@
         loading.style.display = 'block';
 
         try {
-          // Fetch user data
+          // Fetch user data first (required for all other calls)
           const userResponse = await fetch(
             `https://api.inaturalist.org/v1/users/autocomplete?q=${encodeURIComponent(username)}`
           );
           const userData = await userResponse.json();
-          updateLoadingProgress(1);
-          await delay(250);
+          incrementLoadingProgress();
 
           if (!userData.results || userData.results.length === 0) {
             throw new Error('User not found');
@@ -1174,119 +1173,138 @@
           // Basic stats
           document.getElementById('totalObservations').textContent = (user.observations_count || 0).toLocaleString();
 
-          // Fetch species count
-          const speciesResponse = await fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&per_page=0`
-          );
-          const speciesData = await speciesResponse.json();
-          updateLoadingProgress(2);
-          await delay(250);
-          const speciesCount = speciesData.total_results || 0;
+          // Run parallel API call groups (grouped by endpoint type)
+          // Group 1: /observations endpoint (quality grades + recent photos)
+          const observationsGroup = async () => {
+            const researchResponse = await fetch(`https://api.inaturalist.org/v1/observations?user_id=${user.id}&quality_grade=research&per_page=0`);
+            const researchData = await researchResponse.json();
+            incrementLoadingProgress();
+            await delay(300);
+
+            const needsIdResponse = await fetch(`https://api.inaturalist.org/v1/observations?user_id=${user.id}&quality_grade=needs_id&per_page=0`);
+            const needsIdData = await needsIdResponse.json();
+            incrementLoadingProgress();
+            await delay(300);
+
+            const casualResponse = await fetch(`https://api.inaturalist.org/v1/observations?user_id=${user.id}&quality_grade=casual&per_page=0`);
+            const casualData = await casualResponse.json();
+            incrementLoadingProgress();
+            await delay(300);
+
+            // Recent photos (also /observations endpoint)
+            await loadRecentPhotos(user.login);
+            incrementLoadingProgress();
+
+            return {
+              research: researchData.total_results || 0,
+              needsId: needsIdData.total_results || 0,
+              casual: casualData.total_results || 0
+            };
+          };
+
+          // Group 2: /identifications endpoint
+          const identificationsGroup = async () => {
+            const improvingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=improving&own_observation=false&per_page=0`);
+            const improvingData = await improvingResponse.json();
+            incrementLoadingProgress();
+            await delay(300);
+
+            const supportingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=supporting&own_observation=false&per_page=0`);
+            const supportingData = await supportingResponse.json();
+            incrementLoadingProgress();
+            await delay(300);
+
+            const leadingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=leading&own_observation=false&per_page=0`);
+            const leadingData = await leadingResponse.json();
+            incrementLoadingProgress();
+            await delay(300);
+
+            const maverickResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=maverick&own_observation=false&per_page=0`);
+            const maverickData = await maverickResponse.json();
+            incrementLoadingProgress();
+
+            return {
+              improving: improvingData.total_results || 0,
+              supporting: supportingData.total_results || 0,
+              leading: leadingData.total_results || 0,
+              maverick: maverickData.total_results || 0
+            };
+          };
+
+          // Group 3: /observations/species_counts endpoint
+          const speciesCountsGroup = async () => {
+            const speciesResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&per_page=0`);
+            const speciesData = await speciesResponse.json();
+            incrementLoadingProgress();
+            await delay(300);
+
+            const threatenedResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&threatened=true&per_page=0`);
+            const threatenedData = await threatenedResponse.json();
+            incrementLoadingProgress();
+            await delay(300);
+
+            const endemicResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&endemic=true&per_page=0`);
+            const endemicData = await endemicResponse.json();
+            incrementLoadingProgress();
+            await delay(300);
+
+            const introducedResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&introduced=true&per_page=0`);
+            const introducedData = await introducedResponse.json();
+            incrementLoadingProgress();
+            await delay(300);
+
+            const nativeResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&native=true&per_page=0`);
+            const nativeData = await nativeResponse.json();
+            incrementLoadingProgress();
+            await delay(300);
+
+            // Taxon chart (also species_counts endpoint)
+            await renderTaxonChart(user.id, user.login);
+
+            return {
+              species: speciesData.total_results || 0,
+              threatened: threatenedData.total_results || 0,
+              endemic: endemicData.total_results || 0,
+              introduced: introducedData.total_results || 0,
+              native: nativeData.total_results || 0
+            };
+          };
+
+          // Group 4: /grid endpoint
+          const gridGroup = async () => {
+            await loadWorldGridMap(user.id);
+            incrementLoadingProgress();
+          };
+
+          // Run all groups in parallel
+          const [qualityData, idData, speciesCountsData] = await Promise.all([
+            observationsGroup(),
+            identificationsGroup(),
+            speciesCountsGroup(),
+            gridGroup()
+          ]);
+
+          // Update UI with results
+          const speciesCount = speciesCountsData.species;
           const observationsCount = user.observations_count || 0;
           document.getElementById('totalSpecies').textContent = speciesCount.toLocaleString();
 
-          // Calculate species to observation ratio
           const ratio = observationsCount > 0 ? (speciesCount / observationsCount) * 100 : 0;
           document.getElementById('speciesRatio').textContent = ratio.toFixed(1) + '%';
 
-          // Fetch observation quality grades (sequential)
-          const researchResponse = await fetch(`https://api.inaturalist.org/v1/observations?user_id=${user.id}&quality_grade=research&per_page=0`);
-          const researchData = await researchResponse.json();
-          updateLoadingProgress(3);
-          await delay(250);
-
-          const needsIdResponse = await fetch(`https://api.inaturalist.org/v1/observations?user_id=${user.id}&quality_grade=needs_id&per_page=0`);
-          const needsIdData = await needsIdResponse.json();
-          updateLoadingProgress(4);
-          await delay(250);
-
-          const casualResponse = await fetch(`https://api.inaturalist.org/v1/observations?user_id=${user.id}&quality_grade=casual&per_page=0`);
-          const casualData = await casualResponse.json();
-          updateLoadingProgress(5);
-          await delay(250);
-
-          const qualityData = {
-            research: researchData.total_results || 0,
-            needsId: needsIdData.total_results || 0,
-            casual: casualData.total_results || 0
-          };
+          document.getElementById('threatenedCount').textContent = speciesCountsData.threatened.toLocaleString();
+          document.getElementById('endemicCount').textContent = speciesCountsData.endemic.toLocaleString();
+          document.getElementById('introducedCount').textContent = speciesCountsData.introduced.toLocaleString();
+          document.getElementById('nativeCount').textContent = speciesCountsData.native.toLocaleString();
 
           lastQualityData = qualityData;
           drawPieChart(qualityData);
 
-          // Fetch identification categories (sequential, only for others' observations)
-          const improvingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=improving&own_observation=false&per_page=0`);
-          const improvingData = await improvingResponse.json();
-          updateLoadingProgress(6);
-          await delay(250);
-
-          const supportingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=supporting&own_observation=false&per_page=0`);
-          const supportingData = await supportingResponse.json();
-          updateLoadingProgress(7);
-          await delay(250);
-
-          const leadingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=leading&own_observation=false&per_page=0`);
-          const leadingData = await leadingResponse.json();
-          updateLoadingProgress(8);
-          await delay(250);
-
-          const maverickResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=maverick&own_observation=false&per_page=0`);
-          const maverickData = await maverickResponse.json();
-          updateLoadingProgress(9);
-          await delay(250);
-
-          const idData = {
-            improving: improvingData.total_results || 0,
-            supporting: supportingData.total_results || 0,
-            leading: leadingData.total_results || 0,
-            maverick: maverickData.total_results || 0
-          };
-
-          // Update identifications count to match pie chart total (only others' observations)
           const totalIdentifications = idData.improving + idData.supporting + idData.leading + idData.maverick;
           document.getElementById('identificationsCount').textContent = totalIdentifications.toLocaleString();
 
           lastIdData = idData;
           drawIdPieChart(idData);
-
-          // Fetch threatened, endemic, introduced, native counts (sequential to avoid rate limiting)
-          const threatenedResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&threatened=true&per_page=0`);
-          const threatenedData = await threatenedResponse.json();
-          document.getElementById('threatenedCount').textContent = (threatenedData.total_results || 0).toLocaleString();
-          updateLoadingProgress(10);
-          await delay(250);
-
-          const endemicResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&endemic=true&per_page=0`);
-          const endemicData = await endemicResponse.json();
-          document.getElementById('endemicCount').textContent = (endemicData.total_results || 0).toLocaleString();
-          updateLoadingProgress(11);
-          await delay(250);
-
-          const introducedResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&introduced=true&per_page=0`);
-          const introducedData = await introducedResponse.json();
-          document.getElementById('introducedCount').textContent = (introducedData.total_results || 0).toLocaleString();
-          updateLoadingProgress(12);
-          await delay(250);
-
-          const nativeResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&native=true&per_page=0`);
-          const nativeData = await nativeResponse.json();
-          document.getElementById('nativeCount').textContent = (nativeData.total_results || 0).toLocaleString();
-          updateLoadingProgress(13);
-          await delay(250);
-
-          // Fetch species by iconic taxon for bar chart
-          await renderTaxonChart(user.id, user.login);
-          await delay(250);
-
-          // Fetch recent observations with photos
-          await loadRecentPhotos(user.login);
-          updateLoadingProgress(27);
-          await delay(250);
-
-          // Load world grid map
-          await loadWorldGridMap(user.id);
-          updateLoadingProgress(28);
-          await delay(250);
 
           loading.style.display = 'none';
           profileContent.style.display = 'block';
@@ -1294,7 +1312,7 @@
           // Load calendar (independent, has its own loading state)
           const joinYear = user.created_at ? new Date(user.created_at).getFullYear() : new Date().getFullYear();
           await loadCalendar(user.id, user.login, joinYear);
-          await delay(250);
+          await delay(300);
 
           // Load countries (independent, has its own loading state)
           await loadCountriesObserved(user.id, user.login);
@@ -1487,7 +1505,6 @@
         };
 
         // Fetch species counts per iconic taxon (sequential)
-        let taxonIndex = 0;
         for (const taxon of Object.keys(iconicTaxonData)) {
           try {
             const response = await fetch(
@@ -1495,12 +1512,10 @@
             );
             const data = await response.json();
             iconicTaxonData[taxon].count = data.total_results || 0;
-            updateLoadingProgress(14 + taxonIndex);
-            taxonIndex++;
-            await delay(250);
+            incrementLoadingProgress();
+            await delay(300);
           } catch (error) {
             console.error(`Error fetching ${taxon}:`, error);
-            taxonIndex++;
           }
         }
 
@@ -1921,7 +1936,7 @@
             `https://api.inaturalist.org/v1/observations?user_id=${userId}&order=asc&order_by=observed_on&per_page=1`
           );
           const data = await response.json();
-          await delay(250);
+          await delay(300);
           if (data.results && data.results.length > 0 && data.results[0].observed_on) {
             const firstObsYear = new Date(data.results[0].observed_on).getFullYear();
             earliestYear = Math.min(joinYear, firstObsYear);
@@ -1945,7 +1960,7 @@
 
         // Load current year
         await renderCalendarForYear(currentYear);
-        await delay(250);
+        await delay(300);
 
         // Calculate streaks across all years
         await calculateAllStreaks(userId, earliestYear, currentYear);
@@ -1962,7 +1977,7 @@
             `https://api.inaturalist.org/v1/observations/histogram?user_id=${currentUserId}&d1=${year}-01-01&d2=${year}-12-31&date_field=observed&interval=day`
           );
           const data = await response.json();
-          await delay(250);
+          await delay(300);
           const dayData = data.results?.day || {};
 
           renderCalendar(dayData, year);
@@ -2077,7 +2092,7 @@
             `https://api.inaturalist.org/v1/observations/histogram?user_id=${userId}&d1=${joinYear}-01-01&d2=${currentYear}-12-31&date_field=observed&interval=day`
           );
           const data = await response.json();
-          await delay(250);
+          await delay(300);
           allDays = data.results?.day || {};
         } catch (error) {
           console.error('Error fetching histogram:', error);
