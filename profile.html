@@ -718,6 +718,10 @@
               <div class="stat-value blue" id="totalSpecies">0</div>
               <div class="stat-label">Species</div>
             </a>
+            <div class="stat-card">
+              <div class="stat-value green" id="speciesRatio">0%</div>
+              <div class="stat-label">Species/Obs Ratio</div>
+            </div>
             <a href="#" id="threatenedLink" class="stat-card" target="_blank">
               <div class="stat-value red" id="threatenedCount">0</div>
               <div class="stat-label">Threatened</div>
@@ -913,7 +917,13 @@
             `https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&per_page=0`
           );
           const speciesData = await speciesResponse.json();
-          document.getElementById('totalSpecies').textContent = (speciesData.total_results || 0).toLocaleString();
+          const speciesCount = speciesData.total_results || 0;
+          const observationsCount = user.observations_count || 0;
+          document.getElementById('totalSpecies').textContent = speciesCount.toLocaleString();
+
+          // Calculate species to observation ratio
+          const ratio = observationsCount > 0 ? (speciesCount / observationsCount) * 100 : 0;
+          document.getElementById('speciesRatio').textContent = ratio.toFixed(1) + '%';
 
           // Fetch observation quality grades
           const [researchResponse, needsIdResponse, casualResponse] = await Promise.all([
