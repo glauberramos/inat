@@ -105,6 +105,10 @@ body.dark-mode .project-card {
   border-color: #444;
 }
 
+body.dark-mode .species-card.observed {
+  border-color: #27ae60;
+}
+
 body.dark-mode .species-card h3,
 body.dark-mode .project-card h3 {
   color: #e0e0e0;
