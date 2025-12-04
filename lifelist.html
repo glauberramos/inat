@@ -861,6 +861,7 @@
                     },
                     observationId: obs.id,
                     observedOn: obs.observed_on,
+                    timeObservedAt: obs.time_observed_at,
                     imageUrl: obs.photos?.[0]?.url || obsTaxon.default_photo?.square_url,
                   };
                   results.set(matchedTaxonId, result);
@@ -1084,6 +1085,7 @@
                 rank: result.taxon.rank,
                 observationId: result.observationId,
                 observedOn: result.observedOn,
+                timeObservedAt: result.timeObservedAt,
                 imageUrl: result.imageUrl,
               }, foundCount);
             },
@@ -1096,7 +1098,12 @@
 
           const sortedLifelist = allResults
             .filter(item => item.observedOn)
-            .sort((a, b) => new Date(b.observedOn) - new Date(a.observedOn));
+            .sort((a, b) => {
+              // Use timeObservedAt for precise ordering, fall back to observedOn
+              const dateA = new Date(a.timeObservedAt || a.observedOn);
+              const dateB = new Date(b.timeObservedAt || b.observedOn);
+              return dateB - dateA;
+            });
 
           updateResultsCount(sortedLifelist.length);
 
@@ -1118,6 +1125,7 @@
               rank: item.taxon.rank,
               observationId: item.observationId,
               observedOn: item.observedOn,
+              timeObservedAt: item.timeObservedAt,
               imageUrl: item.imageUrl,
             };
             lifelistData.push(itemData);
