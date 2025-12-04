@@ -482,3 +482,15 @@ body.dark-mode .empty-state-text {
 body.dark-mode .map-subtitle {
   color: #aaa;
 }
+
+/* Language select */
+body.dark-mode .language-select {
+  background-color: #3d3d3d;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-mode .language-select option {
+  background-color: #3d3d3d;
+  color: #e0e0e0;
+}
