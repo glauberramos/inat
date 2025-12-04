@@ -54,6 +54,62 @@
     </script>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="dark-mode.css" />
+    <style>
+      @media (max-width: 480px) {
+        .place-search-container,
+        .username-search-container,
+        .taxon-search-container {
+          width: 100%;
+          display: block;
+        }
+
+        .place-search-container input,
+        .username-search-container input,
+        .taxon-search-container input,
+        .taxon-id-override-input {
+          width: 100%;
+          margin-right: 0;
+        }
+
+        .taxon-autocomplete {
+          left: 0;
+          right: 0;
+          width: 100%;
+        }
+
+        .advanced-options-section {
+          align-items: stretch;
+        }
+
+        .advanced-options-checkbox input[type="checkbox"] {
+          margin-left: 0;
+        }
+
+        .language-select-container {
+          width: 100%;
+          margin-top: 10px;
+        }
+
+        .language-select-container .language-select {
+          width: 100%;
+        }
+
+        .month-filter-label {
+          display: block;
+          margin-bottom: 8px;
+        }
+
+        .month-checkboxes .advanced-options-checkbox {
+          width: auto;
+          justify-content: center;
+        }
+
+        .month-checkboxes input[type="checkbox"] {
+          margin-left: 0;
+          margin-right: 4px;
+        }
+      }
+    </style>
   </head>
   <body>
     <a

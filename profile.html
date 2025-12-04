@@ -700,6 +700,9 @@
                   <a href="#" id="speciesLink" class="profile-link">
                     <span>📊</span> View Species
                   </a>
+                  <a href="#" id="lifelistLink" class="profile-link">
+                    <span>📅</span> Lifelist
+                  </a>
                 </div>
               </div>
             </div>
@@ -892,6 +895,7 @@
           document.getElementById('identificationsCount').textContent = (user.identifications_count || 0).toLocaleString();
           document.getElementById('inatProfileLink').href = `https://www.inaturalist.org/people/${user.login}`;
           document.getElementById('speciesLink').href = `/inat/species-observed?user=${user.login}`;
+          document.getElementById('lifelistLink').href = `/inat/lifelist.html?user=${user.login}`;
 
           // Set stat card links
           document.getElementById('observationsLink').href = `https://www.inaturalist.org/observations?user_id=${user.login}`;
