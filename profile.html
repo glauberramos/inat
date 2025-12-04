@@ -479,6 +479,110 @@
         margin-top: 10px;
       }
 
+      /* Calendar styles */
+      .calendar-card {
+        margin-bottom: 20px;
+      }
+
+      .calendar-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+      }
+
+      .calendar-header .chart-title {
+        margin-bottom: 0;
+      }
+
+      .calendar-year-select {
+        padding: 6px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        background: white;
+        cursor: pointer;
+      }
+
+      .calendar-streak-info {
+        display: flex;
+        gap: 20px;
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      .calendar-streak-info strong {
+        color: #74ac00;
+      }
+
+      .calendar-container {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+      }
+
+      .calendar-weekdays {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 10px;
+        color: #888;
+        padding-top: 20px;
+      }
+
+      .calendar-weekday {
+        height: 12px;
+        display: flex;
+        align-items: center;
+      }
+
+      .calendar-wrapper {
+        overflow-x: auto;
+      }
+
+      .calendar-months {
+        display: flex;
+        font-size: 10px;
+        color: #888;
+        margin-bottom: 4px;
+        height: 16px;
+      }
+
+      .calendar-month {
+        text-align: left;
+      }
+
+      .calendar-grid {
+        display: grid;
+        grid-template-rows: repeat(7, 12px);
+        grid-auto-flow: column;
+        grid-auto-columns: 12px;
+        gap: 2px;
+      }
+
+      .calendar-day {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        background: #ebedf0;
+      }
+
+      .calendar-day[data-level="1"] { background: #c6e48b; }
+      .calendar-day[data-level="2"] { background: #7bc96f; }
+      .calendar-day[data-level="3"] { background: #40c463; }
+      .calendar-day[data-level="4"] { background: #30d158; }
+
+      .calendar-day:hover {
+        outline: 1px solid #666;
+      }
+
+      .calendar-day.today {
+        outline: 2px solid #74ac00;
+        outline-offset: -1px;
+      }
+
       @media (max-width: 768px) {
         .map-card {
           max-width: 100%;
@@ -486,6 +590,35 @@
 
         .countries-card {
           max-width: 100%;
+        }
+
+        .calendar-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .calendar-year-select {
+          margin-left: 0;
+        }
+
+        .calendar-streak-info {
+          flex-direction: column;
+          gap: 5px;
+        }
+
+        .calendar-grid {
+          grid-template-rows: repeat(7, 10px);
+          grid-auto-columns: 10px;
+        }
+
+        .calendar-day {
+          width: 10px;
+          height: 10px;
+        }
+
+        .calendar-weekday {
+          height: 10px;
         }
       }
 
@@ -773,6 +906,9 @@
                   <a href="#" id="lifelistLink" class="profile-link">
                     <span>📅</span> Lifelist
                   </a>
+                  <a href="#" id="achievementsLink" class="profile-link">
+                    <span>🏆</span> Achievements
+                  </a>
                 </div>
               </div>
             </div>
@@ -832,6 +968,32 @@
               <div class="pie-chart-container">
                 <canvas id="idPieChart" width="180" height="180"></canvas>
                 <div class="pie-legend" id="idPieLegend"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-card calendar-card">
+            <div class="calendar-header">
+              <div class="chart-title">Activity Calendar</div>
+              <div class="calendar-streak-info">
+                <span>Current streak: <strong id="currentStreak">0</strong> days</span>
+                <span>Longest streak: <strong id="longestStreak">0</strong> days</span>
+              </div>
+              <select id="calendarYearSelect" class="calendar-year-select"></select>
+            </div>
+            <div class="calendar-container">
+              <div class="calendar-weekdays">
+                <div class="calendar-weekday">Sun</div>
+                <div class="calendar-weekday">Mon</div>
+                <div class="calendar-weekday">Tue</div>
+                <div class="calendar-weekday">Wed</div>
+                <div class="calendar-weekday">Thu</div>
+                <div class="calendar-weekday">Fri</div>
+                <div class="calendar-weekday">Sat</div>
+              </div>
+              <div class="calendar-wrapper">
+                <div class="calendar-months" id="calendarMonths"></div>
+                <div class="calendar-grid" id="calendarGrid"></div>
               </div>
             </div>
           </div>
@@ -933,6 +1095,18 @@
         if (e.key === 'Enter') loadProfile();
       });
 
+      // Helper for delay between API calls
+      const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+      let loadingStep = 0;
+      const totalLoadingSteps = 28;
+
+      function updateLoadingProgress(step) {
+        loadingStep = step;
+        const percent = Math.round((loadingStep / totalLoadingSteps) * 100);
+        loading.textContent = `Loading profile data... ${percent}%`;
+      }
+
       async function loadProfile() {
         const username = usernameInput.value.trim();
         if (!username) {
@@ -943,6 +1117,8 @@
         hideError();
         emptyState.style.display = 'none';
         profileContent.style.display = 'none';
+        loadingStep = 0;
+        loading.textContent = 'Loading profile data... 0%';
         loading.style.display = 'block';
 
         try {
@@ -951,6 +1127,8 @@
             `https://api.inaturalist.org/v1/users/autocomplete?q=${encodeURIComponent(username)}`
           );
           const userData = await userResponse.json();
+          updateLoadingProgress(1);
+          await delay(250);
 
           if (!userData.results || userData.results.length === 0) {
             throw new Error('User not found');
@@ -981,6 +1159,7 @@
           document.getElementById('inatProfileLink').href = `https://www.inaturalist.org/people/${user.login}`;
           document.getElementById('speciesLink').href = `/inat/species-observed?user=${user.login}`;
           document.getElementById('lifelistLink').href = `/inat/lifelist.html?user=${user.login}`;
+          document.getElementById('achievementsLink').href = `/inat/achievements.html?user=${user.login}`;
 
           // Set stat card links
           document.getElementById('observationsLink').href = `https://www.inaturalist.org/observations?user_id=${user.login}`;
@@ -1000,6 +1179,8 @@
             `https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&per_page=0`
           );
           const speciesData = await speciesResponse.json();
+          updateLoadingProgress(2);
+          await delay(250);
           const speciesCount = speciesData.total_results || 0;
           const observationsCount = user.observations_count || 0;
           document.getElementById('totalSpecies').textContent = speciesCount.toLocaleString();
@@ -1008,18 +1189,21 @@
           const ratio = observationsCount > 0 ? (speciesCount / observationsCount) * 100 : 0;
           document.getElementById('speciesRatio').textContent = ratio.toFixed(1) + '%';
 
-          // Fetch observation quality grades
-          const [researchResponse, needsIdResponse, casualResponse] = await Promise.all([
-            fetch(`https://api.inaturalist.org/v1/observations?user_id=${user.id}&quality_grade=research&per_page=0`),
-            fetch(`https://api.inaturalist.org/v1/observations?user_id=${user.id}&quality_grade=needs_id&per_page=0`),
-            fetch(`https://api.inaturalist.org/v1/observations?user_id=${user.id}&quality_grade=casual&per_page=0`)
-          ]);
+          // Fetch observation quality grades (sequential)
+          const researchResponse = await fetch(`https://api.inaturalist.org/v1/observations?user_id=${user.id}&quality_grade=research&per_page=0`);
+          const researchData = await researchResponse.json();
+          updateLoadingProgress(3);
+          await delay(250);
 
-          const [researchData, needsIdData, casualData] = await Promise.all([
-            researchResponse.json(),
-            needsIdResponse.json(),
-            casualResponse.json()
-          ]);
+          const needsIdResponse = await fetch(`https://api.inaturalist.org/v1/observations?user_id=${user.id}&quality_grade=needs_id&per_page=0`);
+          const needsIdData = await needsIdResponse.json();
+          updateLoadingProgress(4);
+          await delay(250);
+
+          const casualResponse = await fetch(`https://api.inaturalist.org/v1/observations?user_id=${user.id}&quality_grade=casual&per_page=0`);
+          const casualData = await casualResponse.json();
+          updateLoadingProgress(5);
+          await delay(250);
 
           const qualityData = {
             research: researchData.total_results || 0,
@@ -1030,20 +1214,26 @@
           lastQualityData = qualityData;
           drawPieChart(qualityData);
 
-          // Fetch identification categories (only for others' observations)
-          const [improvingResponse, supportingResponse, leadingResponse, maverickResponse] = await Promise.all([
-            fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=improving&own_observation=false&per_page=0`),
-            fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=supporting&own_observation=false&per_page=0`),
-            fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=leading&own_observation=false&per_page=0`),
-            fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=maverick&own_observation=false&per_page=0`)
-          ]);
+          // Fetch identification categories (sequential, only for others' observations)
+          const improvingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=improving&own_observation=false&per_page=0`);
+          const improvingData = await improvingResponse.json();
+          updateLoadingProgress(6);
+          await delay(250);
 
-          const [improvingData, supportingData, leadingData, maverickData] = await Promise.all([
-            improvingResponse.json(),
-            supportingResponse.json(),
-            leadingResponse.json(),
-            maverickResponse.json()
-          ]);
+          const supportingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=supporting&own_observation=false&per_page=0`);
+          const supportingData = await supportingResponse.json();
+          updateLoadingProgress(7);
+          await delay(250);
+
+          const leadingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=leading&own_observation=false&per_page=0`);
+          const leadingData = await leadingResponse.json();
+          updateLoadingProgress(8);
+          await delay(250);
+
+          const maverickResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=maverick&own_observation=false&per_page=0`);
+          const maverickData = await maverickResponse.json();
+          updateLoadingProgress(9);
+          await delay(250);
 
           const idData = {
             improving: improvingData.total_results || 0,
@@ -1063,33 +1253,51 @@
           const threatenedResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&threatened=true&per_page=0`);
           const threatenedData = await threatenedResponse.json();
           document.getElementById('threatenedCount').textContent = (threatenedData.total_results || 0).toLocaleString();
+          updateLoadingProgress(10);
+          await delay(250);
 
           const endemicResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&endemic=true&per_page=0`);
           const endemicData = await endemicResponse.json();
           document.getElementById('endemicCount').textContent = (endemicData.total_results || 0).toLocaleString();
+          updateLoadingProgress(11);
+          await delay(250);
 
           const introducedResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&introduced=true&per_page=0`);
           const introducedData = await introducedResponse.json();
           document.getElementById('introducedCount').textContent = (introducedData.total_results || 0).toLocaleString();
+          updateLoadingProgress(12);
+          await delay(250);
 
           const nativeResponse = await fetch(`https://api.inaturalist.org/v1/observations/species_counts?user_id=${user.id}&native=true&per_page=0`);
           const nativeData = await nativeResponse.json();
           document.getElementById('nativeCount').textContent = (nativeData.total_results || 0).toLocaleString();
+          updateLoadingProgress(13);
+          await delay(250);
 
           // Fetch species by iconic taxon for bar chart
           await renderTaxonChart(user.id, user.login);
+          await delay(250);
 
           // Fetch recent observations with photos
           await loadRecentPhotos(user.login);
+          updateLoadingProgress(27);
+          await delay(250);
 
           // Load world grid map
           await loadWorldGridMap(user.id);
+          updateLoadingProgress(28);
+          await delay(250);
 
           loading.style.display = 'none';
           profileContent.style.display = 'block';
 
+          // Load calendar (independent, has its own loading state)
+          const joinYear = user.created_at ? new Date(user.created_at).getFullYear() : new Date().getFullYear();
+          await loadCalendar(user.id, user.login, joinYear);
+          await delay(250);
+
           // Load countries (independent, has its own loading state)
-          loadCountriesObserved(user.id, user.login);
+          await loadCountriesObserved(user.id, user.login);
 
         } catch (error) {
           console.error('Error loading profile:', error);
@@ -1278,20 +1486,23 @@
           Chromista: { emoji: '🟤', name: 'Chromista', color: '#d35400', count: 0 }
         };
 
-        // Fetch species counts per iconic taxon
-        const promises = Object.keys(iconicTaxonData).map(async (taxon) => {
+        // Fetch species counts per iconic taxon (sequential)
+        let taxonIndex = 0;
+        for (const taxon of Object.keys(iconicTaxonData)) {
           try {
             const response = await fetch(
               `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&iconic_taxa=${taxon}&verifiable=true&per_page=0`
             );
             const data = await response.json();
             iconicTaxonData[taxon].count = data.total_results || 0;
+            updateLoadingProgress(14 + taxonIndex);
+            taxonIndex++;
+            await delay(250);
           } catch (error) {
             console.error(`Error fetching ${taxon}:`, error);
+            taxonIndex++;
           }
-        });
-
-        await Promise.all(promises);
+        }
 
         // Sort by count and filter zeros
         const sortedTaxons = Object.entries(iconicTaxonData)
@@ -1680,6 +1891,295 @@
             </a>
           `;
         }).join('');
+      }
+
+      // Calendar functions
+      let currentUserId = null;
+      let currentUsername = null;
+      let currentUserJoinYear = null;
+
+      // Helper function to format date as YYYY-MM-DD in local time
+      function formatDateLocal(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+
+      async function loadCalendar(userId, username, joinYear) {
+        currentUserId = userId;
+        currentUsername = username;
+        currentUserJoinYear = joinYear;
+
+        const yearSelect = document.getElementById('calendarYearSelect');
+        const currentYear = new Date().getFullYear();
+
+        // Find earliest year with data (might be before join year due to backdated observations)
+        let earliestYear = joinYear;
+        try {
+          const response = await fetch(
+            `https://api.inaturalist.org/v1/observations?user_id=${userId}&order=asc&order_by=observed_on&per_page=1`
+          );
+          const data = await response.json();
+          await delay(250);
+          if (data.results && data.results.length > 0 && data.results[0].observed_on) {
+            const firstObsYear = new Date(data.results[0].observed_on).getFullYear();
+            earliestYear = Math.min(joinYear, firstObsYear);
+          }
+        } catch (error) {
+          console.error('Error fetching earliest observation:', error);
+        }
+
+        // Populate year selector
+        yearSelect.innerHTML = '';
+        for (let year = currentYear; year >= earliestYear; year--) {
+          const option = document.createElement('option');
+          option.value = year;
+          option.textContent = year;
+          yearSelect.appendChild(option);
+        }
+
+        yearSelect.addEventListener('change', async () => {
+          await renderCalendarForYear(parseInt(yearSelect.value));
+        });
+
+        // Load current year
+        await renderCalendarForYear(currentYear);
+        await delay(250);
+
+        // Calculate streaks across all years
+        await calculateAllStreaks(userId, earliestYear, currentYear);
+      }
+
+      async function renderCalendarForYear(year) {
+        const calendarGrid = document.getElementById('calendarGrid');
+        const calendarMonths = document.getElementById('calendarMonths');
+
+        calendarGrid.innerHTML = '<div style="padding: 20px; color: #666;">Loading...</div>';
+
+        try {
+          const response = await fetch(
+            `https://api.inaturalist.org/v1/observations/histogram?user_id=${currentUserId}&d1=${year}-01-01&d2=${year}-12-31&date_field=observed&interval=day`
+          );
+          const data = await response.json();
+          await delay(250);
+          const dayData = data.results?.day || {};
+
+          renderCalendar(dayData, year);
+        } catch (error) {
+          console.error('Error loading calendar:', error);
+          calendarGrid.innerHTML = '<div style="padding: 20px; color: #666;">Error loading calendar</div>';
+        }
+      }
+
+      function renderCalendar(dayData, year) {
+        const calendarGrid = document.getElementById('calendarGrid');
+        const calendarMonths = document.getElementById('calendarMonths');
+
+        // Get first day of the year
+        const startDate = new Date(year, 0, 1);
+        const endDate = new Date(year, 11, 31);
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+
+        // Start from the Sunday of the week containing Jan 1
+        const firstDayOfWeek = startDate.getDay();
+        const gridStartDate = new Date(year, 0, 1 - firstDayOfWeek);
+
+        // Calculate total weeks needed (always complete the year)
+        const lastDayOfWeek = endDate.getDay();
+        const gridEndDate = new Date(year, 11, 31 + (6 - lastDayOfWeek));
+        const totalDays = Math.round((gridEndDate - gridStartDate) / (1000 * 60 * 60 * 24)) + 1;
+        const totalWeeks = Math.ceil(totalDays / 7);
+
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+        // Build weeks array (each week is an array of 7 days)
+        const weeks = [];
+        const monthPositions = [];
+        let lastMonth = -1;
+
+        for (let week = 0; week < totalWeeks; week++) {
+          const weekDays = [];
+          for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+            const dayOffset = week * 7 + dayOfWeek;
+            const currentDate = new Date(gridStartDate);
+            currentDate.setDate(gridStartDate.getDate() + dayOffset);
+
+            const dateStr = formatDateLocal(currentDate);
+            const count = dayData[dateStr] || 0;
+            const level = getLevel(count);
+            const isInYear = currentDate.getFullYear() === year;
+            const isFuture = currentDate > today;
+
+            // Track month positions for labels
+            if (dayOfWeek === 0 && isInYear && currentDate.getMonth() !== lastMonth) {
+              monthPositions.push({ month: currentDate.getMonth(), week: week });
+              lastMonth = currentDate.getMonth();
+            }
+
+            const displayDate = `${dayNames[dayOfWeek]}, ${monthNames[currentDate.getMonth()]} ${currentDate.getDate()}, ${currentDate.getFullYear()}`;
+            const title = !isFuture ? `${displayDate}: ${count} observation${count !== 1 ? 's' : ''}` : displayDate;
+
+            const isToday = dateStr === formatDateLocal(today);
+
+            weekDays.push({
+              dateStr,
+              level: !isFuture ? level : 0,
+              opacity: isFuture ? 'opacity: 0.3;' : '',
+              title,
+              isInYear,
+              isToday
+            });
+          }
+          weeks.push(weekDays);
+        }
+
+        // Render grid (column by column = week by week)
+        let html = '';
+        for (let week = 0; week < weeks.length; week++) {
+          for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+            const day = weeks[week][dayOfWeek];
+            const todayClass = day.isToday ? ' today' : '';
+            html += `<div class="calendar-day${todayClass}" data-level="${day.level}" style="${day.opacity}" title="${day.title}"></div>`;
+          }
+        }
+        calendarGrid.innerHTML = html;
+
+        // Render month labels
+        const weekWidth = 14; // 12px + 2px gap
+
+        calendarMonths.innerHTML = monthPositions.map((pos, i) => {
+          const nextPos = monthPositions[i + 1];
+          const width = nextPos ? (nextPos.week - pos.week) * weekWidth : (totalWeeks - pos.week) * weekWidth;
+          return `<span class="calendar-month" style="width: ${width}px;">${monthNames[pos.month]}</span>`;
+        }).join('');
+      }
+
+      function getLevel(count) {
+        if (count === 0) return 0;
+        if (count === 1) return 1;
+        if (count <= 4) return 2;
+        if (count <= 9) return 3;
+        return 4;
+      }
+
+      async function calculateAllStreaks(userId, joinYear, currentYear) {
+        const currentStreakEl = document.getElementById('currentStreak');
+        const longestStreakEl = document.getElementById('longestStreak');
+
+        // Fetch all histogram data in a single call
+        let allDays = {};
+
+        try {
+          const response = await fetch(
+            `https://api.inaturalist.org/v1/observations/histogram?user_id=${userId}&d1=${joinYear}-01-01&d2=${currentYear}-12-31&date_field=observed&interval=day`
+          );
+          const data = await response.json();
+          await delay(250);
+          allDays = data.results?.day || {};
+        } catch (error) {
+          console.error('Error fetching histogram:', error);
+        }
+
+        // Calculate streaks
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = formatDateLocal(today);
+
+        let currentStreak = 0;
+        let longestStreak = 0;
+        let tempStreak = 0;
+        let longestStreakStart = null;
+        let longestStreakEnd = null;
+        let tempStreakStart = null;
+
+        // Get all dates sorted
+        const dates = Object.keys(allDays).filter(d => allDays[d] > 0).sort();
+
+        if (dates.length === 0) {
+          currentStreakEl.textContent = '0';
+          longestStreakEl.textContent = '0';
+          return;
+        }
+
+        // Helper to parse date string as local date
+        function parseLocalDate(dateStr) {
+          const [year, month, day] = dateStr.split('-').map(Number);
+          return new Date(year, month - 1, day);
+        }
+
+        // Helper to get next day string
+        function getNextDayStr(dateStr) {
+          const date = parseLocalDate(dateStr);
+          date.setDate(date.getDate() + 1);
+          return formatDateLocal(date);
+        }
+
+        // Calculate longest streak
+        let streakStart = dates[0];
+        let streakEnd = dates[0];
+
+        for (let i = 1; i < dates.length; i++) {
+          const expectedNext = getNextDayStr(dates[i - 1]);
+
+          if (dates[i] === expectedNext) {
+            // Consecutive day, extend current streak
+            streakEnd = dates[i];
+          } else {
+            // Gap found, check if current streak is longest
+            const currentStreakLength = Math.round((parseLocalDate(streakEnd) - parseLocalDate(streakStart)) / (1000 * 60 * 60 * 24)) + 1;
+            if (currentStreakLength > longestStreak) {
+              longestStreak = currentStreakLength;
+              longestStreakStart = parseLocalDate(streakStart);
+              longestStreakEnd = parseLocalDate(streakEnd);
+            }
+            // Start new streak
+            streakStart = dates[i];
+            streakEnd = dates[i];
+          }
+        }
+
+        // Check final streak
+        const finalStreakLength = Math.round((parseLocalDate(streakEnd) - parseLocalDate(streakStart)) / (1000 * 60 * 60 * 24)) + 1;
+        if (finalStreakLength > longestStreak) {
+          longestStreak = finalStreakLength;
+          longestStreakStart = parseLocalDate(streakStart);
+          longestStreakEnd = parseLocalDate(streakEnd);
+        }
+
+        // Calculate current streak (going backwards from today)
+        let checkDate = new Date(today);
+
+        // First check if today has observations
+        let hasToday = allDays[todayStr] > 0;
+        if (!hasToday) {
+          // Check yesterday
+          checkDate.setDate(checkDate.getDate() - 1);
+        }
+
+        while (true) {
+          const dateStr = formatDateLocal(checkDate);
+          if (allDays[dateStr] > 0) {
+            currentStreak++;
+            checkDate.setDate(checkDate.getDate() - 1);
+          } else {
+            break;
+          }
+        }
+
+        currentStreakEl.textContent = currentStreak.toString();
+
+        // Format longest streak with date range
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        if (longestStreakStart && longestStreakEnd && longestStreak > 0) {
+          const startStr = `${monthNames[longestStreakStart.getMonth()]} ${longestStreakStart.getDate()}, ${longestStreakStart.getFullYear()}`;
+          const endStr = `${monthNames[longestStreakEnd.getMonth()]} ${longestStreakEnd.getDate()}, ${longestStreakEnd.getFullYear()}`;
+          longestStreakEl.innerHTML = `${longestStreak} <span style="font-weight: normal; color: #aaa;">(${startStr} - ${endStr})</span>`;
+        } else {
+          longestStreakEl.textContent = longestStreak.toString();
+        }
       }
 
       function showError(message) {
