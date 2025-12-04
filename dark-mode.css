@@ -519,7 +519,7 @@ body.dark-mode .countries-progress {
 /* Language select */
 body.dark-mode .language-select {
   background-color: #3d3d3d;
-  border-color: #555;
+  border-color: #555 !important;
   color: #e0e0e0;
 }
 
