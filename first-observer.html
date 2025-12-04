@@ -562,27 +562,47 @@
       async function getUserSpeciesCounts(username) {
         updateProgress(0, "Fetching species list...", "");
 
-        let url = `${API_BASE}/observations/taxonomy?user_login=${username}&verifiable=true`;
-        if (selectedPlaceId) {
-          url += `&place_id=${selectedPlaceId}`;
-        }
-        const data = await fetchJSON(url);
+        const perPage = 500;
+        let allResults = [];
+        let page = 1;
+        let totalPages = 1;
 
-        if (!data.results) {
+        // Build base URL
+        let baseUrl = `${API_BASE}/observations/species_counts?user_login=${username}&verifiable=true&per_page=${perPage}`;
+        if (selectedPlaceId) {
+          baseUrl += `&place_id=${selectedPlaceId}`;
+        }
+
+        // Fetch first page to get total count
+        const firstData = await fetchJSON(`${baseUrl}&page=1`);
+        if (!firstData.results || firstData.results.length === 0) {
           return [];
         }
 
-        // Filter to species and subspecies, format to match expected structure
-        return data.results
-          .filter((item) => ["species", "subspecies", "variety", "form"].includes(item.rank))
+        allResults = [...firstData.results];
+        const totalResults = firstData.total_results;
+        totalPages = Math.ceil(totalResults / perPage);
+
+        // Fetch remaining pages
+        for (let p = 2; p <= totalPages; p++) {
+          updateProgress(0, `Fetching species list (page ${p} of ${totalPages})...`, "");
+          const data = await fetchJSON(`${baseUrl}&page=${p}`);
+          if (data.results) {
+            allResults.push(...data.results);
+          }
+        }
+
+        // Map results to expected structure
+        return allResults
+          .filter((item) => item.taxon)
           .map((item) => ({
             taxon: {
-              id: item.id,
-              name: item.name,
-              rank: item.rank,
-              observations_count: item.direct_obs_count || 0,
-              preferred_common_name: item.preferred_common_name,
-              default_photo: item.default_photo,
+              id: item.taxon.id,
+              name: item.taxon.name,
+              rank: item.taxon.rank,
+              observations_count: item.taxon.observations_count || 0,
+              preferred_common_name: item.taxon.preferred_common_name,
+              default_photo: item.taxon.default_photo,
             },
           }));
       }
