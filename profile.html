@@ -1977,7 +1977,7 @@
             `https://api.inaturalist.org/v1/observations/histogram?user_id=${currentUserId}&d1=${year}-01-01&d2=${year}-12-31&date_field=observed&interval=day`
           );
           const data = await response.json();
-          await delay(300);
+          await delay(1000);
           const dayData = data.results?.day || {};
 
           renderCalendar(dayData, year);
@@ -2092,7 +2092,7 @@
             `https://api.inaturalist.org/v1/observations/histogram?user_id=${userId}&d1=${joinYear}-01-01&d2=${currentYear}-12-31&date_field=observed&interval=day`
           );
           const data = await response.json();
-          await delay(300);
+          await delay(1000);
           allDays = data.results?.day || {};
         } catch (error) {
           console.error('Error fetching histogram:', error);
