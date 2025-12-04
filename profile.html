@@ -738,6 +738,10 @@
               <div class="stat-value teal" id="nativeCount">0</div>
               <div class="stat-label">Native</div>
             </a>
+            <a href="#" id="journalLink" class="stat-card" target="_blank">
+              <div class="stat-value green" id="journalCount">0</div>
+              <div class="stat-label">Journal Posts</div>
+            </a>
           </div>
 
           <div class="chart-card" style="margin-bottom: 20px;">
@@ -908,6 +912,8 @@
           document.getElementById('endemicLink').href = `https://www.inaturalist.org/observations?user_id=${user.login}&endemic=true&view=species`;
           document.getElementById('introducedLink').href = `https://www.inaturalist.org/observations?user_id=${user.login}&introduced=true&view=species`;
           document.getElementById('nativeLink').href = `https://www.inaturalist.org/observations?user_id=${user.login}&native=true&view=species`;
+          document.getElementById('journalCount').textContent = (user.journal_posts_count || 0).toLocaleString();
+          document.getElementById('journalLink').href = `https://www.inaturalist.org/journal/${user.login}`;
 
           // Basic stats
           document.getElementById('totalObservations').textContent = (user.observations_count || 0).toLocaleString();
@@ -968,6 +974,10 @@
             leading: leadingData.total_results || 0,
             maverick: maverickData.total_results || 0
           };
+
+          // Update identifications count to match pie chart total (only others' observations)
+          const totalIdentifications = idData.improving + idData.supporting + idData.leading + idData.maverick;
+          document.getElementById('identificationsCount').textContent = totalIdentifications.toLocaleString();
 
           lastIdData = idData;
           drawIdPieChart(idData);
