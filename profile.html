@@ -1574,7 +1574,7 @@
           }
           try {
             const response = await fetch(
-              `https://api.inaturalist.org/v1/observations?user_id=${userId}&place_id=${placeIds.join(',')}&per_page=0`
+              `https://api.inaturalist.org/v1/observations?user_id=${userId}&place_id=${placeIds.join(',')}&verifiable=true&per_page=0`
             );
             const data = await response.json();
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -1593,7 +1593,7 @@
           }
           try {
             const response = await fetch(
-              `https://api.inaturalist.org/v1/observations?user_id=${userId}&place_id=${placeId}&per_page=0`
+              `https://api.inaturalist.org/v1/observations?user_id=${userId}&place_id=${placeId}&verifiable=true&per_page=0`
             );
             const data = await response.json();
             await new Promise(resolve => setTimeout(resolve, 1000));
