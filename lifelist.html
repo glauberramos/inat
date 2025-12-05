@@ -300,6 +300,153 @@
         margin: 10px 0;
       }
 
+      /* View toggle buttons */
+      .view-toggle {
+        display: flex;
+        gap: 8px;
+      }
+
+      .view-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        border: 2px solid #ddd;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        color: #666;
+      }
+
+      .view-btn:hover {
+        background: #f5f5f5;
+      }
+
+      .view-btn.active {
+        background: #74ac00;
+        border-color: #74ac00;
+        color: white;
+      }
+
+      /* Grid view styles */
+      .species-grid {
+        display: none;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+      }
+
+      .species-grid.active {
+        display: grid;
+      }
+
+      .species-list.active {
+        display: block;
+      }
+
+      .species-list:not(.active) {
+        display: none;
+      }
+
+      .species-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        overflow: hidden;
+        transition: transform 0.3s;
+        position: relative;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+
+      .species-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .species-card .card-image {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        background: #f5f5f5;
+      }
+
+      .species-card .card-image-placeholder {
+        width: 100%;
+        height: 120px;
+        background: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        color: #bbb;
+      }
+
+      .species-card .card-content {
+        padding: 8px;
+      }
+
+      .species-card .card-number {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: rgba(116, 172, 0, 0.9);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .species-card .card-common-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .species-card .card-sci-name {
+        font-style: italic;
+        color: #666;
+        font-size: 12px;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .species-card .card-date {
+        font-size: 11px;
+        color: #999;
+      }
+
+      .grid-year-separator {
+        grid-column: 1 / -1;
+        background: #74ac00;
+        color: white;
+        padding: 10px 15px;
+        font-weight: bold;
+        font-size: 18px;
+        border-radius: 8px;
+      }
+
+      @media (max-width: 1400px) {
+        .species-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      @media (max-width: 1100px) {
+        .species-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
       @media (max-width: 768px) {
         .search-container {
           flex-direction: column;
@@ -328,6 +475,10 @@
 
         .species-date {
           margin-left: 0;
+        }
+
+        .species-grid {
+          grid-template-columns: repeat(2, 1fr);
         }
       }
 
@@ -498,9 +649,16 @@
     <div class="results-container" id="results">
       <div class="results-header">
         <span class="results-count" id="resultsCount"></span>
-        <button id="downloadBtn" onclick="downloadCSV()" style="display:none; padding: 8px 16px; font-size: 14px;">Download CSV</button>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <div class="view-toggle">
+            <button class="view-btn active" id="listViewBtn" onclick="setView('list')">List</button>
+            <button class="view-btn" id="gridViewBtn" onclick="setView('grid')">Grid</button>
+          </div>
+          <button id="downloadBtn" onclick="downloadCSV()" style="display:none; padding: 8px 16px; font-size: 14px;">Download CSV</button>
+        </div>
       </div>
-      <ul class="species-list" id="speciesList"></ul>
+      <ul class="species-list active" id="speciesList"></ul>
+      <div class="species-grid" id="speciesGrid"></div>
     </div>
 
     <script>
@@ -525,8 +683,67 @@
       let isSearching = false;
       let searchTimeout = null;
       let lifelistData = []; // Store lifelist for CSV export
+      let currentView = 'list'; // 'list' or 'grid'
 
       const usernameInput = document.getElementById("username");
+
+      // View toggle functions
+      function setView(view) {
+        currentView = view;
+        const listEl = document.getElementById("speciesList");
+        const gridEl = document.getElementById("speciesGrid");
+        const listBtn = document.getElementById("listViewBtn");
+        const gridBtn = document.getElementById("gridViewBtn");
+
+        if (view === 'list') {
+          listEl.classList.add('active');
+          gridEl.classList.remove('active');
+          listBtn.classList.add('active');
+          gridBtn.classList.remove('active');
+        } else {
+          listEl.classList.remove('active');
+          gridEl.classList.add('active');
+          listBtn.classList.remove('active');
+          gridBtn.classList.add('active');
+        }
+      }
+
+      function addGridYearSeparator(year) {
+        const gridEl = document.getElementById("speciesGrid");
+        const div = document.createElement("div");
+        div.className = "grid-year-separator";
+        div.textContent = year;
+        gridEl.appendChild(div);
+      }
+
+      function addGridItem(sp, number) {
+        const gridEl = document.getElementById("speciesGrid");
+        const a = document.createElement("a");
+        a.className = "species-card";
+        a.href = `https://www.inaturalist.org/observations/${sp.observationId}`;
+        a.target = "_blank";
+
+        const hasCommonName = sp.commonName && sp.commonName !== sp.taxonName;
+        const displayName = hasCommonName ? sp.commonName : sp.taxonName;
+        const iconicIcon = ICONIC_TAXON_ICONS[sp.iconicTaxon] || "🔍";
+
+        // Use medium size image for better quality in grid view
+        const mediumImageUrl = sp.imageUrl ? sp.imageUrl.replace(/square/, 'medium') : null;
+        const imageHtml = mediumImageUrl
+          ? `<img class="card-image" src="${mediumImageUrl}" alt="${displayName}">`
+          : `<div class="card-image-placeholder">${iconicIcon}</div>`;
+
+        a.innerHTML = `
+          <div class="card-number">#${number}</div>
+          ${imageHtml}
+          <div class="card-content">
+            <div class="card-common-name">${displayName}</div>
+            ${hasCommonName ? `<div class="card-sci-name">${sp.taxonName}</div>` : ''}
+            <div class="card-date">${sp.observedOn}</div>
+          </div>
+        `;
+        gridEl.appendChild(a);
+      }
       const autocompleteEl = document.getElementById("autocomplete");
 
       // Load username from URL parameter or localStorage
@@ -1067,6 +1284,7 @@
         document.getElementById("progress").style.display = "block";
         document.getElementById("results").style.display = "block";
         document.getElementById("speciesList").innerHTML = "";
+        document.getElementById("speciesGrid").innerHTML = "";
         updateResultsCount(0);
 
         try {
@@ -1129,6 +1347,7 @@
 
           // Step 4: Re-sort and re-display with year separators
           document.getElementById("speciesList").innerHTML = "";
+          document.getElementById("speciesGrid").innerHTML = "";
 
           const sortedLifelist = allResults
             .filter(item => item.observedOn)
@@ -1150,6 +1369,7 @@
             if (year && year !== currentYear) {
               currentYear = year;
               addYearSeparator(year);
+              addGridYearSeparator(year);
             }
             const itemData = {
               taxonId: item.taxon.id,
@@ -1164,6 +1384,7 @@
             };
             lifelistData.push(itemData);
             addResultItem(itemData, speciesNumber);
+            addGridItem(itemData, speciesNumber);
             speciesNumber--;
           }
 

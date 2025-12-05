@@ -576,3 +576,50 @@ body.dark-mode .calendar-day.today {
   outline: 2px solid #7cc643;
   outline-offset: -1px;
 }
+
+/* Lifelist grid view */
+body.dark-mode .species-card {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .species-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .species-card .card-image-placeholder {
+  background: #3d3d3d;
+  color: #888;
+}
+
+body.dark-mode .species-card .card-common-name {
+  color: #e0e0e0;
+}
+
+body.dark-mode .species-card .card-sci-name {
+  color: #999;
+}
+
+body.dark-mode .species-card .card-date {
+  color: #777;
+}
+
+body.dark-mode .grid-year-separator {
+  background: #5d8a00;
+}
+
+body.dark-mode .view-toggle .view-btn {
+  background: #3d3d3d;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-mode .view-toggle .view-btn:hover {
+  background: #4d4d4d;
+}
+
+body.dark-mode .view-toggle .view-btn.active {
+  background: #74ac00;
+  border-color: #74ac00;
+  color: white;
+}
