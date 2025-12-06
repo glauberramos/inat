@@ -174,10 +174,22 @@
         { id: 227779, year: 2025 },
       ];
 
-      // Load saved username from localStorage (shared with other tools)
+      // Load username from URL parameter or localStorage
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlUsername = urlParams.get("user");
       const savedUsername = localStorage.getItem("inatUsername");
-      if (savedUsername) {
+
+      if (urlUsername) {
+        usernameInput.value = urlUsername;
+        localStorage.setItem("inatUsername", urlUsername);
+      } else if (savedUsername) {
         usernameInput.value = savedUsername;
+      }
+
+      function updateUrlWithUsername(username) {
+        const url = new URL(window.location);
+        url.searchParams.set("user", username);
+        window.history.replaceState({}, "", url);
       }
 
       // Username autocomplete
@@ -291,8 +303,9 @@
           const user = userData.results[0];
           const userId = user.id;
 
-          // Save username to localStorage (shared with other tools)
+          // Save username to localStorage and update URL
           localStorage.setItem("inatUsername", username);
+          updateUrlWithUsername(username);
           currentUsername = username;
 
           const identificationsCount = user.identifications_count || 0;
