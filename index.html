@@ -7,6 +7,11 @@
       iNaturalist Tools - Species Tracker, Lifelist, Achievements & More
     </title>
     <link rel="icon" href="favicon.ico" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#74ac00" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="logo.png" />
     <link rel="canonical" href="https://glauberramos.github.io/inat/" />
     <meta
       name="description"
@@ -313,5 +318,10 @@
       })();
     </script>
     <script src="dark-mode.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+      }
+    </script>
   </body>
 </html>

@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>iNaturalist Achievements - Unlock Badges & Track Your Milestones</title>
     <link rel="icon" href="favicon.ico" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#74ac00" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="logo.png" />
     <link rel="canonical" href="https://glauberramos.github.io/inat/achievements.html" />
     <meta
       name="description"
@@ -2814,5 +2819,10 @@
         d.getElementsByTagName("head")[0].appendChild(s);
       })();
     </script> -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+      }
+    </script>
   </body>
 </html>
