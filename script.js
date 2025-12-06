@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "researchGradeCheckbox"
   );
   const threatenedCheckbox = document.getElementById("threatenedCheckbox");
+  const endemicCheckbox = document.getElementById("endemicCheckbox");
   const verifiableCheckbox = document.getElementById("verifiableCheckbox");
   const languageSelect = document.getElementById("languageSelect");
   const downloadButton = document.getElementById("downloadButton");
@@ -246,6 +247,10 @@ document.addEventListener("DOMContentLoaded", function () {
       threatenedCheckbox && threatenedCheckbox.checked
         ? "&threatened=true"
         : "";
+    const endemic =
+      endemicCheckbox && endemicCheckbox.checked
+        ? "&endemic=true"
+        : "";
     const verifiable =
       verifiableCheckbox && verifiableCheckbox.checked
         ? "&verifiable=true"
@@ -277,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
           : `&place_id=${placeId}`;
     }
 
-    const url = `https://api.inaturalist.org/v1/observations/taxonomy?user_login=${username}${allPlacesParam}${taxonParam}${captiveParam}${researchGrade}${threatened}${verifiable}`;
+    const url = `https://api.inaturalist.org/v1/observations/taxonomy?user_login=${username}${allPlacesParam}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}`;
     const response = await fetch(url);
     const data = await response.json();
 
@@ -297,6 +302,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const threatened =
       threatenedCheckbox && threatenedCheckbox.checked
         ? "&threatened=true"
+        : "";
+    const endemic =
+      endemicCheckbox && endemicCheckbox.checked
+        ? "&endemic=true"
         : "";
     const verifiable =
       verifiableCheckbox && verifiableCheckbox.checked
@@ -332,7 +341,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(
           `https://api.inaturalist.org/v1/observations/species_counts?${locationParam.substring(
             1
-          )}&per_page=500&page=${page}${taxonParam}${captiveParam}${researchGrade}${threatened}${verifiable}${languageParam}${monthParam}`
+          )}&per_page=500&page=${page}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`
         )
           .then((response) => response.json())
           .then((data) => data.results);
@@ -350,7 +359,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // First call: get first 500 species
       const url1 = `https://api.inaturalist.org/v1/observations/species_counts?${locationParam.substring(
         1
-      )}&per_page=500${taxonParam}${captiveParam}${researchGrade}${threatened}${verifiable}${languageParam}${monthParam}`;
+      )}&per_page=500${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`;
       const response1 = await fetch(url1);
       const data1 = await response1.json();
       results.push(...data1.results);
@@ -358,7 +367,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Second call: get next 500 species (page 2)
       const url2 = `https://api.inaturalist.org/v1/observations/species_counts?${locationParam.substring(
         1
-      )}&per_page=500&page=2${taxonParam}${captiveParam}${researchGrade}${threatened}${verifiable}${languageParam}${monthParam}`;
+      )}&per_page=500&page=2${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`;
       const response2 = await fetch(url2);
       const data2 = await response2.json();
       results.push(...data2.results);
@@ -368,7 +377,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Regular single API call for other limits
       const url = `https://api.inaturalist.org/v1/observations/species_counts?${locationParam.substring(
         1
-      )}&per_page=${limit}${taxonParam}${captiveParam}${researchGrade}${threatened}${verifiable}${languageParam}${monthParam}`;
+      )}&per_page=${limit}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`;
       const response = await fetch(url);
       const data = await response.json();
 
