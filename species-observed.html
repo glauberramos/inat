@@ -752,9 +752,21 @@
       let locationSearchTimeout = null;
       let currentView = "grid"; // 'grid' or 'table'
 
-      // Load saved username from localStorage (shared with SpeciesDex)
+      // URL parameter and localStorage handling
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlUsername = urlParams.get("user");
       const savedUsername = localStorage.getItem("inatUsername");
-      if (savedUsername) {
+
+      function updateUrlWithUsername(username) {
+        const url = new URL(window.location);
+        url.searchParams.set("user", username);
+        window.history.replaceState({}, "", url);
+      }
+
+      if (urlUsername) {
+        usernameInput.value = urlUsername;
+        localStorage.setItem("inatUsername", urlUsername);
+      } else if (savedUsername) {
         usernameInput.value = savedUsername;
       }
 
@@ -858,6 +870,11 @@
         if (query.length < 2) {
           locationAutocomplete.innerHTML = "";
           locationAutocomplete.style.display = "none";
+          // Clear from localStorage if input is empty
+          if (query.length === 0) {
+            localStorage.removeItem("inatPlaceId");
+            localStorage.removeItem("inatPlaceName");
+          }
           return;
         }
 
@@ -895,6 +912,9 @@
                   item.addEventListener("click", () => {
                     locationInput.value = item.dataset.placeName;
                     placeIdInput.value = item.dataset.placeId;
+                    // Save to localStorage
+                    localStorage.setItem("inatPlaceId", item.dataset.placeId);
+                    localStorage.setItem("inatPlaceName", item.dataset.placeName);
                     locationAutocomplete.innerHTML = "";
                     locationAutocomplete.style.display = "none";
                   });
@@ -1065,8 +1085,9 @@
           const userId = user.id;
           currentUserId = userId;
 
-          // Save username to localStorage (shared with SpeciesDex)
+          // Save username to localStorage and update URL
           localStorage.setItem("inatUsername", username);
+          updateUrlWithUsername(username);
 
           // Fetch species count data - first page to get total_results
           const perPage = 500;

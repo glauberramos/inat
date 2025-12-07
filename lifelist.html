@@ -760,21 +760,17 @@
       const urlUsername = urlParams.get("user");
       const savedUsername = localStorage.getItem("inatUsername");
 
+      function updateUrlWithUsername(username) {
+        const url = new URL(window.location);
+        url.searchParams.set("user", username);
+        window.history.replaceState({}, "", url);
+      }
+
       if (urlUsername) {
         usernameInput.value = urlUsername;
         localStorage.setItem("inatUsername", urlUsername);
       } else if (savedUsername) {
         usernameInput.value = savedUsername;
-      }
-
-      // Load saved place from localStorage (shared with SpeciesDex)
-      const savedPlaceId = localStorage.getItem("inatPlaceId");
-      const savedPlaceName = localStorage.getItem("inatPlaceName");
-      if (savedPlaceId) {
-        placeIdInput.value = savedPlaceId;
-      }
-      if (savedPlaceName) {
-        placeInput.value = savedPlaceName;
       }
 
       // Load saved language
@@ -830,6 +826,7 @@
                 item.addEventListener("click", () => {
                   usernameInput.value = item.dataset.login;
                   localStorage.setItem("inatUsername", item.dataset.login);
+                  updateUrlWithUsername(item.dataset.login);
                   autocompleteEl.classList.remove("active");
                 });
               });
@@ -872,6 +869,16 @@
       const placeAutocompleteEl = document.getElementById("placeAutocomplete");
       let placeSearchTimeout = null;
 
+      // Load saved place from localStorage (shared with SpeciesDex)
+      const savedPlaceId = localStorage.getItem("inatPlaceId");
+      const savedPlaceName = localStorage.getItem("inatPlaceName");
+      if (savedPlaceId) {
+        placeIdInput.value = savedPlaceId;
+      }
+      if (savedPlaceName) {
+        placeInput.value = savedPlaceName;
+      }
+
       placeInput.addEventListener("input", (e) => {
         clearTimeout(placeSearchTimeout);
         const query = e.target.value.trim();
@@ -879,9 +886,11 @@
         if (query.length < 2) {
           placeAutocompleteEl.innerHTML = "";
           placeAutocompleteEl.classList.remove("active");
-          // Clear place ID if input is cleared
+          // Clear place ID and localStorage if input is cleared
           if (query.length === 0) {
             placeIdInput.value = "";
+            localStorage.removeItem("inatPlaceId");
+            localStorage.removeItem("inatPlaceName");
           }
           return;
         }
@@ -913,6 +922,9 @@
                 item.addEventListener("click", () => {
                   placeInput.value = item.dataset.name;
                   placeIdInput.value = item.dataset.id;
+                  // Save to localStorage
+                  localStorage.setItem("inatPlaceId", item.dataset.id);
+                  localStorage.setItem("inatPlaceName", item.dataset.name);
                   placeAutocompleteEl.classList.remove("active");
                 });
               });
@@ -1293,8 +1305,9 @@
         const allTaxa = allTaxaCheckbox.checked;
         const includeCaptive = captiveCheckbox.checked;
 
-        // Save username
+        // Save username and update URL
         localStorage.setItem("inatUsername", username);
+        updateUrlWithUsername(username);
 
         hideError();
         autocompleteEl.classList.remove("active");

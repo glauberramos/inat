@@ -42,6 +42,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const savedProject = localStorage.getItem("inatProject");
   const savedProjectId = localStorage.getItem("inatProjectId");
 
+  // URL parameter handling
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlUsername = urlParams.get("user");
+
   if (savedPlaceId) {
     placeIdInput.value = savedPlaceId;
   }
@@ -69,7 +73,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  if (savedUsername) {
+  // Handle username: URL param takes priority, then localStorage
+  if (urlUsername) {
+    usernameInput.value = urlUsername;
+    localStorage.setItem("inatUsername", urlUsername);
+  } else if (savedUsername) {
     usernameInput.value = savedUsername;
   }
 
