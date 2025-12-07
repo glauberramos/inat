@@ -419,6 +419,15 @@
         usernameInput.value = savedUsername;
       }
 
+      // Load saved place from localStorage (shared with SpeciesDex)
+      const savedPlaceId = localStorage.getItem("inatPlaceId");
+      const savedPlaceName = localStorage.getItem("inatPlaceName");
+      if (savedPlaceId && savedPlaceName) {
+        selectedPlaceId = savedPlaceId;
+        selectedPlaceName = savedPlaceName;
+        placeInput.value = savedPlaceName;
+      }
+
       // Username autocomplete
       usernameInput.addEventListener("input", (e) => {
         clearTimeout(searchTimeout);

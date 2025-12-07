@@ -767,6 +767,16 @@
         usernameInput.value = savedUsername;
       }
 
+      // Load saved place from localStorage (shared with SpeciesDex)
+      const savedPlaceId = localStorage.getItem("inatPlaceId");
+      const savedPlaceName = localStorage.getItem("inatPlaceName");
+      if (savedPlaceId) {
+        placeIdInput.value = savedPlaceId;
+      }
+      if (savedPlaceName) {
+        placeInput.value = savedPlaceName;
+      }
+
       // Load saved language
       const languageSelect = document.getElementById("languageSelect");
       const savedLanguage = localStorage.getItem("inatLanguage");
