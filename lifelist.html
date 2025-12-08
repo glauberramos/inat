@@ -944,6 +944,22 @@
       const captiveCheckbox = document.getElementById("captiveCheckbox");
       let taxonSearchTimeout = null;
 
+      // Load checkbox states from localStorage
+      if (localStorage.getItem("inatAllTaxa") === "true") {
+        allTaxaCheckbox.checked = true;
+      }
+      if (localStorage.getItem("inatIncludeCaptive") === "true") {
+        captiveCheckbox.checked = true;
+      }
+
+      // Save checkbox states to localStorage on change
+      allTaxaCheckbox.addEventListener("change", () => {
+        localStorage.setItem("inatAllTaxa", allTaxaCheckbox.checked);
+      });
+      captiveCheckbox.addEventListener("change", () => {
+        localStorage.setItem("inatIncludeCaptive", captiveCheckbox.checked);
+      });
+
       taxonInput.addEventListener("input", (e) => {
         clearTimeout(taxonSearchTimeout);
         const query = e.target.value.trim();
