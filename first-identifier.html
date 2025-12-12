@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>First Identifier Checker - Find Species You Identified First on iNaturalist</title>
+    <link rel="icon" href="favicon.ico" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#74ac00" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="logo.png" />
+    <link rel="canonical" href="https://glauberramos.github.io/inat/first-identifier.html" />
+    <meta
+      name="description"
+      content="Find species where you made the very first identification ever recorded on iNaturalist worldwide. Discover your unique contributions to species identification."
+    />
+    <meta name="keywords" content="iNaturalist first identifier, species identification, first ID, citizen science, biodiversity records, nature identification" />
+    <meta property="og:title" content="First Identifier Checker - Species You Identified First" />
+    <meta property="og:description" content="Find species where you made the very first identification ever recorded on iNaturalist worldwide." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://glauberramos.github.io/inat/first-identifier.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="First Identifier Checker - iNaturalist" />
+    <meta name="twitter:description" content="Find species where you made the very first identification ever recorded on iNaturalist worldwide." />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Glauber Ramos" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "First Identifier Checker",
+      "description": "Find species where you made the very first identification ever recorded on iNaturalist worldwide. Discover your unique contributions to species identification.",
+      "url": "https://glauberramos.github.io/inat/first-identifier.html",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "author": {
+        "@type": "Person",
+        "name": "Glauber Ramos"
+      }
+    }
+    </script>
+    <link rel="stylesheet" href="dark-mode.css" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        padding-top: 70px;
+        background: #f5f5f5;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .subtitle {
+        color: #666;
+        margin-bottom: 20px;
+      }
+      .search-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        position: relative;
+      }
+      .input-wrapper {
+        flex: 1;
+        position: relative;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+      }
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #74ac00;
+      }
+      .autocomplete {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+        display: none;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .autocomplete.active {
+        display: block;
+      }
+      .autocomplete-item {
+        padding: 10px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+      }
+      .autocomplete-item:last-child {
+        border-bottom: none;
+      }
+      .autocomplete-item:hover {
+        background: #f5f5f5;
+      }
+      .autocomplete-name {
+        font-weight: 600;
+        color: #333;
+      }
+      .autocomplete-login {
+        font-size: 13px;
+        color: #666;
+      }
+      button {
+        padding: 12px 24px;
+        font-size: 16px;
+        background: #74ac00;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #5a8a00;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      .progress-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+      .progress-bar-bg {
+        background: #eee;
+        border-radius: 4px;
+        height: 24px;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+      .progress-bar {
+        background: #74ac00;
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s;
+      }
+      .progress-text {
+        color: #666;
+        font-size: 14px;
+      }
+      .current-check {
+        color: #999;
+        font-size: 13px;
+        margin-top: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .results-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        display: none;
+      }
+      .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .results-count {
+        font-size: 18px;
+        font-weight: bold;
+        color: #74ac00;
+      }
+      .species-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .species-item {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+      .species-item:last-child {
+        border-bottom: none;
+      }
+      .species-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        background: #eee;
+      }
+      .species-info {
+        flex: 1;
+      }
+      .species-name {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 4px;
+      }
+      .species-scientific {
+        font-style: italic;
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+      .species-date {
+        color: #999;
+        font-size: 13px;
+      }
+      .species-link {
+        color: #74ac00;
+        text-decoration: none;
+      }
+      .species-link:hover {
+        text-decoration: underline;
+      }
+      .no-results {
+        text-align: center;
+        color: #666;
+        padding: 40px;
+      }
+      .error {
+        background: #fee;
+        color: #c00;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .search-container {
+          flex-direction: column;
+        }
+
+        .input-wrapper {
+          width: 100%;
+        }
+
+        button {
+          width: 100%;
+        }
+
+        .results-header {
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-start;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 15px;
+          padding-top: 60px;
+        }
+
+        .back-button {
+          font-size: 0.8rem !important;
+          padding: 8px 12px !important;
+          top: 10px !important;
+          left: 10px !important;
+        }
+
+        h1 {
+          font-size: 1.4rem;
+        }
+
+        .subtitle {
+          font-size: 0.9rem;
+        }
+
+        .species-item {
+          padding: 12px;
+          gap: 10px;
+        }
+
+        .species-image {
+          width: 60px;
+          height: 60px;
+        }
+
+        .species-name {
+          font-size: 14px;
+        }
+
+        .species-scientific {
+          font-size: 12px;
+        }
+
+        .species-date {
+          font-size: 11px;
+        }
+
+        .results-count {
+          font-size: 16px;
+        }
+
+        .progress-container {
+          padding: 15px;
+        }
+
+        .progress-text {
+          font-size: 13px;
+        }
+
+        .current-check {
+          font-size: 11px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a
+      href="/inat"
+      class="back-button"
+      style="
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: #74ac00;
+        color: white;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 10px 16px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s;
+      "
+      onmouseover="this.style.background='#659900'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.2)'"
+      onmouseout="this.style.background='#74ac00'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.15)'"
+    >
+      <span style="font-size: 1rem">←</span> More iNat tools
+    </a>
+
+    <h1>iNaturalist First Identifier Checker</h1>
+    <p class="subtitle">
+      Find species where you made the very first identification ever recorded on iNaturalist.
+    </p>
+
+    <div class="search-container">
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="username"
+          placeholder="Enter iNaturalist username"
+          autocomplete="off"
+        />
+        <div class="autocomplete" id="autocomplete"></div>
+      </div>
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="placeInput"
+          placeholder="Filter by place (optional)"
+          autocomplete="off"
+        />
+        <div class="autocomplete" id="placeAutocomplete"></div>
+      </div>
+      <button id="searchBtn" onclick="startSearch()">Search</button>
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <div class="progress-container" id="progress">
+      <div class="progress-bar-bg">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="progress-text" id="progressText">Loading identifications...</div>
+      <div class="current-check" id="currentCheck"></div>
+    </div>
+
+    <div class="results-container" id="results">
+      <div class="results-header">
+        <span class="results-count" id="resultsCount"></span>
+      </div>
+      <ul class="species-list" id="speciesList"></ul>
+    </div>
+
+    <script>
+      const API_BASE = "https://api.inaturalist.org/v1";
+      const DELAY_MS = 1000;
+
+      let isSearching = false;
+      let searchTimeout = null;
+      let placeSearchTimeout = null;
+      let selectedPlaceId = null;
+      let selectedPlaceName = null;
+
+      const usernameInput = document.getElementById("username");
+      const autocompleteEl = document.getElementById("autocomplete");
+      const placeInput = document.getElementById("placeInput");
+      const placeAutocomplete = document.getElementById("placeAutocomplete");
+
+      // URL parameter and localStorage handling
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlUsername = urlParams.get("user");
+      const savedUsername = localStorage.getItem("inatUsername");
+
+      function updateUrlWithUsername(username) {
+        const url = new URL(window.location);
+        url.searchParams.set("user", username);
+        window.history.replaceState({}, "", url);
+      }
+
+      if (urlUsername) {
+        usernameInput.value = urlUsername;
+        localStorage.setItem("inatUsername", urlUsername);
+      } else if (savedUsername) {
+        usernameInput.value = savedUsername;
+      }
+
+      // Load saved place from localStorage (shared with other tools)
+      const savedPlaceId = localStorage.getItem("inatPlaceId");
+      const savedPlaceName = localStorage.getItem("inatPlaceName");
+      if (savedPlaceId && savedPlaceName) {
+        selectedPlaceId = savedPlaceId;
+        selectedPlaceName = savedPlaceName;
+        placeInput.value = savedPlaceName;
+      }
+
+      // Username autocomplete
+      usernameInput.addEventListener("input", (e) => {
+        clearTimeout(searchTimeout);
+        const query = e.target.value.trim();
+
+        if (query.length < 2) {
+          autocompleteEl.innerHTML = "";
+          autocompleteEl.classList.remove("active");
+          return;
+        }
+
+        searchTimeout = setTimeout(() => searchUsers(query), 300);
+      });
+
+      async function searchUsers(query) {
+        try {
+          const response = await fetch(
+            `${API_BASE}/users/autocomplete?q=${encodeURIComponent(
+              query
+            )}&per_page=10`
+          );
+          const data = await response.json();
+
+          if (data.results && data.results.length > 0) {
+            autocompleteEl.innerHTML = data.results
+              .map(
+                (user) => `
+            <div class="autocomplete-item" data-login="${user.login}">
+              <div class="autocomplete-name">${user.login}</div>
+              <div class="autocomplete-login">${user.name || ""} · ${(
+                  user.identifications_count || 0
+                ).toLocaleString()} identifications</div>
+            </div>
+          `
+              )
+              .join("");
+
+            autocompleteEl
+              .querySelectorAll(".autocomplete-item")
+              .forEach((item) => {
+                item.addEventListener("click", () => {
+                  usernameInput.value = item.dataset.login;
+                  localStorage.setItem("inatUsername", item.dataset.login);
+                  updateUrlWithUsername(item.dataset.login);
+                  autocompleteEl.classList.remove("active");
+                });
+              });
+
+            autocompleteEl.classList.add("active");
+          } else {
+            autocompleteEl.innerHTML = "";
+            autocompleteEl.classList.remove("active");
+          }
+        } catch (error) {
+          console.error("Error searching users:", error);
+        }
+      }
+
+      // Hide autocomplete when clicking outside
+      document.addEventListener("click", (e) => {
+        if (
+          !usernameInput.contains(e.target) &&
+          !autocompleteEl.contains(e.target)
+        ) {
+          autocompleteEl.classList.remove("active");
+        }
+        if (
+          !placeInput.contains(e.target) &&
+          !placeAutocomplete.contains(e.target)
+        ) {
+          placeAutocomplete.classList.remove("active");
+        }
+      });
+
+      // Place autocomplete
+      placeInput.addEventListener("input", (e) => {
+        clearTimeout(placeSearchTimeout);
+        const query = e.target.value.trim();
+
+        // Clear selection if user is typing
+        selectedPlaceId = null;
+        selectedPlaceName = null;
+
+        // Clear localStorage if input is emptied
+        if (query.length === 0) {
+          localStorage.removeItem("inatPlaceId");
+          localStorage.removeItem("inatPlaceName");
+        }
+
+        if (query.length < 2) {
+          placeAutocomplete.innerHTML = "";
+          placeAutocomplete.classList.remove("active");
+          return;
+        }
+
+        placeSearchTimeout = setTimeout(() => searchPlaces(query), 300);
+      });
+
+      async function searchPlaces(query) {
+        try {
+          const response = await fetch(
+            `${API_BASE}/places/autocomplete?q=${encodeURIComponent(query)}&per_page=10`
+          );
+          const data = await response.json();
+
+          if (data.results && data.results.length > 0) {
+            placeAutocomplete.innerHTML = data.results
+              .map(
+                (place) => `
+              <div class="autocomplete-item" data-id="${place.id}" data-name="${place.display_name}">
+                <div class="autocomplete-name">${place.display_name}</div>
+                <div class="autocomplete-login">${place.place_type_name || ''}</div>
+              </div>
+            `
+              )
+              .join("");
+
+            placeAutocomplete
+              .querySelectorAll(".autocomplete-item")
+              .forEach((item) => {
+                item.addEventListener("click", () => {
+                  selectedPlaceId = item.dataset.id;
+                  selectedPlaceName = item.dataset.name;
+                  placeInput.value = selectedPlaceName;
+                  // Save to localStorage
+                  localStorage.setItem("inatPlaceId", selectedPlaceId);
+                  localStorage.setItem("inatPlaceName", selectedPlaceName);
+                  placeAutocomplete.classList.remove("active");
+                });
+              });
+
+            placeAutocomplete.classList.add("active");
+          } else {
+            placeAutocomplete.innerHTML = "";
+            placeAutocomplete.classList.remove("active");
+          }
+        } catch (error) {
+          console.error("Error searching places:", error);
+        }
+      }
+
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      async function fetchJSON(url) {
+        const response = await fetch(url, {
+          headers: { Accept: "application/json" },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+      }
+
+      async function getUserId(username) {
+        const response = await fetchJSON(
+          `${API_BASE}/users/autocomplete?q=${encodeURIComponent(username)}&per_page=1`
+        );
+        if (response.results && response.results.length > 0) {
+          const user = response.results.find(
+            (u) => u.login.toLowerCase() === username.toLowerCase()
+          );
+          return user ? user.id : response.results[0].id;
+        }
+        return null;
+      }
+
+      async function getUserIdentificationSpecies(userId, username) {
+        updateProgress(0, "Fetching identified species list...", "");
+
+        const perPage = 500;
+        let allResults = [];
+        let page = 1;
+        let totalPages = 1;
+
+        // Build base URL - get species counts from user's identifications
+        let baseUrl = `${API_BASE}/identifications/species_counts?user_id=${userId}&per_page=${perPage}`;
+        if (selectedPlaceId) {
+          baseUrl += `&place_id=${selectedPlaceId}`;
+        }
+
+        // Fetch first page to get total count
+        const firstData = await fetchJSON(`${baseUrl}&page=1`);
+        if (!firstData.results || firstData.results.length === 0) {
+          return [];
+        }
+
+        allResults = [...firstData.results];
+        const totalResults = firstData.total_results;
+        totalPages = Math.ceil(totalResults / perPage);
+
+        // Fetch remaining pages
+        for (let p = 2; p <= totalPages; p++) {
+          updateProgress(0, `Fetching species list (page ${p} of ${totalPages})...`, "");
+          await sleep(DELAY_MS);
+          const data = await fetchJSON(`${baseUrl}&page=${p}`);
+          if (data.results) {
+            allResults.push(...data.results);
+          }
+        }
+
+        // Map results to expected structure
+        return allResults
+          .filter((item) => item.taxon)
+          .map((item) => ({
+            taxon: {
+              id: item.taxon.id,
+              name: item.taxon.name,
+              rank: item.taxon.rank,
+              observations_count: item.taxon.observations_count || 0,
+              preferred_common_name: item.taxon.preferred_common_name,
+              default_photo: item.taxon.default_photo,
+            },
+          }));
+      }
+
+      async function checkFirstIdentifiersBatch(
+        userId,
+        username,
+        sortedTaxa,
+        onFirstFound,
+        onProgress
+      ) {
+        const PARALLEL_REQUESTS = 3;
+        const BATCH_SIZE = 200;
+
+        // Build a lookup map but keep sorted array for processing order
+        const taxaLookup = new Map();
+        for (const { taxon } of sortedTaxa) {
+          taxaLookup.set(taxon.id, taxon);
+        }
+
+        // Convert to array of [id, taxon] pairs, preserving sort order
+        const totalTaxa = sortedTaxa.map(({ taxon }) => [taxon.id, taxon]);
+        const totalCount = totalTaxa.length;
+
+        const currentBatches = [new Map(), new Map(), new Map()];
+        const foundFirstIds = new Map();
+        let processedCount = 0;
+        let apiCalls = 0;
+
+        while (totalTaxa.length > 0 || currentBatches.some((b) => b.size > 0)) {
+          // If less than BATCH_SIZE taxa left, use single batch
+          const useSingleBatch = totalTaxa.length < BATCH_SIZE && currentBatches.every((b) => b.size === 0);
+
+          if (useSingleBatch) {
+            const singleBatch = currentBatches[0];
+            while (totalTaxa.length > 0) {
+              const [id, taxon] = totalTaxa.shift();
+              singleBatch.set(id, taxon);
+            }
+          } else {
+            // Fill each batch up to BATCH_SIZE from totalTaxa
+            for (const batch of currentBatches) {
+              while (batch.size < BATCH_SIZE && totalTaxa.length > 0) {
+                const [id, taxon] = totalTaxa.shift();
+                batch.set(id, taxon);
+              }
+            }
+          }
+
+          // Filter to only non-empty batches
+          const activeBatches = currentBatches.filter((b) => b.size > 0);
+          if (activeBatches.length === 0) break;
+
+          apiCalls += activeBatches.length;
+          onProgress(processedCount, totalCount, apiCalls);
+
+          // Fetch all batches in parallel
+          const results = await Promise.all(
+            activeBatches.map(async (batch, index) => {
+              const batchIds = Array.from(batch.keys());
+              let url = `${API_BASE}/identifications?taxon_id=${batchIds.join(",")}&per_page=200&order_by=created_at&order=asc&current=true`;
+              if (selectedPlaceId) {
+                url += `&place_id=${selectedPlaceId}`;
+              }
+
+              try {
+                const data = await fetchJSON(url);
+                return { batch, data, index };
+              } catch (e) {
+                console.error("Error fetching batch:", e);
+                return { batch, data: { results: [] }, index };
+              }
+            })
+          );
+
+          // Process results from each batch
+          for (const { batch, data } of results) {
+            const foundInBatch = new Set();
+
+            if (data.results && data.results.length > 0) {
+              for (const identification of data.results) {
+                const idTaxon = identification.taxon;
+                const idTaxonId = idTaxon?.id;
+                const ancestorIds = idTaxon?.ancestor_ids || [];
+
+                // Check if any batch taxa match this identification
+                for (const [batchTaxonId, batchTaxon] of batch) {
+                  if (!foundFirstIds.has(batchTaxonId) &&
+                      (idTaxonId === batchTaxonId || ancestorIds.includes(batchTaxonId))) {
+                    const isFirst = identification.user?.id === userId;
+
+                    foundFirstIds.set(batchTaxonId, {
+                      isFirst,
+                      identificationId: identification.id,
+                      observationId: identification.observation?.id,
+                      createdAt: identification.created_at,
+                      imageUrl: identification.observation?.photos?.[0]?.url?.replace("square", "small"),
+                      firstIdentifier: identification.user?.login,
+                    });
+
+                    foundInBatch.add(batchTaxonId);
+                    processedCount++;
+
+                    if (isFirst) {
+                      onFirstFound(batchTaxon, foundFirstIds.get(batchTaxonId));
+                    }
+                  }
+                }
+              }
+            }
+
+            // Move taxa not found to the bottom of totalTaxa for retry
+            for (const [taxonId, taxon] of batch) {
+              if (!foundInBatch.has(taxonId)) {
+                totalTaxa.push([taxonId, taxon]);
+              }
+            }
+
+            // Clear the batch
+            batch.clear();
+          }
+
+          // Small delay between batch rounds
+          await sleep(DELAY_MS);
+        }
+
+        onProgress(processedCount, totalCount, apiCalls);
+      }
+
+      function updateProgress(percent, text, currentSpecies) {
+        document.getElementById("progressBar").style.width = percent + "%";
+        document.getElementById("progressText").textContent = text;
+        document.getElementById("currentCheck").textContent = currentSpecies;
+      }
+
+      function showError(message) {
+        const errorEl = document.getElementById("error");
+        errorEl.textContent = message;
+        errorEl.style.display = "block";
+      }
+
+      function hideError() {
+        document.getElementById("error").style.display = "none";
+      }
+
+      function updateResultsCount(count) {
+        const countEl = document.getElementById("resultsCount");
+        let text = `Found ${count} first identification${count !== 1 ? "s" : ""}`;
+        if (selectedPlaceName) {
+          text += ` in ${selectedPlaceName}`;
+        }
+        countEl.textContent = text;
+      }
+
+      function addResultItem(sp) {
+        const listEl = document.getElementById("speciesList");
+        const li = document.createElement("li");
+        li.className = "species-item";
+        const rankLabel =
+          sp.rank && sp.rank !== "species" ? ` (${sp.rank})` : "";
+        const formattedDate = sp.createdAt ? new Date(sp.createdAt).toLocaleDateString() : "Unknown";
+        li.innerHTML = `
+        <img class="species-image" src="${
+          sp.imageUrl || "https://via.placeholder.com/80?text=No+Image"
+        }" alt="${sp.commonName}">
+        <div class="species-info">
+          <div class="species-name">${sp.commonName}${rankLabel}</div>
+          <div class="species-scientific">${sp.taxonName}</div>
+          <div class="species-date">First identified: ${formattedDate}</div>
+          ${sp.observationId ? `<a class="species-link" href="https://www.inaturalist.org/observations/${sp.observationId}" target="_blank">View observation</a>` : ''}
+        </div>
+      `;
+        listEl.appendChild(li);
+      }
+
+      function showNoResults() {
+        const listEl = document.getElementById("speciesList");
+        if (listEl.children.length === 0) {
+          const placeContext = selectedPlaceName ? ` in ${selectedPlaceName}` : "";
+          listEl.innerHTML =
+            `<li class="no-results">No first identifications found${placeContext}.</li>`;
+        }
+      }
+
+      async function startSearch() {
+        if (isSearching) return;
+
+        const username = document.getElementById("username").value.trim();
+        if (!username) {
+          showError("Please enter a username");
+          return;
+        }
+
+        // Save username and update URL
+        localStorage.setItem("inatUsername", username);
+        updateUrlWithUsername(username);
+
+        hideError();
+        autocompleteEl.classList.remove("active");
+        isSearching = true;
+        document.getElementById("searchBtn").disabled = true;
+        document.getElementById("progress").style.display = "block";
+        document.getElementById("results").style.display = "block";
+        document.getElementById("speciesList").innerHTML = "";
+        updateResultsCount(0);
+
+        let firstIdentifierCount = 0;
+
+        try {
+          // Step 1: Get user ID
+          updateProgress(0, "Looking up user...", "");
+          const userId = await getUserId(username);
+          if (!userId) {
+            showError("User not found");
+            document.getElementById("progress").style.display = "none";
+            isSearching = false;
+            document.getElementById("searchBtn").disabled = false;
+            return;
+          }
+
+          // Step 2: Get all species the user has identified
+          const allTaxa = await getUserIdentificationSpecies(userId, username);
+
+          if (allTaxa.length === 0) {
+            showError("No identifications found for this user");
+            document.getElementById("progress").style.display = "none";
+            isSearching = false;
+            document.getElementById("searchBtn").disabled = false;
+            return;
+          }
+
+          // Step 3: Sort by global observation count (rarest first - more likely to be first identifier)
+          allTaxa.sort(
+            (a, b) =>
+              (a.taxon.observations_count || 0) -
+              (b.taxon.observations_count || 0)
+          );
+
+          // Debug: log first few taxa to verify sorting (rarest first)
+          console.log("First 5 taxa after sorting (should be rarest first):");
+          allTaxa.slice(0, 5).forEach((t, i) => {
+            console.log(`  ${i + 1}. ${t.taxon.name}: ${t.taxon.observations_count} observations`);
+          });
+
+          const placeContext = selectedPlaceName ? ` in ${selectedPlaceName}` : "";
+          updateProgress(0, `Found ${allTaxa.length} taxa to check${placeContext}`, "");
+
+          // Step 4: Check for first identifiers (pass sorted array directly)
+          await checkFirstIdentifiersBatch(
+            userId,
+            username,
+            allTaxa,
+            // onFirstFound callback
+            (taxon, result) => {
+              firstIdentifierCount++;
+              updateResultsCount(firstIdentifierCount);
+              addResultItem({
+                taxonId: taxon.id,
+                taxonName: taxon.name,
+                commonName: taxon.preferred_common_name || taxon.name,
+                rank: taxon.rank,
+                observationId: result.observationId,
+                createdAt: result.createdAt,
+                imageUrl: result.imageUrl || taxon.default_photo?.medium_url,
+                totalObservations: taxon.observations_count || 0,
+              });
+            },
+            // onProgress callback
+            (checked, total, apiCalls) => {
+              const percent = Math.round((checked / total) * 100);
+              updateProgress(
+                percent,
+                `Checking first identifiers: ${checked}/${total} taxa (${apiCalls} batches, ${firstIdentifierCount} found)`,
+                ""
+              );
+            }
+          );
+
+          // Step 6: Finalize
+          document.getElementById("progress").style.display = "none";
+          showNoResults();
+        } catch (error) {
+          showError("Error: " + error.message);
+          document.getElementById("progress").style.display = "none";
+        }
+
+        isSearching = false;
+        document.getElementById("searchBtn").disabled = false;
+      }
+
+      // Allow Enter key to trigger search
+      document.getElementById("username").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") startSearch();
+      });
+    </script>
+    <script
+      defer
+      data-domain="glauberramos.github.io/inat"
+      src="https://plausible.io/js/script.js"
+    ></script>
+    <script type="text/javascript">
+      window.$pipeback = [];
+      window.PIPEBACK_ID = "a069b910-4aef-4233-99cc-913e7fb30fb5";
+      (function () {
+        d = document;
+        s = d.createElement("script");
+        s.src = "https://widget.pipeback.com/l.js";
+        s.async = 1;
+        d.getElementsByTagName("head")[0].appendChild(s);
+      })();
+    </script>
+    <script src="dark-mode.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+      }
+    </script>
+  </body>
+</html>
