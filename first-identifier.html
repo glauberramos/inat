@@ -13,16 +13,16 @@
     <link rel="canonical" href="https://glauberramos.github.io/inat/first-identifier.html" />
     <meta
       name="description"
-      content="Find species where you made the very first identification ever recorded on iNaturalist worldwide. Discover your unique contributions to species identification."
+      content="Find species where you made the very first identification ever recorded on iNaturalist worldwide (excludes your own observations). Discover your unique contributions to species identification."
     />
     <meta name="keywords" content="iNaturalist first identifier, species identification, first ID, citizen science, biodiversity records, nature identification" />
     <meta property="og:title" content="First Identifier Checker - Species You Identified First" />
-    <meta property="og:description" content="Find species where you made the very first identification ever recorded on iNaturalist worldwide." />
+    <meta property="og:description" content="Find species where you made the very first identification ever recorded on iNaturalist worldwide (excludes your own observations)." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://glauberramos.github.io/inat/first-identifier.html" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="First Identifier Checker - iNaturalist" />
-    <meta name="twitter:description" content="Find species where you made the very first identification ever recorded on iNaturalist worldwide." />
+    <meta name="twitter:description" content="Find species where you made the very first identification ever recorded on iNaturalist worldwide (excludes your own observations)." />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="Glauber Ramos" />
     <script type="application/ld+json">
@@ -30,7 +30,7 @@
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "First Identifier Checker",
-      "description": "Find species where you made the very first identification ever recorded on iNaturalist worldwide. Discover your unique contributions to species identification.",
+      "description": "Find species where you made the very first identification ever recorded on iNaturalist worldwide (excludes your own observations). Discover your unique contributions to species identification.",
       "url": "https://glauberramos.github.io/inat/first-identifier.html",
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Web",
@@ -356,7 +356,7 @@
 
     <h1>iNaturalist First Identifier Checker</h1>
     <p class="subtitle">
-      Find species where you made the very first identification ever recorded on iNaturalist.
+      Find species where you made the very first identification ever recorded on iNaturalist (excludes your own observations).
     </p>
 
     <div class="search-container">
@@ -616,8 +616,8 @@
         let page = 1;
         let totalPages = 1;
 
-        // Build base URL - get species counts from user's identifications
-        let baseUrl = `${API_BASE}/identifications/species_counts?user_id=${userId}&per_page=${perPage}`;
+        // Build base URL - get species counts from user's identifications (exclude own observations)
+        let baseUrl = `${API_BASE}/identifications/species_counts?user_id=${userId}&own_observation=false&per_page=${perPage}`;
         if (selectedPlaceId) {
           baseUrl += `&place_id=${selectedPlaceId}`;
         }
@@ -713,7 +713,7 @@
           const results = await Promise.all(
             activeBatches.map(async (batch, index) => {
               const batchIds = Array.from(batch.keys());
-              let url = `${API_BASE}/identifications?taxon_id=${batchIds.join(",")}&per_page=200&order_by=created_at&order=asc&current=true`;
+              let url = `${API_BASE}/identifications?taxon_id=${batchIds.join(",")}&own_observation=false&per_page=200&order_by=created_at&order=asc&current=true`;
               if (selectedPlaceId) {
                 url += `&place_id=${selectedPlaceId}`;
               }
