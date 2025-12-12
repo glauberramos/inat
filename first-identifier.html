@@ -667,12 +667,6 @@
         const PARALLEL_REQUESTS = 3;
         const BATCH_SIZE = 200;
 
-        // Build a lookup map but keep sorted array for processing order
-        const taxaLookup = new Map();
-        for (const { taxon } of sortedTaxa) {
-          taxaLookup.set(taxon.id, taxon);
-        }
-
         // Convert to array of [id, taxon] pairs, preserving sort order
         const totalTaxa = sortedTaxa.map(({ taxon }) => [taxon.id, taxon]);
         const totalCount = totalTaxa.length;
@@ -764,7 +758,7 @@
               }
             }
 
-            // Move taxa not found to the bottom of totalTaxa for retry
+            // Move taxa not found to the bottom of totalTaxa
             for (const [taxonId, taxon] of batch) {
               if (!foundInBatch.has(taxonId)) {
                 totalTaxa.push([taxonId, taxon]);
