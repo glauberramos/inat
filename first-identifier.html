@@ -3,42 +3,66 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>First Identifier Checker - Find Species You Identified First on iNaturalist</title>
+    <title>
+      First Identifier Checker - Find Species You Identified First on
+      iNaturalist
+    </title>
     <link rel="icon" href="favicon.ico" />
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#74ac00" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="apple-touch-icon" href="logo.png" />
-    <link rel="canonical" href="https://glauberramos.github.io/inat/first-identifier.html" />
+    <link
+      rel="canonical"
+      href="https://glauberramos.github.io/inat/first-identifier.html"
+    />
     <meta
       name="description"
       content="Find species where you made the very first identification ever recorded on iNaturalist worldwide. Discover your unique contributions to species identification."
     />
-    <meta name="keywords" content="iNaturalist first identifier, species identification, first ID, citizen science, biodiversity records, nature identification" />
-    <meta property="og:title" content="First Identifier Checker - Species You Identified First" />
-    <meta property="og:description" content="Find species where you made the very first identification ever recorded on iNaturalist worldwide." />
+    <meta
+      name="keywords"
+      content="iNaturalist first identifier, species identification, first ID, citizen science, biodiversity records, nature identification"
+    />
+    <meta
+      property="og:title"
+      content="First Identifier Checker - Species You Identified First"
+    />
+    <meta
+      property="og:description"
+      content="Find species where you made the very first identification ever recorded on iNaturalist worldwide."
+    />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://glauberramos.github.io/inat/first-identifier.html" />
+    <meta
+      property="og:url"
+      content="https://glauberramos.github.io/inat/first-identifier.html"
+    />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="First Identifier Checker - iNaturalist" />
-    <meta name="twitter:description" content="Find species where you made the very first identification ever recorded on iNaturalist worldwide." />
+    <meta
+      name="twitter:title"
+      content="First Identifier Checker - iNaturalist"
+    />
+    <meta
+      name="twitter:description"
+      content="Find species where you made the very first identification ever recorded on iNaturalist worldwide."
+    />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="Glauber Ramos" />
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "First Identifier Checker",
-      "description": "Find species where you made the very first identification ever recorded on iNaturalist worldwide. Discover your unique contributions to species identification.",
-      "url": "https://glauberramos.github.io/inat/first-identifier.html",
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "Web",
-      "author": {
-        "@type": "Person",
-        "name": "Glauber Ramos"
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "First Identifier Checker",
+        "description": "Find species where you made the very first identification ever recorded on iNaturalist worldwide. Discover your unique contributions to species identification.",
+        "url": "https://glauberramos.github.io/inat/first-identifier.html",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web",
+        "author": {
+          "@type": "Person",
+          "name": "Glauber Ramos"
+        }
       }
-    }
     </script>
     <link rel="stylesheet" href="dark-mode.css" />
     <style>
@@ -356,7 +380,8 @@
 
     <h1>iNaturalist First Identifier Checker</h1>
     <p class="subtitle">
-      Find species where you made the very first identification ever recorded on iNaturalist.
+      Find species where you made the very first identification ever recorded on
+      iNaturalist.
     </p>
 
     <div class="search-container">
@@ -387,7 +412,9 @@
       <div class="progress-bar-bg">
         <div class="progress-bar" id="progressBar"></div>
       </div>
-      <div class="progress-text" id="progressText">Loading identifications...</div>
+      <div class="progress-text" id="progressText">
+        Loading identifications...
+      </div>
       <div class="current-check" id="currentCheck"></div>
     </div>
 
@@ -400,7 +427,7 @@
 
     <script>
       const API_BASE = "https://api.inaturalist.org/v1";
-      const DELAY_MS = 1000;
+      const DELAY_MS = 50;
 
       let isSearching = false;
       let searchTimeout = null;
@@ -541,7 +568,9 @@
       async function searchPlaces(query) {
         try {
           const response = await fetch(
-            `${API_BASE}/places/autocomplete?q=${encodeURIComponent(query)}&per_page=10`
+            `${API_BASE}/places/autocomplete?q=${encodeURIComponent(
+              query
+            )}&per_page=10`
           );
           const data = await response.json();
 
@@ -549,9 +578,13 @@
             placeAutocomplete.innerHTML = data.results
               .map(
                 (place) => `
-              <div class="autocomplete-item" data-id="${place.id}" data-name="${place.display_name}">
+              <div class="autocomplete-item" data-id="${place.id}" data-name="${
+                  place.display_name
+                }">
                 <div class="autocomplete-name">${place.display_name}</div>
-                <div class="autocomplete-login">${place.place_type_name || ''}</div>
+                <div class="autocomplete-login">${
+                  place.place_type_name || ""
+                }</div>
               </div>
             `
               )
@@ -597,7 +630,9 @@
 
       async function getUserId(username) {
         const response = await fetchJSON(
-          `${API_BASE}/users/autocomplete?q=${encodeURIComponent(username)}&per_page=1`
+          `${API_BASE}/users/autocomplete?q=${encodeURIComponent(
+            username
+          )}&per_page=1`
         );
         if (response.results && response.results.length > 0) {
           const user = response.results.find(
@@ -634,7 +669,11 @@
 
         // Fetch remaining pages
         for (let p = 2; p <= totalPages; p++) {
-          updateProgress(0, `Fetching species list (page ${p} of ${totalPages})...`, "");
+          updateProgress(
+            0,
+            `Fetching species list (page ${p} of ${totalPages})...`,
+            ""
+          );
           await sleep(DELAY_MS);
           const data = await fetchJSON(`${baseUrl}&page=${p}`);
           if (data.results) {
@@ -665,7 +704,6 @@
         onProgress
       ) {
         const PARALLEL_REQUESTS = 3;
-        const BATCH_SIZE = 200;
 
         // Convert to array of [id, taxon] pairs, preserving sort order
         const totalTaxa = sortedTaxa.map(({ taxon }) => [taxon.id, taxon]);
@@ -677,22 +715,24 @@
         let apiCalls = 0;
 
         while (totalTaxa.length > 0 || currentBatches.some((b) => b.size > 0)) {
-          // If less than BATCH_SIZE taxa left, use single batch
-          const useSingleBatch = totalTaxa.length < BATCH_SIZE && currentBatches.every((b) => b.size === 0);
-
-          if (useSingleBatch) {
-            const singleBatch = currentBatches[0];
-            while (totalTaxa.length > 0) {
-              const [id, taxon] = totalTaxa.shift();
-              singleBatch.set(id, taxon);
-            }
+          // Dynamic batch size: smaller batches when fewer taxa remain for better hit rate
+          // Divide by 3 to ensure all 3 parallel batches get taxa
+          let batchSize;
+          if (totalTaxa.length >= 600) {
+            batchSize = 200;
+          } else if (totalTaxa.length >= 300) {
+            batchSize = 100;
+          } else if (totalTaxa.length >= 150) {
+            batchSize = 50;
           } else {
-            // Fill each batch up to BATCH_SIZE from totalTaxa
-            for (const batch of currentBatches) {
-              while (batch.size < BATCH_SIZE && totalTaxa.length > 0) {
-                const [id, taxon] = totalTaxa.shift();
-                batch.set(id, taxon);
-              }
+            batchSize = Math.max(10, Math.ceil(totalTaxa.length / 3));
+          }
+
+          // Fill each of the 3 parallel batches up to batchSize
+          for (const batch of currentBatches) {
+            while (batch.size < batchSize && totalTaxa.length > 0) {
+              const [id, taxon] = totalTaxa.shift();
+              batch.set(id, taxon);
             }
           }
 
@@ -707,7 +747,9 @@
           const results = await Promise.all(
             activeBatches.map(async (batch, index) => {
               const batchIds = Array.from(batch.keys());
-              let url = `${API_BASE}/identifications?taxon_id=${batchIds.join(",")}&quality_grade=research&per_page=200&order_by=created_at&order=asc&current=true`;
+              let url = `${API_BASE}/identifications?taxon_id=${batchIds.join(
+                ","
+              )}&quality_grade=research&per_page=200&order_by=created_at&order=asc&current=true`;
               if (selectedPlaceId) {
                 url += `&place_id=${selectedPlaceId}`;
               }
@@ -734,8 +776,11 @@
 
                 // Check if any batch taxa match this identification
                 for (const [batchTaxonId, batchTaxon] of batch) {
-                  if (!foundFirstIds.has(batchTaxonId) &&
-                      (idTaxonId === batchTaxonId || ancestorIds.includes(batchTaxonId))) {
+                  if (
+                    !foundFirstIds.has(batchTaxonId) &&
+                    (idTaxonId === batchTaxonId ||
+                      ancestorIds.includes(batchTaxonId))
+                  ) {
                     const isFirst = identification.user?.id === userId;
 
                     foundFirstIds.set(batchTaxonId, {
@@ -743,7 +788,11 @@
                       identificationId: identification.id,
                       observationId: identification.observation?.id,
                       createdAt: identification.created_at,
-                      imageUrl: identification.observation?.photos?.[0]?.url?.replace("square", "small"),
+                      imageUrl:
+                        identification.observation?.photos?.[0]?.url?.replace(
+                          "square",
+                          "small"
+                        ),
                       firstIdentifier: identification.user?.login,
                     });
 
@@ -794,7 +843,9 @@
 
       function updateResultsCount(count) {
         const countEl = document.getElementById("resultsCount");
-        let text = `Found ${count} first identification${count !== 1 ? "s" : ""}`;
+        let text = `Found ${count} first identification${
+          count !== 1 ? "s" : ""
+        }`;
         if (selectedPlaceName) {
           text += ` in ${selectedPlaceName}`;
         }
@@ -807,7 +858,9 @@
         li.className = "species-item";
         const rankLabel =
           sp.rank && sp.rank !== "species" ? ` (${sp.rank})` : "";
-        const formattedDate = sp.createdAt ? new Date(sp.createdAt).toLocaleDateString() : "Unknown";
+        const formattedDate = sp.createdAt
+          ? new Date(sp.createdAt).toLocaleDateString()
+          : "Unknown";
         li.innerHTML = `
         <img class="species-image" src="${
           sp.imageUrl || "https://via.placeholder.com/80?text=No+Image"
@@ -816,7 +869,11 @@
           <div class="species-name">${sp.commonName}${rankLabel}</div>
           <div class="species-scientific">${sp.taxonName}</div>
           <div class="species-date">First identified: ${formattedDate}</div>
-          ${sp.observationId ? `<a class="species-link" href="https://www.inaturalist.org/observations/${sp.observationId}" target="_blank">View observation</a>` : ''}
+          ${
+            sp.observationId
+              ? `<a class="species-link" href="https://www.inaturalist.org/observations/${sp.observationId}" target="_blank">View observation</a>`
+              : ""
+          }
         </div>
       `;
         listEl.appendChild(li);
@@ -825,9 +882,10 @@
       function showNoResults() {
         const listEl = document.getElementById("speciesList");
         if (listEl.children.length === 0) {
-          const placeContext = selectedPlaceName ? ` in ${selectedPlaceName}` : "";
-          listEl.innerHTML =
-            `<li class="no-results">No first identifications found${placeContext}.</li>`;
+          const placeContext = selectedPlaceName
+            ? ` in ${selectedPlaceName}`
+            : "";
+          listEl.innerHTML = `<li class="no-results">No first identifications found${placeContext}.</li>`;
         }
       }
 
@@ -888,11 +946,21 @@
           // Debug: log first few taxa to verify sorting (rarest first)
           console.log("First 5 taxa after sorting (should be rarest first):");
           allTaxa.slice(0, 5).forEach((t, i) => {
-            console.log(`  ${i + 1}. ${t.taxon.name}: ${t.taxon.observations_count} observations`);
+            console.log(
+              `  ${i + 1}. ${t.taxon.name}: ${
+                t.taxon.observations_count
+              } observations`
+            );
           });
 
-          const placeContext = selectedPlaceName ? ` in ${selectedPlaceName}` : "";
-          updateProgress(0, `Found ${allTaxa.length} taxa to check${placeContext}`, "");
+          const placeContext = selectedPlaceName
+            ? ` in ${selectedPlaceName}`
+            : "";
+          updateProgress(
+            0,
+            `Found ${allTaxa.length} taxa to check${placeContext}`,
+            ""
+          );
 
           // Step 4: Check for first identifiers (pass sorted array directly)
           await checkFirstIdentifiersBatch(
@@ -960,8 +1028,8 @@
     </script>
     <script src="dark-mode.js"></script>
     <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js");
       }
     </script>
   </body>
