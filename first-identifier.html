@@ -652,7 +652,7 @@
         let totalPages = 1;
 
         // Build base URL - get species counts from user's identifications (research grade only)
-        let baseUrl = `${API_BASE}/identifications/species_counts?user_id=${userId}&quality_grade=research&per_page=${perPage}`;
+        let baseUrl = `${API_BASE}/identifications/species_counts?user_id=${userId}&quality_grade=research&current_taxon=true&per_page=${perPage}`;
         if (selectedPlaceId) {
           baseUrl += `&place_id=${selectedPlaceId}`;
         }
@@ -749,7 +749,7 @@
               const batchIds = Array.from(batch.keys());
               let url = `${API_BASE}/identifications?taxon_id=${batchIds.join(
                 ","
-              )}&quality_grade=research&per_page=200&order_by=created_at&order=asc&current=true`;
+              )}&quality_grade=research&current_taxon=true&per_page=200&order_by=created_at&order=asc&current=true`;
               if (selectedPlaceId) {
                 url += `&place_id=${selectedPlaceId}`;
               }
