@@ -317,15 +317,6 @@
         <input type="file" id="photoInput" accept="image/*" multiple />
       </main>
     </div>
-    <footer
-      style="text-align: center; padding: 40px 20px 20px; margin-top: 40px"
-    >
-      <img
-        src="powered_by.png"
-        alt="Powered By"
-        style="max-width: 180px; height: auto; opacity: 0.8"
-      />
-    </footer>
     <script>
       let drafts = [];
       let isAuthenticated = false;
@@ -410,22 +401,182 @@
         document.getElementById("photoInput").click();
       });
 
-      // Photo input change
-      document.getElementById("photoInput").addEventListener("change", (e) => {
-        const files = Array.from(e.target.files);
-        files.forEach((file) => {
+      // Parse EXIF data from image file (datetime and GPS)
+      function getExifData(file) {
+        return new Promise((resolve) => {
           const reader = new FileReader();
-          reader.onload = (event) => {
+          reader.onload = (e) => {
+            const view = new DataView(e.target.result);
+            const result = { dateTime: null, latitude: null, longitude: null };
+
+            // Check for JPEG
+            if (view.getUint16(0, false) !== 0xFFD8) {
+              resolve(result);
+              return;
+            }
+
+            // Helper to read a rational (two 32-bit integers)
+            const readRational = (offset, littleEndian) => {
+              const numerator = view.getUint32(offset, littleEndian);
+              const denominator = view.getUint32(offset + 4, littleEndian);
+              return denominator ? numerator / denominator : 0;
+            };
+
+            // Convert GPS coordinates to decimal degrees
+            const gpsToDecimal = (degrees, minutes, seconds, ref) => {
+              let decimal = degrees + minutes / 60 + seconds / 3600;
+              if (ref === 'S' || ref === 'W') decimal = -decimal;
+              return decimal;
+            };
+
+            let offset = 2;
+            while (offset < view.byteLength) {
+              if (view.getUint16(offset, false) === 0xFFE1) {
+                // Found EXIF marker
+                const exifOffset = offset + 4;
+
+                // Check for "Exif"
+                if (view.getUint32(exifOffset, false) !== 0x45786966) {
+                  resolve(result);
+                  return;
+                }
+
+                const tiffOffset = exifOffset + 6;
+                const littleEndian = view.getUint16(tiffOffset, false) === 0x4949;
+
+                const ifdOffset = tiffOffset + view.getUint32(tiffOffset + 4, littleEndian);
+                const numEntries = view.getUint16(ifdOffset, littleEndian);
+
+                // Look for ExifIFD (0x8769) and GPS IFD (0x8825)
+                for (let i = 0; i < numEntries; i++) {
+                  const entryOffset = ifdOffset + 2 + i * 12;
+                  const tag = view.getUint16(entryOffset, littleEndian);
+
+                  // ExifIFD for datetime
+                  if (tag === 0x8769) {
+                    const exifIfdOffset = tiffOffset + view.getUint32(entryOffset + 8, littleEndian);
+                    const exifEntries = view.getUint16(exifIfdOffset, littleEndian);
+
+                    for (let j = 0; j < exifEntries; j++) {
+                      const exifEntryOffset = exifIfdOffset + 2 + j * 12;
+                      const exifTag = view.getUint16(exifEntryOffset, littleEndian);
+
+                      if (exifTag === 0x9003 || exifTag === 0x9004) {
+                        const valueOffset = tiffOffset + view.getUint32(exifEntryOffset + 8, littleEndian);
+                        let dateStr = "";
+                        for (let k = 0; k < 19; k++) {
+                          dateStr += String.fromCharCode(view.getUint8(valueOffset + k));
+                        }
+                        result.dateTime = dateStr.replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1-$2-$3").replace(" ", "T").slice(0, 16);
+                        break;
+                      }
+                    }
+                  }
+
+                  // GPS IFD for location
+                  if (tag === 0x8825) {
+                    const gpsIfdOffset = tiffOffset + view.getUint32(entryOffset + 8, littleEndian);
+                    const gpsEntries = view.getUint16(gpsIfdOffset, littleEndian);
+
+                    let latRef = 'N', lonRef = 'E';
+                    let latData = null, lonData = null;
+
+                    for (let j = 0; j < gpsEntries; j++) {
+                      const gpsEntryOffset = gpsIfdOffset + 2 + j * 12;
+                      const gpsTag = view.getUint16(gpsEntryOffset, littleEndian);
+
+                      if (gpsTag === 0x0001) { // GPSLatitudeRef
+                        latRef = String.fromCharCode(view.getUint8(gpsEntryOffset + 8));
+                      } else if (gpsTag === 0x0002) { // GPSLatitude
+                        const valOffset = tiffOffset + view.getUint32(gpsEntryOffset + 8, littleEndian);
+                        latData = [
+                          readRational(valOffset, littleEndian),
+                          readRational(valOffset + 8, littleEndian),
+                          readRational(valOffset + 16, littleEndian)
+                        ];
+                      } else if (gpsTag === 0x0003) { // GPSLongitudeRef
+                        lonRef = String.fromCharCode(view.getUint8(gpsEntryOffset + 8));
+                      } else if (gpsTag === 0x0004) { // GPSLongitude
+                        const valOffset = tiffOffset + view.getUint32(gpsEntryOffset + 8, littleEndian);
+                        lonData = [
+                          readRational(valOffset, littleEndian),
+                          readRational(valOffset + 8, littleEndian),
+                          readRational(valOffset + 16, littleEndian)
+                        ];
+                      }
+                    }
+
+                    if (latData && lonData) {
+                      result.latitude = gpsToDecimal(latData[0], latData[1], latData[2], latRef);
+                      result.longitude = gpsToDecimal(lonData[0], lonData[1], lonData[2], lonRef);
+                    }
+                  }
+                }
+                resolve(result);
+                return;
+              }
+              offset += 2 + view.getUint16(offset + 2, false);
+            }
+            resolve(result);
+          };
+          reader.readAsArrayBuffer(file.slice(0, 128 * 1024)); // Read first 128KB for EXIF
+        });
+      }
+
+      // Reverse geocode coordinates to get location name
+      async function reverseGeocode(lat, lon) {
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14`
+          );
+          const data = await response.json();
+          return data.display_name || `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+        } catch (error) {
+          return `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+        }
+      }
+
+      // Photo input change
+      document.getElementById("photoInput").addEventListener("change", async (e) => {
+        const files = Array.from(e.target.files);
+
+        for (const file of files) {
+          // Get EXIF data (datetime and GPS)
+          const exifData = await getExifData(file);
+
+          const reader = new FileReader();
+          reader.onload = async (event) => {
+            // Use EXIF date or current date/time as fallback
+            let dateValue;
+            if (exifData.dateTime) {
+              dateValue = exifData.dateTime;
+            } else {
+              // Current datetime in local timezone format for datetime-local input (YYYY-MM-DDTHH:MM)
+              const now = new Date();
+              const year = now.getFullYear();
+              const month = String(now.getMonth() + 1).padStart(2, '0');
+              const day = String(now.getDate()).padStart(2, '0');
+              const hours = String(now.getHours()).padStart(2, '0');
+              const minutes = String(now.getMinutes()).padStart(2, '0');
+              dateValue = `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
+
+            // Get location name from GPS coordinates
+            let locationName = "";
+            if (exifData.latitude && exifData.longitude) {
+              locationName = await reverseGeocode(exifData.latitude, exifData.longitude);
+            }
+
             const draft = {
               id: Date.now() + Math.random(),
               photo: event.target.result,
               notes: "",
               taxon: "",
               taxonId: null,
-              location: "",
-              latitude: null,
-              longitude: null,
-              date: new Date().toISOString().split("T")[0],
+              location: locationName,
+              latitude: exifData.latitude,
+              longitude: exifData.longitude,
+              date: dateValue,
               submissionStatus: null,
             };
             drafts.push(draft);
@@ -433,7 +584,7 @@
             renderDrafts();
           };
           reader.readAsDataURL(file);
-        });
+        }
         e.target.value = "";
       });
 
@@ -470,7 +621,7 @@
         }</textarea>
             </div>
             <div class="draft-field">
-              <label>Taxon (Species)</label>
+              <label>Taxon</label>
               <div class="field-wrapper">
                 <input
                   type="text"
@@ -500,9 +651,9 @@
               </div>
             </div>
             <div class="draft-field">
-              <label>Date</label>
+              <label>Date & Time</label>
               <input
-                type="date"
+                type="datetime-local"
                 class="date-input"
                 data-id="${draft.id}"
                 value="${draft.date}"
