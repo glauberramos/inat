@@ -656,6 +656,10 @@
       <div class="results-header">
         <span class="results-count" id="resultsCount"></span>
         <div style="display: flex; gap: 10px; align-items: center;">
+          <label class="checkbox-label" style="margin: 0;">
+            <input type="checkbox" id="speciesPhotoCheckbox" />
+            Species photo
+          </label>
           <div class="view-toggle">
             <button class="view-btn active" id="listViewBtn" onclick="setView('list')">List</button>
             <button class="view-btn" id="gridViewBtn" onclick="setView('grid')">Grid</button>
@@ -733,8 +737,14 @@
         const displayName = hasCommonName ? sp.commonName : sp.taxonName;
         const iconicIcon = ICONIC_TAXON_ICONS[sp.iconicTaxon] || "🔍";
 
+        // Check if we should use species photo or observation photo
+        const useSpeciesPhoto = speciesPhotoCheckbox.checked;
+        const photoUrl = useSpeciesPhoto
+          ? (sp.defaultPhotoUrl || sp.imageUrl)
+          : (sp.imageUrl || sp.defaultPhotoUrl);
+
         // Use medium size image for better quality in grid view
-        const mediumImageUrl = sp.imageUrl ? sp.imageUrl.replace(/square/, 'medium') : null;
+        const mediumImageUrl = photoUrl ? photoUrl.replace(/square/, 'medium') : null;
         const imageHtml = mediumImageUrl
           ? `<img class="card-image" src="${mediumImageUrl}" alt="${displayName}">`
           : `<div class="card-image-placeholder">${iconicIcon}</div>`;
@@ -942,6 +952,7 @@
       const taxonAutocompleteEl = document.getElementById("taxonAutocomplete");
       const allTaxaCheckbox = document.getElementById("allTaxaCheckbox");
       const captiveCheckbox = document.getElementById("captiveCheckbox");
+      const speciesPhotoCheckbox = document.getElementById("speciesPhotoCheckbox");
       let taxonSearchTimeout = null;
 
       // Load checkbox states from localStorage
@@ -951,6 +962,9 @@
       if (localStorage.getItem("inatIncludeCaptive") === "true") {
         captiveCheckbox.checked = true;
       }
+      if (localStorage.getItem("inatSpeciesPhoto") === "true") {
+        speciesPhotoCheckbox.checked = true;
+      }
 
       // Save checkbox states to localStorage on change
       allTaxaCheckbox.addEventListener("change", () => {
@@ -959,6 +973,56 @@
       captiveCheckbox.addEventListener("change", () => {
         localStorage.setItem("inatIncludeCaptive", captiveCheckbox.checked);
       });
+      speciesPhotoCheckbox.addEventListener("change", () => {
+        localStorage.setItem("inatSpeciesPhoto", speciesPhotoCheckbox.checked);
+        // Update all photos in the current view
+        updatePhotos();
+      });
+
+      function updatePhotos() {
+        const useSpeciesPhoto = speciesPhotoCheckbox.checked;
+        // Create a map of taxonId to species data
+        const speciesMap = new Map();
+        lifelistData.forEach(sp => speciesMap.set(sp.taxonId, sp));
+
+        // Update list view images
+        document.querySelectorAll('#speciesList .species-item').forEach((item) => {
+          const img = item.querySelector('.species-image');
+          if (!img) return;
+          // Extract taxon ID from the observation URL
+          const href = item.getAttribute('href') || '';
+          const match = href.match(/observations\/(\d+)/);
+          if (match) {
+            const obsId = parseInt(match[1]);
+            const sp = lifelistData.find(s => s.observationId === obsId);
+            if (sp) {
+              const photoUrl = useSpeciesPhoto
+                ? (sp.defaultPhotoUrl || sp.imageUrl)
+                : (sp.imageUrl || sp.defaultPhotoUrl);
+              img.src = photoUrl || "https://via.placeholder.com/40?text=?";
+            }
+          }
+        });
+        // Update grid view images
+        document.querySelectorAll('#speciesGrid .species-card').forEach((item) => {
+          const img = item.querySelector('.card-image');
+          if (!img) return;
+          const href = item.getAttribute('href') || '';
+          const match = href.match(/observations\/(\d+)/);
+          if (match) {
+            const obsId = parseInt(match[1]);
+            const sp = lifelistData.find(s => s.observationId === obsId);
+            if (sp) {
+              const photoUrl = useSpeciesPhoto
+                ? (sp.defaultPhotoUrl || sp.imageUrl)
+                : (sp.imageUrl || sp.defaultPhotoUrl);
+              if (photoUrl) {
+                img.src = photoUrl.replace(/square/, 'medium');
+              }
+            }
+          }
+        });
+      }
 
       taxonInput.addEventListener("input", (e) => {
         clearTimeout(taxonSearchTimeout);
@@ -1161,6 +1225,7 @@
                     observedOn: obs.observed_on,
                     timeObservedAt: obs.time_observed_at,
                     imageUrl: obs.photos?.[0]?.url || obsTaxon.default_photo?.square_url,
+                    defaultPhotoUrl: taxon.default_photo?.square_url || obsTaxon.default_photo?.square_url,
                   };
                   results.set(matchedTaxonId, result);
                   remainingInBatch.delete(matchedTaxonId);
@@ -1248,12 +1313,16 @@
         }
 
         const iconicIcon = ICONIC_TAXON_ICONS[sp.iconicTaxon] || "🔍";
+        const useSpeciesPhoto = speciesPhotoCheckbox.checked;
+        const photoUrl = useSpeciesPhoto
+          ? (sp.defaultPhotoUrl || sp.imageUrl)
+          : (sp.imageUrl || sp.defaultPhotoUrl);
 
         a.innerHTML = `
         <div class="species-number">#${number}</div>
         <span class="species-icon">${iconicIcon}</span>
         <img class="species-image" src="${
-          sp.imageUrl || "https://via.placeholder.com/40?text=?"
+          photoUrl || "https://via.placeholder.com/40?text=?"
         }" alt="${sp.commonName || sp.taxonName}">
         <div class="species-info">
           ${nameDisplay}
@@ -1388,6 +1457,7 @@
                 observedOn: result.observedOn,
                 timeObservedAt: result.timeObservedAt,
                 imageUrl: result.imageUrl,
+                defaultPhotoUrl: result.defaultPhotoUrl,
               }, foundCount);
             },
             placeId,
@@ -1431,6 +1501,7 @@
               observedOn: item.observedOn,
               timeObservedAt: item.timeObservedAt,
               imageUrl: item.imageUrl,
+              defaultPhotoUrl: item.defaultPhotoUrl,
             };
             lifelistData.push(itemData);
             addResultItem(itemData, speciesNumber);
