@@ -324,6 +324,7 @@
             idCategories: {},
             maxSpeciesIdCount: 0,
             maxSpeciesName: "",
+            idSpeciesTotal: 0,
             researchGradeData: { results: [] },
             histogramData: { results: { day: {} } },
             favoriteObservations: [],
@@ -474,6 +475,7 @@
               speciesCount,
               identificationsCount,
               state.idCategories,
+              state.idSpeciesTotal,
               state.maxSpeciesIdCount,
               state.maxSpeciesName,
               userCreatedAt,
@@ -540,14 +542,17 @@
 
           // Batch 0: ID categories and species (2 parallel)
           const [idCategoriesData, idSpeciesData] = await Promise.all([
-            fetch(`https://api.inaturalist.org/v1/identifications/categories?own_observation=false&user_id=${userId}`).then((res) => res.json()),
-            fetch(`https://api.inaturalist.org/v1/identifications/species_counts?own_observation=false&user_id=${userId}&per_page=1`).then((res) => res.json()),
+            fetch(`https://api.inaturalist.org/v1/identifications/categories?own_observation=false&current=true&current_taxon=true&user_id=${userId}`).then((res) => res.json()),
+            fetch(`https://api.inaturalist.org/v1/identifications/species_counts?own_observation=false&current=true&current_taxon=true&user_id=${userId}&per_page=1`).then((res) => res.json()),
           ]);
 
           if (idCategoriesData.results) {
             idCategoriesData.results.forEach((item) => {
               state.idCategories[item.category] = item.count;
             });
+          }
+          if (idSpeciesData.total_results) {
+            state.idSpeciesTotal = idSpeciesData.total_results;
           }
           if (idSpeciesData.results && idSpeciesData.results.length > 0) {
             state.maxSpeciesIdCount = idSpeciesData.results[0].count;
@@ -1239,6 +1244,7 @@
         speciesCount,
         identificationsCount,
         idCategories,
+        idSpeciesTotal,
         maxSpeciesIdCount,
         maxSpeciesName,
         userCreatedAt,
@@ -1480,12 +1486,16 @@
           1000
         );
 
-        // Species identification expert achievements
+        // Species identification expert achievements (most identified single species)
         const idsSpecies100 = calculateCountAchievement(maxSpeciesIdCount, 100);
         const idsSpecies1000 = calculateCountAchievement(
           maxSpeciesIdCount,
           1000
         );
+
+        // Total species identified achievements
+        const idSpeciesTotal100 = calculateCountAchievement(idSpeciesTotal, 100);
+        const idSpeciesTotal1000 = calculateCountAchievement(idSpeciesTotal, 1000);
 
         // Only observer achievement - use pre-calculated from species counts
         const onlyObserver = rarityAchievements.onlyObserver;
@@ -1883,7 +1893,8 @@
           idsSupporting100, idsSupporting1000,
           idsImproving100, idsImproving1000,
           idsLeading100, idsLeading1000,
-          idsSpecies100, idsSpecies1000
+          idsSpecies100, idsSpecies1000,
+          idSpeciesTotal100, idSpeciesTotal1000
         ];
 
         const taxonomyAchievementsArray = [
@@ -2564,6 +2575,18 @@
                 `Identify a species 1,000 times${
                   maxSpeciesName ? ` (${maxSpeciesName})` : ""
                 }`
+              )}
+              ${renderAchievementCard(
+                idSpeciesTotal100,
+                "🌐",
+                "Species Identifier",
+                "Identify 100 different species"
+              )}
+              ${renderAchievementCard(
+                idSpeciesTotal1000,
+                "🌐",
+                "Master Species Identifier",
+                "Identify 1,000 different species"
               )}
             </div>
 

@@ -1067,9 +1067,9 @@
           localStorage.setItem("inatUsername", username);
           updateUrlWithUsername(username);
 
-          // Fetch identification species count data with current=true, current_taxon=true, own_observation=false
+          // Fetch identification species count data
           const perPage = 500;
-          const baseParams = `user_id=${userId}&current=true&current_taxon=true&own_observation=false`;
+          const baseParams = `user_id=${userId}&own_observation=false&current=true&current_taxon=true`;
           const firstResponse = await fetch(
             `https://api.inaturalist.org/v1/identifications/species_counts?${baseParams}&per_page=${perPage}&page=1${placeParam}${taxonParam}`
           );
