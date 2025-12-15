@@ -647,3 +647,47 @@ body.dark-mode #filterInput {
 body.dark-mode #filterInput::placeholder {
   color: #888;
 }
+
+/* US States map page */
+body.dark-mode .map-container {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode #us-map path {
+  fill: #3d3d3d;
+  stroke: #555;
+}
+
+body.dark-mode #us-map path.observed {
+  fill: #74ac00;
+}
+
+body.dark-mode .stats-display {
+  color: #e0e0e0;
+}
+
+body.dark-mode .stats-display .count {
+  color: #74ac00;
+}
+
+body.dark-mode .loading-text {
+  color: #aaa;
+}
+
+body.dark-mode .progress-bar {
+  background: #3d3d3d;
+}
+
+body.dark-mode #statesList {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode #observedStatesList {
+  color: #aaa;
+}
+
+body.dark-mode #observedStatesList a {
+  color: #8bc34a;
+}
