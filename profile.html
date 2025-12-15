@@ -2011,8 +2011,22 @@
         calendarGrid.innerHTML = '<div style="padding: 20px; color: #666;">Loading...</div>';
 
         try {
+          // Calculate the actual date range needed for the grid
+          // The grid starts from the Sunday of the week containing Jan 1
+          const startDate = new Date(year, 0, 1);
+          const firstDayOfWeek = startDate.getDay();
+          const gridStartDate = new Date(year, 0, 1 - firstDayOfWeek);
+
+          // The grid ends on the Saturday of the week containing Dec 31
+          const endDate = new Date(year, 11, 31);
+          const lastDayOfWeek = endDate.getDay();
+          const gridEndDate = new Date(year, 11, 31 + (6 - lastDayOfWeek));
+
+          const d1 = formatDateLocal(gridStartDate);
+          const d2 = formatDateLocal(gridEndDate);
+
           const response = await fetch(
-            `https://api.inaturalist.org/v1/observations/histogram?user_id=${currentUserId}&d1=${year}-01-01&d2=${year}-12-31&date_field=observed&interval=day`
+            `https://api.inaturalist.org/v1/observations/histogram?user_id=${currentUserId}&d1=${d1}&d2=${d2}&date_field=observed&interval=day`
           );
           const data = await response.json();
           await delay(700);
