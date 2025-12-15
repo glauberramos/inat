@@ -140,7 +140,7 @@
         Fungi: { emoji: "🍄", name: "Fungi", id: 47170 },
         Chromista: { emoji: "🟤", name: "Chromista", id: 48222 },
         Protozoa: { emoji: "🦠", name: "Protozoa", id: 47686 },
-        Animalia: { emoji: "🐾", name: "Animals", id: 1 },
+        Animalia: { emoji: "🐾", name: "Other Animals", id: 1 },
         Mollusca: { emoji: "🐌", name: "Mollusks", id: 47115 },
         Arachnida: { emoji: "🕷️", name: "Arachnids", id: 47119 },
         Insecta: { emoji: "🦋", name: "Insects", id: 47158 },
@@ -150,6 +150,7 @@
         Aves: { emoji: "🐦", name: "Birds", id: 3 },
         Mammalia: { emoji: "🦌", name: "Mammals", id: 40151 },
       };
+
 
       // Specialty taxon IDs for achievements
       const SPECIALTY_TAXONS = {
@@ -439,11 +440,8 @@
               }
             });
 
-            // Add animal iconic taxon counts to Animalia
-            const animalIconicTaxons = ["Mollusca", "Arachnida", "Insecta", "Actinopterygii", "Amphibia", "Reptilia", "Aves", "Mammalia"];
-            animalIconicTaxons.forEach((taxon) => {
-              iconicTaxonSpeciesCounts["Animalia"] += iconicTaxonSpeciesCounts[taxon] || 0;
-            });
+            // Animalia now counts only "Other Animals" (species with iconic_taxon_name === "Animalia")
+            // No need to sum other animal taxa - the count comes directly from the API response
 
             const threatenedSpeciesCount = state.threatenedSpeciesCounts.length;
             const researchGradeResult = state.researchGradeData.results?.find((r) => r.quality_grade === "research");
@@ -1552,7 +1550,7 @@
         // Species per iconic taxon achievements
         const taxonAchievements = {};
         const taxonGoals = {
-          Animalia: 250,
+          Animalia: 100,
           Insecta: 150,
           Mammalia: 50,
           Amphibia: 50,
@@ -2572,17 +2570,21 @@
             ${renderCategoryTitle('Taxonomy', '🔬', taxonomyAchievementsArray)}
             <div class="achievements-grid">
               ${Object.entries(ICONIC_TAXONS)
-                .map(([taxon, data]) =>
-                  renderAchievementCard(
+                .map(([taxon, data]) => {
+                  // Use iconic_taxa parameter for Animalia, taxon_id for others
+                  const url = taxon === 'Animalia'
+                    ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&iconic_taxa=Animalia&view=species`
+                    : `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=${data.id}&view=species`;
+                  return renderAchievementCard(
                     taxonAchievements[taxon],
                     data.emoji,
                     `${data.name} Expert`,
                     `Observe ${
                       taxonAchievements[taxon].total
                     } ${data.name.toLowerCase()} species`,
-                    `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=${data.id}&view=species`
-                  )
-                )
+                    url
+                  );
+                })
                 .join("")}
               ${renderAchievementCard(
                 lepidopterist,
