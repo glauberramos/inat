@@ -755,11 +755,25 @@
       // URL parameter and localStorage handling
       const urlParams = new URLSearchParams(window.location.search);
       const urlUsername = urlParams.get("user");
+      const urlPlaceId = urlParams.get("place_id");
+      const urlPlaceName = urlParams.get("place");
       const savedUsername = localStorage.getItem("inatUsername");
 
       function updateUrlWithUsername(username) {
         const url = new URL(window.location);
         url.searchParams.set("user", username);
+        window.history.replaceState({}, "", url);
+      }
+
+      function updateUrlWithPlace(placeId, placeName) {
+        const url = new URL(window.location);
+        if (placeId && placeName) {
+          url.searchParams.set("place_id", placeId);
+          url.searchParams.set("place", placeName);
+        } else {
+          url.searchParams.delete("place_id");
+          url.searchParams.delete("place");
+        }
         window.history.replaceState({}, "", url);
       }
 
@@ -770,13 +784,16 @@
         usernameInput.value = savedUsername;
       }
 
-      // Load saved place from localStorage (shared with SpeciesDex)
+      // Load place from URL parameter or localStorage
       const savedPlaceId = localStorage.getItem("inatPlaceId");
       const savedPlaceName = localStorage.getItem("inatPlaceName");
-      if (savedPlaceId) {
+      if (urlPlaceId && urlPlaceName) {
+        placeIdInput.value = urlPlaceId;
+        locationInput.value = urlPlaceName;
+        localStorage.setItem("inatPlaceId", urlPlaceId);
+        localStorage.setItem("inatPlaceName", urlPlaceName);
+      } else if (savedPlaceId && savedPlaceName) {
         placeIdInput.value = savedPlaceId;
-      }
-      if (savedPlaceName) {
         locationInput.value = savedPlaceName;
       }
 
@@ -870,10 +887,11 @@
         if (query.length < 2) {
           locationAutocomplete.innerHTML = "";
           locationAutocomplete.style.display = "none";
-          // Clear from localStorage if input is empty
+          // Clear from localStorage and URL if input is empty
           if (query.length === 0) {
             localStorage.removeItem("inatPlaceId");
             localStorage.removeItem("inatPlaceName");
+            updateUrlWithPlace(null, null);
           }
           return;
         }
@@ -912,9 +930,10 @@
                   item.addEventListener("click", () => {
                     locationInput.value = item.dataset.placeName;
                     placeIdInput.value = item.dataset.placeId;
-                    // Save to localStorage
+                    // Save to localStorage and update URL
                     localStorage.setItem("inatPlaceId", item.dataset.placeId);
                     localStorage.setItem("inatPlaceName", item.dataset.placeName);
+                    updateUrlWithPlace(item.dataset.placeId, item.dataset.placeName);
                     locationAutocomplete.innerHTML = "";
                     locationAutocomplete.style.display = "none";
                   });

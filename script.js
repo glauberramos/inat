@@ -1,3 +1,16 @@
+// Global function to update URL with place parameters
+function updateUrlWithPlace(placeId, placeName) {
+  const url = new URL(window.location);
+  if (placeId && placeName) {
+    url.searchParams.set("place_id", placeId);
+    url.searchParams.set("place", placeName);
+  } else {
+    url.searchParams.delete("place_id");
+    url.searchParams.delete("place");
+  }
+  window.history.replaceState({}, "", url);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const placeNameInput = document.getElementById("placeNameInput");
   const placeIdInput = document.getElementById("placeIdInput");
@@ -45,17 +58,20 @@ document.addEventListener("DOMContentLoaded", function () {
   // URL parameter handling
   const urlParams = new URLSearchParams(window.location.search);
   const urlUsername = urlParams.get("user");
+  const urlPlaceId = urlParams.get("place_id");
+  const urlPlaceName = urlParams.get("place");
 
-  if (savedPlaceId) {
-    placeIdInput.value = savedPlaceId;
-  }
-
-  if (savedPlaceName) {
-    placeNameInput.value = savedPlaceName;
-  }
-
-  if (savedProject) {
+  // Handle place: URL param takes priority, then localStorage
+  if (urlPlaceId && urlPlaceName) {
+    placeIdInput.value = urlPlaceId;
+    placeNameInput.value = urlPlaceName;
+    localStorage.setItem("inatPlaceId", urlPlaceId);
+    localStorage.setItem("inatPlaceName", urlPlaceName);
+  } else if (savedProject) {
     placeNameInput.value = savedProject;
+  } else if (savedPlaceId && savedPlaceName) {
+    placeIdInput.value = savedPlaceId;
+    placeNameInput.value = savedPlaceName;
   }
 
   if (
@@ -104,6 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.removeItem("inatProjectId");
       placeIdInput.value = "";
       placeNameInput.value = "";
+      updateUrlWithPlace(null, null);
       updateLocationName();
     }
   });

@@ -234,6 +234,10 @@ document.addEventListener("DOMContentLoaded", function () {
           // Clear any stored project data
           localStorage.removeItem("inatProject");
           localStorage.removeItem("inatProjectId");
+          // Update URL with place
+          if (typeof updateUrlWithPlace === "function") {
+            updateUrlWithPlace(id, name);
+          }
         } else if (type === "project") {
           // Handle project selection
           placeNameInput.value = name;
@@ -243,6 +247,10 @@ document.addEventListener("DOMContentLoaded", function () {
           // Store project data
           localStorage.setItem("inatProject", name);
           localStorage.setItem("inatProjectId", id);
+          // Clear place from URL when selecting project
+          if (typeof updateUrlWithPlace === "function") {
+            updateUrlWithPlace(null, null);
+          }
         }
 
         // Hide autocomplete

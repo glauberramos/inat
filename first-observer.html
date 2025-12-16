@@ -416,11 +416,25 @@
       // URL parameter and localStorage handling
       const urlParams = new URLSearchParams(window.location.search);
       const urlUsername = urlParams.get("user");
+      const urlPlaceId = urlParams.get("place_id");
+      const urlPlaceName = urlParams.get("place");
       const savedUsername = localStorage.getItem("inatUsername");
 
       function updateUrlWithUsername(username) {
         const url = new URL(window.location);
         url.searchParams.set("user", username);
+        window.history.replaceState({}, "", url);
+      }
+
+      function updateUrlWithPlace(placeId, placeName) {
+        const url = new URL(window.location);
+        if (placeId && placeName) {
+          url.searchParams.set("place_id", placeId);
+          url.searchParams.set("place", placeName);
+        } else {
+          url.searchParams.delete("place_id");
+          url.searchParams.delete("place");
+        }
         window.history.replaceState({}, "", url);
       }
 
@@ -431,10 +445,16 @@
         usernameInput.value = savedUsername;
       }
 
-      // Load saved place from localStorage (shared with SpeciesDex)
+      // Load place from URL parameter or localStorage
       const savedPlaceId = localStorage.getItem("inatPlaceId");
       const savedPlaceName = localStorage.getItem("inatPlaceName");
-      if (savedPlaceId && savedPlaceName) {
+      if (urlPlaceId && urlPlaceName) {
+        selectedPlaceId = urlPlaceId;
+        selectedPlaceName = urlPlaceName;
+        placeInput.value = urlPlaceName;
+        localStorage.setItem("inatPlaceId", urlPlaceId);
+        localStorage.setItem("inatPlaceName", urlPlaceName);
+      } else if (savedPlaceId && savedPlaceName) {
         selectedPlaceId = savedPlaceId;
         selectedPlaceName = savedPlaceName;
         placeInput.value = savedPlaceName;
@@ -523,10 +543,11 @@
         selectedPlaceId = null;
         selectedPlaceName = null;
 
-        // Clear localStorage if input is emptied
+        // Clear localStorage and URL if input is emptied
         if (query.length === 0) {
           localStorage.removeItem("inatPlaceId");
           localStorage.removeItem("inatPlaceName");
+          updateUrlWithPlace(null, null);
         }
 
         if (query.length < 2) {
@@ -564,9 +585,10 @@
                   selectedPlaceId = item.dataset.id;
                   selectedPlaceName = item.dataset.name;
                   placeInput.value = selectedPlaceName;
-                  // Save to localStorage
+                  // Save to localStorage and update URL
                   localStorage.setItem("inatPlaceId", selectedPlaceId);
                   localStorage.setItem("inatPlaceName", selectedPlaceName);
+                  updateUrlWithPlace(selectedPlaceId, selectedPlaceName);
                   placeAutocomplete.classList.remove("active");
                 });
               });
