@@ -744,6 +744,8 @@
         <div id="speciesContainer"></div>
       </main>
     </div>
+    <script src="constants.js"></script>
+    <script src="shared-utils.js"></script>
     <script>
       const usernameInput = document.getElementById("usernameInput");
       const usernameAutocomplete = document.getElementById(
@@ -787,24 +789,6 @@
       const urlPlaceId = urlParams.get("place_id");
       const urlPlaceName = urlParams.get("place");
       const savedUsername = localStorage.getItem("inatUsername");
-
-      function updateUrlWithUsername(username) {
-        const url = new URL(window.location);
-        url.searchParams.set("user", username);
-        window.history.replaceState({}, "", url);
-      }
-
-      function updateUrlWithPlace(placeId, placeName) {
-        const url = new URL(window.location);
-        if (placeId && placeName) {
-          url.searchParams.set("place_id", placeId);
-          url.searchParams.set("place", placeName);
-        } else {
-          url.searchParams.delete("place_id");
-          url.searchParams.delete("place");
-        }
-        window.history.replaceState({}, "", url);
-      }
 
       if (urlUsername) {
         usernameInput.value = urlUsername;
@@ -1342,23 +1326,8 @@
                     }
 
                     // Get iconic taxon icon
-                    const iconicTaxonIcons = {
-                      Mammalia: "🦌",
-                      Aves: "🦅",
-                      Reptilia: "🦎",
-                      Amphibia: "🐸",
-                      Actinopterygii: "🐟",
-                      Insecta: "🦋",
-                      Arachnida: "🕷️",
-                      Mollusca: "🐌",
-                      Plantae: "🌿",
-                      Fungi: "🍄",
-                      Animalia: "🐾",
-                      Protozoa: "🦠",
-                      Chromista: "🦠",
-                    };
                     const iconicTaxonIcon =
-                      iconicTaxonIcons[taxon.iconic_taxon_name] || "🔍";
+                      ICONIC_TAXON_ICONS[taxon.iconic_taxon_name] || "🔍";
 
                     // Get names
                     const commonName =
@@ -1456,23 +1425,8 @@
               }
 
               // Get iconic taxon icon
-              const iconicTaxonIcons = {
-                Mammalia: "🦌",
-                Aves: "🦅",
-                Reptilia: "🦎",
-                Amphibia: "🐸",
-                Actinopterygii: "🐟",
-                Insecta: "🦋",
-                Arachnida: "🕷️",
-                Mollusca: "🐌",
-                Plantae: "🌿",
-                Fungi: "🍄",
-                Animalia: "🐾",
-                Protozoa: "🦠",
-                Chromista: "🦠",
-              };
               const iconicTaxonIcon =
-                iconicTaxonIcons[taxon.iconic_taxon_name] || "🔍";
+                ICONIC_TAXON_ICONS[taxon.iconic_taxon_name] || "🔍";
 
               // Get names
               const commonName = taxon.preferred_common_name || taxon.name;

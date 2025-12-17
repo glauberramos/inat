@@ -710,25 +710,9 @@
       <div class="species-grid" id="speciesGrid"></div>
     </div>
 
+    <script src="constants.js"></script>
+    <script src="shared-utils.js"></script>
     <script>
-      const API_BASE = "https://api.inaturalist.org/v1";
-
-      const ICONIC_TAXON_ICONS = {
-        Plantae: "🌿",
-        Insecta: "🦋",
-        Aves: "🐦",
-        Fungi: "🍄",
-        Mammalia: "🦌",
-        Reptilia: "🦎",
-        Amphibia: "🐸",
-        Actinopterygii: "🐟",
-        Mollusca: "🐌",
-        Arachnida: "🕷️",
-        Animalia: "🐾",
-        Protozoa: "🦠",
-        Chromista: "🟤",
-      };
-
       let isSearching = false;
       let searchTimeout = null;
       let lifelistData = []; // Store lifelist for CSV export
@@ -807,24 +791,6 @@
       const urlPlaceId = urlParams.get("place_id");
       const urlPlaceName = urlParams.get("place");
       const savedUsername = localStorage.getItem("inatUsername");
-
-      function updateUrlWithUsername(username) {
-        const url = new URL(window.location);
-        url.searchParams.set("user", username);
-        window.history.replaceState({}, "", url);
-      }
-
-      function updateUrlWithPlace(placeId, placeName) {
-        const url = new URL(window.location);
-        if (placeId && placeName) {
-          url.searchParams.set("place_id", placeId);
-          url.searchParams.set("place", placeName);
-        } else {
-          url.searchParams.delete("place_id");
-          url.searchParams.delete("place");
-        }
-        window.history.replaceState({}, "", url);
-      }
 
       if (urlUsername) {
         usernameInput.value = urlUsername;
@@ -1136,16 +1102,6 @@
         } catch (error) {
           console.error("Error searching taxa:", error);
         }
-      }
-
-      async function fetchJSON(url) {
-        const response = await fetch(url, {
-          headers: { Accept: "application/json" },
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        return response.json();
       }
 
       async function getUserSpeciesCounts(username, placeId = null, taxonId = null, allTaxa = false, includeCaptive = false) {
