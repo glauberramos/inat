@@ -764,6 +764,31 @@
         background: #1e2a1e;
       }
 
+      .cv-suggestion-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        color: #74ac00;
+        text-decoration: none;
+        font-size: 14px;
+        border-radius: 4px;
+        transition: background 0.2s;
+      }
+
+      .cv-suggestion-link:hover {
+        background: rgba(116, 172, 0, 0.15);
+      }
+
+      .dark-mode .cv-suggestion-link {
+        color: #8bc34a;
+      }
+
+      .dark-mode .cv-suggestion-link:hover {
+        background: rgba(139, 195, 74, 0.15);
+      }
+
       .cv-loading {
         padding: 15px;
         text-align: center;
@@ -3839,13 +3864,16 @@
                   ${commonName ? `<div class="cv-suggestion-scientific">${scientificName}</div>` : ''}
                 </div>
                 <div class="cv-suggestion-score">${score}%</div>
+                <a href="https://www.inaturalist.org/taxa/${taxon.id}" target="_blank" class="cv-suggestion-link" title="View on iNaturalist">↗</a>
               </div>
             `;
           }).join('');
 
           // Add click handlers to suggestions
           cvList.querySelectorAll('.cv-suggestion-item').forEach(item => {
-            item.addEventListener('click', () => {
+            item.addEventListener('click', (e) => {
+              // Don't select if clicking the link
+              if (e.target.classList.contains('cv-suggestion-link')) return;
               const taxonId = item.dataset.taxonId;
               const taxonName = item.dataset.taxonName;
               const draftId = item.dataset.draftId;
