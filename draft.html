@@ -15,7 +15,69 @@
       content="Create and submit draft observations to iNaturalist"
     />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="dark-mode.css" />
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
+      /* Top user bar */
+      .top-user-bar {
+        position: fixed;
+        top: 20px;
+        right: 80px;
+        z-index: 1000;
+        display: none;
+      }
+
+      .top-user-bar.show {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .top-user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: white;
+        padding: 6px 12px;
+        border-radius: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .dark-mode .top-user-info {
+        background: #2d2d2d;
+      }
+
+      .top-user-info img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+      }
+
+      .top-user-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+      }
+
+      .dark-mode .top-user-name {
+        color: #e0e0e0;
+      }
+
+      .top-logout-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 15px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .top-logout-btn:hover {
+        background: #c82333;
+      }
+
       .auth-section {
         background: white;
         padding: 20px;
@@ -23,6 +85,44 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         margin-bottom: 20px;
         text-align: center;
+      }
+
+      .dark-mode .auth-section {
+        background: #2d2d2d;
+      }
+
+      .auth-section.hidden {
+        display: none;
+      }
+
+      .user-badge {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .user-badge img {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+      }
+
+      .user-badge-name {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .dark-mode .user-badge-name {
+        color: #e0e0e0;
+      }
+
+      .user-badge-login {
+        font-size: 0.85rem;
+        color: #666;
+      }
+
+      .dark-mode .user-badge-login {
+        color: #aaa;
       }
 
       .auth-status {
@@ -35,16 +135,183 @@
         margin-bottom: 10px;
       }
 
+      .dark-mode .auth-status {
+        background: #1e1e1e;
+        color: #aaa;
+      }
+
       .auth-status.authenticated {
         background: #d4edda;
         color: #155724;
       }
 
+      .dark-mode .auth-status.authenticated {
+        background: #1e3a1e;
+        color: #90ee90;
+      }
+
+      /* Main layout with sidebar */
+      .main-layout {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+      }
+
+      .bulk-edit-sidebar {
+        width: 280px;
+        flex-shrink: 0;
+        display: none;
+      }
+
+      .bulk-edit-sidebar.show {
+        display: block;
+      }
+
+      .bulk-edit-panel {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        position: sticky;
+        top: 20px;
+      }
+
+      .dark-mode .bulk-edit-panel {
+        background: #2d2d2d;
+      }
+
+      .bulk-edit-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333;
+      }
+
+      .dark-mode .bulk-edit-title {
+        color: #e0e0e0;
+      }
+
+      .bulk-edit-subtitle {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .dark-mode .bulk-edit-subtitle {
+        color: #aaa;
+        border-bottom-color: #444;
+      }
+
+      .bulk-field {
+        margin-bottom: 12px;
+        position: relative;
+      }
+
+      .bulk-field-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f5f5f5;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 12px;
+      }
+
+      .dark-mode .bulk-field-row {
+        background: #3a3a3a;
+      }
+
+      .bulk-field-icon {
+        color: #666;
+        font-size: 14px;
+        width: 20px;
+        text-align: center;
+      }
+
+      .dark-mode .bulk-field-icon {
+        color: #888;
+      }
+
+      .bulk-field input,
+      .bulk-field textarea {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 13px;
+        padding: 4px 0;
+        color: #333;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      .bulk-field input[type="datetime-local"] {
+        color-scheme: light;
+      }
+
+      .dark-mode .bulk-field input,
+      .dark-mode .bulk-field textarea {
+        color: #e0e0e0;
+      }
+
+      .dark-mode .bulk-field input[type="datetime-local"] {
+        color-scheme: dark;
+      }
+
+      .bulk-field input:focus,
+      .bulk-field textarea:focus {
+        outline: none;
+      }
+
+      .bulk-field textarea {
+        resize: vertical;
+        min-height: 50px;
+      }
+
+      .bulk-actions {
+        margin-top: 15px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .bulk-actions button {
+        flex: 1;
+        padding: 10px;
+        font-size: 13px;
+        border-radius: 6px;
+      }
+
+      .drafts-area {
+        flex: 1;
+        min-width: 0;
+      }
+
       .drafts-container {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
-        margin-top: 20px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+      }
+
+      @media (max-width: 1200px) {
+        .drafts-container {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .drafts-container {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .bulk-edit-sidebar {
+          display: none !important;
+        }
+      }
+
+      @media (max-width: 500px) {
+        .drafts-container {
+          grid-template-columns: 1fr;
+        }
       }
 
       .draft-card {
@@ -53,61 +320,111 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         overflow: hidden;
         border: 2px solid #ddd;
+        font-size: 12px;
       }
 
-      .draft-image {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-        background: #f5f5f5;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #999;
-        font-size: 48px;
+      .dark-mode .draft-card {
+        background: #2d2d2d;
+        border-color: #444;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       }
 
       .draft-content {
-        padding: 15px;
+        padding: 10px;
       }
 
       .draft-field {
-        margin-bottom: 10px;
+        margin-bottom: 6px;
       }
 
-      .draft-field label {
-        display: block;
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 5px;
-        font-size: 14px;
+      .draft-field-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #f5f5f5;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 8px;
+      }
+
+      .dark-mode .draft-field-row {
+        background: #3a3a3a;
+      }
+
+      .draft-field-icon {
+        color: #888;
+        font-size: 12px;
+        width: 16px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      .dark-mode .draft-field-icon {
+        color: #666;
       }
 
       .draft-field input,
       .draft-field textarea {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-        font-family: inherit;
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 12px;
+        padding: 2px 0;
+        color: #333;
+        min-width: 0;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      .draft-field input[type="datetime-local"] {
+        color-scheme: light;
+      }
+
+      .dark-mode .draft-field input,
+      .dark-mode .draft-field textarea {
+        color: #e0e0e0;
+      }
+
+      .dark-mode .draft-field input[type="datetime-local"] {
+        color-scheme: dark;
+      }
+
+      .draft-field input:focus,
+      .draft-field textarea:focus {
+        outline: none;
+      }
+
+      .draft-field .location-input,
+      #bulkLocation {
+        cursor: pointer;
+      }
+
+      .draft-field input::placeholder,
+      .draft-field textarea::placeholder {
+        color: #999;
+      }
+
+      .dark-mode .draft-field input::placeholder,
+      .dark-mode .draft-field textarea::placeholder {
+        color: #666;
       }
 
       .draft-field textarea {
-        resize: vertical;
-        min-height: 60px;
+        resize: none;
+        min-height: 32px;
       }
 
       .draft-actions {
         display: flex;
-        gap: 10px;
-        margin-top: 15px;
+        gap: 6px;
+        margin-top: 8px;
       }
 
       .draft-actions button {
         flex: 1;
-        padding: 8px;
-        font-size: 14px;
+        padding: 6px;
+        font-size: 11px;
+        border-radius: 4px;
       }
 
       .btn-submit {
@@ -144,9 +461,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 300px;
+        min-height: 200px;
         cursor: pointer;
         transition: all 0.3s;
+      }
+
+      .dark-mode .add-draft-card {
+        background: #2d2d2d;
+        border-color: #444;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       }
 
       .add-draft-card:hover {
@@ -154,14 +477,23 @@
         background: #f9f9f9;
       }
 
+      .dark-mode .add-draft-card:hover {
+        background: #3a3a3a;
+      }
+
       .add-draft-content {
         text-align: center;
         color: #666;
+        font-size: 12px;
       }
 
       .add-draft-content .icon {
-        font-size: 64px;
-        margin-bottom: 10px;
+        font-size: 36px;
+        margin-bottom: 8px;
+      }
+
+      .dark-mode .add-draft-content {
+        color: #aaa;
       }
 
       #photoInput {
@@ -183,6 +515,11 @@
         display: none;
       }
 
+      .dark-mode .taxon-autocomplete-draft {
+        background: #2d2d2d;
+        border-color: #444;
+      }
+
       .taxon-suggestion-draft {
         padding: 8px;
         cursor: pointer;
@@ -190,8 +527,16 @@
         border-bottom: 1px solid #eee;
       }
 
+      .dark-mode .taxon-suggestion-draft {
+        border-bottom-color: #444;
+      }
+
       .taxon-suggestion-draft:hover {
         background: #f5f5f5;
+      }
+
+      .dark-mode .taxon-suggestion-draft:hover {
+        background: #3a3a3a;
       }
 
       .taxon-suggestion-draft .taxon-name {
@@ -199,10 +544,18 @@
         color: #2c3e50;
       }
 
+      .dark-mode .taxon-suggestion-draft .taxon-name {
+        color: #e0e0e0;
+      }
+
       .taxon-suggestion-draft .taxon-sci-name {
         font-style: italic;
         color: #666;
         font-size: 12px;
+      }
+
+      .dark-mode .taxon-suggestion-draft .taxon-sci-name {
+        color: #999;
       }
 
       .location-autocomplete-draft {
@@ -220,15 +573,30 @@
         display: none;
       }
 
+      .dark-mode .location-autocomplete-draft {
+        background: #2d2d2d;
+        border-color: #444;
+      }
+
       .location-suggestion-draft {
         padding: 8px;
         cursor: pointer;
         transition: background 0.2s;
         border-bottom: 1px solid #eee;
+        color: #333;
+      }
+
+      .dark-mode .location-suggestion-draft {
+        border-bottom-color: #444;
+        color: #e0e0e0;
       }
 
       .location-suggestion-draft:hover {
         background: #f5f5f5;
+      }
+
+      .dark-mode .location-suggestion-draft:hover {
+        background: #3a3a3a;
       }
 
       .field-wrapper {
@@ -249,14 +617,1100 @@
         color: #155724;
       }
 
+      .dark-mode .submission-status.success {
+        background: #1e3a1e;
+        color: #90ee90;
+      }
+
+      .dark-mode .submission-status.success a {
+        color: #90ee90 !important;
+      }
+
       .submission-status.error {
         display: block;
         background: #f8d7da;
         color: #721c24;
       }
+
+      .dark-mode .submission-status.error {
+        background: #3a1e1e;
+        color: #ff9090;
+      }
+
+      /* CV Suggestions */
+      .btn-identify {
+        background: #3498db;
+        border: none;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+
+      .btn-identify:hover {
+        background: #2980b9;
+      }
+
+      .btn-identify:disabled {
+        background: #95a5a6;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      .cv-suggestions {
+        display: none;
+        margin-bottom: 15px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        overflow: hidden;
+        background: white;
+      }
+
+      .cv-suggestions.show {
+        display: block;
+      }
+
+      .dark-mode .cv-suggestions {
+        border-color: #444;
+        background: #1e1e1e;
+      }
+
+      .cv-suggestions-title {
+        padding: 10px;
+        background: #f8f9fa;
+        font-weight: 600;
+        font-size: 13px;
+        color: #333;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .dark-mode .cv-suggestions-title {
+        background: #1e1e1e;
+        color: #e0e0e0;
+        border-bottom-color: #444;
+      }
+
+      .cv-suggestion-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        cursor: pointer;
+        transition: background 0.2s;
+        border-bottom: 1px solid #eee;
+      }
+
+      .cv-suggestion-item:last-child {
+        border-bottom: none;
+      }
+
+      .cv-suggestion-item:hover {
+        background: #f0f7e6;
+      }
+
+      .dark-mode .cv-suggestion-item {
+        border-bottom-color: #333;
+        background: #1e1e1e;
+      }
+
+      .dark-mode .cv-suggestion-item:hover {
+        background: #2a3a1e;
+      }
+
+      .cv-suggestion-photo {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        object-fit: cover;
+      }
+
+      .cv-suggestion-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .cv-suggestion-name {
+        font-weight: 500;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .dark-mode .cv-suggestion-name {
+        color: #e0e0e0;
+      }
+
+      .cv-suggestion-scientific {
+        font-style: italic;
+        color: #666;
+        font-size: 12px;
+      }
+
+      .dark-mode .cv-suggestion-scientific {
+        color: #999;
+      }
+
+      .cv-suggestion-score {
+        font-size: 12px;
+        font-weight: 600;
+        color: #74ac00;
+        padding: 2px 8px;
+        background: #f0f7e6;
+        border-radius: 10px;
+      }
+
+      .dark-mode .cv-suggestion-score {
+        background: #1e2a1e;
+      }
+
+      .cv-loading {
+        padding: 15px;
+        text-align: center;
+        color: #666;
+        font-size: 13px;
+        background: white;
+      }
+
+      .dark-mode .cv-loading {
+        color: #aaa;
+        background: #1e1e1e;
+      }
+
+      .logout-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      .logout-btn:hover {
+        background: #c82333;
+      }
+
+      /* Photo carousel */
+      .draft-photos {
+        position: relative;
+        width: 100%;
+        height: 140px;
+        background: #f5f5f5;
+      }
+
+      .dark-mode .draft-photos {
+        background: #1e1e1e;
+      }
+
+      .draft-photos img {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        display: none;
+      }
+
+      .draft-photos img.active {
+        display: block;
+      }
+
+      .photo-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        min-height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1;
+        padding: 0;
+        line-height: 1;
+      }
+
+      .photo-nav:hover {
+        background: rgba(0, 0, 0, 0.7);
+      }
+
+      .photo-nav.prev {
+        left: 4px;
+      }
+
+      .photo-nav.next {
+        right: 4px;
+      }
+
+      .photo-indicators {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 6px;
+      }
+
+      .photo-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+      }
+
+      .photo-indicator.active {
+        background: white;
+      }
+
+      .photo-count {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+      }
+
+      .add-photo-btn {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        background: rgba(116, 172, 0, 0.9);
+        color: white;
+        border: none;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        min-height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1;
+        padding: 0;
+        line-height: 1;
+      }
+
+      .add-photo-btn:hover {
+        background: rgba(101, 153, 0, 1);
+      }
+
+      .delete-photo-btn {
+        position: absolute;
+        top: 8px;
+        right: 55px;
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        border: none;
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+        min-height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1;
+        padding: 0;
+        line-height: 1;
+      }
+
+      .delete-photo-btn:hover {
+        background: rgba(200, 35, 51, 1);
+      }
+
+      .edit-photo-btn {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        background: rgba(52, 152, 219, 0.9);
+        color: white;
+        border: none;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        min-height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1;
+        padding: 0;
+        line-height: 1;
+      }
+
+      .edit-photo-btn:hover {
+        background: rgba(41, 128, 185, 1);
+      }
+
+      /* Draft selection */
+      .draft-card {
+        position: relative;
+      }
+
+      .draft-select {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        z-index: 10;
+        accent-color: #74ac00;
+      }
+
+      .draft-card.selected {
+        border-color: #74ac00;
+        box-shadow: 0 0 0 3px rgba(116, 172, 0, 0.3);
+      }
+
+      /* Merge toolbar */
+      .merge-toolbar {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #74ac00;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 30px;
+        display: none;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+      }
+
+      .merge-toolbar.show {
+        display: flex;
+      }
+
+      .merge-toolbar span {
+        font-weight: 500;
+      }
+
+      .merge-btn {
+        background: white;
+        color: #74ac00;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .merge-btn:disabled {
+        background: #ccc;
+        color: #888;
+        cursor: not-allowed;
+      }
+
+      .cancel-merge-btn {
+        background: transparent;
+        color: white;
+        border: 1px solid white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .cancel-merge-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Drop overlay */
+      .drop-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(116, 172, 0, 0.9);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        pointer-events: none;
+      }
+
+      .drop-overlay.active {
+        display: flex;
+      }
+
+      .drop-overlay-content {
+        text-align: center;
+        color: white;
+      }
+
+      .drop-overlay-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+      }
+
+      .drop-overlay-text {
+        font-size: 24px;
+        font-weight: 600;
+      }
+
+      .drop-overlay-hint {
+        font-size: 16px;
+        margin-top: 10px;
+        opacity: 0.9;
+      }
+
+      /* Location Picker Modal */
+      .location-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .location-modal.show {
+        display: flex;
+      }
+
+      .location-modal-content {
+        background: #2d2d2d;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 900px;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        border: 1px solid #444;
+      }
+
+      .location-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        background: #74ac00;
+        color: white;
+      }
+
+      .location-modal-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .location-modal-close {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 0;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+      }
+
+      .location-modal-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .location-map-container {
+        position: relative;
+        height: 350px;
+        border-bottom: 1px solid #444;
+      }
+
+      #locationMap {
+        width: 100%;
+        height: 100%;
+      }
+
+      .map-search-box {
+        position: absolute;
+        top: 10px;
+        left: 60px;
+        z-index: 1000;
+      }
+
+      .map-search-box input {
+        width: 280px;
+        padding: 10px 14px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        background: #2d2d2d;
+        color: #e0e0e0;
+      }
+
+      .map-search-box input::placeholder {
+        color: #888;
+      }
+
+      .map-search-box input:focus {
+        outline: 2px solid #74ac00;
+      }
+
+      .location-modal-fields {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        padding: 16px 20px;
+        background: #252525;
+      }
+
+      .location-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .location-field label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .location-field input,
+      .location-field select {
+        padding: 10px 12px;
+        border: 1px solid #444;
+        border-radius: 6px;
+        font-size: 13px;
+        background: #3a3a3a;
+        color: #e0e0e0;
+      }
+
+      .location-field input:focus,
+      .location-field select:focus {
+        outline: none;
+        border-color: #74ac00;
+      }
+
+      .location-field input[readonly] {
+        background: #333;
+        color: #aaa;
+      }
+
+      .location-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 16px 20px;
+        background: #252525;
+        border-top: 1px solid #333;
+      }
+
+      .location-modal-actions button {
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .btn-cancel-location {
+        background: #3a3a3a;
+        border: 1px solid #555;
+        color: #e0e0e0;
+      }
+
+      .btn-cancel-location:hover {
+        background: #444;
+      }
+
+      .btn-update-location {
+        background: #74ac00;
+        border: none;
+        color: white;
+      }
+
+      .btn-update-location:hover {
+        background: #659900;
+      }
+
+      @media (max-width: 768px) {
+        .location-modal-fields {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .location-field:last-child {
+          grid-column: span 2;
+        }
+        .map-search-box input {
+          width: 200px;
+        }
+      }
+
+      /* Photo Editor Modal */
+      .photo-editor-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .photo-editor-modal.show {
+        display: flex;
+      }
+
+      .photo-editor-content {
+        background: #2d2d2d;
+        border-radius: 12px;
+        width: 95%;
+        max-width: 1100px;
+        max-height: 95vh;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        border: 1px solid #444;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .photo-editor-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        background: #74ac00;
+        color: white;
+      }
+
+      .photo-editor-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .photo-editor-close {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .photo-editor-body {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .photo-editor-canvas-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #1a1a1a;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      #photoEditorCanvas {
+        max-width: 100%;
+        max-height: 60vh;
+        border-radius: 4px;
+      }
+
+      .photo-editor-controls {
+        width: 280px;
+        background: #252525;
+        padding: 20px;
+        overflow-y: auto;
+        border-left: 1px solid #444;
+      }
+
+      .editor-section {
+        margin-bottom: 20px;
+      }
+
+      .editor-section-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: #74ac00;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+      }
+
+      .editor-control {
+        margin-bottom: 14px;
+      }
+
+      .editor-control label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #aaa;
+        margin-bottom: 6px;
+      }
+
+      .editor-control label span {
+        color: #e0e0e0;
+      }
+
+      .editor-control input[type="range"] {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: #444;
+        outline: none;
+        -webkit-appearance: none;
+      }
+
+      .editor-control input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #74ac00;
+        cursor: pointer;
+      }
+
+      .editor-control input[type="range"]::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #74ac00;
+        cursor: pointer;
+        border: none;
+      }
+
+      .rotation-buttons {
+        display: flex;
+        gap: 10px;
+      }
+
+      .rotation-btn {
+        flex: 1;
+        padding: 10px;
+        background: #3a3a3a;
+        border: 1px solid #555;
+        color: #e0e0e0;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .rotation-btn:hover {
+        background: #444;
+      }
+
+      .crop-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .crop-btn {
+        flex: 1;
+        min-width: 70px;
+        padding: 8px;
+        background: #3a3a3a;
+        border: 1px solid #555;
+        color: #e0e0e0;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 11px;
+      }
+
+      .crop-btn:hover {
+        background: #444;
+      }
+
+      .crop-btn.active {
+        background: #74ac00;
+        border-color: #74ac00;
+      }
+
+      .photo-editor-canvas-container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .crop-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        pointer-events: none;
+      }
+
+      .crop-selection {
+        position: absolute;
+        border: 2px dashed #fff;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+        cursor: move;
+        pointer-events: auto;
+      }
+
+      .crop-handle {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        border: 2px solid #74ac00;
+        border-radius: 2px;
+        pointer-events: auto;
+      }
+
+      .crop-handle.nw {
+        top: -6px;
+        left: -6px;
+        cursor: nw-resize;
+      }
+
+      .crop-handle.ne {
+        top: -6px;
+        right: -6px;
+        cursor: ne-resize;
+      }
+
+      .crop-handle.sw {
+        bottom: -6px;
+        left: -6px;
+        cursor: sw-resize;
+      }
+
+      .crop-handle.se {
+        bottom: -6px;
+        right: -6px;
+        cursor: se-resize;
+      }
+
+      .photo-editor-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 20px;
+        background: #252525;
+        border-top: 1px solid #333;
+      }
+
+      .photo-editor-actions button {
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .btn-reset-editor {
+        background: #3a3a3a;
+        border: 1px solid #555;
+        color: #e0e0e0;
+      }
+
+      .btn-cancel-editor {
+        background: #3a3a3a;
+        border: 1px solid #555;
+        color: #e0e0e0;
+      }
+
+      .btn-apply-editor {
+        background: #74ac00;
+        border: none;
+        color: white;
+      }
+
+      @media (max-width: 768px) {
+        .photo-editor-body {
+          flex-direction: column;
+        }
+        .photo-editor-controls {
+          width: 100%;
+          max-height: 200px;
+          border-left: none;
+          border-top: 1px solid #444;
+        }
+      }
     </style>
   </head>
   <body>
+    <!-- Top right user bar -->
+    <div class="top-user-bar" id="topUserBar">
+      <div class="top-user-info" id="topUserInfo"></div>
+    </div>
+
+    <!-- Location Picker Modal -->
+    <div class="location-modal" id="locationModal">
+      <div class="location-modal-content">
+        <div class="location-modal-header">
+          <h3><span>📍</span> <span id="locationModalTitle">Select Location</span></h3>
+          <button class="location-modal-close" id="locationModalClose">&times;</button>
+        </div>
+        <div class="location-map-container">
+          <div id="locationMap"></div>
+          <div class="map-search-box">
+            <input type="text" id="mapSearchInput" placeholder="Search for a Location" />
+          </div>
+        </div>
+        <div class="location-modal-fields">
+          <div class="location-field">
+            <label>Latitude</label>
+            <input type="text" id="modalLatitude" readonly />
+          </div>
+          <div class="location-field">
+            <label>Longitude</label>
+            <input type="text" id="modalLongitude" readonly />
+          </div>
+          <div class="location-field">
+            <label>Acc (m)</label>
+            <input type="number" id="modalAccuracy" value="10" min="1" max="100000" />
+          </div>
+          <div class="location-field">
+            <label>Geoprivacy</label>
+            <select id="modalGeoprivacy">
+              <option value="open">Open</option>
+              <option value="obscured">Obscured</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+          <div class="location-field">
+            <label>Locality notes</label>
+            <input type="text" id="modalLocality" placeholder="Location name" />
+          </div>
+        </div>
+        <div class="location-modal-actions">
+          <button class="btn-cancel-location" id="locationModalCancel">Cancel</button>
+          <button class="btn-update-location" id="locationModalUpdate">Update Location</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Photo Editor Modal -->
+    <div class="photo-editor-modal" id="photoEditorModal">
+      <div class="photo-editor-content">
+        <div class="photo-editor-header">
+          <h3>Edit Photo</h3>
+          <button class="photo-editor-close" id="photoEditorClose">&times;</button>
+        </div>
+        <div class="photo-editor-body">
+          <div class="photo-editor-canvas-container" id="canvasContainer">
+            <canvas id="photoEditorCanvas"></canvas>
+            <div class="crop-overlay" id="cropOverlay" style="display: none;">
+              <div class="crop-selection" id="cropSelection">
+                <div class="crop-handle nw"></div>
+                <div class="crop-handle ne"></div>
+                <div class="crop-handle sw"></div>
+                <div class="crop-handle se"></div>
+              </div>
+            </div>
+          </div>
+          <div class="photo-editor-controls">
+            <div class="editor-section">
+              <div class="editor-section-title">Rotation</div>
+              <div class="rotation-buttons">
+                <button class="rotation-btn" id="rotateLeftBtn">↺ Left</button>
+                <button class="rotation-btn" id="rotateRightBtn">↻ Right</button>
+              </div>
+            </div>
+            <div class="editor-section">
+              <div class="crop-buttons">
+                <button class="crop-btn" id="cropBtn">Crop</button>
+              </div>
+              <div class="crop-actions" id="cropActions" style="display: none; margin-top: 12px;">
+                <div class="crop-buttons">
+                  <button class="crop-btn" id="applyCropBtn" style="background: #74ac00; border-color: #74ac00;">Apply</button>
+                  <button class="crop-btn" id="cancelCropBtn">Cancel</button>
+                </div>
+              </div>
+            </div>
+            <div class="editor-section">
+              <div class="editor-section-title">Adjustments</div>
+              <div class="editor-control">
+                <label>Brightness <span id="brightnessValue">0</span></label>
+                <input type="range" id="brightnessSlider" min="-100" max="100" value="0" />
+              </div>
+              <div class="editor-control">
+                <label>Contrast <span id="contrastValue">0</span></label>
+                <input type="range" id="contrastSlider" min="-100" max="100" value="0" />
+              </div>
+              <div class="editor-control">
+                <label>Exposure <span id="exposureValue">0</span></label>
+                <input type="range" id="exposureSlider" min="-100" max="100" value="0" />
+              </div>
+              <div class="editor-control">
+                <label>Shadows <span id="shadowsValue">0</span></label>
+                <input type="range" id="shadowsSlider" min="-100" max="100" value="0" />
+              </div>
+              <div class="editor-control">
+                <label>Saturation <span id="saturationValue">0</span></label>
+                <input type="range" id="saturationSlider" min="-100" max="100" value="0" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="photo-editor-actions">
+          <button class="btn-reset-editor" id="resetEditorBtn">Reset</button>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn-cancel-editor" id="cancelEditorBtn">Cancel</button>
+            <button class="btn-apply-editor" id="applyEditorBtn">Apply Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drop overlay -->
+    <div class="drop-overlay" id="dropOverlay">
+      <div class="drop-overlay-content">
+        <div class="drop-overlay-icon">📸</div>
+        <div class="drop-overlay-text">Drop images to add drafts</div>
+        <div class="drop-overlay-hint">You can drop multiple images at once</div>
+      </div>
+    </div>
+
     <a
       href="/inat"
       style="
@@ -294,107 +1748,1038 @@
           </p>
         </div>
 
-        <div class="auth-section">
-          <div class="auth-status" id="authStatus">
-            <span>🔒 Not authenticated</span>
+        <div class="auth-section" id="authSection">
+          <div id="authContent">
+            <div class="auth-status" id="authStatus">
+              <span>🔒 Not authenticated</span>
+            </div>
+            <button id="authButton" class="button">Login with iNaturalist</button>
+            <p style="font-size: 12px; color: #666; margin-top: 10px">
+              Authentication required to submit observations and get AI suggestions
+            </p>
           </div>
-          <button id="authButton">Sign in with iNaturalist</button>
-          <p style="font-size: 12px; color: #666; margin-top: 10px">
-            Note: Authentication is required to submit observations
-          </p>
         </div>
       </header>
 
       <main>
-        <div class="drafts-container" id="draftsContainer">
-          <div class="add-draft-card" id="addDraftCard">
-            <div class="add-draft-content">
-              <div class="icon">📸</div>
-              <div>Click to add a new draft observation</div>
+        <div class="main-layout">
+          <!-- Bulk Edit Sidebar -->
+          <div class="bulk-edit-sidebar" id="bulkEditSidebar">
+            <div class="bulk-edit-panel">
+              <div class="bulk-edit-title">Editing <strong id="bulkEditCount">0</strong> drafts:</div>
+              <div class="bulk-edit-subtitle">Changes apply to all selected</div>
+
+              <div class="bulk-field">
+                <div class="bulk-field-row">
+                  <span class="bulk-field-icon">🔍</span>
+                  <input type="text" id="bulkTaxon" placeholder="Species name" autocomplete="off" />
+                </div>
+                <div class="taxon-autocomplete-draft" id="bulkTaxonAutocomplete"></div>
+              </div>
+
+              <div class="bulk-field">
+                <div class="bulk-field-row">
+                  <span class="bulk-field-icon">📅</span>
+                  <input type="datetime-local" id="bulkDate" />
+                </div>
+              </div>
+
+              <div class="bulk-field">
+                <div class="bulk-field-row field-wrapper">
+                  <span class="bulk-field-icon">📍</span>
+                  <input type="text" id="bulkLocation" placeholder="Location" autocomplete="off" />
+                </div>
+                <div class="location-autocomplete-draft" id="bulkLocationAutocomplete"></div>
+              </div>
+
+              <div class="bulk-field">
+                <div class="bulk-field-row" style="align-items: flex-start;">
+                  <span class="bulk-field-icon" style="padding-top: 4px;">📝</span>
+                  <textarea id="bulkNotes" placeholder="Notes" rows="2"></textarea>
+                </div>
+              </div>
+
+              <div class="bulk-actions">
+                <button class="button btn-submit" id="bulkApplyBtn">Apply</button>
+                <button class="button btn-delete" id="bulkClearBtn">Clear Selection</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drafts Area -->
+          <div class="drafts-area">
+            <div class="drafts-container" id="draftsContainer">
+              <div class="add-draft-card" id="addDraftCard">
+                <div class="add-draft-content">
+                  <div class="icon">📸</div>
+                  <div>Add draft</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <input type="file" id="photoInput" accept="image/*" multiple />
+        <input type="file" id="addPhotoInput" accept="image/*" multiple style="display: none;" />
       </main>
+
+      <!-- Merge toolbar -->
+      <div class="merge-toolbar" id="mergeToolbar">
+        <span id="selectedCount">0 selected</span>
+        <button class="merge-btn" id="mergeBtn">Merge Drafts</button>
+        <button class="cancel-merge-btn" id="cancelMergeBtn">Cancel</button>
+      </div>
     </div>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
+      // Location Picker Variables
+      let locationMap = null;
+      let locationMarker = null;
+      let locationCircle = null;
+      let currentLocationDraftId = null;
+
+      // Initialize location picker modal
+      function initLocationPicker() {
+        const modal = document.getElementById('locationModal');
+        const closeBtn = document.getElementById('locationModalClose');
+        const cancelBtn = document.getElementById('locationModalCancel');
+        const updateBtn = document.getElementById('locationModalUpdate');
+        const searchInput = document.getElementById('mapSearchInput');
+        const accuracyInput = document.getElementById('modalAccuracy');
+
+        // Close modal handlers
+        closeBtn.addEventListener('click', closeLocationModal);
+        cancelBtn.addEventListener('click', closeLocationModal);
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeLocationModal();
+        });
+
+        // Update location handler
+        updateBtn.addEventListener('click', () => {
+          const lat = document.getElementById('modalLatitude').value;
+          const lng = document.getElementById('modalLongitude').value;
+          const locality = document.getElementById('modalLocality').value;
+
+          if (lat && lng) {
+            if (isBulkLocationMode) {
+              // Update bulk location variables
+              const bulkLocInput = document.getElementById('bulkLocation');
+              bulkLocInput.value = locality;
+              // Store in window for access by bulk apply
+              window.bulkLocationData = {
+                latitude: parseFloat(lat),
+                longitude: parseFloat(lng),
+                location: locality
+              };
+            } else if (currentLocationDraftId) {
+              // Update single draft
+              const draft = drafts.find(d => d.id === currentLocationDraftId);
+              if (draft) {
+                draft.latitude = parseFloat(lat);
+                draft.longitude = parseFloat(lng);
+                draft.location = locality;
+                saveDraft(draft);
+                renderDrafts();
+              }
+            }
+          }
+          closeLocationModal();
+        });
+
+        // Search location
+        let searchTimeout = null;
+        searchInput.addEventListener('input', (e) => {
+          clearTimeout(searchTimeout);
+          const query = e.target.value.trim();
+          if (query.length < 3) return;
+
+          searchTimeout = setTimeout(async () => {
+            try {
+              const response = await fetch(
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`
+              );
+              const results = await response.json();
+              if (results.length > 0) {
+                const result = results[0];
+                const lat = parseFloat(result.lat);
+                const lng = parseFloat(result.lon);
+                locationMap.setView([lat, lng], 12);
+                updateLocationMarker(lat, lng);
+                document.getElementById('modalLocality').value = result.display_name;
+              }
+            } catch (error) {
+              console.error('Search error:', error);
+            }
+          }, 500);
+        });
+
+        // Search on Enter key
+        searchInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            clearTimeout(searchTimeout);
+            searchInput.dispatchEvent(new Event('input'));
+          }
+        });
+
+        // Accuracy change updates circle
+        accuracyInput.addEventListener('input', () => {
+          if (locationCircle) {
+            locationCircle.setRadius(parseInt(accuracyInput.value) || 10);
+          }
+        });
+      }
+
+      // Open location modal for a draft
+      function openLocationModal(draftId) {
+        const draft = drafts.find(d => d.id === draftId);
+        if (!draft) return;
+
+        currentLocationDraftId = draftId;
+        const modal = document.getElementById('locationModal');
+        modal.classList.add('show');
+
+        // Set initial values
+        document.getElementById('modalLatitude').value = draft.latitude || '';
+        document.getElementById('modalLongitude').value = draft.longitude || '';
+        document.getElementById('modalLocality').value = draft.location || '';
+        document.getElementById('modalAccuracy').value = draft.accuracy || 10;
+        document.getElementById('locationModalTitle').textContent = draft.location || 'Select Location';
+
+        // Initialize or update map
+        setTimeout(() => {
+          if (!locationMap) {
+            locationMap = L.map('locationMap').setView([0, 0], 2);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+              attribution: '© OpenStreetMap contributors, © CARTO',
+              subdomains: 'abcd',
+              maxZoom: 19
+            }).addTo(locationMap);
+
+            // Map click handler
+            locationMap.on('click', (e) => {
+              updateLocationMarker(e.latlng.lat, e.latlng.lng);
+              reverseGeocodeForModal(e.latlng.lat, e.latlng.lng);
+            });
+          } else {
+            locationMap.invalidateSize();
+          }
+
+          // Clear any existing markers first
+          if (locationMarker) {
+            locationMap.removeLayer(locationMarker);
+            locationMarker = null;
+          }
+          if (locationCircle) {
+            locationMap.removeLayer(locationCircle);
+            locationCircle = null;
+          }
+
+          // Set map view based on existing location or default
+          if (draft.latitude && draft.longitude) {
+            locationMap.setView([draft.latitude, draft.longitude], 14);
+            updateLocationMarker(draft.latitude, draft.longitude);
+          } else {
+            // No location - just show map without pin
+            // Try to get user's location for initial view
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                  locationMap.setView([pos.coords.latitude, pos.coords.longitude], 10);
+                },
+                () => {
+                  locationMap.setView([0, 0], 2);
+                }
+              );
+            } else {
+              locationMap.setView([0, 0], 2);
+            }
+          }
+        }, 100);
+      }
+
+      // Close location modal
+      function closeLocationModal() {
+        const modal = document.getElementById('locationModal');
+        modal.classList.remove('show');
+        currentLocationDraftId = null;
+        isBulkLocationMode = false;
+      }
+
+      // Flag for bulk location mode
+      let isBulkLocationMode = false;
+
+      // Open location modal for bulk editing
+      function openBulkLocationModal() {
+        isBulkLocationMode = true;
+        currentLocationDraftId = null;
+        const modal = document.getElementById('locationModal');
+        modal.classList.add('show');
+
+        // Clear initial values
+        document.getElementById('modalLatitude').value = '';
+        document.getElementById('modalLongitude').value = '';
+        document.getElementById('modalLocality').value = '';
+        document.getElementById('modalAccuracy').value = 10;
+        document.getElementById('locationModalTitle').textContent = 'Select Location for Selected Drafts';
+
+        // Initialize or update map
+        setTimeout(() => {
+          if (!locationMap) {
+            locationMap = L.map('locationMap').setView([0, 0], 2);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+              attribution: '© OpenStreetMap contributors, © CARTO',
+              subdomains: 'abcd',
+              maxZoom: 19
+            }).addTo(locationMap);
+
+            // Map click handler
+            locationMap.on('click', (e) => {
+              updateLocationMarker(e.latlng.lat, e.latlng.lng);
+              reverseGeocodeForModal(e.latlng.lat, e.latlng.lng);
+            });
+          } else {
+            locationMap.invalidateSize();
+          }
+
+          // Clear any existing markers
+          if (locationMarker) {
+            locationMap.removeLayer(locationMarker);
+            locationMarker = null;
+          }
+          if (locationCircle) {
+            locationMap.removeLayer(locationCircle);
+            locationCircle = null;
+          }
+
+          // Try to get user's location for initial view
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                locationMap.setView([pos.coords.latitude, pos.coords.longitude], 10);
+              },
+              () => {
+                locationMap.setView([0, 0], 2);
+              }
+            );
+          } else {
+            locationMap.setView([0, 0], 2);
+          }
+        }, 100);
+      }
+
+      // Update marker and circle on map
+      function updateLocationMarker(lat, lng) {
+        const accuracy = parseInt(document.getElementById('modalAccuracy').value) || 10;
+
+        // Remove existing marker and circle
+        if (locationMarker) {
+          locationMap.removeLayer(locationMarker);
+        }
+        if (locationCircle) {
+          locationMap.removeLayer(locationCircle);
+        }
+
+        // Add new circle
+        locationCircle = L.circle([lat, lng], {
+          color: '#dc3545',
+          fillColor: '#dc3545',
+          fillOpacity: 0.3,
+          radius: accuracy
+        }).addTo(locationMap);
+
+        // Add marker
+        locationMarker = L.marker([lat, lng]).addTo(locationMap);
+
+        // Update fields
+        document.getElementById('modalLatitude').value = lat;
+        document.getElementById('modalLongitude').value = lng;
+      }
+
+      // Reverse geocode to get location name
+      async function reverseGeocodeForModal(lat, lng) {
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14`
+          );
+          const data = await response.json();
+          if (data.display_name) {
+            document.getElementById('modalLocality').value = data.display_name;
+            document.getElementById('locationModalTitle').textContent = data.display_name.split(',')[0];
+          }
+        } catch (error) {
+          console.error('Reverse geocode error:', error);
+        }
+      }
+
+      // Photo Editor Variables
+      let editorCanvas = null;
+      let editorCtx = null;
+      let originalImage = null;
+      let currentEditorDraftId = null;
+      let currentPhotoIndex = 0;
+      let editorRotation = 0;
+      let editorSettings = {
+        brightness: 0,
+        contrast: 0,
+        exposure: 0,
+        shadows: 0,
+        saturation: 0
+      };
+
+      // Crop variables
+      let isCropMode = false;
+      let cropBox = { x: 0, y: 0, width: 0, height: 0 };
+      let isDragging = false;
+      let isResizing = false;
+      let resizeHandle = null;
+      let dragStart = { x: 0, y: 0 };
+      let cropStart = { x: 0, y: 0, width: 0, height: 0 };
+
+      // Initialize photo editor
+      function initPhotoEditor() {
+        const modal = document.getElementById('photoEditorModal');
+        const closeBtn = document.getElementById('photoEditorClose');
+        const cancelBtn = document.getElementById('cancelEditorBtn');
+        const applyBtn = document.getElementById('applyEditorBtn');
+        const resetBtn = document.getElementById('resetEditorBtn');
+        const rotateLeftBtn = document.getElementById('rotateLeftBtn');
+        const rotateRightBtn = document.getElementById('rotateRightBtn');
+
+        editorCanvas = document.getElementById('photoEditorCanvas');
+        editorCtx = editorCanvas.getContext('2d');
+
+        // Close handlers
+        closeBtn.addEventListener('click', closePhotoEditor);
+        cancelBtn.addEventListener('click', closePhotoEditor);
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closePhotoEditor();
+        });
+
+        // Rotation handlers
+        rotateLeftBtn.addEventListener('click', () => {
+          editorRotation = (editorRotation - 90) % 360;
+          applyEditorEffects();
+        });
+
+        rotateRightBtn.addEventListener('click', () => {
+          editorRotation = (editorRotation + 90) % 360;
+          applyEditorEffects();
+        });
+
+        // Slider handlers
+        const sliders = ['brightness', 'contrast', 'exposure', 'shadows', 'saturation'];
+        sliders.forEach(name => {
+          const slider = document.getElementById(`${name}Slider`);
+          const valueEl = document.getElementById(`${name}Value`);
+          slider.addEventListener('input', () => {
+            editorSettings[name] = parseInt(slider.value);
+            valueEl.textContent = slider.value;
+            applyEditorEffects();
+          });
+        });
+
+        // Crop button handler
+        const cropBtn = document.getElementById('cropBtn');
+        cropBtn.addEventListener('click', () => {
+          if (isCropMode) {
+            exitCropMode();
+          } else {
+            enterCropMode();
+            cropBtn.classList.add('active');
+          }
+        });
+
+        // Apply/Cancel crop handlers
+        document.getElementById('applyCropBtn').addEventListener('click', applyCrop);
+        document.getElementById('cancelCropBtn').addEventListener('click', exitCropMode);
+
+        // Crop selection drag handlers
+        const cropSelection = document.getElementById('cropSelection');
+        const cropOverlay = document.getElementById('cropOverlay');
+
+        cropSelection.addEventListener('mousedown', (e) => {
+          if (e.target.classList.contains('crop-handle')) {
+            isResizing = true;
+            resizeHandle = e.target.className.split(' ')[1];
+          } else {
+            isDragging = true;
+          }
+          dragStart = { x: e.clientX, y: e.clientY };
+          cropStart = { ...cropBox };
+          e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+          if (!isCropMode) return;
+          if (isDragging) {
+            handleCropDrag(e);
+          } else if (isResizing) {
+            handleCropResize(e);
+          }
+        });
+
+        document.addEventListener('mouseup', () => {
+          isDragging = false;
+          isResizing = false;
+          resizeHandle = null;
+        });
+
+        // Reset handler
+        resetBtn.addEventListener('click', resetEditor);
+
+        // Apply handler
+        applyBtn.addEventListener('click', applyAndSavePhoto);
+      }
+
+      // Open photo editor
+      function openPhotoEditor(draftId, photoIndex) {
+        const draft = drafts.find(d => d.id === draftId);
+        if (!draft) return;
+
+        const photos = draft.photos || (draft.photo ? [draft.photo] : []);
+        if (photos.length === 0 || photoIndex >= photos.length) return;
+
+        currentEditorDraftId = draftId;
+        currentPhotoIndex = photoIndex;
+
+        // Reset settings
+        resetEditorSettings();
+
+        // Load image
+        const img = new Image();
+        img.onload = () => {
+          originalImage = img;
+          applyEditorEffects();
+          document.getElementById('photoEditorModal').classList.add('show');
+        };
+        img.src = photos[photoIndex];
+      }
+
+      // Close photo editor
+      function closePhotoEditor() {
+        document.getElementById('photoEditorModal').classList.remove('show');
+        currentEditorDraftId = null;
+        originalImage = null;
+      }
+
+      // Reset editor settings
+      function resetEditorSettings() {
+        editorRotation = 0;
+        editorSettings = {
+          brightness: 0,
+          contrast: 0,
+          exposure: 0,
+          shadows: 0,
+          saturation: 0
+        };
+
+        // Reset sliders
+        const sliders = ['brightness', 'contrast', 'exposure', 'shadows', 'saturation'];
+        sliders.forEach(name => {
+          document.getElementById(`${name}Slider`).value = 0;
+          document.getElementById(`${name}Value`).textContent = '0';
+        });
+      }
+
+      // Reset editor
+      function resetEditor() {
+        resetEditorSettings();
+        applyEditorEffects();
+      }
+
+      // Apply editor effects to canvas
+      function applyEditorEffects() {
+        if (!originalImage) return;
+
+        // Calculate dimensions based on rotation
+        const isRotated = Math.abs(editorRotation) === 90 || Math.abs(editorRotation) === 270;
+        const width = isRotated ? originalImage.height : originalImage.width;
+        const height = isRotated ? originalImage.width : originalImage.height;
+
+        editorCanvas.width = width;
+        editorCanvas.height = height;
+
+        // Clear and apply rotation
+        editorCtx.save();
+        editorCtx.translate(width / 2, height / 2);
+        editorCtx.rotate((editorRotation * Math.PI) / 180);
+        editorCtx.drawImage(originalImage, -originalImage.width / 2, -originalImage.height / 2);
+        editorCtx.restore();
+
+        // Apply color adjustments
+        const imageData = editorCtx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+
+        const brightness = editorSettings.brightness / 100;
+        const contrast = (editorSettings.contrast / 100) + 1;
+        const exposure = editorSettings.exposure / 50;
+        const shadows = editorSettings.shadows / 100;
+        const saturation = (editorSettings.saturation / 100) + 1;
+
+        for (let i = 0; i < data.length; i += 4) {
+          let r = data[i];
+          let g = data[i + 1];
+          let b = data[i + 2];
+
+          // Exposure
+          r *= Math.pow(2, exposure);
+          g *= Math.pow(2, exposure);
+          b *= Math.pow(2, exposure);
+
+          // Brightness
+          r += brightness * 255;
+          g += brightness * 255;
+          b += brightness * 255;
+
+          // Contrast
+          r = ((r / 255 - 0.5) * contrast + 0.5) * 255;
+          g = ((g / 255 - 0.5) * contrast + 0.5) * 255;
+          b = ((b / 255 - 0.5) * contrast + 0.5) * 255;
+
+          // Shadows (lift dark areas)
+          const luminance = (r + g + b) / 3;
+          if (luminance < 128) {
+            const shadowFactor = (1 - luminance / 128) * shadows;
+            r += shadowFactor * 50;
+            g += shadowFactor * 50;
+            b += shadowFactor * 50;
+          }
+
+          // Saturation
+          const gray = 0.2989 * r + 0.587 * g + 0.114 * b;
+          r = gray + saturation * (r - gray);
+          g = gray + saturation * (g - gray);
+          b = gray + saturation * (b - gray);
+
+          // Clamp values
+          data[i] = Math.max(0, Math.min(255, r));
+          data[i + 1] = Math.max(0, Math.min(255, g));
+          data[i + 2] = Math.max(0, Math.min(255, b));
+        }
+
+        editorCtx.putImageData(imageData, 0, 0);
+      }
+
+      // Apply and save edited photo
+      function applyAndSavePhoto() {
+        if (!currentEditorDraftId || !originalImage) return;
+
+        const draft = drafts.find(d => d.id === currentEditorDraftId);
+        if (!draft) return;
+
+        // Get edited image as base64
+        const editedPhoto = editorCanvas.toDataURL('image/jpeg', 0.9);
+
+        // Update draft photos
+        const photos = draft.photos || (draft.photo ? [draft.photo] : []);
+        if (currentPhotoIndex < photos.length) {
+          photos[currentPhotoIndex] = editedPhoto;
+          draft.photos = photos;
+          saveDraft(draft);
+          renderDrafts();
+        }
+
+        closePhotoEditor();
+      }
+
+      // Crop functions
+      function getCanvasOffset() {
+        const canvas = document.getElementById('photoEditorCanvas');
+        const container = document.getElementById('canvasContainer');
+        const canvasRect = canvas.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        return {
+          x: canvasRect.left - containerRect.left,
+          y: canvasRect.top - containerRect.top
+        };
+      }
+
+      function getCanvasDisplaySize() {
+        const canvas = document.getElementById('photoEditorCanvas');
+        return { width: canvas.offsetWidth, height: canvas.offsetHeight };
+      }
+
+      function enterCropMode() {
+        isCropMode = true;
+
+        // Get canvas display size
+        const canvasSize = getCanvasDisplaySize();
+
+        // Initialize crop box at full size
+        cropBox = {
+          x: 0,
+          y: 0,
+          width: canvasSize.width,
+          height: canvasSize.height
+        };
+
+        updateCropSelection();
+        document.getElementById('cropOverlay').style.display = 'block';
+        document.getElementById('cropActions').style.display = 'block';
+      }
+
+      function exitCropMode() {
+        isCropMode = false;
+        document.getElementById('cropOverlay').style.display = 'none';
+        document.getElementById('cropActions').style.display = 'none';
+        document.getElementById('cropBtn').classList.remove('active');
+      }
+
+      function updateCropSelection() {
+        const selection = document.getElementById('cropSelection');
+        const offset = getCanvasOffset();
+
+        // Position selection relative to container, accounting for canvas offset
+        selection.style.left = (cropBox.x + offset.x) + 'px';
+        selection.style.top = (cropBox.y + offset.y) + 'px';
+        selection.style.width = cropBox.width + 'px';
+        selection.style.height = cropBox.height + 'px';
+      }
+
+      function handleCropDrag(e) {
+        const canvasSize = getCanvasDisplaySize();
+
+        const dx = e.clientX - dragStart.x;
+        const dy = e.clientY - dragStart.y;
+
+        cropBox.x = Math.max(0, Math.min(canvasSize.width - cropBox.width, cropStart.x + dx));
+        cropBox.y = Math.max(0, Math.min(canvasSize.height - cropBox.height, cropStart.y + dy));
+
+        updateCropSelection();
+      }
+
+      function handleCropResize(e) {
+        const canvasSize = getCanvasDisplaySize();
+
+        const dx = e.clientX - dragStart.x;
+        const dy = e.clientY - dragStart.y;
+
+        let newX = cropStart.x;
+        let newY = cropStart.y;
+        let newWidth = cropStart.width;
+        let newHeight = cropStart.height;
+
+        if (resizeHandle.includes('e')) {
+          newWidth = Math.max(50, cropStart.width + dx);
+        }
+        if (resizeHandle.includes('w')) {
+          newWidth = Math.max(50, cropStart.width - dx);
+          newX = cropStart.x + cropStart.width - newWidth;
+        }
+        if (resizeHandle.includes('s')) {
+          newHeight = Math.max(50, cropStart.height + dy);
+        }
+        if (resizeHandle.includes('n')) {
+          newHeight = Math.max(50, cropStart.height - dy);
+          newY = cropStart.y + cropStart.height - newHeight;
+        }
+
+        // Constrain to canvas bounds
+        newX = Math.max(0, newX);
+        newY = Math.max(0, newY);
+        newWidth = Math.min(newWidth, canvasSize.width - newX);
+        newHeight = Math.min(newHeight, canvasSize.height - newY);
+
+        cropBox = { x: newX, y: newY, width: newWidth, height: newHeight };
+        updateCropSelection();
+      }
+
+      function applyCrop() {
+        if (!originalImage) return;
+
+        const canvasSize = getCanvasDisplaySize();
+
+        // Calculate scale between displayed and actual canvas
+        const scaleX = editorCanvas.width / canvasSize.width;
+        const scaleY = editorCanvas.height / canvasSize.height;
+
+        // Get crop coordinates in actual canvas pixels
+        const cropX = cropBox.x * scaleX;
+        const cropY = cropBox.y * scaleY;
+        const cropW = cropBox.width * scaleX;
+        const cropH = cropBox.height * scaleY;
+
+        // Get cropped image data
+        const imageData = editorCtx.getImageData(cropX, cropY, cropW, cropH);
+
+        // Create temp canvas with cropped size
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = cropW;
+        tempCanvas.height = cropH;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.putImageData(imageData, 0, 0);
+
+        // Update original image with cropped version
+        const img = new Image();
+        img.onload = () => {
+          originalImage = img;
+          editorRotation = 0; // Reset rotation since it's baked in
+          applyEditorEffects();
+          exitCropMode();
+        };
+        img.src = tempCanvas.toDataURL('image/jpeg', 0.95);
+      }
+
+      // OAuth Configuration
+      const CLIENT_ID = 'ynnL-3Y_xUWiXtWo1Id-DNePN3VSe5p3mZrnviIx_bA';
+      const REDIRECT_URI = window.location.origin + window.location.pathname;
+      const AUTH_URL = 'https://www.inaturalist.org/oauth/authorize';
+      const TOKEN_URL = 'https://www.inaturalist.org/oauth/token';
+
       let drafts = [];
       let isAuthenticated = false;
-      let accessToken = null;
+      let jwtToken = null;
       let currentUser = null;
 
-      // Load drafts from localStorage
-      function loadDrafts() {
-        const saved = localStorage.getItem("inatDrafts");
-        if (saved) {
-          drafts = JSON.parse(saved);
+      // PKCE Helper Functions
+      function generateRandomString(length) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+        let result = '';
+        const randomValues = new Uint8Array(length);
+        crypto.getRandomValues(randomValues);
+        for (let i = 0; i < length; i++) {
+          result += chars[randomValues[i] % chars.length];
+        }
+        return result;
+      }
+
+      async function generateCodeChallenge(verifier) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(verifier);
+        const digest = await crypto.subtle.digest('SHA-256', data);
+        const base64 = btoa(String.fromCharCode(...new Uint8Array(digest)));
+        return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      }
+
+      // Start OAuth flow
+      async function startAuth() {
+        const codeVerifier = generateRandomString(64);
+        const codeChallenge = await generateCodeChallenge(codeVerifier);
+        sessionStorage.setItem('code_verifier', codeVerifier);
+
+        const params = new URLSearchParams({
+          client_id: CLIENT_ID,
+          redirect_uri: REDIRECT_URI,
+          response_type: 'code',
+          code_challenge: codeChallenge,
+          code_challenge_method: 'S256'
+        });
+
+        window.location.href = `${AUTH_URL}?${params.toString()}`;
+      }
+
+      // Exchange code for token
+      async function exchangeCodeForToken(code) {
+        const codeVerifier = sessionStorage.getItem('code_verifier');
+        if (!codeVerifier) return;
+
+        try {
+          const response = await fetch(TOKEN_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              client_id: CLIENT_ID,
+              code: code,
+              redirect_uri: REDIRECT_URI,
+              grant_type: 'authorization_code',
+              code_verifier: codeVerifier
+            })
+          });
+
+          if (!response.ok) throw new Error('Token exchange failed');
+
+          const tokenData = await response.json();
+          localStorage.setItem('inat_access_token', tokenData.access_token);
+          sessionStorage.removeItem('code_verifier');
+          window.history.replaceState({}, document.title, window.location.pathname);
+
+          await getJwtAndSetupUser(tokenData.access_token);
+        } catch (error) {
+          console.error('Auth error:', error);
+          alert('Authentication failed: ' + error.message);
+        }
+      }
+
+      // Get JWT token and fetch user info
+      async function getJwtAndSetupUser(oauthToken) {
+        try {
+          const response = await fetch('https://www.inaturalist.org/users/api_token', {
+            headers: { 'Authorization': `Bearer ${oauthToken}` }
+          });
+          if (!response.ok) throw new Error('Failed to get JWT');
+
+          const data = await response.json();
+          jwtToken = data.api_token;
+          localStorage.setItem('inat_jwt_token', jwtToken);
+
+          const userResponse = await fetch('https://api.inaturalist.org/v1/users/me', {
+            headers: { 'Authorization': jwtToken }
+          });
+          const userData = await userResponse.json();
+          currentUser = userData.results[0];
+
+          isAuthenticated = true;
+          showLoggedInUI();
+        } catch (error) {
+          console.error('Setup error:', error);
+        }
+      }
+
+      // Show logged in UI
+      function showLoggedInUI() {
+        // Hide auth section
+        const authSection = document.getElementById('authSection');
+        authSection.classList.add('hidden');
+
+        // Show top user bar
+        const topUserBar = document.getElementById('topUserBar');
+        const topUserInfo = document.getElementById('topUserInfo');
+        topUserBar.classList.add('show');
+        topUserInfo.innerHTML = `
+          <img src="${currentUser.icon || 'logo.png'}" alt="" onerror="this.src='logo.png'" />
+          <span class="top-user-name">${currentUser.name || currentUser.login}</span>
+          <button class="top-logout-btn" onclick="logout()">Logout</button>
+        `;
+      }
+
+      // Logout
+      function logout() {
+        localStorage.removeItem('inat_access_token');
+        localStorage.removeItem('inat_jwt_token');
+        jwtToken = null;
+        currentUser = null;
+        isAuthenticated = false;
+        location.reload();
+      }
+
+      // Initialize auth
+      async function initAuth() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+
+        if (code) {
+          await exchangeCodeForToken(code);
+          return;
+        }
+
+        const existingJwt = localStorage.getItem('inat_jwt_token');
+        const existingOauth = localStorage.getItem('inat_access_token');
+
+        if (existingJwt) {
+          jwtToken = existingJwt;
+          try {
+            const response = await fetch('https://api.inaturalist.org/v1/users/me', {
+              headers: { 'Authorization': jwtToken }
+            });
+            if (response.ok) {
+              const data = await response.json();
+              currentUser = data.results[0];
+              isAuthenticated = true;
+              showLoggedInUI();
+            } else {
+              throw new Error('Token expired');
+            }
+          } catch {
+            localStorage.removeItem('inat_jwt_token');
+            localStorage.removeItem('inat_access_token');
+          }
+        } else if (existingOauth) {
+          await getJwtAndSetupUser(existingOauth);
+        }
+      }
+
+      // Auth button click handler
+      document.getElementById("authButton").addEventListener("click", startAuth);
+
+      // IndexedDB for storing drafts (localStorage has 5MB limit)
+      let db = null;
+      const DB_NAME = 'inatDraftsDB';
+      const DB_VERSION = 1;
+      const STORE_NAME = 'drafts';
+
+      function openDatabase() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+          request.onerror = () => reject(request.error);
+          request.onsuccess = () => {
+            db = request.result;
+            resolve(db);
+          };
+
+          request.onupgradeneeded = (event) => {
+            const database = event.target.result;
+            if (!database.objectStoreNames.contains(STORE_NAME)) {
+              database.createObjectStore(STORE_NAME, { keyPath: 'id' });
+            }
+          };
+        });
+      }
+
+      // Load drafts from IndexedDB
+      async function loadDrafts() {
+        try {
+          await openDatabase();
+          const transaction = db.transaction(STORE_NAME, 'readonly');
+          const store = transaction.objectStore(STORE_NAME);
+          const request = store.getAll();
+
+          request.onsuccess = () => {
+            drafts = request.result || [];
+            renderDrafts();
+          };
+
+          request.onerror = () => {
+            console.error('Error loading drafts:', request.error);
+            drafts = [];
+            renderDrafts();
+          };
+        } catch (error) {
+          console.error('Database error:', error);
+          drafts = [];
           renderDrafts();
         }
       }
 
-      // Save drafts to localStorage
-      function saveDrafts() {
-        localStorage.setItem("inatDrafts", JSON.stringify(drafts));
-      }
-
-      // Check authentication status
-      function checkAuth() {
-        accessToken = localStorage.getItem("inatAccessToken");
-        currentUser = localStorage.getItem("inatCurrentUser");
-
-        if (accessToken && currentUser) {
-          isAuthenticated = true;
-          updateAuthStatus();
+      // Save single draft to IndexedDB
+      async function saveDraft(draft) {
+        try {
+          if (!db) await openDatabase();
+          const transaction = db.transaction(STORE_NAME, 'readwrite');
+          const store = transaction.objectStore(STORE_NAME);
+          store.put(draft);
+        } catch (error) {
+          console.error('Error saving draft:', error);
         }
       }
 
-      // Update authentication status UI
-      function updateAuthStatus() {
-        const authStatus = document.getElementById("authStatus");
-        const authButton = document.getElementById("authButton");
-
-        if (isAuthenticated && currentUser) {
-          authStatus.classList.add("authenticated");
-          authStatus.innerHTML = `<span>✅ Signed in as ${currentUser}</span>`;
-          authButton.textContent = "Sign out";
-        } else {
-          authStatus.classList.remove("authenticated");
-          authStatus.innerHTML = `<span>🔒 Not authenticated</span>`;
-          authButton.textContent = "Sign in with iNaturalist";
+      // Delete draft from IndexedDB
+      async function deleteDraftFromDB(id) {
+        try {
+          if (!db) await openDatabase();
+          const transaction = db.transaction(STORE_NAME, 'readwrite');
+          const store = transaction.objectStore(STORE_NAME);
+          store.delete(id);
+        } catch (error) {
+          console.error('Error deleting draft:', error);
         }
       }
 
-      // Authentication handler
-      document.getElementById("authButton").addEventListener("click", () => {
-        if (isAuthenticated) {
-          // Sign out
-          localStorage.removeItem("inatAccessToken");
-          localStorage.removeItem("inatCurrentUser");
-          isAuthenticated = false;
-          accessToken = null;
-          currentUser = null;
-          updateAuthStatus();
-        } else {
-          // Sign in - Note: This requires OAuth setup with iNaturalist
-          alert(
-            "OAuth authentication with iNaturalist requires setting up an application at https://www.inaturalist.org/oauth/applications/new\n\n" +
-            "For development purposes, you can manually enter an API token."
-          );
+      // Save all drafts (for batch updates)
+      async function saveDrafts() {
+        try {
+          if (!db) await openDatabase();
+          const transaction = db.transaction(STORE_NAME, 'readwrite');
+          const store = transaction.objectStore(STORE_NAME);
 
-          const token = prompt("Enter your iNaturalist API token (for testing):");
-          if (token) {
-            const username = prompt("Enter your iNaturalist username:");
-            if (username) {
-              localStorage.setItem("inatAccessToken", token);
-              localStorage.setItem("inatCurrentUser", username);
-              accessToken = token;
-              currentUser = username;
-              isAuthenticated = true;
-              updateAuthStatus();
-            }
-          }
+          // Clear and re-add all
+          store.clear();
+          drafts.forEach(draft => store.put(draft));
+        } catch (error) {
+          console.error('Error saving drafts:', error);
         }
-      });
+      }
 
       // Add draft card click
       document.getElementById("addDraftCard").addEventListener("click", () => {
@@ -536,56 +2921,360 @@
         }
       }
 
+      // Track selected drafts
+      let selectedDraftIds = new Set();
+      let currentAddPhotoDraftId = null;
+
+      // Update merge toolbar and bulk edit sidebar visibility
+      function updateMergeToolbar() {
+        const toolbar = document.getElementById('mergeToolbar');
+        const sidebar = document.getElementById('bulkEditSidebar');
+        const countEl = document.getElementById('selectedCount');
+        const bulkCountEl = document.getElementById('bulkEditCount');
+        const count = selectedDraftIds.size;
+
+        // Update count displays
+        countEl.textContent = `${count} selected`;
+        bulkCountEl.textContent = count;
+
+        // Show/hide merge toolbar (only when 2+ selected)
+        if (count >= 2) {
+          toolbar.classList.add('show');
+        } else {
+          toolbar.classList.remove('show');
+        }
+
+        // Show/hide bulk edit sidebar (when 1+ selected)
+        if (count >= 1) {
+          sidebar.classList.add('show');
+        } else {
+          sidebar.classList.remove('show');
+        }
+      }
+
+      // Merge selected drafts
+      function mergeSelectedDrafts() {
+        if (selectedDraftIds.size < 2) return;
+
+        const selectedIds = Array.from(selectedDraftIds);
+        const selectedDrafts = drafts.filter(d => selectedIds.includes(d.id));
+
+        // Sort by date (earliest first) to use as base
+        selectedDrafts.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        // Use first draft as base
+        const baseDraft = selectedDrafts[0];
+
+        // Merge all photos from other drafts
+        for (let i = 1; i < selectedDrafts.length; i++) {
+          const otherDraft = selectedDrafts[i];
+          const otherPhotos = otherDraft.photos || (otherDraft.photo ? [otherDraft.photo] : []);
+          baseDraft.photos = [...(baseDraft.photos || []), ...otherPhotos];
+        }
+
+        // Remove merged drafts (except base)
+        for (let i = 1; i < selectedDrafts.length; i++) {
+          const draftId = selectedDrafts[i].id;
+          drafts = drafts.filter(d => d.id !== draftId);
+          deleteDraftFromDB(draftId);
+        }
+
+        // Save base draft and reset selection
+        saveDraft(baseDraft);
+        selectedDraftIds.clear();
+        updateMergeToolbar();
+        renderDrafts();
+      }
+
+      // Cancel merge selection
+      function cancelMergeSelection() {
+        selectedDraftIds.clear();
+        updateMergeToolbar();
+        renderDrafts();
+      }
+
+      // Process image file and create draft
+      async function processImageFile(file, existingDraftId = null) {
+        // Only process image files
+        if (!file.type.startsWith('image/')) return;
+
+        // Get EXIF data (datetime and GPS)
+        const exifData = await getExifData(file);
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const photoData = event.target.result;
+
+          // If adding to existing draft
+          if (existingDraftId) {
+            const draft = drafts.find(d => d.id === existingDraftId);
+            if (draft) {
+              // Migrate old single photo to array if needed
+              if (draft.photo && !draft.photos) {
+                draft.photos = [draft.photo];
+                delete draft.photo;
+              }
+              if (!draft.photos) draft.photos = [];
+              draft.photos.push(photoData);
+              saveDraft(draft);
+              renderDrafts();
+            }
+            return;
+          }
+
+          // Use EXIF date or current date/time as fallback
+          let dateValue;
+          if (exifData.dateTime) {
+            dateValue = exifData.dateTime;
+          } else {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            dateValue = `${year}-${month}-${day}T${hours}:${minutes}`;
+          }
+
+          // Get location name from GPS coordinates
+          let locationName = "";
+          if (exifData.latitude && exifData.longitude) {
+            locationName = await reverseGeocode(exifData.latitude, exifData.longitude);
+          }
+
+          const draft = {
+            id: Date.now() + Math.random(),
+            photos: [photoData],
+            notes: "",
+            taxon: "",
+            taxonId: null,
+            location: locationName,
+            latitude: exifData.latitude,
+            longitude: exifData.longitude,
+            date: dateValue,
+            submissionStatus: null,
+            currentPhotoIndex: 0,
+          };
+          drafts.push(draft);
+          saveDraft(draft);
+          renderDrafts();
+        };
+        reader.readAsDataURL(file);
+      }
+
       // Photo input change
       document.getElementById("photoInput").addEventListener("change", async (e) => {
         const files = Array.from(e.target.files);
-
         for (const file of files) {
-          // Get EXIF data (datetime and GPS)
-          const exifData = await getExifData(file);
-
-          const reader = new FileReader();
-          reader.onload = async (event) => {
-            // Use EXIF date or current date/time as fallback
-            let dateValue;
-            if (exifData.dateTime) {
-              dateValue = exifData.dateTime;
-            } else {
-              // Current datetime in local timezone format for datetime-local input (YYYY-MM-DDTHH:MM)
-              const now = new Date();
-              const year = now.getFullYear();
-              const month = String(now.getMonth() + 1).padStart(2, '0');
-              const day = String(now.getDate()).padStart(2, '0');
-              const hours = String(now.getHours()).padStart(2, '0');
-              const minutes = String(now.getMinutes()).padStart(2, '0');
-              dateValue = `${year}-${month}-${day}T${hours}:${minutes}`;
-            }
-
-            // Get location name from GPS coordinates
-            let locationName = "";
-            if (exifData.latitude && exifData.longitude) {
-              locationName = await reverseGeocode(exifData.latitude, exifData.longitude);
-            }
-
-            const draft = {
-              id: Date.now() + Math.random(),
-              photo: event.target.result,
-              notes: "",
-              taxon: "",
-              taxonId: null,
-              location: locationName,
-              latitude: exifData.latitude,
-              longitude: exifData.longitude,
-              date: dateValue,
-              submissionStatus: null,
-            };
-            drafts.push(draft);
-            saveDrafts();
-            renderDrafts();
-          };
-          reader.readAsDataURL(file);
+          await processImageFile(file);
         }
         e.target.value = "";
+      });
+
+      // Drag and drop handling
+      const dropOverlay = document.getElementById('dropOverlay');
+      let dragCounter = 0;
+
+      document.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        dragCounter++;
+        if (e.dataTransfer.types.includes('Files')) {
+          dropOverlay.classList.add('active');
+        }
+      });
+
+      document.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dragCounter--;
+        if (dragCounter === 0) {
+          dropOverlay.classList.remove('active');
+        }
+      });
+
+      document.addEventListener('dragover', (e) => {
+        e.preventDefault();
+      });
+
+      document.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        dragCounter = 0;
+        dropOverlay.classList.remove('active');
+
+        const files = Array.from(e.dataTransfer.files);
+        for (const file of files) {
+          await processImageFile(file);
+        }
+      });
+
+      // Add photo to existing draft input
+      document.getElementById('addPhotoInput').addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files);
+        if (currentAddPhotoDraftId && files.length > 0) {
+          for (const file of files) {
+            await processImageFile(file, currentAddPhotoDraftId);
+          }
+        }
+        currentAddPhotoDraftId = null;
+        e.target.value = '';
+      });
+
+      // Merge toolbar buttons
+      document.getElementById('mergeBtn').addEventListener('click', mergeSelectedDrafts);
+      document.getElementById('cancelMergeBtn').addEventListener('click', cancelMergeSelection);
+
+      // Bulk edit functionality
+      document.getElementById('bulkApplyBtn').addEventListener('click', () => {
+        const bulkTaxon = document.getElementById('bulkTaxon').value.trim();
+        const bulkDate = document.getElementById('bulkDate').value;
+        const bulkLocation = document.getElementById('bulkLocation').value.trim();
+        const bulkNotes = document.getElementById('bulkNotes').value.trim();
+
+        // Get location data from map modal if available
+        const locationData = window.bulkLocationData || {
+          latitude: bulkLatitude,
+          longitude: bulkLongitude,
+          location: bulkLocation
+        };
+
+        selectedDraftIds.forEach(id => {
+          const draft = drafts.find(d => d.id === id);
+          if (draft) {
+            if (bulkTaxon) {
+              draft.taxon = bulkTaxon;
+              draft.taxonId = bulkTaxonId; // Set from autocomplete
+            }
+            if (bulkDate) draft.date = bulkDate;
+            if (bulkLocation && locationData.latitude && locationData.longitude) {
+              draft.location = locationData.location;
+              draft.latitude = locationData.latitude;
+              draft.longitude = locationData.longitude;
+            }
+            if (bulkNotes) draft.notes = bulkNotes;
+            saveDraft(draft);
+          }
+        });
+
+        // Clear bulk fields
+        document.getElementById('bulkTaxon').value = '';
+        document.getElementById('bulkDate').value = '';
+        document.getElementById('bulkLocation').value = '';
+        document.getElementById('bulkNotes').value = '';
+        bulkTaxonId = null;
+        bulkLatitude = null;
+        bulkLongitude = null;
+        window.bulkLocationData = null;
+
+        renderDrafts();
+      });
+
+      document.getElementById('bulkClearBtn').addEventListener('click', cancelMergeSelection);
+
+      // Bulk edit taxon autocomplete
+      let bulkTaxonId = null;
+      let bulkTaxonTimeout = null;
+      const bulkTaxonInput = document.getElementById('bulkTaxon');
+      const bulkTaxonAutocomplete = document.getElementById('bulkTaxonAutocomplete');
+
+      bulkTaxonInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        clearTimeout(bulkTaxonTimeout);
+        bulkTaxonId = null;
+
+        if (query.length < 2) {
+          bulkTaxonAutocomplete.style.display = 'none';
+          return;
+        }
+
+        bulkTaxonTimeout = setTimeout(async () => {
+          try {
+            const response = await fetch(`https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+
+            if (data.results && data.results.length > 0) {
+              bulkTaxonAutocomplete.innerHTML = data.results.slice(0, 8).map(taxon => `
+                <div class="taxon-suggestion-draft" data-id="${taxon.id}" data-name="${taxon.preferred_common_name || taxon.name}">
+                  <div class="taxon-name">${taxon.preferred_common_name || taxon.name}</div>
+                  <div class="taxon-sci-name">${taxon.name}</div>
+                </div>
+              `).join('');
+              bulkTaxonAutocomplete.style.display = 'block';
+
+              bulkTaxonAutocomplete.querySelectorAll('.taxon-suggestion-draft').forEach(item => {
+                item.addEventListener('click', () => {
+                  bulkTaxonId = parseInt(item.dataset.id);
+                  bulkTaxonInput.value = item.dataset.name;
+                  bulkTaxonAutocomplete.style.display = 'none';
+                });
+              });
+            } else {
+              bulkTaxonAutocomplete.style.display = 'none';
+            }
+          } catch (error) {
+            console.error('Error fetching taxa:', error);
+          }
+        }, 300);
+      });
+
+      // Bulk edit location autocomplete
+      let bulkLatitude = null;
+      let bulkLongitude = null;
+      let bulkLocationTimeout = null;
+      const bulkLocationInput = document.getElementById('bulkLocation');
+      const bulkLocationAutocomplete = document.getElementById('bulkLocationAutocomplete');
+
+      // Click bulk location input to open modal
+      bulkLocationInput.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openBulkLocationModal();
+      });
+
+      bulkLocationInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        clearTimeout(bulkLocationTimeout);
+        bulkLatitude = null;
+        bulkLongitude = null;
+
+        if (query.length < 2) {
+          bulkLocationAutocomplete.style.display = 'none';
+          return;
+        }
+
+        bulkLocationTimeout = setTimeout(async () => {
+          try {
+            const response = await fetch(`https://api.inaturalist.org/v1/places/autocomplete?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+
+            if (data.results && data.results.length > 0) {
+              bulkLocationAutocomplete.innerHTML = data.results.slice(0, 8).map(place => `
+                <div class="location-suggestion-draft" data-lat="${place.location ? place.location.split(',')[0] : ''}" data-lng="${place.location ? place.location.split(',')[1] : ''}" data-name="${place.display_name}">
+                  ${place.display_name}
+                </div>
+              `).join('');
+              bulkLocationAutocomplete.style.display = 'block';
+
+              bulkLocationAutocomplete.querySelectorAll('.location-suggestion-draft').forEach(item => {
+                item.addEventListener('click', () => {
+                  bulkLatitude = parseFloat(item.dataset.lat) || null;
+                  bulkLongitude = parseFloat(item.dataset.lng) || null;
+                  bulkLocationInput.value = item.dataset.name;
+                  bulkLocationAutocomplete.style.display = 'none';
+                });
+              });
+            } else {
+              bulkLocationAutocomplete.style.display = 'none';
+            }
+          } catch (error) {
+            console.error('Error fetching location:', error);
+            bulkLocationAutocomplete.style.display = 'none';
+          }
+        }, 300);
+      });
+
+      // Hide bulk location autocomplete when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!bulkLocationInput.contains(e.target) && !bulkLocationAutocomplete.contains(e.target)) {
+          bulkLocationAutocomplete.style.display = 'none';
+        }
       });
 
       // Render drafts
@@ -609,55 +3298,97 @@
 
       // Create draft card
       function createDraftCard(draft) {
+        // Migrate old single photo to array if needed
+        if (draft.photo && !draft.photos) {
+          draft.photos = [draft.photo];
+          delete draft.photo;
+          saveDraft(draft);
+        }
+        if (!draft.photos) draft.photos = [];
+        if (draft.currentPhotoIndex === undefined) draft.currentPhotoIndex = 0;
+
+        const photos = draft.photos;
+        const currentIndex = draft.currentPhotoIndex || 0;
+        const isSelected = selectedDraftIds.has(draft.id);
+
         const card = document.createElement("div");
-        card.className = "draft-card";
+        card.className = `draft-card${isSelected ? ' selected' : ''}`;
+        card.dataset.id = draft.id;
+
+        // Build photos HTML
+        const photosHtml = photos.map((photo, i) =>
+          `<img src="${photo}" alt="Photo ${i + 1}" class="${i === currentIndex ? 'active' : ''}" data-index="${i}" />`
+        ).join('');
+
+        // Build indicators HTML
+        const indicatorsHtml = photos.length > 1 ? photos.map((_, i) =>
+          `<div class="photo-indicator${i === currentIndex ? ' active' : ''}" data-index="${i}"></div>`
+        ).join('') : '';
+
         card.innerHTML = `
-          <img src="${draft.photo}" class="draft-image" alt="Draft observation" />
+          <input type="checkbox" class="draft-select" ${isSelected ? 'checked' : ''} />
+          <div class="draft-photos">
+            ${photosHtml}
+            ${photos.length > 1 ? `
+              <button class="photo-nav prev" ${currentIndex === 0 ? 'style="display:none"' : ''}>‹</button>
+              <button class="photo-nav next" ${currentIndex === photos.length - 1 ? 'style="display:none"' : ''}>›</button>
+              <div class="photo-count">${currentIndex + 1} / ${photos.length}</div>
+              <div class="photo-indicators">${indicatorsHtml}</div>
+            ` : ''}
+            ${photos.length > 1 ? `<button class="delete-photo-btn" title="Remove this photo">×</button>` : ''}
+            <button class="add-photo-btn" title="Add more photos">+</button>
+            <button class="edit-photo-btn" title="Edit photo">🪄</button>
+          </div>
           <div class="draft-content">
-            <div class="draft-field">
-              <label>Notes</label>
-              <textarea class="notes-input" data-id="${draft.id}">${
-          draft.notes
-        }</textarea>
+            <div class="cv-suggestions" data-id="${draft.id}">
+              <div class="cv-suggestions-title">AI Suggestions</div>
+              <div class="cv-suggestions-list" data-id="${draft.id}"></div>
             </div>
             <div class="draft-field">
-              <label>Taxon</label>
-              <div class="field-wrapper">
+              <div class="draft-field-row field-wrapper">
+                <span class="draft-field-icon">🔍</span>
                 <input
                   type="text"
                   class="taxon-input"
                   data-id="${draft.id}"
                   value="${draft.taxon}"
-                  placeholder="Search for species..."
+                  placeholder="Species name"
                   autocomplete="off"
                 />
+                <button class="btn-identify" data-id="${draft.id}" title="Get AI suggestions">🤖</button>
                 <div class="taxon-autocomplete-draft" data-id="${draft.id}"></div>
               </div>
             </div>
             <div class="draft-field">
-              <label>Location</label>
-              <div class="field-wrapper">
+              <div class="draft-field-row">
+                <span class="draft-field-icon">📅</span>
+                <input
+                  type="datetime-local"
+                  class="date-input"
+                  data-id="${draft.id}"
+                  value="${draft.date}"
+                />
+              </div>
+            </div>
+            <div class="draft-field">
+              <div class="draft-field-row field-wrapper">
+                <span class="draft-field-icon">📍</span>
                 <input
                   type="text"
                   class="location-input"
                   data-id="${draft.id}"
                   value="${draft.location}"
-                  placeholder="Search for location..."
+                  placeholder="Location"
                   autocomplete="off"
                 />
-                <div class="location-autocomplete-draft" data-id="${
-                  draft.id
-                }"></div>
+                <div class="location-autocomplete-draft" data-id="${draft.id}"></div>
               </div>
             </div>
             <div class="draft-field">
-              <label>Date & Time</label>
-              <input
-                type="datetime-local"
-                class="date-input"
-                data-id="${draft.id}"
-                value="${draft.date}"
-              />
+              <div class="draft-field-row">
+                <span class="draft-field-icon">📝</span>
+                <textarea class="notes-input" data-id="${draft.id}" placeholder="Notes">${draft.notes}</textarea>
+              </div>
             </div>
             <div class="submission-status ${
               draft.submissionStatus === "success"
@@ -695,6 +3426,115 @@
 
       // Attach event listeners to draft card
       function attachDraftEventListeners(card, draft) {
+        // Selection checkbox
+        const selectCheckbox = card.querySelector('.draft-select');
+
+        function toggleSelection() {
+          if (selectedDraftIds.has(draft.id)) {
+            selectedDraftIds.delete(draft.id);
+            card.classList.remove('selected');
+            selectCheckbox.checked = false;
+          } else {
+            selectedDraftIds.add(draft.id);
+            card.classList.add('selected');
+            selectCheckbox.checked = true;
+          }
+          updateMergeToolbar();
+        }
+
+        selectCheckbox.addEventListener('change', (e) => {
+          e.stopPropagation();
+          if (e.target.checked) {
+            selectedDraftIds.add(draft.id);
+            card.classList.add('selected');
+          } else {
+            selectedDraftIds.delete(draft.id);
+            card.classList.remove('selected');
+          }
+          updateMergeToolbar();
+        });
+
+        // Click on photo area to select
+        const photoArea = card.querySelector('.draft-photos');
+        photoArea.addEventListener('click', (e) => {
+          // Don't toggle if clicking on buttons
+          if (e.target.closest('button')) return;
+          toggleSelection();
+        });
+
+        // Photo navigation
+        const prevBtn = card.querySelector('.photo-nav.prev');
+        const nextBtn = card.querySelector('.photo-nav.next');
+        const indicators = card.querySelectorAll('.photo-indicator');
+
+        function goToPhoto(index) {
+          const photos = draft.photos || [];
+          if (index < 0 || index >= photos.length) return;
+
+          draft.currentPhotoIndex = index;
+          saveDraft(draft);
+
+          // Update active photo
+          card.querySelectorAll('.draft-photos img').forEach((img, i) => {
+            img.classList.toggle('active', i === index);
+          });
+
+          // Update indicators
+          indicators.forEach((ind, i) => {
+            ind.classList.toggle('active', i === index);
+          });
+
+          // Update nav buttons
+          if (prevBtn) prevBtn.style.display = index === 0 ? 'none' : '';
+          if (nextBtn) nextBtn.style.display = index === photos.length - 1 ? 'none' : '';
+
+          // Update count
+          const countEl = card.querySelector('.photo-count');
+          if (countEl) countEl.textContent = `${index + 1} / ${photos.length}`;
+        }
+
+        if (prevBtn) prevBtn.addEventListener('click', () => goToPhoto((draft.currentPhotoIndex || 0) - 1));
+        if (nextBtn) nextBtn.addEventListener('click', () => goToPhoto((draft.currentPhotoIndex || 0) + 1));
+        indicators.forEach((ind, i) => {
+          ind.addEventListener('click', () => goToPhoto(i));
+        });
+
+        // Add photo button
+        const addPhotoBtn = card.querySelector('.add-photo-btn');
+        addPhotoBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          currentAddPhotoDraftId = draft.id;
+          document.getElementById('addPhotoInput').click();
+        });
+
+        // Delete photo button
+        const deletePhotoBtn = card.querySelector('.delete-photo-btn');
+        if (deletePhotoBtn) {
+          deletePhotoBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const photos = draft.photos || [];
+            if (photos.length <= 1) return;
+
+            const currentIndex = draft.currentPhotoIndex || 0;
+            photos.splice(currentIndex, 1);
+            draft.currentPhotoIndex = Math.min(currentIndex, photos.length - 1);
+            saveDraft(draft);
+            renderDrafts();
+          });
+        }
+
+        // Edit photo button
+        const editPhotoBtn = card.querySelector('.edit-photo-btn');
+        if (editPhotoBtn) {
+          editPhotoBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const photos = draft.photos || [];
+            if (photos.length === 0) return;
+            const currentIndex = draft.currentPhotoIndex || 0;
+            openPhotoEditor(draft.id, currentIndex);
+          });
+        }
+
         // Notes input
         const notesInput = card.querySelector(".notes-input");
         notesInput.addEventListener("input", (e) => {
@@ -709,6 +3549,9 @@
         taxonInput.addEventListener("input", (e) => {
           const query = e.target.value.trim();
           clearTimeout(taxonTimeout);
+
+          // Clear taxonId when user modifies the input (they're searching for something new)
+          updateDraft(draft.id, { taxon: query, taxonId: null });
 
           if (query.length < 2) {
             taxonAutocomplete.style.display = "none";
@@ -771,6 +3614,12 @@
           ".location-autocomplete-draft"
         );
         let locationTimeout = null;
+
+        // Click location input to open modal
+        locationInput.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openLocationModal(draft.id);
+        });
 
         locationInput.addEventListener("input", (e) => {
           const query = e.target.value.trim();
@@ -861,6 +3710,175 @@
             deleteDraft(draft.id);
           }
         });
+
+        // Identify button (CV API)
+        const identifyBtn = card.querySelector(".btn-identify");
+        identifyBtn.addEventListener("click", () => {
+          identifyDraft(draft, card);
+        });
+      }
+
+      // Resize image for CV API (max 1024px on longest side)
+      function resizeImageForCV(base64Data, maxSize = 1024) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            let width = img.width;
+            let height = img.height;
+
+            // Only resize if image is larger than maxSize
+            if (width > maxSize || height > maxSize) {
+              if (width > height) {
+                height = Math.round(height * maxSize / width);
+                width = maxSize;
+              } else {
+                width = Math.round(width * maxSize / height);
+                height = maxSize;
+              }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob((blob) => {
+              resolve(blob);
+            }, 'image/jpeg', 0.85);
+          };
+          img.src = base64Data;
+        });
+      }
+
+      // Identify draft using Computer Vision API
+      async function identifyDraft(draft, card) {
+        if (!isAuthenticated || !jwtToken) {
+          alert('Please login first to use AI suggestions');
+          return;
+        }
+
+        const identifyBtn = card.querySelector(".btn-identify");
+        const cvSuggestions = card.querySelector(".cv-suggestions");
+        const cvList = card.querySelector(".cv-suggestions-list");
+
+        identifyBtn.disabled = true;
+        identifyBtn.textContent = '⏳';
+        cvSuggestions.classList.add('show');
+        cvList.innerHTML = '<div class="cv-loading">Analyzing image...</div>';
+
+        try {
+          // Get first photo (use photos array or fallback to single photo)
+          const photos = draft.photos || (draft.photo ? [draft.photo] : []);
+          if (photos.length === 0) {
+            throw new Error('No photo available');
+          }
+          const currentPhotoIndex = draft.currentPhotoIndex || 0;
+          const photoData = photos[currentPhotoIndex];
+
+          // Resize image to avoid API size limits
+          const photoBlob = await resizeImageForCV(photoData);
+
+          // Create form data
+          const formData = new FormData();
+          formData.append('image', photoBlob, 'photo.jpg');
+
+          // Add location if available
+          if (draft.latitude && draft.longitude) {
+            formData.append('lat', draft.latitude);
+            formData.append('lng', draft.longitude);
+          }
+
+          // Call CV API
+          const response = await fetch('https://api.inaturalist.org/v1/computervision/score_image', {
+            method: 'POST',
+            headers: {
+              'Authorization': jwtToken
+            },
+            body: formData
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `API error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          const results = data.results || [];
+
+          if (results.length === 0) {
+            cvList.innerHTML = '<div class="cv-loading">No suggestions found</div>';
+            return;
+          }
+
+          // Display confidence scores - map to reasonable percentage range
+          const topResults = results.slice(0, 5);
+          const rawScores = topResults.map(r => r.combined_score || 0);
+          const maxRaw = Math.max(...rawScores);
+          const minRaw = Math.min(...rawScores);
+          const range = maxRaw - minRaw || 1;
+
+          console.log('CV API scores:', rawScores, 'max:', maxRaw, 'min:', minRaw);
+
+          cvList.innerHTML = topResults.map((result, idx) => {
+            const taxon = result.taxon;
+            const rawScore = result.combined_score || 0;
+            // Map scores to 20-90% range: top gets ~90%, lowest gets ~20%
+            // This ensures visible differences between suggestions
+            const normalized = (rawScore - minRaw) / range; // 0 to 1
+            const score = Math.round(20 + normalized * 70); // 20% to 90%
+            const photo = taxon.default_photo?.square_url || taxon.default_photo?.url || 'logo.png';
+            const commonName = taxon.preferred_common_name || '';
+            const scientificName = taxon.name || 'Unknown';
+
+            return `
+              <div class="cv-suggestion-item" data-taxon-id="${taxon.id}" data-taxon-name="${commonName || scientificName}" data-draft-id="${draft.id}">
+                <img src="${photo}" alt="" class="cv-suggestion-photo" onerror="this.src='logo.png'" />
+                <div class="cv-suggestion-info">
+                  <div class="cv-suggestion-name">${commonName || scientificName}</div>
+                  ${commonName ? `<div class="cv-suggestion-scientific">${scientificName}</div>` : ''}
+                </div>
+                <div class="cv-suggestion-score">${score}%</div>
+              </div>
+            `;
+          }).join('');
+
+          // Add click handlers to suggestions
+          cvList.querySelectorAll('.cv-suggestion-item').forEach(item => {
+            item.addEventListener('click', () => {
+              const taxonId = item.dataset.taxonId;
+              const taxonName = item.dataset.taxonName;
+              const draftId = item.dataset.draftId;
+
+              // Update the taxon input
+              const taxonInput = card.querySelector('.taxon-input');
+              taxonInput.value = taxonName;
+
+              // Update draft
+              updateDraft(parseFloat(draftId), {
+                taxon: taxonName,
+                taxonId: taxonId
+              });
+
+              // Hide suggestions
+              cvSuggestions.classList.remove('show');
+            });
+          });
+
+        } catch (error) {
+          console.error('CV API error:', error);
+          let errorMessage = error.message;
+
+          // Check if this is a CV API access restriction
+          if (error.message.includes('500') || error.message.includes('Error scoring image')) {
+            errorMessage = 'The Computer Vision API requires special access from iNaturalist. Use the search field below to find species manually.';
+          }
+
+          cvList.innerHTML = `<div class="cv-loading" style="color: #dc3545;">${errorMessage}</div>`;
+        } finally {
+          identifyBtn.disabled = false;
+          identifyBtn.textContent = '🤖';
+        }
       }
 
       // Update draft
@@ -868,14 +3886,14 @@
         const draft = drafts.find((d) => d.id === id);
         if (draft) {
           Object.assign(draft, updates);
-          saveDrafts();
+          saveDraft(draft);
         }
       }
 
       // Delete draft
-      function deleteDraft(id) {
+      async function deleteDraft(id) {
         drafts = drafts.filter((d) => d.id !== id);
-        saveDrafts();
+        await deleteDraftFromDB(id);
         renderDrafts();
       }
 
@@ -899,13 +3917,16 @@
         const draft = drafts.find((d) => d.id === id);
         if (!draft) return;
 
-        if (!isAuthenticated || !accessToken) {
+        if (!isAuthenticated || !jwtToken) {
           alert("Please sign in with iNaturalist first");
           return;
         }
 
+        // Get photos (support both old single photo and new array format)
+        const photos = draft.photos || (draft.photo ? [draft.photo] : []);
+
         // Validation
-        if (!draft.photo) {
+        if (photos.length === 0) {
           alert("Photo is required");
           return;
         }
@@ -927,97 +3948,111 @@
         submitBtn.textContent = "Submitting...";
 
         statusEl.className = "submission-status";
-        statusEl.textContent = "⏳ Uploading observation...";
+        statusEl.textContent = `⏳ Uploading observation with ${photos.length} photo${photos.length > 1 ? 's' : ''}...`;
         statusEl.style.display = "block";
 
         try {
-          // Convert base64 image to Blob
-          const photoBlob = base64ToBlob(draft.photo);
+          // Step 1: Create observation first (without photos)
+          statusEl.textContent = `⏳ Creating observation...`;
 
-          // Create FormData
-          const formData = new FormData();
-
-          // Add observation fields (matching the API example structure)
-          formData.append("observation[observed_on_string]", draft.date);
+          const observationData = {
+            observation: {
+              observed_on_string: draft.date,
+            }
+          };
 
           if (draft.notes) {
-            formData.append("observation[description]", draft.notes);
+            observationData.observation.description = draft.notes;
           }
 
           if (draft.taxonId) {
-            formData.append("observation[taxon_id]", draft.taxonId);
+            observationData.observation.taxon_id = parseInt(draft.taxonId);
           } else if (draft.taxon) {
-            formData.append("observation[species_guess]", draft.taxon);
+            observationData.observation.species_guess = draft.taxon;
           }
 
           if (draft.latitude && draft.longitude) {
-            formData.append("observation[latitude]", draft.latitude);
-            formData.append("observation[longitude]", draft.longitude);
+            observationData.observation.latitude = parseFloat(draft.latitude);
+            observationData.observation.longitude = parseFloat(draft.longitude);
 
-            // Add place_guess (location name)
             if (draft.location) {
-              formData.append("observation[place_guess]", draft.location);
+              observationData.observation.place_guess = draft.location;
             }
           }
 
-          // Add photo
-          formData.append(
-            "observation[photos][]",
-            photoBlob,
-            `observation_${Date.now()}.jpg`
-          );
+          console.log("Creating observation:", observationData);
 
-          // Submit to iNaturalist API
           const response = await fetch(
             "https://api.inaturalist.org/v1/observations",
             {
               method: "POST",
               headers: {
-                Authorization: `Bearer ${accessToken}`,
+                Authorization: jwtToken,
+                "Content-Type": "application/json",
               },
-              body: formData,
+              body: JSON.stringify(observationData),
             }
           );
 
           const data = await response.json();
+          console.log("Observation creation response:", data);
 
-          console.log("API Response:", data);
-          console.log("Response status:", response.status);
+          // Handle different response formats
+          const observation = Array.isArray(data) ? data[0] : data;
 
-          if (response.ok && data && data.length > 0) {
-            // Success
-            const observation = data[0];
-            const observationUrl = `https://www.inaturalist.org/observations/${observation.id}`;
-
-            statusEl.className = "submission-status success";
-            statusEl.innerHTML = `✅ Observation submitted! <a href="${observationUrl}" target="_blank" style="color: #155724; text-decoration: underline;">View on iNaturalist</a>`;
-
-            updateDraft(id, {
-              submissionStatus: "success",
-              observationId: observation.id,
-              observationUrl: observationUrl,
-            });
-
-            submitBtn.textContent = "✓ Submitted";
-          } else {
-            // API returned error - show detailed error info
-            let errorMessage = "Failed to create observation";
-
-            if (data.errors) {
-              if (Array.isArray(data.errors)) {
-                errorMessage = data.errors.join(", ");
-              } else if (typeof data.errors === "object") {
-                errorMessage = Object.entries(data.errors)
-                  .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(", ") : value}`)
-                  .join("; ");
-              }
-            } else if (data.error) {
-              errorMessage = data.error;
-            }
-
-            console.error("API Error:", errorMessage, data);
-            throw new Error(errorMessage);
+          if (!response.ok || !observation || !observation.id) {
+            const errorMsg = data.error?.original?.errors || data.error || data.errors || "Failed to create observation";
+            throw new Error(typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg));
           }
+
+          const observationId = observation.id;
+          console.log("Created observation ID:", observationId);
+
+          // Step 2: Upload photos and attach to observation
+          for (let i = 0; i < photos.length; i++) {
+            statusEl.textContent = `⏳ Uploading photo ${i + 1} of ${photos.length}...`;
+
+            const photoBlob = base64ToBlob(photos[i]);
+            const photoFormData = new FormData();
+            photoFormData.append("observation_photo[observation_id]", observationId);
+            photoFormData.append("file", photoBlob, `photo_${Date.now()}_${i}.jpg`);
+
+            const photoResponse = await fetch(
+              "https://api.inaturalist.org/v1/observation_photos",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: jwtToken,
+                },
+                body: photoFormData,
+              }
+            );
+
+            const photoData = await photoResponse.json();
+            console.log(`Photo ${i + 1} upload response:`, photoData);
+
+            if (!photoResponse.ok) {
+              console.error(`Failed to upload photo ${i + 1}:`, photoData);
+              // Continue with other photos even if one fails
+            }
+          }
+
+          console.log("All photos uploaded");
+
+          // Success - observation was created
+          const observationUrl = `https://www.inaturalist.org/observations/${observationId}`;
+
+          statusEl.className = "submission-status success";
+          statusEl.innerHTML = `✅ Observation submitted! <a href="${observationUrl}" target="_blank" style="color: #155724; text-decoration: underline;">View on iNaturalist</a>`;
+
+          updateDraft(id, {
+            submissionStatus: "success",
+            observationId: observationId,
+            observationUrl: observationUrl,
+          });
+
+          submitBtn.textContent = "✓ Submitted";
+
         } catch (error) {
           console.error("Error submitting observation:", error);
 
@@ -1042,8 +4077,11 @@
       }
 
       // Initialize
-      checkAuth();
-      loadDrafts();
+      initLocationPicker();
+      initPhotoEditor();
+      initAuth().then(() => {
+        loadDrafts();
+      });
     </script>
     <script
       defer
@@ -1055,5 +4093,6 @@
         navigator.serviceWorker.register('sw.js');
       }
     </script>
+    <script src="dark-mode.js"></script>
   </body>
 </html>
