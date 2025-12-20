@@ -948,6 +948,26 @@
         background: #1e2a1e;
       }
 
+      .cv-ancestor {
+        background: #f8f4e8;
+        border-bottom: 2px solid #e8d4a0 !important;
+      }
+
+      .dark-mode .cv-ancestor {
+        background: #2a2820;
+        border-bottom-color: #4a4030 !important;
+      }
+
+      .cv-ancestor-label {
+        background: #e8d4a0 !important;
+        color: #8b6914 !important;
+      }
+
+      .dark-mode .cv-ancestor-label {
+        background: #4a4030 !important;
+        color: #c9a84c !important;
+      }
+
       .cv-suggestion-link {
         display: flex;
         align-items: center;
@@ -4262,44 +4282,65 @@
 
           const data = await response.json();
           const results = data.results || [];
+          const commonAncestor = data.common_ancestor;
 
-          if (results.length === 0) {
+          console.log('CV API response:', data);
+
+          if (results.length === 0 && !commonAncestor) {
             cvList.innerHTML = '<div class="cv-loading">No suggestions found</div>';
             return;
           }
 
-          // Display confidence scores - map to reasonable percentage range
-          const topResults = results.slice(0, 5);
-          const rawScores = topResults.map(r => r.combined_score || 0);
-          const maxRaw = Math.max(...rawScores);
-          const minRaw = Math.min(...rawScores);
-          const range = maxRaw - minRaw || 1;
+          // Build suggestions HTML
+          let suggestionsHtml = '';
 
-          console.log('CV API scores:', rawScores, 'max:', maxRaw, 'min:', minRaw);
+          // Add common ancestor suggestion first if available (genus, tribe, family, etc.)
+          if (commonAncestor && commonAncestor.taxon) {
+            const ancestorTaxon = commonAncestor.taxon;
+            const ancestorPhoto = ancestorTaxon.default_photo?.square_url || ancestorTaxon.default_photo?.url || 'logo.png';
+            const ancestorCommonName = ancestorTaxon.preferred_common_name || '';
+            const ancestorScientificName = ancestorTaxon.name || 'Unknown';
+            const ancestorRank = ancestorTaxon.rank || '';
+            const rankDisplay = ancestorRank ? `(${ancestorRank})` : '';
+            const ancestorScore = (commonAncestor.score || 0).toFixed(1);
 
-          cvList.innerHTML = topResults.map((result, idx) => {
+            suggestionsHtml += `
+              <div class="cv-suggestion-item cv-ancestor" data-taxon-id="${ancestorTaxon.id}" data-taxon-name="${ancestorCommonName || ancestorScientificName}" data-draft-id="${draft.id}">
+                <img src="${ancestorPhoto}" alt="" class="cv-suggestion-photo" onerror="this.src='logo.png'" />
+                <div class="cv-suggestion-info">
+                  <div class="cv-suggestion-name">${ancestorCommonName || ancestorScientificName}</div>
+                  <div class="cv-suggestion-scientific">${ancestorScientificName} ${rankDisplay}</div>
+                </div>
+                <div class="cv-suggestion-score cv-ancestor-label">${ancestorScore}%</div>
+                <a href="https://www.inaturalist.org/taxa/${ancestorTaxon.id}" target="_blank" class="cv-suggestion-link" title="View on iNaturalist">↗</a>
+              </div>
+            `;
+          }
+
+          // Display all results with raw scores
+          suggestionsHtml += results.map((result, idx) => {
             const taxon = result.taxon;
-            const rawScore = result.combined_score || 0;
-            // Map scores to 20-90% range: top gets ~90%, lowest gets ~20%
-            // This ensures visible differences between suggestions
-            const normalized = (rawScore - minRaw) / range; // 0 to 1
-            const score = Math.round(20 + normalized * 70); // 20% to 90%
+            const score = (result.combined_score || 0).toFixed(1);
             const photo = taxon.default_photo?.square_url || taxon.default_photo?.url || 'logo.png';
             const commonName = taxon.preferred_common_name || '';
             const scientificName = taxon.name || 'Unknown';
+            const rank = taxon.rank || '';
+            const rankDisplay = (rank && rank !== 'species' && rank !== 'subspecies') ? `(${rank})` : '';
 
             return `
               <div class="cv-suggestion-item" data-taxon-id="${taxon.id}" data-taxon-name="${commonName || scientificName}" data-draft-id="${draft.id}">
                 <img src="${photo}" alt="" class="cv-suggestion-photo" onerror="this.src='logo.png'" />
                 <div class="cv-suggestion-info">
                   <div class="cv-suggestion-name">${commonName || scientificName}</div>
-                  ${commonName ? `<div class="cv-suggestion-scientific">${scientificName}</div>` : ''}
+                  ${commonName ? `<div class="cv-suggestion-scientific">${scientificName} ${rankDisplay}</div>` : (rankDisplay ? `<div class="cv-suggestion-scientific">${rankDisplay}</div>` : '')}
                 </div>
                 <div class="cv-suggestion-score">${score}%</div>
                 <a href="https://www.inaturalist.org/taxa/${taxon.id}" target="_blank" class="cv-suggestion-link" title="View on iNaturalist">↗</a>
               </div>
             `;
           }).join('');
+
+          cvList.innerHTML = suggestionsHtml;
 
           // Add click handlers to suggestions
           cvList.querySelectorAll('.cv-suggestion-item').forEach(item => {
@@ -4505,13 +4546,12 @@
           statusEl.className = "submission-status success";
           statusEl.innerHTML = `✅ Observation submitted! <a href="${observationUrl}" target="_blank" style="color: #155724; text-decoration: underline;">View on iNaturalist</a>`;
 
-          updateDraft(id, {
-            submissionStatus: "success",
-            observationId: observationId,
-            observationUrl: observationUrl,
-          });
-
           submitBtn.textContent = "✓ Submitted";
+
+          // Delete draft from cache after a short delay so user can see success message
+          setTimeout(() => {
+            deleteDraft(id);
+          }, 2000);
 
         } catch (error) {
           console.error("Error submitting observation:", error);
