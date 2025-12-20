@@ -1080,10 +1080,11 @@
         }
 
         // New Year achievement (observations on January 1st)
+        // Use UTC methods to avoid timezone issues with YYYY-MM-DD date strings
         let newYearCount = 0;
         dates.forEach((dateStr) => {
           const date = new Date(dateStr);
-          if (date.getMonth() === 0 && date.getDate() === 1) {
+          if (date.getUTCMonth() === 0 && date.getUTCDate() === 1) {
             newYearCount += histogram[dateStr];
           }
         });
@@ -1117,7 +1118,7 @@
         ];
         dates.forEach((dateStr) => {
           const date = new Date(dateStr);
-          const monthIndex = date.getMonth();
+          const monthIndex = date.getUTCMonth();
           observedMonths.add(monthNames[monthIndex]);
         });
 
@@ -1125,7 +1126,7 @@
         const observedSeasons = new Set();
         dates.forEach((dateStr) => {
           const date = new Date(dateStr);
-          const month = date.getMonth(); // 0-11
+          const month = date.getUTCMonth(); // 0-11
           let season;
           if (month >= 2 && month <= 4) season = "Spring";
           else if (month >= 5 && month <= 7) season = "Summer";
@@ -1138,7 +1139,7 @@
         const weekendDays = new Set();
         dates.forEach((dateStr) => {
           const date = new Date(dateStr);
-          const dayOfWeek = date.getDay();
+          const dayOfWeek = date.getUTCDay();
           if (dayOfWeek === 0 || dayOfWeek === 6) {
             weekendDays.add(dateStr);
           }
@@ -1151,7 +1152,7 @@
         const uniqueCalendarDays = new Set();
         dates.forEach((dateStr) => {
           const date = new Date(dateStr);
-          const monthDay = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+          const monthDay = `${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
           uniqueCalendarDays.add(monthDay);
         });
 
