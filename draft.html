@@ -2163,6 +2163,7 @@
       let accuracyHandles = [];
       let currentLocationDraftId = null;
       let isDraggingHandle = false;
+      let pendingGeocodePromise = null;
 
       // Initialize location picker modal
       function initLocationPicker() {
@@ -2212,7 +2213,17 @@
         });
 
         // Update location handler
-        updateBtn.addEventListener('click', () => {
+        updateBtn.addEventListener('click', async () => {
+          // Wait for any pending reverse geocode to complete
+          if (pendingGeocodePromise) {
+            updateBtn.disabled = true;
+            updateBtn.textContent = 'Loading...';
+            await pendingGeocodePromise;
+            pendingGeocodePromise = null;
+            updateBtn.disabled = false;
+            updateBtn.textContent = 'Update Location';
+          }
+
           const lat = document.getElementById('modalLatitude').value;
           const lng = document.getElementById('modalLongitude').value;
           const locality = document.getElementById('modalLocality').value;
@@ -2297,6 +2308,8 @@
         const draft = drafts.find(d => d.id === draftId);
         if (!draft) return;
 
+        pendingGeocodePromise = null;
+
         currentLocationDraftId = draftId;
         const modal = document.getElementById('locationModal');
         modal.classList.add('show');
@@ -2320,7 +2333,7 @@
             locationMap.on('click', (e) => {
               if (isDraggingHandle) return;
               updateLocationMarker(e.latlng.lat, e.latlng.lng);
-              reverseGeocodeForModal(e.latlng.lat, e.latlng.lng);
+              pendingGeocodePromise = reverseGeocodeForModal(e.latlng.lat, e.latlng.lng);
             });
           } else {
             locationMap.invalidateSize();
@@ -2376,6 +2389,7 @@
       function openBulkLocationModal() {
         isBulkLocationMode = true;
         currentLocationDraftId = null;
+        pendingGeocodePromise = null;
         const modal = document.getElementById('locationModal');
         modal.classList.add('show');
 
@@ -2398,7 +2412,7 @@
             locationMap.on('click', (e) => {
               if (isDraggingHandle) return;
               updateLocationMarker(e.latlng.lat, e.latlng.lng);
-              reverseGeocodeForModal(e.latlng.lat, e.latlng.lng);
+              pendingGeocodePromise = reverseGeocodeForModal(e.latlng.lat, e.latlng.lng);
             });
           } else {
             locationMap.invalidateSize();
@@ -2479,7 +2493,7 @@
         // Handle marker drag end - reverse geocode new location
         locationMarker.on('dragend', (e) => {
           const newPos = e.target.getLatLng();
-          reverseGeocodeForModal(newPos.lat, newPos.lng);
+          pendingGeocodePromise = reverseGeocodeForModal(newPos.lat, newPos.lng);
         });
 
         // Add draggable accuracy handles at cardinal points
@@ -3854,7 +3868,7 @@
                   type="text"
                   class="location-input"
                   data-id="${draft.id}"
-                  value="${draft.location}"
+                  value="${draft.location || (draft.latitude && draft.longitude ? `${draft.latitude.toFixed(4)}, ${draft.longitude.toFixed(4)}` : '')}"
                   placeholder="Location"
                   autocomplete="off"
                 />
