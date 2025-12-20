@@ -1306,40 +1306,22 @@
         background: #2d2d2d;
         border-radius: 12px;
         width: 90%;
-        max-width: 900px;
+        max-width: 1100px;
         max-height: 90vh;
         overflow: hidden;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
         border: 1px solid #444;
       }
 
-      .location-modal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 14px 20px;
-        background: #74ac00;
-        color: white;
-      }
-
-      .location-modal-header h3 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
       .location-modal-close {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(0, 0, 0, 0.6);
         border: none;
         color: white;
         font-size: 20px;
         cursor: pointer;
         padding: 0;
-        width: 28px;
-        height: 28px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -1348,12 +1330,60 @@
       }
 
       .location-modal-close:hover {
-        background: rgba(255, 255, 255, 0.3);
+        background: rgba(0, 0, 0, 0.8);
+      }
+
+      .location-modal-close.floating {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1001;
+      }
+
+      .my-location-btn {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        z-index: 1000;
+        background: white;
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      .my-location-btn:hover {
+        background: #f0f0f0;
+      }
+
+      .my-location-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .accuracy-handle {
+        width: 14px;
+        height: 14px;
+        background: white;
+        border: 2px solid #dc3545;
+        border-radius: 50%;
+        cursor: grab;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .accuracy-handle:active {
+        cursor: grabbing;
       }
 
       .location-map-container {
         position: relative;
-        height: 350px;
+        height: 450px;
         border-bottom: 1px solid #444;
       }
 
@@ -1418,6 +1448,9 @@
         font-size: 13px;
         background: #3a3a3a;
         color: #e0e0e0;
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
       }
 
       .location-field input:focus,
@@ -1857,15 +1890,13 @@
     <!-- Location Picker Modal -->
     <div class="location-modal" id="locationModal">
       <div class="location-modal-content">
-        <div class="location-modal-header">
-          <h3><span>📍</span> <span id="locationModalTitle">Select Location</span></h3>
-          <button class="location-modal-close" id="locationModalClose">&times;</button>
-        </div>
+        <button class="location-modal-close floating" id="locationModalClose">&times;</button>
         <div class="location-map-container">
           <div id="locationMap"></div>
           <div class="map-search-box">
             <input type="text" id="mapSearchInput" placeholder="Search for a Location" />
           </div>
+          <button class="my-location-btn" id="myLocationBtn" title="Go to my location">📍</button>
         </div>
         <div class="location-modal-fields">
           <div class="location-field">
@@ -1877,8 +1908,8 @@
             <input type="text" id="modalLongitude" readonly />
           </div>
           <div class="location-field">
-            <label>Acc (m)</label>
-            <input type="number" id="modalAccuracy" value="10" min="1" max="100000" />
+            <label>Accuracy (m)</label>
+            <input type="number" id="modalAccuracy" value="100" min="1" max="100000" />
           </div>
           <div class="location-field">
             <label>Geoprivacy</label>
@@ -2109,7 +2140,9 @@
       let locationMap = null;
       let locationMarker = null;
       let locationCircle = null;
+      let accuracyHandles = [];
       let currentLocationDraftId = null;
+      let isDraggingHandle = false;
 
       // Initialize location picker modal
       function initLocationPicker() {
@@ -2125,6 +2158,37 @@
         cancelBtn.addEventListener('click', closeLocationModal);
         modal.addEventListener('click', (e) => {
           if (e.target === modal) closeLocationModal();
+        });
+
+        // My location button handler
+        const myLocationBtn = document.getElementById('myLocationBtn');
+        myLocationBtn.addEventListener('click', () => {
+          if (navigator.geolocation) {
+            myLocationBtn.disabled = true;
+            myLocationBtn.textContent = '⏳';
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                if (locationMap) {
+                  locationMap.setView([lat, lng], 14);
+                  updateLocationMarker(lat, lng);
+                  reverseGeocodeForModal(lat, lng);
+                }
+                myLocationBtn.disabled = false;
+                myLocationBtn.textContent = '📍';
+              },
+              (error) => {
+                console.error('Geolocation error:', error);
+                alert('Could not get your location. Please check your browser permissions.');
+                myLocationBtn.disabled = false;
+                myLocationBtn.textContent = '📍';
+              },
+              { enableHighAccuracy: true, timeout: 10000 }
+            );
+          } else {
+            alert('Geolocation is not supported by your browser.');
+          }
         });
 
         // Update location handler
@@ -2195,10 +2259,15 @@
           }
         });
 
-        // Accuracy change updates circle
+        // Accuracy change updates circle and handles
         accuracyInput.addEventListener('input', () => {
+          const newRadius = parseInt(accuracyInput.value) || 100;
           if (locationCircle) {
-            locationCircle.setRadius(parseInt(accuracyInput.value) || 10);
+            locationCircle.setRadius(newRadius);
+          }
+          if (locationMarker && accuracyHandles.length > 0) {
+            const center = locationMarker.getLatLng();
+            updateHandlePositions(center.lat, center.lng, newRadius);
           }
         });
       }
@@ -2216,21 +2285,20 @@
         document.getElementById('modalLatitude').value = draft.latitude || '';
         document.getElementById('modalLongitude').value = draft.longitude || '';
         document.getElementById('modalLocality').value = draft.location || '';
-        document.getElementById('modalAccuracy').value = draft.accuracy || 10;
-        document.getElementById('locationModalTitle').textContent = draft.location || 'Select Location';
+        document.getElementById('modalAccuracy').value = draft.accuracy || 100;
 
         // Initialize or update map
         setTimeout(() => {
           if (!locationMap) {
             locationMap = L.map('locationMap').setView([0, 0], 2);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-              attribution: '© OpenStreetMap contributors, © CARTO',
-              subdomains: 'abcd',
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '© OpenStreetMap contributors',
               maxZoom: 19
             }).addTo(locationMap);
 
             // Map click handler
             locationMap.on('click', (e) => {
+              if (isDraggingHandle) return;
               updateLocationMarker(e.latlng.lat, e.latlng.lng);
               reverseGeocodeForModal(e.latlng.lat, e.latlng.lng);
             });
@@ -2247,6 +2315,8 @@
             locationMap.removeLayer(locationCircle);
             locationCircle = null;
           }
+          accuracyHandles.forEach(handle => locationMap.removeLayer(handle));
+          accuracyHandles = [];
 
           // Set map view based on existing location or default
           if (draft.latitude && draft.longitude) {
@@ -2293,21 +2363,20 @@
         document.getElementById('modalLatitude').value = '';
         document.getElementById('modalLongitude').value = '';
         document.getElementById('modalLocality').value = '';
-        document.getElementById('modalAccuracy').value = 10;
-        document.getElementById('locationModalTitle').textContent = 'Select Location for Selected Drafts';
+        document.getElementById('modalAccuracy').value = 25;
 
         // Initialize or update map
         setTimeout(() => {
           if (!locationMap) {
             locationMap = L.map('locationMap').setView([0, 0], 2);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-              attribution: '© OpenStreetMap contributors, © CARTO',
-              subdomains: 'abcd',
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '© OpenStreetMap contributors',
               maxZoom: 19
             }).addTo(locationMap);
 
             // Map click handler
             locationMap.on('click', (e) => {
+              if (isDraggingHandle) return;
               updateLocationMarker(e.latlng.lat, e.latlng.lng);
               reverseGeocodeForModal(e.latlng.lat, e.latlng.lng);
             });
@@ -2324,6 +2393,8 @@
             locationMap.removeLayer(locationCircle);
             locationCircle = null;
           }
+          accuracyHandles.forEach(handle => locationMap.removeLayer(handle));
+          accuracyHandles = [];
 
           // Try to get user's location for initial view
           if (navigator.geolocation) {
@@ -2343,30 +2414,155 @@
 
       // Update marker and circle on map
       function updateLocationMarker(lat, lng) {
-        const accuracy = parseInt(document.getElementById('modalAccuracy').value) || 10;
+        const accuracy = parseInt(document.getElementById('modalAccuracy').value) || 100;
 
-        // Remove existing marker and circle
+        // Remove existing marker, circle and handles
         if (locationMarker) {
           locationMap.removeLayer(locationMarker);
         }
         if (locationCircle) {
           locationMap.removeLayer(locationCircle);
         }
+        accuracyHandles.forEach(handle => locationMap.removeLayer(handle));
+        accuracyHandles = [];
 
         // Add new circle
         locationCircle = L.circle([lat, lng], {
           color: '#dc3545',
           fillColor: '#dc3545',
           fillOpacity: 0.3,
-          radius: accuracy
+          radius: accuracy,
+          weight: 2
         }).addTo(locationMap);
 
-        // Add marker
-        locationMarker = L.marker([lat, lng]).addTo(locationMap);
+        // Add draggable marker
+        locationMarker = L.marker([lat, lng], { draggable: true }).addTo(locationMap);
+
+        // Handle marker drag - update circle and handles to follow
+        locationMarker.on('drag', (e) => {
+          const newPos = e.target.getLatLng();
+          const currentRadius = parseInt(document.getElementById('modalAccuracy').value) || 100;
+
+          // Move circle to new position
+          if (locationCircle) {
+            locationCircle.setLatLng(newPos);
+          }
+
+          // Update handles positions
+          updateHandlePositions(newPos.lat, newPos.lng, currentRadius);
+
+          // Update coordinate fields
+          document.getElementById('modalLatitude').value = newPos.lat;
+          document.getElementById('modalLongitude').value = newPos.lng;
+        });
+
+        // Handle marker drag end - reverse geocode new location
+        locationMarker.on('dragend', (e) => {
+          const newPos = e.target.getLatLng();
+          reverseGeocodeForModal(newPos.lat, newPos.lng);
+        });
+
+        // Add draggable accuracy handles at cardinal points
+        addAccuracyHandles(accuracy);
 
         // Update fields
         document.getElementById('modalLatitude').value = lat;
         document.getElementById('modalLongitude').value = lng;
+      }
+
+      // Calculate point at distance and bearing from center
+      function calculateOffsetPoint(lat, lng, distanceMeters, bearingDegrees) {
+        const R = 6371000; // Earth's radius in meters
+        const d = distanceMeters / R;
+        const bearing = bearingDegrees * Math.PI / 180;
+        const lat1 = lat * Math.PI / 180;
+        const lng1 = lng * Math.PI / 180;
+
+        const lat2 = Math.asin(
+          Math.sin(lat1) * Math.cos(d) +
+          Math.cos(lat1) * Math.sin(d) * Math.cos(bearing)
+        );
+        const lng2 = lng1 + Math.atan2(
+          Math.sin(bearing) * Math.sin(d) * Math.cos(lat1),
+          Math.cos(d) - Math.sin(lat1) * Math.sin(lat2)
+        );
+
+        return {
+          lat: lat2 * 180 / Math.PI,
+          lng: lng2 * 180 / Math.PI
+        };
+      }
+
+      // Calculate distance between two points in meters
+      function calculateDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371000; // Earth's radius in meters
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+      }
+
+      // Add draggable handles at cardinal points of the accuracy circle
+      function addAccuracyHandles(radius) {
+        const bearings = [0, 90, 180, 270]; // N, E, S, W
+        const center = locationMarker.getLatLng();
+
+        const handleIcon = L.divIcon({
+          className: 'accuracy-handle',
+          iconSize: [14, 14],
+          iconAnchor: [7, 7]
+        });
+
+        bearings.forEach(bearing => {
+          const point = calculateOffsetPoint(center.lat, center.lng, radius, bearing);
+          const handle = L.marker([point.lat, point.lng], {
+            icon: handleIcon,
+            draggable: true
+          }).addTo(locationMap);
+
+          handle.on('dragstart', () => {
+            isDraggingHandle = true;
+          });
+
+          handle.on('drag', (e) => {
+            // Always get current center from marker
+            const currentCenter = locationMarker.getLatLng();
+            const handlePos = e.target.getLatLng();
+            const newRadius = Math.round(calculateDistance(currentCenter.lat, currentCenter.lng, handlePos.lat, handlePos.lng));
+
+            // Update circle radius
+            if (locationCircle) {
+              locationCircle.setRadius(newRadius);
+            }
+
+            // Update accuracy input
+            document.getElementById('modalAccuracy').value = Math.max(1, newRadius);
+
+            // Update all handles positions
+            updateHandlePositions(currentCenter.lat, currentCenter.lng, newRadius);
+          });
+
+          handle.on('dragend', () => {
+            // Delay resetting the flag to prevent click event from firing
+            setTimeout(() => {
+              isDraggingHandle = false;
+            }, 100);
+          });
+
+          accuracyHandles.push(handle);
+        });
+      }
+
+      // Update all handle positions when radius changes
+      function updateHandlePositions(centerLat, centerLng, radius) {
+        const bearings = [0, 90, 180, 270];
+        accuracyHandles.forEach((handle, index) => {
+          const point = calculateOffsetPoint(centerLat, centerLng, radius, bearings[index]);
+          handle.setLatLng([point.lat, point.lng]);
+        });
       }
 
       // Reverse geocode to get location name
@@ -2378,7 +2574,6 @@
           const data = await response.json();
           if (data.display_name) {
             document.getElementById('modalLocality').value = data.display_name;
-            document.getElementById('locationModalTitle').textContent = data.display_name.split(',')[0];
           }
         } catch (error) {
           console.error('Reverse geocode error:', error);
