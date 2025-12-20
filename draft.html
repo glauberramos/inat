@@ -311,6 +311,190 @@
       @media (max-width: 500px) {
         .drafts-container {
           grid-template-columns: 1fr;
+          gap: 12px;
+        }
+      }
+
+      /* Mobile improvements */
+      @media (max-width: 768px) {
+        /* Top bar adjustments */
+        .top-user-bar {
+          right: 60px;
+          top: 12px;
+        }
+
+        .top-user-info {
+          padding: 4px 10px;
+        }
+
+        .top-user-info img {
+          width: 28px;
+          height: 28px;
+        }
+
+        .top-user-name {
+          display: none;
+        }
+
+        .top-logout-btn {
+          padding: 5px 10px;
+          font-size: 11px;
+        }
+
+        /* Merge toolbar mobile */
+        .merge-toolbar {
+          left: 10px;
+          right: 10px;
+          transform: none;
+          padding: 10px 16px;
+          border-radius: 12px;
+          gap: 10px;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .merge-toolbar span {
+          font-size: 13px;
+        }
+
+        .merge-btn, .cancel-merge-btn {
+          padding: 6px 12px;
+          font-size: 12px;
+        }
+
+        /* Auth section mobile */
+        .auth-section {
+          padding: 15px;
+          margin: 10px;
+          margin-bottom: 15px;
+        }
+
+        /* Draft card improvements */
+        .draft-content {
+          padding: 8px;
+        }
+
+        .draft-field-row {
+          padding: 6px 8px;
+        }
+
+        .draft-actions {
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .draft-actions button {
+          width: 100%;
+        }
+
+        /* CV suggestions mobile */
+        .cv-suggestions {
+          margin-bottom: 8px;
+        }
+
+        .cv-suggestion-item {
+          padding: 8px;
+          gap: 8px;
+        }
+
+        .cv-suggestion-photo {
+          width: 36px;
+          height: 36px;
+        }
+
+        .cv-suggestion-name {
+          font-size: 13px;
+        }
+
+        .cv-suggestion-scientific {
+          font-size: 11px;
+        }
+
+        /* Photo navigation buttons */
+        .photo-nav {
+          width: 28px;
+          height: 28px;
+          font-size: 16px;
+        }
+
+        /* Add photo button */
+        .add-photo-btn {
+          width: 32px;
+          height: 32px;
+          min-width: 32px;
+          min-height: 32px;
+          font-size: 16px;
+        }
+
+        .edit-photo-btn {
+          width: 26px;
+          height: 26px;
+          min-width: 26px;
+          min-height: 26px;
+          font-size: 12px;
+        }
+
+        /* AI identify button */
+        .btn-identify {
+          padding: 2px 4px;
+          font-size: 9px;
+          width: 24px;
+          height: 24px;
+          min-width: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        /* Draft field row compact */
+        .draft-field-row {
+          padding: 4px 6px;
+        }
+
+        .draft-field-icon {
+          font-size: 10px;
+          width: 14px;
+        }
+
+        .draft-field input,
+        .draft-field textarea {
+          font-size: 11px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        /* Even smaller screens */
+        .top-user-bar {
+          right: 50px;
+          top: 8px;
+        }
+
+        .top-user-info {
+          padding: 3px 8px;
+        }
+
+        .top-user-info img {
+          width: 24px;
+          height: 24px;
+        }
+
+        .top-logout-btn {
+          padding: 4px 8px;
+          font-size: 10px;
+        }
+
+        /* Back button */
+        a[href="/inat"] {
+          padding: 8px 12px !important;
+          font-size: 0.8rem !important;
+          top: 10px !important;
+          left: 10px !important;
+        }
+
+        /* Photo editor close button position */
+        .photo-editor-close {
+          top: 8px;
+          right: 8px;
         }
       }
 
@@ -1496,10 +1680,17 @@
       }
 
       .photo-editor-canvas-container {
-        position: relative;
         display: flex;
         justify-content: center;
         align-items: center;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .canvas-wrapper {
+        position: relative;
+        display: inline-block;
+        line-height: 0;
       }
 
       .crop-overlay {
@@ -1508,7 +1699,6 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
         pointer-events: none;
       }
 
@@ -1599,6 +1789,62 @@
           border-left: none;
           border-top: 1px solid #444;
         }
+        .photo-editor-content {
+          width: 95%;
+          max-height: 95vh;
+        }
+        .photo-editor-header {
+          padding: 12px 16px;
+        }
+        .photo-editor-header h3 {
+          font-size: 16px;
+        }
+        .photo-editor-actions {
+          padding: 12px 16px;
+          flex-wrap: wrap;
+        }
+        .photo-editor-actions button {
+          padding: 8px 16px;
+          font-size: 13px;
+        }
+        #photoEditorCanvas {
+          max-height: 40vh;
+        }
+
+        /* Location modal mobile */
+        .location-modal-content {
+          width: 95%;
+          max-height: 95vh;
+        }
+        .location-map-container {
+          height: 250px;
+        }
+        .map-search-box {
+          left: 10px;
+          right: 10px;
+          top: 10px;
+        }
+        .map-search-box input {
+          width: 100%;
+          box-sizing: border-box;
+        }
+        .location-modal-fields {
+          flex-direction: column;
+          gap: 10px;
+          padding: 12px;
+        }
+        .location-field {
+          flex: none;
+          width: 100%;
+        }
+        .location-modal-actions {
+          flex-direction: column;
+          gap: 8px;
+          padding: 12px;
+        }
+        .location-modal-actions button {
+          width: 100%;
+        }
       }
     </style>
   </head>
@@ -1663,13 +1909,15 @@
         </div>
         <div class="photo-editor-body">
           <div class="photo-editor-canvas-container" id="canvasContainer">
-            <canvas id="photoEditorCanvas"></canvas>
-            <div class="crop-overlay" id="cropOverlay" style="display: none;">
-              <div class="crop-selection" id="cropSelection">
-                <div class="crop-handle nw"></div>
-                <div class="crop-handle ne"></div>
-                <div class="crop-handle sw"></div>
-                <div class="crop-handle se"></div>
+            <div class="canvas-wrapper" id="canvasWrapper">
+              <canvas id="photoEditorCanvas"></canvas>
+              <div class="crop-overlay" id="cropOverlay" style="display: none;">
+                <div class="crop-selection" id="cropSelection">
+                  <div class="crop-handle nw"></div>
+                  <div class="crop-handle ne"></div>
+                  <div class="crop-handle sw"></div>
+                  <div class="crop-handle se"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -2409,20 +2657,10 @@
       }
 
       // Crop functions
-      function getCanvasOffset() {
-        const canvas = document.getElementById('photoEditorCanvas');
-        const container = document.getElementById('canvasContainer');
-        const canvasRect = canvas.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        return {
-          x: canvasRect.left - containerRect.left,
-          y: canvasRect.top - containerRect.top
-        };
-      }
-
       function getCanvasDisplaySize() {
         const canvas = document.getElementById('photoEditorCanvas');
-        return { width: canvas.offsetWidth, height: canvas.offsetHeight };
+        const rect = canvas.getBoundingClientRect();
+        return { width: rect.width, height: rect.height };
       }
 
       function enterCropMode() {
@@ -2453,11 +2691,10 @@
 
       function updateCropSelection() {
         const selection = document.getElementById('cropSelection');
-        const offset = getCanvasOffset();
 
-        // Position selection relative to container, accounting for canvas offset
-        selection.style.left = (cropBox.x + offset.x) + 'px';
-        selection.style.top = (cropBox.y + offset.y) + 'px';
+        // Position selection relative to overlay (which is already at canvas position)
+        selection.style.left = cropBox.x + 'px';
+        selection.style.top = cropBox.y + 'px';
         selection.style.width = cropBox.width + 'px';
         selection.style.height = cropBox.height + 'px';
       }
