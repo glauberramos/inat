@@ -417,43 +417,14 @@
           font-size: 16px;
         }
 
-        /* Add photo button */
-        .add-photo-btn {
-          width: 32px;
-          height: 32px;
-          min-width: 32px;
-          min-height: 32px;
-          font-size: 16px;
-        }
-
-        .edit-photo-btn {
-          width: 26px;
-          height: 26px;
-          min-width: 26px;
-          min-height: 26px;
-          font-size: 12px;
-        }
-
-        /* AI identify button */
-        .btn-identify {
-          padding: 2px 4px;
-          font-size: 9px;
-          width: 24px;
-          height: 24px;
-          min-width: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
         /* Draft field row compact */
         .draft-field-row {
           padding: 4px 6px;
         }
 
         .draft-field-icon {
-          font-size: 10px;
-          width: 14px;
+          font-size: 12px;
+          width: 16px;
         }
 
         .draft-field input,
@@ -1187,6 +1158,41 @@
         background: rgba(41, 128, 185, 1);
       }
 
+      /* Mobile: larger buttons for touch */
+      @media (max-width: 768px) {
+        .add-photo-btn {
+          width: 36px;
+          height: 36px;
+          min-width: 36px;
+          min-height: 36px;
+          font-size: 20px;
+        }
+
+        .edit-photo-btn {
+          width: 36px;
+          height: 36px;
+          min-width: 36px;
+          min-height: 36px;
+          font-size: 18px;
+        }
+
+        .btn-identify {
+          width: 36px;
+          height: 36px;
+          min-width: 36px;
+          min-height: 36px;
+          font-size: 18px;
+          padding: 6px;
+          border-radius: 6px;
+        }
+
+        /* Hide draft selection checkbox and merge toolbar on mobile */
+        .draft-select,
+        .merge-toolbar {
+          display: none !important;
+        }
+      }
+
       /* Draft selection */
       .draft-card {
         position: relative;
@@ -1835,12 +1841,22 @@
       @media (max-width: 768px) {
         .photo-editor-body {
           flex-direction: column;
+          overflow-y: auto;
+          max-height: calc(95vh - 120px);
         }
         .photo-editor-controls {
           width: 100%;
-          max-height: 200px;
+          max-height: none;
           border-left: none;
           border-top: 1px solid #444;
+          padding: 12px 16px;
+          overflow-y: visible;
+        }
+        .photo-editor-controls .editor-section {
+          margin-bottom: 12px;
+        }
+        .photo-editor-controls .editor-control {
+          margin-bottom: 10px;
         }
         .photo-editor-content {
           width: 95%;
@@ -1861,7 +1877,8 @@
           font-size: 13px;
         }
         #photoEditorCanvas {
-          max-height: 40vh;
+          max-height: 35vh;
+          flex-shrink: 0;
         }
 
         /* Location modal mobile */
@@ -3915,12 +3932,20 @@
         return card;
       }
 
+      // Check if on mobile device
+      function isMobileView() {
+        return window.innerWidth <= 768;
+      }
+
       // Attach event listeners to draft card
       function attachDraftEventListeners(card, draft) {
         // Selection checkbox
         const selectCheckbox = card.querySelector('.draft-select');
 
         function toggleSelection() {
+          // Disable selection on mobile
+          if (isMobileView()) return;
+
           if (selectedDraftIds.has(draft.id)) {
             selectedDraftIds.delete(draft.id);
             card.classList.remove('selected');
@@ -3935,6 +3960,11 @@
 
         selectCheckbox.addEventListener('change', (e) => {
           e.stopPropagation();
+          // Disable selection on mobile
+          if (isMobileView()) {
+            e.target.checked = false;
+            return;
+          }
           if (e.target.checked) {
             selectedDraftIds.add(draft.id);
             card.classList.add('selected');
@@ -3948,8 +3978,8 @@
         // Click on photo area to select
         const photoArea = card.querySelector('.draft-photos');
         photoArea.addEventListener('click', (e) => {
-          // Don't toggle if clicking on buttons
-          if (e.target.closest('button')) return;
+          // Don't toggle if clicking on buttons or on mobile
+          if (e.target.closest('button') || isMobileView()) return;
           toggleSelection();
         });
 
