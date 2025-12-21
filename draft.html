@@ -1979,6 +1979,29 @@
           width: 100%;
         }
       }
+
+      .feedback-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #74ac00;
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        transition: all 0.2s;
+      }
+
+      .feedback-button:hover {
+        background: #5d8a00;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      }
     </style>
   </head>
   <body>
@@ -4798,5 +4821,29 @@
       }
     </script>
     <script src="dark-mode.js"></script>
+    <button class="feedback-button" id="feedbackBtn">Send feedback</button>
+    <script type="text/javascript">
+      window.$pipeback = [];
+      window.PIPEBACK_ID = "a069b910-4aef-4233-99cc-913e7fb30fb5";
+      (function () {
+        d = document;
+        s = d.createElement("script");
+        s.src = "https://widget.pipeback.com/l.js";
+        s.async = 1;
+        d.getElementsByTagName("head")[0].appendChild(s);
+      })();
+
+      // Feedback button toggle
+      let feedbackOpen = false;
+      document.getElementById("feedbackBtn").addEventListener("click", () => {
+        if (feedbackOpen) {
+          $pipeback.close();
+          feedbackOpen = false;
+        } else {
+          $pipeback.open();
+          feedbackOpen = true;
+        }
+      });
+    </script>
   </body>
 </html>
