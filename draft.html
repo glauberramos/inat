@@ -3345,20 +3345,24 @@
       async function loadDrafts() {
         try {
           await openDatabase();
-          const transaction = db.transaction(STORE_NAME, 'readonly');
-          const store = transaction.objectStore(STORE_NAME);
-          const request = store.getAll();
+          return new Promise((resolve) => {
+            const transaction = db.transaction(STORE_NAME, 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.getAll();
 
-          request.onsuccess = () => {
-            drafts = request.result || [];
-            renderDrafts();
-          };
+            request.onsuccess = () => {
+              drafts = request.result || [];
+              renderDrafts();
+              resolve();
+            };
 
-          request.onerror = () => {
-            console.error('Error loading drafts:', request.error);
-            drafts = [];
-            renderDrafts();
-          };
+            request.onerror = () => {
+              console.error('Error loading drafts:', request.error);
+              drafts = [];
+              renderDrafts();
+              resolve();
+            };
+          });
         } catch (error) {
           console.error('Database error:', error);
           drafts = [];
