@@ -17,7 +17,7 @@
     <meta name="msapplication-TileImage" content="logo.png" />
     <meta
       name="description"
-      content="Create and submit draft observations to iNaturalist"
+      content="Create and submit observations to iNaturalist. Edit images, add details, and submit when ready. Drafts are saved locally on this device."
     />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="dark-mode.css" />
@@ -1207,6 +1207,7 @@
         position: absolute;
         top: 8px;
         left: 8px;
+        margin-left: 0 !important;
         width: 20px;
         height: 20px;
         cursor: pointer;
@@ -1705,7 +1706,7 @@
         color: #e0e0e0;
         border-radius: 6px;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1731,7 +1732,7 @@
         color: #e0e0e0;
         border-radius: 6px;
         cursor: pointer;
-        font-size: 11px;
+        font-size: 14px;
       }
 
       .crop-btn:hover {
@@ -2147,7 +2148,7 @@
             <h1>Draft Observations</h1>
           </div>
           <p class="description">
-            Create and submit observations to iNaturalist
+            Create and submit observations to iNaturalist. Edit images, add details, and submit when ready. Drafts are saved locally on this device. Beta version. <a href="index.html">More tools</a>
           </p>
         </div>
 
@@ -3937,7 +3938,7 @@
             ` : ''}
             ${photos.length > 1 ? `<button class="delete-photo-btn" title="Remove this photo">×</button>` : ''}
             <button class="add-photo-btn" title="Add more photos">+</button>
-            <button class="edit-photo-btn" title="Edit photo">🪄</button>
+            <button class="edit-photo-btn" title="Edit photo">✏️</button>
           </div>
           <div class="draft-content">
             <div class="cv-suggestions" data-id="${draft.id}">
