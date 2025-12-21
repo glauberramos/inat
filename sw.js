@@ -2,6 +2,7 @@ const CACHE_NAME = 'inat-tools-v1';
 const STATIC_ASSETS = [
   '/inat/',
   '/inat/index.html',
+  '/inat/draft.html',
   '/inat/styles.css',
   '/inat/dark-mode.css',
   '/inat/dark-mode.js',

@@ -9,7 +9,12 @@
     <meta name="theme-color" content="#74ac00" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="iNat Drafts" />
     <link rel="apple-touch-icon" href="logo.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="iNat Drafts" />
+    <meta name="msapplication-TileColor" content="#74ac00" />
+    <meta name="msapplication-TileImage" content="logo.png" />
     <meta
       name="description"
       content="Create and submit draft observations to iNaturalist"
@@ -4721,7 +4726,12 @@
     ></script>
     <script>
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
+        navigator.serviceWorker.register('sw.js').then(registration => {
+          // Check for updates on page load
+          registration.update();
+        }).catch(err => {
+          console.log('ServiceWorker registration failed:', err);
+        });
       }
     </script>
     <script src="dark-mode.js"></script>
