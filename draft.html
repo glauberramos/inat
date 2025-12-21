@@ -3370,9 +3370,13 @@
       async function saveDraft(draft) {
         try {
           if (!db) await openDatabase();
-          const transaction = db.transaction(STORE_NAME, 'readwrite');
-          const store = transaction.objectStore(STORE_NAME);
-          store.put(draft);
+          return new Promise((resolve, reject) => {
+            const transaction = db.transaction(STORE_NAME, 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.put(draft);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+          });
         } catch (error) {
           console.error('Error saving draft:', error);
         }
@@ -4773,7 +4777,7 @@
           };
 
           await saveDraft(updatedDraft);
-          renderDrafts();
+          await loadDrafts();
 
         } catch (error) {
           console.error("Error submitting observation:", error);
