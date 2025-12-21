@@ -1803,6 +1803,35 @@
         cursor: se-resize;
       }
 
+      /* Larger crop handles on mobile for touch */
+      @media (max-width: 768px) {
+        .crop-handle {
+          width: 24px;
+          height: 24px;
+          border-width: 3px;
+        }
+
+        .crop-handle.nw {
+          top: -12px;
+          left: -12px;
+        }
+
+        .crop-handle.ne {
+          top: -12px;
+          right: -12px;
+        }
+
+        .crop-handle.sw {
+          bottom: -12px;
+          left: -12px;
+        }
+
+        .crop-handle.se {
+          bottom: -12px;
+          right: -12px;
+        }
+      }
+
       .photo-editor-actions {
         display: flex;
         justify-content: space-between;
@@ -1839,10 +1868,49 @@
       }
 
       @media (max-width: 768px) {
+        .photo-editor-modal {
+          align-items: flex-start;
+          padding: 0;
+          overflow-y: auto;
+        }
+        .photo-editor-content {
+          width: 100%;
+          max-width: 100%;
+          min-height: 100vh;
+          max-height: none;
+          height: auto;
+          border-radius: 0;
+          border: none;
+          display: flex;
+          flex-direction: column;
+        }
+        .photo-editor-header {
+          padding: 12px 16px;
+          flex-shrink: 0;
+        }
+        .photo-editor-header h3 {
+          font-size: 16px;
+        }
         .photo-editor-body {
           flex-direction: column;
-          overflow-y: auto;
-          max-height: calc(95vh - 120px);
+          overflow: visible;
+          flex: none;
+        }
+        .photo-editor-canvas-container {
+          flex: none;
+          overflow: visible;
+          padding: 10px;
+          min-height: auto;
+          max-height: none;
+        }
+        .canvas-wrapper {
+          max-width: 100%;
+        }
+        #photoEditorCanvas {
+          max-width: 100%;
+          max-height: none;
+          height: auto !important;
+          width: auto;
         }
         .photo-editor-controls {
           width: 100%;
@@ -1851,6 +1919,7 @@
           border-top: 1px solid #444;
           padding: 12px 16px;
           overflow-y: visible;
+          flex-shrink: 0;
         }
         .photo-editor-controls .editor-section {
           margin-bottom: 12px;
@@ -1858,27 +1927,15 @@
         .photo-editor-controls .editor-control {
           margin-bottom: 10px;
         }
-        .photo-editor-content {
-          width: 95%;
-          max-height: 95vh;
-        }
-        .photo-editor-header {
-          padding: 12px 16px;
-        }
-        .photo-editor-header h3 {
-          font-size: 16px;
-        }
         .photo-editor-actions {
           padding: 12px 16px;
           flex-wrap: wrap;
+          flex-shrink: 0;
+          border-top: 1px solid #444;
         }
         .photo-editor-actions button {
           padding: 8px 16px;
           font-size: 13px;
-        }
-        #photoEditorCanvas {
-          max-height: 35vh;
-          flex-shrink: 0;
         }
 
         /* Location modal mobile */
@@ -2717,32 +2774,52 @@
         const cropSelection = document.getElementById('cropSelection');
         const cropOverlay = document.getElementById('cropOverlay');
 
-        cropSelection.addEventListener('mousedown', (e) => {
-          if (e.target.classList.contains('crop-handle')) {
+        // Helper to get coordinates from mouse or touch event
+        function getEventCoords(e) {
+          if (e.touches && e.touches.length > 0) {
+            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+          }
+          return { x: e.clientX, y: e.clientY };
+        }
+
+        function handleCropStart(e) {
+          const target = e.target || (e.touches && e.touches[0] && document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY));
+          if (target && target.classList.contains('crop-handle')) {
             isResizing = true;
-            resizeHandle = e.target.className.split(' ')[1];
+            resizeHandle = target.className.split(' ')[1];
           } else {
             isDragging = true;
           }
-          dragStart = { x: e.clientX, y: e.clientY };
+          const coords = getEventCoords(e);
+          dragStart = { x: coords.x, y: coords.y };
           cropStart = { ...cropBox };
           e.preventDefault();
-        });
+        }
 
-        document.addEventListener('mousemove', (e) => {
+        function handleCropMove(e) {
           if (!isCropMode) return;
           if (isDragging) {
             handleCropDrag(e);
           } else if (isResizing) {
             handleCropResize(e);
           }
-        });
+        }
 
-        document.addEventListener('mouseup', () => {
+        function handleCropEnd() {
           isDragging = false;
           isResizing = false;
           resizeHandle = null;
-        });
+        }
+
+        // Mouse events
+        cropSelection.addEventListener('mousedown', handleCropStart);
+        document.addEventListener('mousemove', handleCropMove);
+        document.addEventListener('mouseup', handleCropEnd);
+
+        // Touch events for mobile
+        cropSelection.addEventListener('touchstart', handleCropStart, { passive: false });
+        document.addEventListener('touchmove', handleCropMove, { passive: false });
+        document.addEventListener('touchend', handleCropEnd);
 
         // Reset handler
         resetBtn.addEventListener('click', resetEditor);
@@ -2945,11 +3022,20 @@
         selection.style.height = cropBox.height + 'px';
       }
 
+      // Helper to get coordinates from mouse or touch event
+      function getCropEventCoords(e) {
+        if (e.touches && e.touches.length > 0) {
+          return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+        return { x: e.clientX, y: e.clientY };
+      }
+
       function handleCropDrag(e) {
         const canvasSize = getCanvasDisplaySize();
+        const coords = getCropEventCoords(e);
 
-        const dx = e.clientX - dragStart.x;
-        const dy = e.clientY - dragStart.y;
+        const dx = coords.x - dragStart.x;
+        const dy = coords.y - dragStart.y;
 
         cropBox.x = Math.max(0, Math.min(canvasSize.width - cropBox.width, cropStart.x + dx));
         cropBox.y = Math.max(0, Math.min(canvasSize.height - cropBox.height, cropStart.y + dy));
@@ -2959,9 +3045,10 @@
 
       function handleCropResize(e) {
         const canvasSize = getCanvasDisplaySize();
+        const coords = getCropEventCoords(e);
 
-        const dx = e.clientX - dragStart.x;
-        const dy = e.clientY - dragStart.y;
+        const dx = coords.x - dragStart.x;
+        const dy = coords.y - dragStart.y;
 
         let newX = cropStart.x;
         let newY = cropStart.y;
