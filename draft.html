@@ -3926,98 +3926,109 @@
           `<div class="photo-indicator${i === currentIndex ? ' active' : ''}" data-index="${i}"></div>`
         ).join('') : '';
 
-        card.innerHTML = `
-          <input type="checkbox" class="draft-select" ${isSelected ? 'checked' : ''} />
-          <div class="draft-photos">
-            ${photosHtml}
-            ${photos.length > 1 ? `
-              <button class="photo-nav prev" ${currentIndex === 0 ? 'style="display:none"' : ''}>‹</button>
-              <button class="photo-nav next" ${currentIndex === photos.length - 1 ? 'style="display:none"' : ''}>›</button>
-              <div class="photo-count">${currentIndex + 1} / ${photos.length}</div>
-              <div class="photo-indicators">${indicatorsHtml}</div>
-            ` : ''}
-            ${photos.length > 1 ? `<button class="delete-photo-btn" title="Remove this photo">×</button>` : ''}
-            <button class="add-photo-btn" title="Add more photos">+</button>
-            <button class="edit-photo-btn" title="Edit photo">✏️</button>
-          </div>
-          <div class="draft-content">
-            <div class="cv-suggestions" data-id="${draft.id}">
-              <div class="cv-suggestions-title">AI Suggestions</div>
-              <div class="cv-suggestions-list" data-id="${draft.id}"></div>
+        // Simplified view for submitted drafts
+        if (draft.submissionStatus === "success") {
+          card.innerHTML = `
+            <div class="draft-photos">
+              ${photosHtml}
+              ${photos.length > 1 ? `
+                <button class="photo-nav prev" ${currentIndex === 0 ? 'style="display:none"' : ''}>‹</button>
+                <button class="photo-nav next" ${currentIndex === photos.length - 1 ? 'style="display:none"' : ''}>›</button>
+                <div class="photo-count">${currentIndex + 1} / ${photos.length}</div>
+                <div class="photo-indicators">${indicatorsHtml}</div>
+              ` : ''}
             </div>
-            <div class="draft-field">
-              <div class="draft-field-row field-wrapper">
-                <span class="draft-field-icon">🔍</span>
-                <input
-                  type="text"
-                  class="taxon-input"
-                  data-id="${draft.id}"
-                  value="${draft.taxon}"
-                  placeholder="Species name"
-                  autocomplete="off"
-                />
-                <button class="btn-identify" data-id="${draft.id}" title="Get AI suggestions">🤖</button>
-                <div class="taxon-autocomplete-draft" data-id="${draft.id}"></div>
+            <div class="draft-content">
+              <div class="submission-status success" data-id="${draft.id}">
+                ✅ Submitted! <a href="${draft.observationUrl}" target="_blank" style="color: #155724; text-decoration: underline;">View on iNaturalist</a>
+              </div>
+              <div class="draft-actions">
+                <button class="btn-delete" data-id="${draft.id}">Delete</button>
               </div>
             </div>
-            <div class="draft-field">
-              <div class="draft-field-row">
-                <span class="draft-field-icon">📅</span>
-                <input
-                  type="datetime-local"
-                  class="date-input"
-                  data-id="${draft.id}"
-                  value="${draft.date}"
-                />
+          `;
+        } else {
+          card.innerHTML = `
+            <input type="checkbox" class="draft-select" ${isSelected ? 'checked' : ''} />
+            <div class="draft-photos">
+              ${photosHtml}
+              ${photos.length > 1 ? `
+                <button class="photo-nav prev" ${currentIndex === 0 ? 'style="display:none"' : ''}>‹</button>
+                <button class="photo-nav next" ${currentIndex === photos.length - 1 ? 'style="display:none"' : ''}>›</button>
+                <div class="photo-count">${currentIndex + 1} / ${photos.length}</div>
+                <div class="photo-indicators">${indicatorsHtml}</div>
+              ` : ''}
+              ${photos.length > 1 ? `<button class="delete-photo-btn" title="Remove this photo">×</button>` : ''}
+              <button class="add-photo-btn" title="Add more photos">+</button>
+              <button class="edit-photo-btn" title="Edit photo">✏️</button>
+            </div>
+            <div class="draft-content">
+              <div class="cv-suggestions" data-id="${draft.id}">
+                <div class="cv-suggestions-title">AI Suggestions</div>
+                <div class="cv-suggestions-list" data-id="${draft.id}"></div>
+              </div>
+              <div class="draft-field">
+                <div class="draft-field-row field-wrapper">
+                  <span class="draft-field-icon">🔍</span>
+                  <input
+                    type="text"
+                    class="taxon-input"
+                    data-id="${draft.id}"
+                    value="${draft.taxon}"
+                    placeholder="Species name"
+                    autocomplete="off"
+                  />
+                  <button class="btn-identify" data-id="${draft.id}" title="Get AI suggestions">🤖</button>
+                  <div class="taxon-autocomplete-draft" data-id="${draft.id}"></div>
+                </div>
+              </div>
+              <div class="draft-field">
+                <div class="draft-field-row">
+                  <span class="draft-field-icon">📅</span>
+                  <input
+                    type="datetime-local"
+                    class="date-input"
+                    data-id="${draft.id}"
+                    value="${draft.date}"
+                  />
+                </div>
+              </div>
+              <div class="draft-field">
+                <div class="draft-field-row field-wrapper">
+                  <span class="draft-field-icon">📍</span>
+                  <input
+                    type="text"
+                    class="location-input"
+                    data-id="${draft.id}"
+                    value="${draft.location || (draft.latitude && draft.longitude ? `${draft.latitude.toFixed(4)}, ${draft.longitude.toFixed(4)}` : '')}"
+                    placeholder="Location"
+                    autocomplete="off"
+                  />
+                  <div class="location-autocomplete-draft" data-id="${draft.id}"></div>
+                </div>
+              </div>
+              <div class="draft-field">
+                <div class="draft-field-row">
+                  <span class="draft-field-icon">📝</span>
+                  <textarea class="notes-input" data-id="${draft.id}" placeholder="Notes">${draft.notes}</textarea>
+                </div>
+              </div>
+              <div class="submission-status ${
+                draft.submissionStatus === "error" ? "error" : ""
+              }" data-id="${draft.id}">
+                ${
+                  draft.submissionStatus === "error"
+                    ? "❌ Failed to submit observation"
+                    : ""
+                }
+              </div>
+              <div class="draft-actions">
+                <button class="btn-submit" data-id="${draft.id}">Submit</button>
+                <button class="btn-delete" data-id="${draft.id}">Delete</button>
               </div>
             </div>
-            <div class="draft-field">
-              <div class="draft-field-row field-wrapper">
-                <span class="draft-field-icon">📍</span>
-                <input
-                  type="text"
-                  class="location-input"
-                  data-id="${draft.id}"
-                  value="${draft.location || (draft.latitude && draft.longitude ? `${draft.latitude.toFixed(4)}, ${draft.longitude.toFixed(4)}` : '')}"
-                  placeholder="Location"
-                  autocomplete="off"
-                />
-                <div class="location-autocomplete-draft" data-id="${draft.id}"></div>
-              </div>
-            </div>
-            <div class="draft-field">
-              <div class="draft-field-row">
-                <span class="draft-field-icon">📝</span>
-                <textarea class="notes-input" data-id="${draft.id}" placeholder="Notes">${draft.notes}</textarea>
-              </div>
-            </div>
-            <div class="submission-status ${
-              draft.submissionStatus === "success"
-                ? "success"
-                : draft.submissionStatus === "error"
-                ? "error"
-                : ""
-            }" data-id="${draft.id}">
-              ${
-                draft.submissionStatus === "success" && draft.observationUrl
-                  ? `✅ Observation submitted! <a href="${draft.observationUrl}" target="_blank" style="color: #155724; text-decoration: underline;">View on iNaturalist</a>`
-                  : draft.submissionStatus === "success"
-                  ? "✅ Observation submitted successfully!"
-                  : draft.submissionStatus === "error"
-                  ? "❌ Failed to submit observation"
-                  : ""
-              }
-            </div>
-            <div class="draft-actions">
-              <button class="btn-submit" data-id="${draft.id}" ${
-          draft.submissionStatus === "success" ? 'disabled' : ''
-        }>${
-          draft.submissionStatus === "success" ? "✓ Submitted" : "Submit"
-        }</button>
-              <button class="btn-delete" data-id="${draft.id}">Delete</button>
-            </div>
-          </div>
-        `;
+          `;
+        }
 
         // Add event listeners
         attachDraftEventListeners(card, draft);
@@ -4032,6 +4043,55 @@
 
       // Attach event listeners to draft card
       function attachDraftEventListeners(card, draft) {
+        // For submitted drafts, only attach delete and photo nav listeners
+        if (draft.submissionStatus === "success") {
+          // Delete button
+          const deleteBtn = card.querySelector(".btn-delete");
+          deleteBtn.addEventListener("click", () => {
+            if (confirm("Delete this submitted observation from drafts?")) {
+              deleteDraft(draft.id);
+            }
+          });
+
+          // Photo navigation for submitted drafts
+          const prevBtn = card.querySelector('.photo-nav.prev');
+          const nextBtn = card.querySelector('.photo-nav.next');
+          const indicators = card.querySelectorAll('.photo-indicator');
+
+          function goToPhoto(index) {
+            const photos = draft.photos || [];
+            if (index < 0 || index >= photos.length) return;
+
+            draft.currentPhotoIndex = index;
+
+            // Update active photo
+            card.querySelectorAll('.draft-photos img').forEach((img, i) => {
+              img.classList.toggle('active', i === index);
+            });
+
+            // Update indicators
+            indicators.forEach((ind, i) => {
+              ind.classList.toggle('active', i === index);
+            });
+
+            // Update nav buttons
+            if (prevBtn) prevBtn.style.display = index === 0 ? 'none' : '';
+            if (nextBtn) nextBtn.style.display = index === photos.length - 1 ? 'none' : '';
+
+            // Update count
+            const countEl = card.querySelector('.photo-count');
+            if (countEl) countEl.textContent = `${index + 1} / ${photos.length}`;
+          }
+
+          if (prevBtn) prevBtn.addEventListener('click', () => goToPhoto((draft.currentPhotoIndex || 0) - 1));
+          if (nextBtn) nextBtn.addEventListener('click', () => goToPhoto((draft.currentPhotoIndex || 0) + 1));
+          indicators.forEach((ind, i) => {
+            ind.addEventListener('click', () => goToPhoto(i));
+          });
+
+          return; // Don't attach other listeners for submitted drafts
+        }
+
         // Selection checkbox
         const selectCheckbox = card.querySelector('.draft-select');
 
@@ -4680,15 +4740,17 @@
           // Success - observation was created
           const observationUrl = `https://www.inaturalist.org/observations/${observationId}`;
 
-          statusEl.className = "submission-status success";
-          statusEl.innerHTML = `✅ Observation submitted! <a href="${observationUrl}" target="_blank" style="color: #155724; text-decoration: underline;">View on iNaturalist</a>`;
+          // Update draft to only keep essential info
+          const updatedDraft = {
+            id: draft.id,
+            photos: draft.photos,
+            currentPhotoIndex: draft.currentPhotoIndex || 0,
+            observationUrl: observationUrl,
+            submissionStatus: "success"
+          };
 
-          submitBtn.textContent = "✓ Submitted";
-
-          // Delete draft from cache after a short delay so user can see success message
-          setTimeout(() => {
-            deleteDraft(id);
-          }, 2000);
+          await saveDraft(updatedDraft);
+          renderDrafts();
 
         } catch (error) {
           console.error("Error submitting observation:", error);
