@@ -78,6 +78,31 @@ body.dark-mode button:disabled {
   color: #888;
 }
 
+/* Merge toolbar buttons - keep visible on green background */
+body.dark-mode .merge-btn {
+  background: white;
+  color: #74ac00;
+}
+
+body.dark-mode .merge-btn:hover {
+  background: #f0f0f0;
+}
+
+body.dark-mode .merge-btn:disabled {
+  background: #ccc;
+  color: #888;
+}
+
+body.dark-mode .cancel-merge-btn {
+  background: transparent;
+  color: white;
+  border-color: white;
+}
+
+body.dark-mode .cancel-merge-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 /* Card styles */
 body.dark-mode .summary-card,
 body.dark-mode .stats-card,
