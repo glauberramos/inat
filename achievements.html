@@ -1153,7 +1153,10 @@
         dates.forEach((dateStr) => {
           const date = new Date(dateStr);
           const monthDay = `${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
-          uniqueCalendarDays.add(monthDay);
+          // Ignore February 29 (leap day)
+          if (monthDay !== '02-29') {
+            uniqueCalendarDays.add(monthDay);
+          }
         });
 
         return {
