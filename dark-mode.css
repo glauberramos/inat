@@ -716,3 +716,8 @@ body.dark-mode #observedStatesList {
 body.dark-mode #observedStatesList a {
   color: #8bc34a;
 }
+
+/* Checkbox label */
+body.dark-mode .checkbox-label {
+  color: #aaa;
+}

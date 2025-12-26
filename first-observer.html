@@ -83,6 +83,21 @@
         outline: none;
         border-color: #74ac00;
       }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: #555;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .checkbox-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #74ac00;
+        cursor: pointer;
+      }
       .autocomplete {
         position: absolute;
         top: 100%;
@@ -408,6 +423,10 @@
         />
         <div class="autocomplete" id="placeAutocomplete"></div>
       </div>
+      <label class="checkbox-label">
+        <input type="checkbox" id="useCreatedAt" />
+        Use date added
+      </label>
       <button id="searchBtn" onclick="startSearch()">Search</button>
     </div>
 
@@ -672,7 +691,8 @@
         username,
         taxaMap,
         onFirstFound,
-        onProgress
+        onProgress,
+        useCreatedAt = false
       ) {
         const PARALLEL_REQUESTS = 3;
         const BATCH_SIZE = 200;
@@ -715,7 +735,8 @@
           const results = await Promise.all(
             activeBatches.map(async (batch, index) => {
               const batchIds = Array.from(batch.keys());
-              let url = `${API_BASE}/observations?taxon_id=${batchIds.join(",")}&per_page=200&order_by=observed_on&order=asc&verifiable=true`;
+              const orderBy = useCreatedAt ? 'created_at' : 'observed_on';
+              let url = `${API_BASE}/observations?taxon_id=${batchIds.join(",")}&per_page=200&order_by=${orderBy}&order=asc&verifiable=true`;
               if (selectedPlaceId) {
                 url += `&place_id=${selectedPlaceId}`;
               }
@@ -750,7 +771,7 @@
                     foundFirstObs.set(batchTaxonId, {
                       isFirst,
                       observationId: obs.id,
-                      observedOn: obs.observed_on,
+                      observedOn: useCreatedAt ? obs.created_at : obs.observed_on,
                       imageUrl: obs.photos?.[0]?.url?.replace("square", "small"),
                       firstObserver: obs.user?.login,
                     });
@@ -859,6 +880,7 @@
         document.getElementById("speciesList").innerHTML = "";
         updateResultsCount(0);
 
+        const useCreatedAt = document.getElementById("useCreatedAt").checked;
         let firstObserverCount = 0;
 
         try {
@@ -916,7 +938,8 @@
                 `Checking first observers: ${checked}/${total} taxa (${apiCalls} batches, ${firstObserverCount} found)`,
                 ""
               );
-            }
+            },
+            useCreatedAt
           );
 
           // Step 5: Finalize
