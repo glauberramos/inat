@@ -199,6 +199,18 @@
         font-weight: bold;
         color: #74ac00;
       }
+      .download-btn {
+        padding: 8px 16px;
+        background: #74ac00;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .download-btn:hover {
+        background: #5d8a00;
+      }
       .species-list {
         list-style: none;
         padding: 0;
@@ -443,6 +455,7 @@
     <div class="results-container" id="results">
       <div class="results-header">
         <span class="results-count" id="resultsCount"></span>
+        <button id="downloadBtn" class="download-btn" style="display: none;" onclick="downloadCSV()">Download CSV</button>
       </div>
       <ul class="species-list" id="speciesList"></ul>
     </div>
@@ -457,6 +470,7 @@
       let placeSearchTimeout = null;
       let selectedPlaceId = null;
       let selectedPlaceName = null;
+      let firstObserverResults = [];
 
       const usernameInput = document.getElementById("username");
       const autocompleteEl = document.getElementById("autocomplete");
@@ -828,6 +842,9 @@
       }
 
       function addResultItem(sp) {
+        // Store result for CSV export
+        firstObserverResults.push(sp);
+
         const listEl = document.getElementById("speciesList");
         const li = document.createElement("li");
         li.className = "species-item";
@@ -858,6 +875,32 @@
         }
       }
 
+      function downloadCSV() {
+        if (firstObserverResults.length === 0) return;
+
+        const headers = ["Common Name", "Scientific Name", "Rank", "Date", "Observation URL", "Total Observations"];
+        const rows = firstObserverResults.map(sp => [
+          `"${(sp.commonName || '').replace(/"/g, '""')}"`,
+          `"${(sp.taxonName || '').replace(/"/g, '""')}"`,
+          sp.rank || '',
+          sp.observedOn || '',
+          `https://www.inaturalist.org/observations/${sp.observationId}`,
+          sp.totalObservations || 0
+        ]);
+
+        const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        const username = document.getElementById("username").value.trim();
+        const useCreatedAt = document.getElementById("useCreatedAt").checked;
+        const suffix = useCreatedAt ? '-added' : '';
+        link.setAttribute('download', `first-observer-${username}${suffix}.csv`);
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+
       async function startSearch() {
         if (isSearching) return;
 
@@ -879,6 +922,8 @@
         document.getElementById("results").style.display = "block";
         document.getElementById("speciesList").innerHTML = "";
         updateResultsCount(0);
+        firstObserverResults = [];
+        document.getElementById("downloadBtn").style.display = "none";
 
         const useCreatedAt = document.getElementById("useCreatedAt").checked;
         let firstObserverCount = 0;
@@ -945,6 +990,9 @@
           // Step 5: Finalize
           document.getElementById("progress").style.display = "none";
           showNoResults();
+          if (firstObserverResults.length > 0) {
+            document.getElementById("downloadBtn").style.display = "block";
+          }
         } catch (error) {
           showError("Error: " + error.message);
           document.getElementById("progress").style.display = "none";
