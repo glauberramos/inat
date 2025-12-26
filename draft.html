@@ -2097,20 +2097,24 @@
             <div class="editor-section">
               <div class="editor-section-title">Adjustments</div>
               <div class="editor-control">
-                <label>Brightness <span id="brightnessValue">0</span></label>
-                <input type="range" id="brightnessSlider" min="-100" max="100" value="0" />
+                <label>Exposure <span id="exposureValue">0</span></label>
+                <input type="range" id="exposureSlider" min="-100" max="100" value="0" />
               </div>
               <div class="editor-control">
                 <label>Contrast <span id="contrastValue">0</span></label>
                 <input type="range" id="contrastSlider" min="-100" max="100" value="0" />
               </div>
               <div class="editor-control">
-                <label>Exposure <span id="exposureValue">0</span></label>
-                <input type="range" id="exposureSlider" min="-100" max="100" value="0" />
+                <label>Highlights <span id="highlightsValue">0</span></label>
+                <input type="range" id="highlightsSlider" min="-100" max="100" value="0" />
               </div>
               <div class="editor-control">
                 <label>Shadows <span id="shadowsValue">0</span></label>
                 <input type="range" id="shadowsSlider" min="-100" max="100" value="0" />
+              </div>
+              <div class="editor-control">
+                <label>Temperature <span id="temperatureValue">0</span></label>
+                <input type="range" id="temperatureSlider" min="-100" max="100" value="0" />
               </div>
               <div class="editor-control">
                 <label>Saturation <span id="saturationValue">0</span></label>
@@ -2725,10 +2729,11 @@
       let currentPhotoIndex = 0;
       let editorRotation = 0;
       let editorSettings = {
-        brightness: 0,
-        contrast: 0,
         exposure: 0,
+        contrast: 0,
+        highlights: 0,
         shadows: 0,
+        temperature: 0,
         saturation: 0
       };
 
@@ -2773,7 +2778,7 @@
         });
 
         // Slider handlers
-        const sliders = ['brightness', 'contrast', 'exposure', 'shadows', 'saturation'];
+        const sliders = ['exposure', 'contrast', 'highlights', 'shadows', 'temperature', 'saturation'];
         sliders.forEach(name => {
           const slider = document.getElementById(`${name}Slider`);
           const valueEl = document.getElementById(`${name}Value`);
@@ -2892,15 +2897,16 @@
       function resetEditorSettings() {
         editorRotation = 0;
         editorSettings = {
-          brightness: 0,
-          contrast: 0,
           exposure: 0,
+          contrast: 0,
+          highlights: 0,
           shadows: 0,
+          temperature: 0,
           saturation: 0
         };
 
         // Reset sliders
-        const sliders = ['brightness', 'contrast', 'exposure', 'shadows', 'saturation'];
+        const sliders = ['exposure', 'contrast', 'highlights', 'shadows', 'temperature', 'saturation'];
         sliders.forEach(name => {
           document.getElementById(`${name}Slider`).value = 0;
           document.getElementById(`${name}Value`).textContent = '0';
@@ -2936,10 +2942,11 @@
         const imageData = editorCtx.getImageData(0, 0, width, height);
         const data = imageData.data;
 
-        const brightness = editorSettings.brightness / 100;
-        const contrast = (editorSettings.contrast / 100) + 1;
         const exposure = editorSettings.exposure / 50;
+        const contrast = (editorSettings.contrast / 100) + 1;
+        const highlights = editorSettings.highlights / 100;
         const shadows = editorSettings.shadows / 100;
+        const temperature = editorSettings.temperature / 100;
         const saturation = (editorSettings.saturation / 100) + 1;
 
         for (let i = 0; i < data.length; i += 4) {
@@ -2952,10 +2959,9 @@
           g *= Math.pow(2, exposure);
           b *= Math.pow(2, exposure);
 
-          // Brightness
-          r += brightness * 255;
-          g += brightness * 255;
-          b += brightness * 255;
+          // Temperature (warm/cool shift)
+          r += temperature * 30;
+          b -= temperature * 30;
 
           // Contrast
           r = ((r / 255 - 0.5) * contrast + 0.5) * 255;
@@ -2969,6 +2975,14 @@
             r += shadowFactor * 50;
             g += shadowFactor * 50;
             b += shadowFactor * 50;
+          }
+
+          // Highlights (adjust bright areas)
+          if (luminance > 128) {
+            const highlightFactor = ((luminance - 128) / 127) * highlights;
+            r -= highlightFactor * 50;
+            g -= highlightFactor * 50;
+            b -= highlightFactor * 50;
           }
 
           // Saturation
