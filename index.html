@@ -64,18 +64,16 @@
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Oxygen, Ubuntu, Cantarell, sans-serif;
         line-height: 1.6;
-        background: white;
+        background: #f8f9fa;
         min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         color: #333;
-        padding: 20px;
+        padding: 40px 20px;
       }
 
       .container {
-        max-width: 1000px;
+        max-width: 1100px;
         width: 100%;
+        margin: 0 auto;
       }
 
       header {
@@ -88,132 +86,140 @@
         align-items: center;
         justify-content: center;
         flex-direction: column;
-        gap: 20px;
+        gap: 16px;
         margin-bottom: 15px;
       }
 
       .title-container {
         display: flex;
         align-items: center;
-        gap: 20px;
+        gap: 16px;
         justify-content: center;
       }
 
       .logo {
-        width: 80px;
-        height: 80px;
+        width: 64px;
+        height: 64px;
         object-fit: contain;
       }
 
       h1 {
-        font-size: 3rem;
+        font-size: 2.5rem;
         color: #2c3e50;
         margin: 0;
+        font-weight: 700;
       }
 
       .description {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         color: #666;
       }
 
       .tools-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         gap: 20px;
-        margin-top: 40px;
-        max-width: 1100px;
-        margin-left: auto;
-        margin-right: auto;
       }
 
       .tool-card {
         background: white;
         border-radius: 12px;
-        padding: 20px 15px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e0e0e0;
-        transition: transform 0.3s, box-shadow 0.3s;
-        text-align: center;
+        padding: 24px 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e8e8e8;
+        border-left: 3px solid #74ac00;
+        transition: all 0.2s ease;
         text-decoration: none;
         color: inherit;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        gap: 6px;
+        gap: 12px;
       }
 
       .tool-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        border-left-color: #5d8a00;
       }
 
       .tool-icon {
-        font-size: 2.5rem;
-        margin-bottom: 5px;
+        font-size: 2.2rem;
+        line-height: 1;
       }
 
       .tool-card h2 {
-        font-size: 1.4rem;
+        font-size: 1.1rem;
         color: #2c3e50;
         margin: 0;
+        font-weight: 600;
       }
 
       .tool-card p {
-        color: #666;
-        font-size: 0.9rem;
-        line-height: 1.4;
+        color: #777;
+        font-size: 0.875rem;
+        line-height: 1.5;
         margin: 0;
       }
 
+      @media (max-width: 1024px) {
+        .tools-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
       @media (max-width: 768px) {
+        body {
+          padding: 24px 16px;
+        }
+
         h1 {
           font-size: 2rem;
         }
 
         .logo {
-          width: 60px;
-          height: 60px;
+          width: 52px;
+          height: 52px;
         }
 
         .tools-grid {
           grid-template-columns: repeat(2, 1fr);
-          gap: 15px;
+          gap: 16px;
         }
 
         .tool-card {
-          padding: 20px 15px;
+          padding: 20px 16px;
         }
 
         .tool-card h2 {
-          font-size: 1.2rem;
+          font-size: 1rem;
         }
 
         .tool-card p {
-          font-size: 0.85rem;
+          font-size: 0.8rem;
         }
 
         header {
-          margin-bottom: 30px;
+          margin-bottom: 32px;
         }
       }
 
       @media (max-width: 480px) {
         body {
-          padding: 15px;
+          padding: 20px 12px;
         }
 
         .title-container {
           flex-direction: column;
-          gap: 10px;
+          gap: 12px;
         }
 
         h1 {
-          font-size: 1.6rem;
+          font-size: 1.75rem;
         }
 
         .logo {
-          width: 50px;
-          height: 50px;
+          width: 48px;
+          height: 48px;
         }
 
         .description {
@@ -226,17 +232,28 @@
         }
 
         .tool-card {
-          padding: 20px;
+          flex-direction: row;
+          align-items: center;
+          padding: 16px;
+          gap: 16px;
         }
 
         .tool-icon {
-          font-size: 2rem;
+          font-size: 1.8rem;
+          min-width: 32px;
+        }
+
+        .tool-content {
+          flex: 1;
         }
 
         .tool-card h2 {
-          font-size: 1.1rem;
+          font-size: 1rem;
         }
 
+        .tool-card p {
+          font-size: 0.8rem;
+        }
       }
 
       /* Hide default pipeback widget */
@@ -288,68 +305,90 @@
         <div class="tools-grid">
           <a href="/inat/profile" class="tool-card">
             <div class="tool-icon">👤</div>
-            <h2>User Profile</h2>
-            <p>View detailed stats, endemic species, and observation quality</p>
+            <div class="tool-content">
+              <h2>User Profile</h2>
+              <p>View detailed stats, endemic species, and observation quality</p>
+            </div>
           </a>
 
           <a href="/inat/achievements" class="tool-card">
             <div class="tool-icon">🏆</div>
-            <h2>Achievements</h2>
-            <p>Track your milestones and badges</p>
+            <div class="tool-content">
+              <h2>Achievements</h2>
+              <p>Track your milestones and badges</p>
+            </div>
           </a>
 
           <a href="/inat/lifelist" class="tool-card">
             <div class="tool-icon">📅</div>
-            <h2>Lifelist Timeline</h2>
-            <p>View your species sorted by when you first observed each one</p>
+            <div class="tool-content">
+              <h2>Lifelist Timeline</h2>
+              <p>View species sorted by first observation date</p>
+            </div>
           </a>
 
           <a href="/inat/speciesdex" class="tool-card">
             <div class="tool-icon">📚</div>
-            <h2>SpeciesDex</h2>
-            <p>Build your personal field guide</p>
+            <div class="tool-content">
+              <h2>SpeciesDex</h2>
+              <p>Build your personal field guide</p>
+            </div>
           </a>
 
           <a href="/inat/species-observed" class="tool-card">
             <div class="tool-icon">📊</div>
-            <h2>Species Observed</h2>
-            <p>Browse and filter all species you've observed</p>
+            <div class="tool-content">
+              <h2>Species Observed</h2>
+              <p>Browse and filter all species you've observed</p>
+            </div>
           </a>
 
           <a href="/inat/species-identified" class="tool-card">
             <div class="tool-icon">🔬</div>
-            <h2>Species Identified</h2>
-            <p>Browse and filter all species you've identified for others</p>
+            <div class="tool-content">
+              <h2>Species Identified</h2>
+              <p>Browse species you've identified for others</p>
+            </div>
           </a>
 
           <a href="/inat/first-observer" class="tool-card">
             <div class="tool-icon">🥇</div>
-            <h2>First Observer</h2>
-            <p>Find species you were the first to ever record on iNaturalist</p>
+            <div class="tool-content">
+              <h2>First Observer</h2>
+              <p>Species you were first to record on iNaturalist</p>
+            </div>
           </a>
 
           <a href="/inat/first-identifier" class="tool-card">
             <div class="tool-icon">🏅</div>
-            <h2>First Identifier</h2>
-            <p>Find species you were the first to ever identify on iNaturalist</p>
+            <div class="tool-content">
+              <h2>First Identifier</h2>
+              <p>Species you were first to identify on iNaturalist</p>
+            </div>
           </a>
 
           <a href="/inat/draft" class="tool-card">
             <div class="tool-icon">📝</div>
-            <h2>Draft Observations</h2>
-            <p>Create drafts, edit images, and submit. Beta.</p>
+            <div class="tool-content">
+              <h2>Draft Observations</h2>
+              <p>Create drafts, edit images, and submit. Beta.</p>
+            </div>
           </a>
 
           <a href="/inat/us-states" class="tool-card">
             <div class="tool-icon">🗺️</div>
-            <h2>US States</h2>
-            <p>Track your observations across all 50 US states</p>
+            <div class="tool-content">
+              <h2>US States</h2>
+              <p>Track observations across all 50 US states</p>
+            </div>
           </a>
 
           <a href="/inat/project-search" class="tool-card">
             <div class="tool-icon">🔍</div>
-            <h2>Project Search</h2>
-            <p>Search for projects by name and location</p>
+            <div class="tool-content">
+              <h2>Project Search</h2>
+              <p>Search for projects by name and location</p>
+            </div>
           </a>
         </div>
       </main>
