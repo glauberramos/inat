@@ -416,9 +416,9 @@
         </div>
       </main>
     </div>
+    <script src="location-autocomplete.js"></script>
     <script>
       let selectedLocation = null;
-      let searchTimeout = null;
       let currentPage = 1;
       let totalPages = 1;
       let totalResults = 0;
@@ -441,96 +441,31 @@
       const prevPageBtn = document.getElementById("prevPage");
       const nextPageBtn = document.getElementById("nextPage");
 
-      // Load saved place from localStorage (shared with SpeciesDex)
-      const savedPlaceId = localStorage.getItem("inatPlaceId");
-      const savedPlaceName = localStorage.getItem("inatPlaceName");
-      if (savedPlaceId && savedPlaceName) {
-        selectedLocation = {
-          id: savedPlaceId,
-          name: savedPlaceName,
-        };
-        locationInput.value = savedPlaceName;
-      }
-
-      // Search for locations using iNaturalist autocomplete
-      locationInput.addEventListener("input", (e) => {
-        clearTimeout(searchTimeout);
-        const query = e.target.value.trim();
-
-        if (query.length < 2) {
-          locationAutocomplete.innerHTML = "";
-          locationAutocomplete.style.display = "none";
-
-          // Clear location from cache if input is empty
-          if (query.length === 0) {
+      // Initialize location autocomplete
+      const locationAutocompleteInstance = initLocationAutocomplete(
+        locationInput,
+        locationAutocomplete,
+        null,
+        {
+          persistToStorage: true,
+          loadFromStorage: true,
+          suggestionClass: 'autocomplete-item',
+          nameClass: 'autocomplete-name',
+          infoClass: 'autocomplete-info',
+          onSelect: function(place) {
+            selectedLocation = { id: place.id, name: place.name };
+          },
+          onClear: function() {
             selectedLocation = null;
-            localStorage.removeItem("inatPlaceId");
-            localStorage.removeItem("inatPlaceName");
           }
-          return;
         }
+      );
 
-        searchTimeout = setTimeout(async () => {
-          try {
-            const response = await fetch(
-              `https://api.inaturalist.org/v1/places/autocomplete?q=${encodeURIComponent(
-                query
-              )}`
-            );
-            const data = await response.json();
-
-            if (data.results && data.results.length > 0) {
-              locationAutocomplete.innerHTML = data.results
-                .slice(0, 10)
-                .map(
-                  (place) => `
-                  <div class="autocomplete-item" data-id="${place.id}" data-lat="${place.location}" data-name="${place.display_name}">
-                    ${place.display_name}
-                  </div>
-                `
-                )
-                .join("");
-              locationAutocomplete.style.display = "block";
-
-              // Add click handlers to autocomplete items
-              document
-                .querySelectorAll(".autocomplete-item")
-                .forEach((item) => {
-                  item.addEventListener("click", () => {
-                    selectedLocation = {
-                      id: item.dataset.id,
-                      name: item.dataset.name,
-                    };
-                    locationInput.value = item.dataset.name;
-                    locationAutocomplete.innerHTML = "";
-                    locationAutocomplete.style.display = "none";
-
-                    // Save place to localStorage (shared with SpeciesDex)
-                    localStorage.setItem("inatPlaceId", item.dataset.id);
-                    localStorage.setItem("inatPlaceName", item.dataset.name);
-                  });
-                });
-            } else {
-              locationAutocomplete.innerHTML = "";
-              locationAutocomplete.style.display = "none";
-            }
-          } catch (error) {
-            console.error("Error fetching locations:", error);
-            locationAutocomplete.innerHTML = "";
-            locationAutocomplete.style.display = "none";
-          }
-        }, 300);
-      });
-
-      // Hide autocomplete when clicking outside
-      document.addEventListener("click", (e) => {
-        if (
-          !locationInput.contains(e.target) &&
-          !locationAutocomplete.contains(e.target)
-        ) {
-          locationAutocomplete.style.display = "none";
-        }
-      });
+      // Initialize selectedLocation from saved place
+      const savedPlace = locationAutocompleteInstance.getSelectedPlace();
+      if (savedPlace) {
+        selectedLocation = { id: savedPlace.id, name: savedPlace.name };
+      }
 
       // Fetch projects for a specific page
       async function fetchProjects(page = 1) {
