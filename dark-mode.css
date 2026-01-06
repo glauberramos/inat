@@ -722,3 +722,104 @@ body.dark-mode .checkbox-label {
   color: #aaa;
 }
 
+/* Species Compare page */
+body.dark-mode .results-column {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .column-header {
+  border-bottom-color: #444;
+}
+
+body.dark-mode .column-header.place-a {
+  background: #1a3d1a;
+  color: #6fbf6f;
+}
+
+body.dark-mode .column-header.shared {
+  background: #3d2a1a;
+  color: #e6a060;
+}
+
+body.dark-mode .column-header.place-b {
+  background: #1a2a3d;
+  color: #6fa0d0;
+}
+
+body.dark-mode .species-list {
+  background: #2d2d2d;
+}
+
+body.dark-mode .species-item:hover {
+  background: #3d3d3d;
+}
+
+body.dark-mode .species-common {
+  color: #e0e0e0;
+}
+
+body.dark-mode .species-count {
+  color: #aaa;
+}
+
+body.dark-mode .stat-box {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .stat-box .stat-number {
+  color: #e0e0e0;
+}
+
+body.dark-mode .stat-box.place-a .stat-number {
+  color: #6fbf6f;
+}
+
+body.dark-mode .stat-box.shared .stat-number {
+  color: #e6a060;
+}
+
+body.dark-mode .stat-box.place-b .stat-number {
+  color: #6fa0d0;
+}
+
+body.dark-mode .stat-box .stat-label {
+  color: #aaa;
+}
+
+body.dark-mode .vs-divider {
+  color: #74ac00;
+}
+
+body.dark-mode .species-item .placeholder {
+  background: #3d3d3d;
+  color: #888;
+}
+
+body.dark-mode .taxon-select,
+body.dark-mode .limit-select {
+  background: #3d3d3d !important;
+  border-color: #555 !important;
+  color: #e0e0e0;
+}
+
+body.dark-mode .taxon-select option,
+body.dark-mode .limit-select option {
+  background: #3d3d3d;
+  color: #e0e0e0;
+}
+
+body.dark-mode .species-item.user-observed {
+  background: rgba(116, 172, 0, 0.15);
+  border-left-color: #74ac00;
+}
+
+body.dark-mode .species-item.user-observed:hover {
+  background: rgba(116, 172, 0, 0.25);
+}
+
+body.dark-mode .observed-check {
+  color: #8bc34a;
+}
+

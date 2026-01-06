@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Species Compare - Compare Species Between Two Locations</title>
+    <link rel="icon" href="favicon.ico" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#74ac00" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="logo.png" />
+    <link
+      rel="canonical"
+      href="https://glauberramos.github.io/inat/species-compare.html"
+    />
+    <meta
+      name="description"
+      content="Compare species lists between two locations on iNaturalist. Discover which species are unique to each location and which are shared."
+    />
+    <meta
+      name="keywords"
+      content="iNaturalist species comparison, location species, biodiversity comparison, species distribution"
+    />
+    <meta
+      property="og:title"
+      content="Species Compare - Compare Species Between Locations"
+    />
+    <meta
+      property="og:description"
+      content="Compare species lists between two locations on iNaturalist."
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content="https://glauberramos.github.io/inat/species-compare.html"
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Species Compare - iNaturalist" />
+    <meta name="twitter:description" content="Compare species lists between two locations on iNaturalist." />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Glauber Ramos" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Species Compare",
+      "description": "Compare species lists between two locations on iNaturalist.",
+      "url": "https://glauberramos.github.io/inat/species-compare.html",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "author": {
+        "@type": "Person",
+        "name": "Glauber Ramos"
+      }
+    }
+    </script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="dark-mode.css" />
+    <style>
+      .search-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .search-row {
+        display: flex;
+        gap: 20px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .location-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .location-group label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 14px;
+      }
+
+      .location-group .username-search-container {
+        width: 280px;
+      }
+
+      .vs-divider {
+        font-size: 24px;
+        font-weight: bold;
+        color: #74ac00;
+        padding: 0 10px;
+      }
+
+      .results-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .results-column {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        overflow: hidden;
+      }
+
+      .column-header {
+        padding: 15px 20px;
+        font-weight: 600;
+        font-size: 16px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .column-header.place-a {
+        background: #e8f5e9;
+        color: #2e7d32;
+      }
+
+      .column-header.shared {
+        background: #fff3e0;
+        color: #e65100;
+      }
+
+      .column-header.place-b {
+        background: #e3f2fd;
+        color: #1565c0;
+      }
+
+      .column-header .count {
+        font-weight: normal;
+        font-size: 14px;
+        opacity: 0.8;
+      }
+
+      .species-list {
+        max-height: 600px;
+        overflow-y: auto;
+        padding: 10px;
+      }
+
+      .species-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        border-radius: 6px;
+        transition: background 0.2s;
+      }
+
+      .species-item:hover {
+        background: #f5f5f5;
+      }
+
+      .species-item.user-observed {
+        background: rgba(116, 172, 0, 0.1);
+        border-left: 3px solid #74ac00;
+      }
+
+      .species-item.user-observed:hover {
+        background: rgba(116, 172, 0, 0.2);
+      }
+
+      .observed-check {
+        color: #74ac00;
+        font-weight: bold;
+        display: inline;
+        position: static;
+        margin-right: 4px;
+      }
+
+      .species-item img {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        object-fit: cover;
+      }
+
+      .species-item .placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        background: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+      }
+
+      .species-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .species-common {
+        font-weight: 500;
+        color: #2c3e50;
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .species-scientific {
+        font-style: italic;
+        color: #666;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .species-count {
+        font-size: 12px;
+        color: #888;
+        text-align: right;
+      }
+
+      .summary-stats {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .stat-box {
+        text-align: center;
+        padding: 15px 25px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+      }
+
+      .stat-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      .stat-label {
+        font-size: 13px;
+        color: #666;
+        margin-top: 4px;
+      }
+
+      .stat-box.place-a .stat-number { color: #2e7d32; }
+      .stat-box.shared .stat-number { color: #e65100; }
+      .stat-box.place-b .stat-number { color: #1565c0; }
+
+      .error-message {
+        background: #ffebee;
+        color: #c62828;
+        padding: 12px;
+        border-radius: 4px;
+        margin: 16px 0;
+        display: none;
+      }
+
+      .error-message.show {
+        display: block;
+      }
+
+      @media (max-width: 1024px) {
+        .results-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .species-list {
+          max-height: 400px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .search-row {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .location-group .username-search-container {
+          width: 100%;
+          max-width: 300px;
+        }
+
+        .vs-divider {
+          padding: 10px 0;
+        }
+
+        .summary-stats {
+          gap: 15px;
+        }
+
+        .stat-box {
+          padding: 12px 20px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding-top: 60px;
+        }
+
+        .back-button {
+          font-size: 0.8rem !important;
+          padding: 8px 12px !important;
+          top: 10px !important;
+          left: 10px !important;
+        }
+      }
+
+      /* Hide default pipeback widget */
+      #pipeback-widget-container,
+      .pipeback-launcher-frame {
+        display: none !important;
+      }
+
+      /* Custom feedback button */
+      .feedback-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #74ac00;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: 999;
+        transition: all 0.3s;
+      }
+
+      .feedback-button:hover {
+        background: #5d8a00;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      }
+    </style>
+  </head>
+  <body>
+    <a
+      href="/inat"
+      class="back-button"
+      style="
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: #74ac00;
+        color: white;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 10px 16px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s;
+      "
+      onmouseover="this.style.background='#659900'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.2)'"
+      onmouseout="this.style.background='#74ac00'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.15)'"
+    >
+      <span style="font-size: 1rem">&larr;</span> More iNat tools
+    </a>
+    <div class="container">
+      <header>
+        <div class="header-content">
+          <div class="title-container">
+            <img src="logo.png" alt="iNaturalist Logo" class="logo" />
+            <h1>Species Compare</h1>
+          </div>
+          <p class="description">Compare species lists between two locations</p>
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+      </header>
+
+      <main>
+        <div class="search-card">
+          <div class="search-row">
+            <div class="location-group">
+              <label for="taxonSelect">Taxon</label>
+              <select id="taxonSelect" class="taxon-select" style="padding: 10px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; background: white; cursor: pointer; width: 180px;">
+                <option value="" selected>All Species</option>
+                <option value="1">Animals</option>
+                <option value="355675">Vertebrates</option>
+                <option value="3">Birds</option>
+                <option value="40151">Mammals</option>
+                <option value="26036">Reptiles</option>
+                <option value="20978">Amphibians</option>
+                <option value="47178">Fish</option>
+                <option value="47158">Insects</option>
+                <option value="47157">Butterflies and Moths</option>
+                <option value="47208">Beetles</option>
+                <option value="47119">Arachnids</option>
+                <option value="47115">Mollusks</option>
+                <option value="47126">Plants</option>
+                <option value="47170">Fungi</option>
+              </select>
+            </div>
+
+            <div class="location-group">
+              <label for="limitSelect">Limit</label>
+              <select id="limitSelect" class="limit-select" style="padding: 10px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; background: white; cursor: pointer; width: 150px;">
+                <option value="100">Top 100</option>
+                <option value="200">Top 200</option>
+                <option value="500" selected>Top 500</option>
+                <option value="1000">Top 1000</option>
+                <option value="5000">Top 5000</option>
+              </select>
+            </div>
+
+            <div class="location-group">
+              <label for="locationInputA">Place A</label>
+              <div class="username-search-container">
+                <input
+                  type="text"
+                  id="locationInputA"
+                  placeholder="Enter location..."
+                  autocomplete="off"
+                  style="width: 100%"
+                />
+                <div id="locationAutocompleteA" class="username-autocomplete"></div>
+                <input type="hidden" id="placeIdA" value="" />
+              </div>
+            </div>
+
+            <div class="vs-divider">VS</div>
+
+            <div class="location-group">
+              <label for="locationInputB">Place B</label>
+              <div class="username-search-container">
+                <input
+                  type="text"
+                  id="locationInputB"
+                  placeholder="Enter location..."
+                  autocomplete="off"
+                  style="width: 100%"
+                />
+                <div id="locationAutocompleteB" class="username-autocomplete"></div>
+                <input type="hidden" id="placeIdB" value="" />
+              </div>
+            </div>
+
+            <div class="location-group">
+              <label for="usernameInput">Username (optional)</label>
+              <div class="username-search-container">
+                <input
+                  type="text"
+                  id="usernameInput"
+                  placeholder="iNaturalist username..."
+                  autocomplete="off"
+                  style="width: 100%"
+                />
+                <div id="usernameAutocomplete" class="username-autocomplete"></div>
+              </div>
+            </div>
+
+            <button id="compareButton">Compare</button>
+          </div>
+        </div>
+
+        <div class="loading" id="loading" style="display: none">Loading species data...</div>
+
+        <div id="resultsSection" style="display: none">
+          <div class="summary-stats" id="summaryStats"></div>
+          <div class="results-grid" id="resultsGrid"></div>
+        </div>
+      </main>
+    </div>
+
+    <script src="constants.js"></script>
+    <script src="shared-utils.js"></script>
+    <script src="location-autocomplete.js"></script>
+    <script>
+      const locationInputA = document.getElementById("locationInputA");
+      const locationAutocompleteA = document.getElementById("locationAutocompleteA");
+      const placeIdA = document.getElementById("placeIdA");
+      const locationInputB = document.getElementById("locationInputB");
+      const locationAutocompleteB = document.getElementById("locationAutocompleteB");
+      const placeIdB = document.getElementById("placeIdB");
+      const taxonSelect = document.getElementById("taxonSelect");
+      const limitSelect = document.getElementById("limitSelect");
+      const usernameInput = document.getElementById("usernameInput");
+      const usernameAutocomplete = document.getElementById("usernameAutocomplete");
+      const compareButton = document.getElementById("compareButton");
+      const loading = document.getElementById("loading");
+      const resultsSection = document.getElementById("resultsSection");
+      const summaryStats = document.getElementById("summaryStats");
+      const resultsGrid = document.getElementById("resultsGrid");
+      const errorMessage = document.getElementById("errorMessage");
+
+      let userObservedTaxonIds = new Set();
+
+      // Initialize location autocompletes
+      initLocationAutocomplete(locationInputA, locationAutocompleteA, placeIdA, {
+        persistToStorage: false,
+        loadFromStorage: false,
+        loadFromUrl: false,
+        updateUrlOnSelect: false
+      });
+
+      initLocationAutocomplete(locationInputB, locationAutocompleteB, placeIdB, {
+        persistToStorage: false,
+        loadFromStorage: false,
+        loadFromUrl: false,
+        updateUrlOnSelect: false
+      });
+
+      // Username autocomplete
+      let usernameSearchTimeout = null;
+      usernameInput.addEventListener("input", (e) => {
+        clearTimeout(usernameSearchTimeout);
+        const query = e.target.value.trim();
+
+        if (query.length < 2) {
+          usernameAutocomplete.innerHTML = "";
+          usernameAutocomplete.style.display = "none";
+          return;
+        }
+
+        usernameSearchTimeout = setTimeout(async () => {
+          try {
+            const response = await fetch(
+              `https://api.inaturalist.org/v1/users/autocomplete?q=${encodeURIComponent(query)}`
+            );
+            const data = await response.json();
+
+            if (data.results && data.results.length > 0) {
+              usernameAutocomplete.innerHTML = data.results
+                .slice(0, 10)
+                .map((user) => {
+                  const obsCount = user.observations_count || 0;
+                  return `
+                    <div class="username-suggestion" data-login="${user.login}" data-id="${user.id}">
+                      <div class="username-name">${user.login}</div>
+                      <div class="username-info">${obsCount.toLocaleString()} observations</div>
+                    </div>
+                  `;
+                })
+                .join("");
+              usernameAutocomplete.style.display = "block";
+
+              document.querySelectorAll("#usernameAutocomplete .username-suggestion").forEach((item) => {
+                item.addEventListener("click", () => {
+                  usernameInput.value = item.dataset.login;
+                  usernameAutocomplete.innerHTML = "";
+                  usernameAutocomplete.style.display = "none";
+                });
+              });
+            } else {
+              usernameAutocomplete.innerHTML = "";
+              usernameAutocomplete.style.display = "none";
+            }
+          } catch (error) {
+            console.error("Error fetching users:", error);
+            usernameAutocomplete.innerHTML = "";
+            usernameAutocomplete.style.display = "none";
+          }
+        }, 300);
+      });
+
+      // Hide autocomplete when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!usernameInput.contains(e.target) && !usernameAutocomplete.contains(e.target)) {
+          usernameAutocomplete.style.display = "none";
+        }
+      });
+
+      compareButton.addEventListener("click", compareSpecies);
+
+      async function fetchSpecies(placeId, taxonId, limit) {
+        const perPage = Math.min(limit, 500);
+        let allResults = [];
+
+        // Build taxon parameter
+        const taxonParam = taxonId ? `&taxon_id=${taxonId}` : '';
+
+        // Fetch first page
+        const firstResponse = await fetch(
+          `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=1&quality_grade=research${taxonParam}`
+        );
+        const firstData = await firstResponse.json();
+
+        if (!firstData.results) {
+          return [];
+        }
+
+        allResults = [...firstData.results];
+
+        // If we need more results and there are more available
+        const totalAvailable = firstData.total_results;
+        const totalPages = Math.ceil(Math.min(limit, totalAvailable) / perPage);
+
+        // Fetch remaining pages in parallel (up to the limit)
+        if (totalPages > 1 && allResults.length < limit) {
+          const promises = [];
+          for (let p = 2; p <= totalPages; p++) {
+            promises.push(
+              fetch(
+                `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=${p}&quality_grade=research${taxonParam}`
+              )
+                .then(res => res.json())
+                .then(data => data.results || [])
+            );
+          }
+          const additionalResults = await Promise.all(promises);
+          additionalResults.forEach(results => {
+            allResults.push(...results);
+          });
+        }
+
+        // Trim to limit
+        return allResults.slice(0, limit);
+      }
+
+      async function fetchUserObservedSpecies(username, taxonId) {
+        if (!username) return new Set();
+
+        const perPage = 500;
+        let allTaxonIds = new Set();
+        const taxonParam = taxonId ? `&taxon_id=${taxonId}` : '';
+
+        try {
+          // Get user ID first
+          const userResponse = await fetch(
+            `https://api.inaturalist.org/v1/users/autocomplete?q=${encodeURIComponent(username)}`
+          );
+          const userData = await userResponse.json();
+
+          if (!userData.results || userData.results.length === 0) {
+            return new Set();
+          }
+
+          const userId = userData.results[0].id;
+
+          // Fetch first page
+          const firstResponse = await fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=1${taxonParam}`
+          );
+          const firstData = await firstResponse.json();
+
+          if (!firstData.results) return new Set();
+
+          firstData.results.forEach(item => allTaxonIds.add(item.taxon.id));
+
+          // Fetch remaining pages
+          const totalPages = Math.ceil(firstData.total_results / perPage);
+          if (totalPages > 1) {
+            const promises = [];
+            for (let p = 2; p <= totalPages; p++) {
+              promises.push(
+                fetch(
+                  `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${p}${taxonParam}`
+                )
+                  .then(res => res.json())
+                  .then(data => data.results || [])
+              );
+            }
+            const additionalResults = await Promise.all(promises);
+            additionalResults.forEach(results => {
+              results.forEach(item => allTaxonIds.add(item.taxon.id));
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching user species:", error);
+        }
+
+        return allTaxonIds;
+      }
+
+      async function compareSpecies() {
+        const placeA = placeIdA.value;
+        const placeB = placeIdB.value;
+        const placeNameA = locationInputA.value.trim();
+        const placeNameB = locationInputB.value.trim();
+        const taxonId = taxonSelect.value || null;
+        const limit = parseInt(limitSelect.value, 10);
+        const username = usernameInput.value.trim();
+
+        if (!placeA || !placeB) {
+          showError("Please select both locations");
+          return;
+        }
+
+        if (placeA === placeB) {
+          showError("Please select two different locations");
+          return;
+        }
+
+        hideError();
+        loading.style.display = "block";
+        resultsSection.style.display = "none";
+
+        try {
+          // Fetch species from both places and user's observed species in parallel
+          const [speciesA, speciesB, observedIds] = await Promise.all([
+            fetchSpecies(placeA, taxonId, limit),
+            fetchSpecies(placeB, taxonId, limit),
+            fetchUserObservedSpecies(username, taxonId)
+          ]);
+
+          userObservedTaxonIds = observedIds;
+
+          loading.style.display = "none";
+
+          if (speciesA.length === 0 && speciesB.length === 0) {
+            showError("No species found for either location");
+            return;
+          }
+
+          // Create maps for comparison
+          const mapA = new Map();
+          const mapB = new Map();
+
+          speciesA.forEach(item => {
+            mapA.set(item.taxon.id, item);
+          });
+
+          speciesB.forEach(item => {
+            mapB.set(item.taxon.id, item);
+          });
+
+          // Calculate unique and shared
+          const uniqueToA = [];
+          const uniqueToB = [];
+          const shared = [];
+
+          mapA.forEach((item, taxonId) => {
+            if (mapB.has(taxonId)) {
+              shared.push({
+                taxon: item.taxon,
+                countA: item.count,
+                countB: mapB.get(taxonId).count
+              });
+            } else {
+              uniqueToA.push(item);
+            }
+          });
+
+          mapB.forEach((item, taxonId) => {
+            if (!mapA.has(taxonId)) {
+              uniqueToB.push(item);
+            }
+          });
+
+          // Sort by observation count
+          uniqueToA.sort((a, b) => b.count - a.count);
+          uniqueToB.sort((a, b) => b.count - a.count);
+          shared.sort((a, b) => (b.countA + b.countB) - (a.countA + a.countB));
+
+          // Display results
+          displayResults(uniqueToA, shared, uniqueToB, placeNameA, placeNameB, placeA, placeB);
+          resultsSection.style.display = "block";
+
+        } catch (error) {
+          console.error("Error comparing species:", error);
+          loading.style.display = "none";
+          showError("Error fetching data. Please try again.");
+        }
+      }
+
+      function displayResults(uniqueToA, shared, uniqueToB, placeNameA, placeNameB, placeIdA, placeIdB) {
+        // Summary stats
+        summaryStats.innerHTML = `
+          <div class="stat-box place-a">
+            <div class="stat-number">${uniqueToA.length.toLocaleString()}</div>
+            <div class="stat-label">Unique to ${escapeHtml(placeNameA)}</div>
+          </div>
+          <div class="stat-box shared">
+            <div class="stat-number">${shared.length.toLocaleString()}</div>
+            <div class="stat-label">Shared Species</div>
+          </div>
+          <div class="stat-box place-b">
+            <div class="stat-number">${uniqueToB.length.toLocaleString()}</div>
+            <div class="stat-label">Unique to ${escapeHtml(placeNameB)}</div>
+          </div>
+        `;
+
+        // Results grid
+        resultsGrid.innerHTML = `
+          <div class="results-column">
+            <div class="column-header place-a">
+              Unique to ${escapeHtml(placeNameA)} <span class="count">(${uniqueToA.length.toLocaleString()})</span>
+            </div>
+            <div class="species-list">
+              ${uniqueToA.map(item => renderSpeciesItem(item.taxon, item.count, placeIdA)).join('')}
+            </div>
+          </div>
+          <div class="results-column">
+            <div class="column-header shared">
+              Shared Species <span class="count">(${shared.length.toLocaleString()})</span>
+            </div>
+            <div class="species-list">
+              ${shared.map(item => renderSharedSpeciesItem(item)).join('')}
+            </div>
+          </div>
+          <div class="results-column">
+            <div class="column-header place-b">
+              Unique to ${escapeHtml(placeNameB)} <span class="count">(${uniqueToB.length.toLocaleString()})</span>
+            </div>
+            <div class="species-list">
+              ${uniqueToB.map(item => renderSpeciesItem(item.taxon, item.count, placeIdB)).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderSpeciesItem(taxon, count, placeId) {
+        const commonName = taxon.preferred_common_name || taxon.name;
+        const sciName = taxon.name;
+        const iconicIcon = ICONIC_TAXON_ICONS[taxon.iconic_taxon_name] || '?';
+        const imageUrl = taxon.default_photo?.square_url;
+        const observationsUrl = `https://www.inaturalist.org/observations?taxon_id=${taxon.id}&place_id=${placeId}`;
+        const isObserved = userObservedTaxonIds.has(taxon.id);
+
+        return `
+          <a href="${observationsUrl}" target="_blank" style="text-decoration: none; color: inherit;">
+            <div class="species-item${isObserved ? ' user-observed' : ''}">
+              ${imageUrl
+                ? `<img src="${imageUrl}" alt="${escapeHtml(commonName)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><div class="placeholder" style="display:none">${iconicIcon}</div>`
+                : `<div class="placeholder">${iconicIcon}</div>`
+              }
+              <div class="species-info">
+                <div class="species-common">${isObserved ? '<span class="observed-check">✓</span> ' : ''}${escapeHtml(commonName)}</div>
+                ${commonName !== sciName ? `<div class="species-scientific">${escapeHtml(sciName)}</div>` : ''}
+              </div>
+              <div class="species-count">${count.toLocaleString()} obs</div>
+            </div>
+          </a>
+        `;
+      }
+
+      function renderSharedSpeciesItem(item) {
+        const taxon = item.taxon;
+        const commonName = taxon.preferred_common_name || taxon.name;
+        const sciName = taxon.name;
+        const iconicIcon = ICONIC_TAXON_ICONS[taxon.iconic_taxon_name] || '?';
+        const imageUrl = taxon.default_photo?.square_url;
+        const isObserved = userObservedTaxonIds.has(taxon.id);
+
+        return `
+          <a href="https://www.inaturalist.org/taxa/${taxon.id}" target="_blank" style="text-decoration: none; color: inherit;">
+            <div class="species-item${isObserved ? ' user-observed' : ''}">
+              ${imageUrl
+                ? `<img src="${imageUrl}" alt="${escapeHtml(commonName)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><div class="placeholder" style="display:none">${iconicIcon}</div>`
+                : `<div class="placeholder">${iconicIcon}</div>`
+              }
+              <div class="species-info">
+                <div class="species-common">${isObserved ? '<span class="observed-check">✓</span> ' : ''}${escapeHtml(commonName)}</div>
+                ${commonName !== sciName ? `<div class="species-scientific">${escapeHtml(sciName)}</div>` : ''}
+              </div>
+              <div class="species-count">${item.countA.toLocaleString()} / ${item.countB.toLocaleString()}</div>
+            </div>
+          </a>
+        `;
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.add("show");
+      }
+
+      function hideError() {
+        errorMessage.classList.remove("show");
+      }
+    </script>
+    <button class="feedback-button" id="feedbackBtn">Send feedback</button>
+    <script
+      defer
+      data-domain="glauberramos.github.io/inat"
+      src="https://plausible.io/js/script.js"
+    ></script>
+    <script type="text/javascript">
+      window.$pipeback = [];
+      window.PIPEBACK_ID = "a069b910-4aef-4233-99cc-913e7fb30fb5";
+      (function () {
+        d = document;
+        s = d.createElement("script");
+        s.src = "https://widget.pipeback.com/l.js";
+        s.async = 1;
+        d.getElementsByTagName("head")[0].appendChild(s);
+      })();
+
+      // Feedback button toggle
+      let feedbackOpen = false;
+      document.getElementById("feedbackBtn").addEventListener("click", () => {
+        if (feedbackOpen) {
+          $pipeback.close();
+          feedbackOpen = false;
+        } else {
+          $pipeback.open();
+          feedbackOpen = true;
+        }
+      });
+    </script>
+    <script src="dark-mode.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+      }
+    </script>
+  </body>
+</html>
