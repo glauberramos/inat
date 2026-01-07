@@ -142,8 +142,6 @@
       }
 
       .species-list {
-        max-height: 600px;
-        overflow-y: auto;
         padding: 10px;
       }
 
@@ -257,6 +255,22 @@
       .stat-box.shared .stat-number { color: #e65100; }
       .stat-box.place-b .stat-number { color: #1565c0; }
 
+      .export-btn {
+        padding: 12px 24px;
+        background: #5d8a00;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .export-btn:hover {
+        background: #4a7000;
+      }
+
       .error-message {
         background: #ffebee;
         color: #c62828;
@@ -273,10 +287,6 @@
       @media (max-width: 1024px) {
         .results-grid {
           grid-template-columns: 1fr;
-        }
-
-        .species-list {
-          max-height: 400px;
         }
       }
 
@@ -469,6 +479,7 @@
             </div>
 
             <button id="compareButton">Compare</button>
+            <button id="exportButton" class="export-btn" onclick="exportTXT()" style="display: none">Export TXT</button>
           </div>
         </div>
 
@@ -496,6 +507,7 @@
       const usernameInput = document.getElementById("usernameInput");
       const usernameAutocomplete = document.getElementById("usernameAutocomplete");
       const compareButton = document.getElementById("compareButton");
+      const exportButton = document.getElementById("exportButton");
       const loading = document.getElementById("loading");
       const resultsSection = document.getElementById("resultsSection");
       const summaryStats = document.getElementById("summaryStats");
@@ -503,11 +515,12 @@
       const errorMessage = document.getElementById("errorMessage");
 
       let userObservedTaxonIds = new Set();
+      let lastCompareResults = null;
 
       // Initialize location autocompletes
       initLocationAutocomplete(locationInputA, locationAutocompleteA, placeIdA, {
         persistToStorage: false,
-        loadFromStorage: false,
+        loadFromStorage: true,
         loadFromUrl: false,
         updateUrlOnSelect: false
       });
@@ -703,6 +716,7 @@
         hideError();
         loading.style.display = "block";
         resultsSection.style.display = "none";
+        exportButton.style.display = "none";
 
         try {
           // Fetch species from both places and user's observed species in parallel
@@ -761,9 +775,19 @@
           uniqueToB.sort((a, b) => b.count - a.count);
           shared.sort((a, b) => (b.countA + b.countB) - (a.countA + a.countB));
 
+          // Store results for export
+          lastCompareResults = {
+            uniqueToA,
+            uniqueToB,
+            shared,
+            placeNameA,
+            placeNameB
+          };
+
           // Display results
           displayResults(uniqueToA, shared, uniqueToB, placeNameA, placeNameB, placeA, placeB);
           resultsSection.style.display = "block";
+          exportButton.style.display = "inline-block";
 
         } catch (error) {
           console.error("Error comparing species:", error);
@@ -872,6 +896,59 @@
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+      }
+
+      function exportTXT() {
+        if (!lastCompareResults) return;
+
+        const { uniqueToA, uniqueToB, shared, placeNameA, placeNameB } = lastCompareResults;
+        const lines = [];
+
+        const getScientificName = (name) => {
+          if (!name) return '';
+          const parts = name.split(' ');
+          return parts.slice(0, 2).join(' ');
+        };
+
+        const formatSpecies = (taxon) => {
+          const scientificName = getScientificName(taxon.name);
+          if (taxon.preferred_common_name) {
+            return `${taxon.preferred_common_name} (${scientificName})`;
+          }
+          return scientificName;
+        };
+
+        lines.push('========================================');
+        lines.push(`UNIQUE TO ${placeNameA.toUpperCase()}`);
+        lines.push('========================================');
+        uniqueToA.forEach(item => {
+          lines.push(`${formatSpecies(item.taxon)} - ${item.count} observations`);
+        });
+
+        lines.push('');
+        lines.push('========================================');
+        lines.push('SHARED');
+        lines.push('========================================');
+        shared.forEach(item => {
+          lines.push(`${formatSpecies(item.taxon)} - ${item.countA} / ${item.countB} observations`);
+        });
+
+        lines.push('');
+        lines.push('========================================');
+        lines.push(`UNIQUE TO ${placeNameB.toUpperCase()}`);
+        lines.push('========================================');
+        uniqueToB.forEach(item => {
+          lines.push(`${formatSpecies(item.taxon)} - ${item.count} observations`);
+        });
+
+        const txt = lines.join('\n');
+        const blob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `species-compare-${placeNameA.replace(/[^a-z0-9]/gi, '-')}-vs-${placeNameB.replace(/[^a-z0-9]/gi, '-')}.txt`;
+        link.click();
+        URL.revokeObjectURL(url);
       }
 
       function showError(message) {
