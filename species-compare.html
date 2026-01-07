@@ -590,7 +590,7 @@
 
         // Fetch first page
         const firstResponse = await fetch(
-          `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=1&quality_grade=research${taxonParam}`
+          `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=1&verifiable=true${taxonParam}`
         );
         const firstData = await firstResponse.json();
 
@@ -610,7 +610,7 @@
           for (let p = 2; p <= totalPages; p++) {
             promises.push(
               fetch(
-                `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=${p}&quality_grade=research${taxonParam}`
+                `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=${p}&verifiable=true${taxonParam}`
               )
                 .then(res => res.json())
                 .then(data => data.results || [])
