@@ -428,17 +428,6 @@
             </div>
 
             <div class="location-group">
-              <label for="limitSelect">Limit</label>
-              <select id="limitSelect" class="limit-select" style="padding: 10px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; background: white; cursor: pointer; width: 150px;">
-                <option value="100">Top 100</option>
-                <option value="200">Top 200</option>
-                <option value="500" selected>Top 500</option>
-                <option value="1000">Top 1000</option>
-                <option value="5000">Top 5000</option>
-              </select>
-            </div>
-
-            <div class="location-group">
               <label for="locationInputA">Place A</label>
               <div class="username-search-container">
                 <input
@@ -509,7 +498,6 @@
       const locationAutocompleteB = document.getElementById("locationAutocompleteB");
       const placeIdB = document.getElementById("placeIdB");
       const taxonSelect = document.getElementById("taxonSelect");
-      const limitSelect = document.getElementById("limitSelect");
       const usernameInput = document.getElementById("usernameInput");
       const usernameAutocomplete = document.getElementById("usernameAutocomplete");
       const compareButton = document.getElementById("compareButton");
@@ -600,8 +588,8 @@
 
       compareButton.addEventListener("click", compareSpecies);
 
-      async function fetchSpecies(placeId, taxonId, limit) {
-        const perPage = Math.min(limit, 500);
+      async function fetchSpecies(placeId, taxonId) {
+        const perPage = 500;
         let allResults = [];
 
         // Build taxon parameter
@@ -619,12 +607,11 @@
 
         allResults = [...firstData.results];
 
-        // If we need more results and there are more available
+        // If there are more results, fetch remaining pages
         const totalAvailable = firstData.total_results;
-        const totalPages = Math.ceil(Math.min(limit, totalAvailable) / perPage);
+        const totalPages = Math.ceil(totalAvailable / perPage);
 
-        // Fetch remaining pages in parallel (up to the limit)
-        if (totalPages > 1 && allResults.length < limit) {
+        if (totalPages > 1) {
           const promises = [];
           for (let p = 2; p <= totalPages; p++) {
             promises.push(
@@ -641,8 +628,7 @@
           });
         }
 
-        // Trim to limit
-        return allResults.slice(0, limit);
+        return allResults;
       }
 
       async function fetchUserObservedSpecies(username, taxonId) {
@@ -706,7 +692,6 @@
         const placeNameA = locationInputA.value.trim();
         const placeNameB = locationInputB.value.trim();
         const taxonId = taxonSelect.value || null;
-        const limit = parseInt(limitSelect.value, 10);
         const username = usernameInput.value.trim();
 
         if (!placeA || !placeB) {
@@ -727,8 +712,8 @@
         try {
           // Fetch species from both places and user's observed species in parallel
           const [speciesA, speciesB, observedIds] = await Promise.all([
-            fetchSpecies(placeA, taxonId, limit),
-            fetchSpecies(placeB, taxonId, limit),
+            fetchSpecies(placeA, taxonId),
+            fetchSpecies(placeB, taxonId),
             fetchUserObservedSpecies(username, taxonId)
           ]);
 
