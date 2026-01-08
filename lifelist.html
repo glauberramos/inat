@@ -671,14 +671,6 @@
         <option value="zh">Chinese</option>
       </select>
       <button id="searchBtn" onclick="startSearch()">Load Lifelist</button>
-      <label class="checkbox-label">
-        <input type="checkbox" id="allTaxaCheckbox" />
-        All taxa levels
-      </label>
-      <label class="checkbox-label">
-        <input type="checkbox" id="captiveCheckbox" />
-        Include captive/cultivated
-      </label>
     </div>
 
     <div class="error" id="error"></div>
@@ -974,29 +966,15 @@
       const taxonInput = document.getElementById("taxonInput");
       const taxonIdInput = document.getElementById("taxonId");
       const taxonAutocompleteEl = document.getElementById("taxonAutocomplete");
-      const allTaxaCheckbox = document.getElementById("allTaxaCheckbox");
-      const captiveCheckbox = document.getElementById("captiveCheckbox");
       const speciesPhotoCheckbox = document.getElementById("speciesPhotoCheckbox");
       let taxonSearchTimeout = null;
 
       // Load checkbox states from localStorage
-      if (localStorage.getItem("inatAllTaxa") === "true") {
-        allTaxaCheckbox.checked = true;
-      }
-      if (localStorage.getItem("inatIncludeCaptive") === "true") {
-        captiveCheckbox.checked = true;
-      }
       if (localStorage.getItem("inatSpeciesPhoto") === "true") {
         speciesPhotoCheckbox.checked = true;
       }
 
       // Save checkbox states to localStorage on change
-      allTaxaCheckbox.addEventListener("change", () => {
-        localStorage.setItem("inatAllTaxa", allTaxaCheckbox.checked);
-      });
-      captiveCheckbox.addEventListener("change", () => {
-        localStorage.setItem("inatIncludeCaptive", captiveCheckbox.checked);
-      });
       speciesPhotoCheckbox.addEventListener("change", () => {
         localStorage.setItem("inatSpeciesPhoto", speciesPhotoCheckbox.checked);
         // Update all photos in the current view
@@ -1104,7 +1082,7 @@
         }
       }
 
-      async function getUserSpeciesCounts(username, placeId = null, taxonId = null, allTaxa = false, includeCaptive = false) {
+      async function getUserSpeciesCounts(username, placeId = null, taxonId = null) {
         updateProgress(0, "Fetching species list...", "");
 
         const perPage = 500;
@@ -1115,9 +1093,7 @@
         // Build base URL with optional filters
         const selectedLanguage = document.getElementById("languageSelect").value;
         const localeParam = `&locale=${selectedLanguage}`;
-        const qualityGrade = includeCaptive ? 'casual,needs_id,research' : 'needs_id,research';
-        let baseUrl = `${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&quality_grade=${qualityGrade}${localeParam}`;
-        if (!allTaxa) baseUrl += `&lrank=subspecies&hrank=species`;
+        let baseUrl = `${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&quality_grade=casual,needs_id,research${localeParam}`;
         if (placeId) baseUrl += `&place_id=${placeId}`;
         if (taxonId) baseUrl += `&taxon_id=${taxonId}`;
 
@@ -1160,7 +1136,7 @@
           }));
       }
 
-      async function getFirstObservationsBatch(username, taxaMap, onProgress, onFound, placeId = null, allTaxa = false, includeCaptive = false) {
+      async function getFirstObservationsBatch(username, taxaMap, onProgress, onFound, placeId = null) {
         const BATCH_SIZE = 1000;
         const PER_PAGE = 200;
 
@@ -1171,8 +1147,7 @@
 
         // Build filter params
         const placeParam = placeId ? `&place_id=${placeId}` : "";
-        const rankParam = allTaxa ? "" : "&lrank=subspecies&hrank=species";
-        const qualityGrade = includeCaptive ? 'casual,needs_id,research' : 'needs_id,research';
+        const qualityGrade = 'casual,needs_id,research';
 
         while (totalTaxa.length > 0) {
           // Check if we're stuck with the same unfound taxa - if so, paginate to find them
@@ -1197,7 +1172,7 @@
             apiCalls++;
             onProgress(results.size, taxaMap.size, apiCalls);
 
-            const url = `${API_BASE}/observations?user_login=${username}&taxon_id=${batchIds.join(",")}&per_page=${PER_PAGE}&page=${page}&order_by=observed_on&order=asc&quality_grade=${qualityGrade}${rankParam}${placeParam}`;
+            const url = `${API_BASE}/observations?user_login=${username}&taxon_id=${batchIds.join(",")}&per_page=${PER_PAGE}&page=${page}&order_by=observed_on&order=asc&quality_grade=${qualityGrade}${placeParam}`;
 
             try {
               const data = await fetchJSON(url);
@@ -1398,8 +1373,6 @@
         // Get optional filters
         const placeId = placeIdInput.value || null;
         const taxonId = taxonIdInput.value || null;
-        const allTaxa = allTaxaCheckbox.checked;
-        const includeCaptive = captiveCheckbox.checked;
 
         // Save username and update URL
         localStorage.setItem("inatUsername", username);
@@ -1421,7 +1394,7 @@
 
         try {
           // Step 1: Get all species counts for the user (with optional filters)
-          const allSpecies = await getUserSpeciesCounts(username, placeId, taxonId, allTaxa, includeCaptive);
+          const allSpecies = await getUserSpeciesCounts(username, placeId, taxonId);
 
           if (allSpecies.length === 0) {
             showError("No species found for this user");
@@ -1474,9 +1447,7 @@
                 defaultPhotoUrl: result.defaultPhotoUrl,
               }, foundCount);
             },
-            placeId,
-            allTaxa,
-            includeCaptive
+            placeId
           );
 
           // Step 4: Re-sort and re-display with year separators
