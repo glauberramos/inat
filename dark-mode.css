@@ -251,7 +251,7 @@ body.dark-mode .status-text {
 }
 
 body.dark-mode .progress-bar {
-  background: #444;
+  background: #74ac00;
 }
 
 /* Checkbox containers */
@@ -726,10 +726,6 @@ body.dark-mode .stats-display .count {
 
 body.dark-mode .loading-text {
   color: #aaa;
-}
-
-body.dark-mode .progress-bar {
-  background: #3d3d3d;
 }
 
 body.dark-mode #statesList {
