@@ -229,6 +229,12 @@
             </div>
           </div>
 
+          <div class="chart-card projects-card">
+            <div class="chart-title">Projects</div>
+            <div class="projects-subtitle" id="projectsSubtitle">Loading...</div>
+            <div class="projects-list" id="projectsList"></div>
+          </div>
+
           <div class="charts-row">
             <div class="chart-card map-card">
               <div class="chart-title">World Observation Map</div>
@@ -552,6 +558,9 @@
 
           loading.style.display = 'none';
           profileContent.style.display = 'block';
+
+          // Load user's projects (fast, do it first)
+          loadUserProjects(user.id, user.login);
 
           // Load calendar (independent, has its own loading state)
           const joinYear = user.created_at ? new Date(user.created_at).getFullYear() : new Date().getFullYear();
@@ -1172,6 +1181,98 @@
             </a>
           `;
         }).join('');
+      }
+
+      async function loadUserProjects(userId, username) {
+        const projectsList = document.getElementById('projectsList');
+        const projectsSubtitle = document.getElementById('projectsSubtitle');
+
+        projectsList.innerHTML = '<div class="projects-loading">Loading projects...</div>';
+
+        try {
+          // Fetch all projects with pagination
+          let allProjects = [];
+          let page = 1;
+          const perPage = 200;
+          let hasMore = true;
+
+          while (hasMore) {
+            const response = await fetch(
+              `https://api.inaturalist.org/v1/projects?member_id=${userId}&per_page=${perPage}&page=${page}`
+            );
+            const data = await response.json();
+
+            if (data.results && data.results.length > 0) {
+              allProjects = allProjects.concat(data.results);
+              projectsSubtitle.textContent = `Loading projects... (${allProjects.length})`;
+              hasMore = data.results.length === perPage;
+              page++;
+            } else {
+              hasMore = false;
+            }
+          }
+
+          if (allProjects.length === 0) {
+            projectsSubtitle.textContent = 'No projects found';
+            projectsList.innerHTML = '<div class="no-projects">This user is not a member of any projects</div>';
+            return;
+          }
+
+          const projects = allProjects;
+
+          // Categorize projects
+          const createdProjects = projects.filter(p => p.user_id === userId);
+          const joinedProjects = projects.filter(p => p.user_id !== userId && p.project_type === 'collection');
+          const autoProjects = projects.filter(p => p.user_id !== userId && p.project_type !== 'collection');
+
+          projectsSubtitle.textContent = `${projects.length} ${projects.length === 1 ? 'project' : 'projects'}`;
+
+          const renderProjectItem = (project) => {
+            const iconUrl = project.icon || 'https://static.inaturalist.org/sites/1-logo_square.png';
+            return `
+              <a href="https://www.inaturalist.org/projects/${project.slug}" target="_blank" class="project-item">
+                <img src="${iconUrl}" alt="${project.title}" class="project-icon" onerror="this.src='https://static.inaturalist.org/sites/1-logo_square.png'">
+                <span class="project-name">${project.title}</span>
+              </a>
+            `;
+          };
+
+          let html = '';
+
+          if (createdProjects.length > 0) {
+            html += `
+              <div class="projects-category">
+                <div class="projects-category-title">Created (${createdProjects.length})</div>
+                <div class="projects-category-list">${createdProjects.map(renderProjectItem).join('')}</div>
+              </div>
+            `;
+          }
+
+          if (joinedProjects.length > 0) {
+            html += `
+              <div class="projects-category">
+                <div class="projects-category-title">Joined (${joinedProjects.length})</div>
+                <div class="projects-category-list">${joinedProjects.map(renderProjectItem).join('')}</div>
+              </div>
+            `;
+          }
+
+          if (autoProjects.length > 0) {
+            html += `
+              <div class="projects-category">
+                <div class="projects-category-title">Traditional / Auto-joined (${autoProjects.length})</div>
+                <div class="projects-category-list">${autoProjects.map(renderProjectItem).join('')}</div>
+              </div>
+            `;
+          }
+
+          projectsList.innerHTML = html;
+
+        } catch (error) {
+          console.error('Error loading projects:', error);
+          projectsSubtitle.textContent = 'Error loading projects';
+          projectsList.innerHTML = '<div class="projects-error">Could not load projects</div>';
+        }
       }
 
       // Calendar functions
