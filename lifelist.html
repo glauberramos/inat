@@ -145,6 +145,18 @@
         color: #999;
         text-transform: uppercase;
       }
+      .autocomplete-divider {
+        height: 1px;
+        background: #ddd;
+        margin: 4px 0;
+      }
+      .autocomplete-item.no-results {
+        color: #999;
+        cursor: default;
+      }
+      .autocomplete-item.no-results:hover {
+        background: white;
+      }
       button {
         padding: 12px 24px;
         font-size: 16px;
@@ -652,7 +664,7 @@
 
     <h1>iNaturalist Lifelist Timeline</h1>
     <p class="subtitle">
-      View all species observed, sorted by first observation date. Enter a username for a user's lifelist, select a place to see when each species was first observed there, or use both to filter a user's lifelist by location.
+      View all species observed, sorted by first observation date. Enter a username for a user's lifelist, select a place or project to see when each species was first observed there, or combine them to filter.
     </p>
 
     <div class="search-container">
@@ -669,10 +681,11 @@
         <input
           type="text"
           id="placeInput"
-          placeholder="Place (optional if username entered)"
+          placeholder="Search place or project..."
           autocomplete="off"
         />
         <input type="hidden" id="placeId" />
+        <input type="hidden" id="projectId" />
         <div class="autocomplete" id="placeAutocomplete"></div>
       </div>
       <div class="input-wrapper">
@@ -843,6 +856,10 @@
         if (query.length < 2) {
           autocompleteEl.innerHTML = "";
           autocompleteEl.classList.remove("active");
+          // Clear localStorage if username is cleared
+          if (query.length === 0) {
+            localStorage.removeItem("inatUsername");
+          }
           return;
         }
 
@@ -913,20 +930,27 @@
         }
       });
 
-      // Place autocomplete
+      // Place/Project autocomplete
       const placeInput = document.getElementById("placeInput");
       const placeIdInput = document.getElementById("placeId");
+      const projectIdInput = document.getElementById("projectId");
       const placeAutocompleteEl = document.getElementById("placeAutocomplete");
       let placeSearchTimeout = null;
 
-      // Load place from URL parameter or localStorage
+      // Load place or project from URL parameter or localStorage
       const savedPlaceId = localStorage.getItem("inatPlaceId");
       const savedPlaceName = localStorage.getItem("inatPlaceName");
+      const savedProjectId = localStorage.getItem("inatProjectId");
+      const savedProjectName = localStorage.getItem("inatProjectName");
+
       if (urlPlaceId && urlPlaceName) {
         placeIdInput.value = urlPlaceId;
         placeInput.value = urlPlaceName;
         localStorage.setItem("inatPlaceId", urlPlaceId);
         localStorage.setItem("inatPlaceName", urlPlaceName);
+      } else if (savedProjectId && savedProjectName) {
+        projectIdInput.value = savedProjectId;
+        placeInput.value = savedProjectName;
       } else if (savedPlaceId && savedPlaceName) {
         placeIdInput.value = savedPlaceId;
         placeInput.value = savedPlaceName;
@@ -939,11 +963,14 @@
         if (query.length < 2) {
           placeAutocompleteEl.innerHTML = "";
           placeAutocompleteEl.classList.remove("active");
-          // Clear place ID, localStorage and URL if input is cleared
+          // Clear place/project ID, localStorage and URL if input is cleared
           if (query.length === 0) {
             placeIdInput.value = "";
+            projectIdInput.value = "";
             localStorage.removeItem("inatPlaceId");
             localStorage.removeItem("inatPlaceName");
+            localStorage.removeItem("inatProjectId");
+            localStorage.removeItem("inatProjectName");
             updateUrlWithPlace(null, null);
           }
           return;
@@ -954,43 +981,87 @@
 
       async function searchPlaces(query) {
         try {
-          const response = await fetch(
-            `${API_BASE}/places/autocomplete?q=${encodeURIComponent(query)}&per_page=10`
-          );
-          const data = await response.json();
+          // Search for both places and projects in parallel
+          const [placesResponse, projectsResponse] = await Promise.all([
+            fetch(`${API_BASE}/places/autocomplete?q=${encodeURIComponent(query)}&per_page=7`),
+            fetch(`${API_BASE}/projects?q=${encodeURIComponent(query)}&per_page=7`)
+          ]);
 
-          if (data.results && data.results.length > 0) {
-            placeAutocompleteEl.innerHTML = data.results
-              .map(
-                (place) => `
-              <div class="autocomplete-item" data-id="${place.id}" data-name="${place.display_name}">
-                <div class="autocomplete-name">${place.display_name}</div>
-              </div>
-            `
-              )
-              .join("");
+          const placesData = await placesResponse.json();
+          const projectsData = await projectsResponse.json();
+
+          const places = placesData.results || [];
+          const projects = projectsData.results || [];
+
+          if (places.length > 0 || projects.length > 0) {
+            let html = '';
+
+            // Add places
+            places.forEach((place) => {
+              html += `
+                <div class="autocomplete-item" data-type="place" data-id="${place.id}" data-name="${place.display_name}">
+                  <div class="autocomplete-name">${place.display_name}</div>
+                  <div class="autocomplete-type">Place</div>
+                </div>
+              `;
+            });
+
+            // Add divider if both exist
+            if (places.length > 0 && projects.length > 0) {
+              html += '<div class="autocomplete-divider"></div>';
+            }
+
+            // Add projects
+            projects.forEach((project) => {
+              html += `
+                <div class="autocomplete-item" data-type="project" data-id="${project.id}" data-name="${project.title}">
+                  <div class="autocomplete-name">${project.title}</div>
+                  <div class="autocomplete-type">Project</div>
+                </div>
+              `;
+            });
+
+            placeAutocompleteEl.innerHTML = html;
 
             placeAutocompleteEl
               .querySelectorAll(".autocomplete-item")
               .forEach((item) => {
                 item.addEventListener("click", () => {
-                  placeInput.value = item.dataset.name;
-                  placeIdInput.value = item.dataset.id;
-                  // Save to localStorage and update URL
-                  localStorage.setItem("inatPlaceId", item.dataset.id);
-                  localStorage.setItem("inatPlaceName", item.dataset.name);
-                  updateUrlWithPlace(item.dataset.id, item.dataset.name);
+                  const type = item.dataset.type;
+                  const id = item.dataset.id;
+                  const name = item.dataset.name;
+
+                  placeInput.value = name;
+
+                  if (type === "place") {
+                    placeIdInput.value = id;
+                    projectIdInput.value = "";
+                    localStorage.setItem("inatPlaceId", id);
+                    localStorage.setItem("inatPlaceName", name);
+                    localStorage.removeItem("inatProjectId");
+                    localStorage.removeItem("inatProjectName");
+                    updateUrlWithPlace(id, name);
+                  } else if (type === "project") {
+                    placeIdInput.value = "";
+                    projectIdInput.value = id;
+                    localStorage.removeItem("inatPlaceId");
+                    localStorage.removeItem("inatPlaceName");
+                    localStorage.setItem("inatProjectId", id);
+                    localStorage.setItem("inatProjectName", name);
+                    updateUrlWithPlace(null, null);
+                  }
+
                   placeAutocompleteEl.classList.remove("active");
                 });
               });
 
             placeAutocompleteEl.classList.add("active");
           } else {
-            placeAutocompleteEl.innerHTML = "";
-            placeAutocompleteEl.classList.remove("active");
+            placeAutocompleteEl.innerHTML = '<div class="autocomplete-item no-results">No places or projects found</div>';
+            placeAutocompleteEl.classList.add("active");
           }
         } catch (error) {
-          console.error("Error searching places:", error);
+          console.error("Error searching places and projects:", error);
         }
       }
 
@@ -1114,7 +1185,7 @@
         }
       }
 
-      async function getUserSpeciesCounts(username, placeId = null, taxonId = null) {
+      async function getUserSpeciesCounts(username, placeId = null, projectId = null, taxonId = null) {
         updateProgress(0, "Fetching species list...", "");
 
         const perPage = 500;
@@ -1128,6 +1199,7 @@
         let baseUrl = `${API_BASE}/observations/species_counts?per_page=${perPage}&quality_grade=casual,needs_id,research${localeParam}`;
         if (username) baseUrl += `&user_login=${username}`;
         if (placeId) baseUrl += `&place_id=${placeId}`;
+        if (projectId) baseUrl += `&project_id=${projectId}`;
         if (taxonId) baseUrl += `&taxon_id=${taxonId}`;
 
         // Fetch first page to get total count
@@ -1169,7 +1241,7 @@
           }));
       }
 
-      async function getFirstObservationsBatch(username, taxaMap, onProgress, onFound, placeId = null) {
+      async function getFirstObservationsBatch(username, taxaMap, onProgress, onFound, placeId = null, projectId = null) {
         const BATCH_SIZE = 1000;
         const PER_PAGE = 200;
 
@@ -1180,6 +1252,7 @@
 
         // Build filter params
         const placeParam = placeId ? `&place_id=${placeId}` : "";
+        const projectParam = projectId ? `&project_id=${projectId}` : "";
         const qualityGrade = 'casual,needs_id,research';
 
         while (totalTaxa.length > 0) {
@@ -1206,7 +1279,7 @@
             onProgress(results.size, taxaMap.size, apiCalls);
 
             const userParam = username ? `&user_login=${username}` : "";
-            const url = `${API_BASE}/observations?taxon_id=${batchIds.join(",")}&per_page=${PER_PAGE}&page=${page}&order_by=observed_on&order=asc&quality_grade=${qualityGrade}${userParam}${placeParam}`;
+            const url = `${API_BASE}/observations?taxon_id=${batchIds.join(",")}&per_page=${PER_PAGE}&page=${page}&order_by=observed_on&order=asc&quality_grade=${qualityGrade}${userParam}${placeParam}${projectParam}`;
 
             try {
               const data = await fetchJSON(url);
@@ -1407,10 +1480,11 @@
 
         const username = document.getElementById("username").value.trim() || null;
         const placeId = placeIdInput.value || null;
+        const projectId = projectIdInput.value || null;
         const taxonId = taxonIdInput.value || null;
 
-        if (!username && !placeId) {
-          showError("Please enter a username or select a place");
+        if (!username && !placeId && !projectId) {
+          showError("Please enter a username or select a place/project");
           return;
         }
 
@@ -1436,10 +1510,10 @@
 
         try {
           // Step 1: Get all species counts for the user (with optional filters)
-          const allSpecies = await getUserSpeciesCounts(username, placeId, taxonId);
+          const allSpecies = await getUserSpeciesCounts(username, placeId, projectId, taxonId);
 
           if (allSpecies.length === 0) {
-            showError(username ? "No species found for this user" : "No species found for this place");
+            showError(username ? "No species found for this user" : "No species found for this place/project");
             document.getElementById("progress").style.display = "none";
             isSearching = false;
             document.getElementById("searchBtn").disabled = false;
@@ -1494,7 +1568,8 @@
               addResultItem(itemData, foundCount);
               addGridItem(itemData, foundCount);
             },
-            placeId
+            placeId,
+            projectId
           );
 
           // Step 4: Re-sort and re-display with year separators
