@@ -711,6 +711,10 @@
         <option value="zh">Chinese</option>
       </select>
       <button id="searchBtn" onclick="startSearch()">Load Lifelist</button>
+      <label class="checkbox-label">
+        <input type="checkbox" id="casualCheckbox" checked />
+        Include casual
+      </label>
     </div>
 
     <div class="error" id="error"></div>
@@ -1077,11 +1081,22 @@
         speciesPhotoCheckbox.checked = true;
       }
 
+      // Load casual checkbox state from localStorage (default is checked)
+      const casualCheckbox = document.getElementById("casualCheckbox");
+      const savedCasual = localStorage.getItem("inatIncludeCasual");
+      if (savedCasual !== null) {
+        casualCheckbox.checked = savedCasual === "true";
+      }
+
       // Save checkbox states to localStorage on change
       speciesPhotoCheckbox.addEventListener("change", () => {
         localStorage.setItem("inatSpeciesPhoto", speciesPhotoCheckbox.checked);
         // Update all photos in the current view
         updatePhotos();
+      });
+
+      casualCheckbox.addEventListener("change", () => {
+        localStorage.setItem("inatIncludeCasual", casualCheckbox.checked);
       });
 
       function updatePhotos() {
@@ -1196,7 +1211,9 @@
         // Build base URL with optional filters
         const selectedLanguage = document.getElementById("languageSelect").value;
         const localeParam = `&locale=${selectedLanguage}`;
-        let baseUrl = `${API_BASE}/observations/species_counts?per_page=${perPage}&quality_grade=casual,needs_id,research${localeParam}`;
+        const includeCasual = document.getElementById("casualCheckbox").checked;
+        const qualityGradeParam = includeCasual ? "casual,needs_id,research" : "needs_id,research";
+        let baseUrl = `${API_BASE}/observations/species_counts?per_page=${perPage}&quality_grade=${qualityGradeParam}${localeParam}`;
         if (username) baseUrl += `&user_login=${username}`;
         if (placeId) baseUrl += `&place_id=${placeId}`;
         if (projectId) baseUrl += `&project_id=${projectId}`;
@@ -1253,7 +1270,8 @@
         // Build filter params
         const placeParam = placeId ? `&place_id=${placeId}` : "";
         const projectParam = projectId ? `&project_id=${projectId}` : "";
-        const qualityGrade = 'casual,needs_id,research';
+        const includeCasual = document.getElementById("casualCheckbox").checked;
+        const qualityGrade = includeCasual ? 'casual,needs_id,research' : 'needs_id,research';
 
         while (totalTaxa.length > 0) {
           // Check if we're stuck with the same unfound taxa - if so, paginate to find them
