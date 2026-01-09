@@ -282,6 +282,18 @@
         white-space: nowrap;
         margin-left: auto;
       }
+      .species-observer {
+        color: #666;
+        font-size: 11px;
+        margin-left: 8px;
+      }
+      .species-observer a {
+        color: #74ac00;
+        text-decoration: none;
+      }
+      .species-observer a:hover {
+        text-decoration: underline;
+      }
       .no-results {
         text-align: center;
         color: #666;
@@ -425,6 +437,21 @@
       .species-card .card-date {
         font-size: 11px;
         color: #999;
+      }
+
+      .species-card .card-observer {
+        font-size: 10px;
+        color: #666;
+        margin-top: 2px;
+      }
+
+      .species-card .card-observer a {
+        color: #74ac00;
+        text-decoration: none;
+      }
+
+      .species-card .card-observer a:hover {
+        text-decoration: underline;
       }
 
       .grid-year-separator {
@@ -764,6 +791,10 @@
           ? `<img class="card-image" src="${mediumImageUrl}" alt="${displayName}">`
           : `<div class="card-image-placeholder">${iconicIcon}</div>`;
 
+        const observerDisplay = sp.showObserver && sp.observerLogin
+          ? `<div class="card-observer">by <a href="https://www.inaturalist.org/people/${sp.observerLogin}" target="_blank" onclick="event.stopPropagation();">${sp.observerName || sp.observerLogin}</a></div>`
+          : '';
+
         a.innerHTML = `
           <div class="card-number">#${number}</div>
           ${imageHtml}
@@ -771,6 +802,7 @@
             <div class="card-common-name">${displayName}</div>
             ${hasCommonName ? `<div class="card-sci-name">${sp.taxonName}</div>` : ''}
             <div class="card-date">${sp.observedOn}</div>
+            ${observerDisplay}
           </div>
         `;
         gridEl.appendChild(a);
@@ -1205,6 +1237,7 @@
                 if (matchedTaxonId && !results.has(matchedTaxonId)) {
                   const taxon = batch.get(matchedTaxonId);
                   const obsTaxon = obs.taxon || {};
+                  const observer = obs.user || {};
                   const result = {
                     taxon: {
                       ...taxon,
@@ -1217,6 +1250,8 @@
                     timeObservedAt: obs.time_observed_at,
                     imageUrl: obs.photos?.[0]?.url || obsTaxon.default_photo?.square_url,
                     defaultPhotoUrl: taxon.default_photo?.square_url || obsTaxon.default_photo?.square_url,
+                    observerLogin: observer.login,
+                    observerName: observer.name,
                   };
                   results.set(matchedTaxonId, result);
                   remainingInBatch.delete(matchedTaxonId);
@@ -1309,6 +1344,10 @@
           ? (sp.defaultPhotoUrl || sp.imageUrl)
           : (sp.imageUrl || sp.defaultPhotoUrl);
 
+        const observerDisplay = sp.showObserver && sp.observerLogin
+          ? `<span class="species-observer">by <a href="https://www.inaturalist.org/people/${sp.observerLogin}" target="_blank" onclick="event.stopPropagation();">${sp.observerName || sp.observerLogin}</a></span>`
+          : '';
+
         a.innerHTML = `
         <div class="species-number">#${number}</div>
         <span class="species-icon">${iconicIcon}</span>
@@ -1317,7 +1356,7 @@
         }" alt="${sp.commonName || sp.taxonName}">
         <div class="species-info">
           ${nameDisplay}
-          <span class="species-date">${sp.observedOn}</span>
+          <span class="species-date">${sp.observedOn}${observerDisplay}</span>
         </div>
       `;
         listEl.appendChild(a);
@@ -1448,6 +1487,9 @@
                 timeObservedAt: result.timeObservedAt,
                 imageUrl: result.imageUrl,
                 defaultPhotoUrl: result.defaultPhotoUrl,
+                observerLogin: result.observerLogin,
+                observerName: result.observerName,
+                showObserver: !username,
               };
               addResultItem(itemData, foundCount);
               addGridItem(itemData, foundCount);
@@ -1492,6 +1534,9 @@
               timeObservedAt: item.timeObservedAt,
               imageUrl: item.imageUrl,
               defaultPhotoUrl: item.defaultPhotoUrl,
+              observerLogin: item.observerLogin,
+              observerName: item.observerName,
+              showObserver: !username,
             };
             lifelistData.push(itemData);
             addResultItem(itemData, speciesNumber);
