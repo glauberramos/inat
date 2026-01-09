@@ -625,7 +625,7 @@
 
     <h1>iNaturalist Lifelist Timeline</h1>
     <p class="subtitle">
-      View all species a user has observed, sorted by their first observation date of each species.
+      View all species observed, sorted by first observation date. Enter a username for a user's lifelist, select a place to see when each species was first observed there, or use both to filter a user's lifelist by location.
     </p>
 
     <div class="search-container">
@@ -633,7 +633,7 @@
         <input
           type="text"
           id="username"
-          placeholder="Enter iNaturalist username"
+          placeholder="Username (optional if place selected)"
           autocomplete="off"
         />
         <div class="autocomplete" id="autocomplete"></div>
@@ -642,7 +642,7 @@
         <input
           type="text"
           id="placeInput"
-          placeholder="Filter by place (optional)"
+          placeholder="Place (optional if username entered)"
           autocomplete="off"
         />
         <input type="hidden" id="placeId" />
@@ -1093,7 +1093,8 @@
         // Build base URL with optional filters
         const selectedLanguage = document.getElementById("languageSelect").value;
         const localeParam = `&locale=${selectedLanguage}`;
-        let baseUrl = `${API_BASE}/observations/species_counts?user_login=${username}&per_page=${perPage}&quality_grade=casual,needs_id,research${localeParam}`;
+        let baseUrl = `${API_BASE}/observations/species_counts?per_page=${perPage}&quality_grade=casual,needs_id,research${localeParam}`;
+        if (username) baseUrl += `&user_login=${username}`;
         if (placeId) baseUrl += `&place_id=${placeId}`;
         if (taxonId) baseUrl += `&taxon_id=${taxonId}`;
 
@@ -1172,7 +1173,8 @@
             apiCalls++;
             onProgress(results.size, taxaMap.size, apiCalls);
 
-            const url = `${API_BASE}/observations?user_login=${username}&taxon_id=${batchIds.join(",")}&per_page=${PER_PAGE}&page=${page}&order_by=observed_on&order=asc&quality_grade=${qualityGrade}${placeParam}`;
+            const userParam = username ? `&user_login=${username}` : "";
+            const url = `${API_BASE}/observations?taxon_id=${batchIds.join(",")}&per_page=${PER_PAGE}&page=${page}&order_by=observed_on&order=asc&quality_grade=${qualityGrade}${userParam}${placeParam}`;
 
             try {
               const data = await fetchJSON(url);
@@ -1364,19 +1366,20 @@
       async function startSearch() {
         if (isSearching) return;
 
-        const username = document.getElementById("username").value.trim();
-        if (!username) {
-          showError("Please enter a username");
-          return;
-        }
-
-        // Get optional filters
+        const username = document.getElementById("username").value.trim() || null;
         const placeId = placeIdInput.value || null;
         const taxonId = taxonIdInput.value || null;
 
+        if (!username && !placeId) {
+          showError("Please enter a username or select a place");
+          return;
+        }
+
         // Save username and update URL
-        localStorage.setItem("inatUsername", username);
-        updateUrlWithUsername(username);
+        if (username) {
+          localStorage.setItem("inatUsername", username);
+          updateUrlWithUsername(username);
+        }
 
         hideError();
         autocompleteEl.classList.remove("active");
@@ -1397,7 +1400,7 @@
           const allSpecies = await getUserSpeciesCounts(username, placeId, taxonId);
 
           if (allSpecies.length === 0) {
-            showError("No species found for this user");
+            showError(username ? "No species found for this user" : "No species found for this place");
             document.getElementById("progress").style.display = "none";
             isSearching = false;
             document.getElementById("searchBtn").disabled = false;
