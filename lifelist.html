@@ -1434,7 +1434,7 @@
               foundCount++;
               allResults.push(result);
               updateResultsCount(foundCount);
-              addResultItem({
+              const itemData = {
                 taxonId: result.taxon.id,
                 taxonName: result.taxon.name,
                 commonName: result.taxon.preferred_common_name,
@@ -1445,7 +1445,9 @@
                 timeObservedAt: result.timeObservedAt,
                 imageUrl: result.imageUrl,
                 defaultPhotoUrl: result.defaultPhotoUrl,
-              }, foundCount);
+              };
+              addResultItem(itemData, foundCount);
+              addGridItem(itemData, foundCount);
             },
             placeId
           );
