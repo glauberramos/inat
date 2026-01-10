@@ -473,6 +473,22 @@
               </div>
             </div>
 
+            <div class="location-group">
+              <label for="languageSelect">Language</label>
+              <select id="languageSelect" class="language-select" style="padding: 10px 15px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; cursor: pointer;">
+                <option value="en" selected>English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="pt">Portuguese</option>
+                <option value="it">Italian</option>
+                <option value="nl">Dutch</option>
+                <option value="ru">Russian</option>
+                <option value="ja">Japanese</option>
+                <option value="zh">Chinese</option>
+              </select>
+            </div>
+
             <button id="compareButton">Compare</button>
             <button id="exportButton" class="export-btn" onclick="exportTXT()" style="display: none">Export TXT</button>
           </div>
@@ -524,6 +540,16 @@
         loadFromStorage: false,
         loadFromUrl: false,
         updateUrlOnSelect: false
+      });
+
+      // Language select - load from localStorage
+      const languageSelect = document.getElementById("languageSelect");
+      const savedLanguage = localStorage.getItem("inatLanguage");
+      if (savedLanguage) {
+        languageSelect.value = savedLanguage;
+      }
+      languageSelect.addEventListener("change", () => {
+        localStorage.setItem("inatLanguage", languageSelect.value);
       });
 
       // Username autocomplete
@@ -594,10 +620,12 @@
 
         // Build taxon parameter
         const taxonParam = taxonId ? `&taxon_id=${taxonId}` : '';
+        const selectedLanguage = document.getElementById("languageSelect").value;
+        const localeParam = `&locale=${selectedLanguage}`;
 
         // Fetch first page
         const firstResponse = await fetch(
-          `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=1&verifiable=true${taxonParam}`
+          `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=1&verifiable=true${taxonParam}${localeParam}`
         );
         const firstData = await firstResponse.json();
 
@@ -616,7 +644,7 @@
           for (let p = 2; p <= totalPages; p++) {
             promises.push(
               fetch(
-                `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=${p}&verifiable=true${taxonParam}`
+                `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=${p}&verifiable=true${taxonParam}${localeParam}`
               )
                 .then(res => res.json())
                 .then(data => data.results || [])
