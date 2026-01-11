@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Taxonomy Completion - Track Your Taxonomic Progress</title>
+    <link rel="icon" href="favicon.ico" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="dark-mode.css" />
+    <style>
+      .summary-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        padding: 15px 20px;
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+
+      .summary-search {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .taxon-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .taxon-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        padding: 16px;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .taxon-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+      }
+
+      .taxon-card.observed {
+        border-left: 4px solid #27ae60;
+      }
+
+      .taxon-card.not-observed {
+        opacity: 0.7;
+      }
+
+      .taxon-card.not-observed:hover {
+        opacity: 1;
+      }
+
+      .taxon-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+      }
+
+      .taxon-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .taxon-common-name {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 2px;
+      }
+
+      .taxon-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #666;
+      }
+
+      .taxon-stats span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .observed-count {
+        color: #74ac00;
+        font-weight: 600;
+      }
+
+      .total-count {
+        color: #3498db;
+        font-weight: 600;
+      }
+
+      .controls {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .controls label {
+        font-weight: 500;
+        color: #2c3e50;
+      }
+
+      .controls select {
+        padding: 8px 12px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        background: white;
+        cursor: pointer;
+      }
+
+      .error-message {
+        background: #ffebee;
+        color: #c62828;
+        padding: 12px;
+        border-radius: 4px;
+        margin: 16px 0;
+        display: none;
+        text-align: center;
+      }
+
+      .error-message.show {
+        display: block;
+      }
+
+      .loading-container {
+        text-align: center;
+        padding: 40px;
+      }
+
+      .loading-text {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 10px;
+      }
+
+      .loading-subtext {
+        font-size: 0.9rem;
+        color: #999;
+      }
+
+      @media (max-width: 768px) {
+        .summary-card {
+          padding: 15px;
+        }
+
+        .summary-search {
+          flex-direction: column;
+          width: 100%;
+          gap: 10px;
+        }
+
+        .summary-search .username-search-container,
+        .summary-search .taxon-search-container {
+          width: 100% !important;
+        }
+
+        .summary-search button,
+        .summary-search select {
+          width: 100%;
+        }
+
+        .taxon-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding-top: 60px;
+        }
+
+        .container {
+          padding: 10px;
+        }
+
+        h1 {
+          font-size: 1.3rem;
+        }
+      }
+
+      .progress-banner {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .progress-bar-large {
+        background: #eee;
+        border-radius: 10px;
+        height: 24px;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+
+      .progress-bar-fill-large {
+        height: 100%;
+        background: linear-gradient(90deg, #74ac00, #27ae60);
+        transition: width 0.5s ease;
+        border-radius: 10px;
+      }
+
+      .progress-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .progress-subtext {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 4px;
+      }
+
+      .observed-badge {
+        background: #27ae60;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .not-observed-badge {
+        background: #e0e0e0;
+        color: #666;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .iconic-btn {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #333;
+      }
+
+      .iconic-btn:hover {
+        background: #74ac00;
+        color: white;
+        border-color: #74ac00;
+      }
+
+      .iconic-btn.active {
+        background: #74ac00;
+        color: white;
+        border-color: #74ac00;
+      }
+
+      .taxon-card-content {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .taxon-photo {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+        flex-shrink: 0;
+      }
+
+      .taxon-photo-placeholder {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        background: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        flex-shrink: 0;
+      }
+
+      .taxon-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .rank-select {
+        padding: 8px 12px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        background: white;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <a
+      href="/inat"
+      class="back-button"
+      style="
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: #74ac00;
+        color: white;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 10px 16px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s;
+      "
+      onmouseover="this.style.background='#659900'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.2)'"
+      onmouseout="this.style.background='#74ac00'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.15)'"
+    >
+      <span style="font-size: 1rem">←</span> More iNat tools
+    </a>
+    <div class="container">
+      <header>
+        <div class="header-content">
+          <div class="title-container">
+            <img src="logo.png" alt="iNaturalist Logo" class="logo" />
+            <h1>Taxonomy Completion</h1>
+          </div>
+          <p class="description">
+            Track your observation progress across any taxonomic rank
+          </p>
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+      </header>
+
+      <main>
+        <div class="summary-card">
+          <div class="summary-search">
+            <div class="username-search-container" style="width: 250px">
+              <input
+                type="text"
+                id="usernameInput"
+                placeholder="Enter iNaturalist username..."
+                autocomplete="off"
+                style="width: 100%"
+              />
+              <div id="usernameAutocomplete" class="username-autocomplete"></div>
+            </div>
+            <select id="rankSelect" class="rank-select">
+              <option value="kingdom">Kingdoms</option>
+              <option value="phylum">Phyla</option>
+              <option value="class">Classes</option>
+              <option value="order" selected>Orders</option>
+              <option value="family">Families</option>
+            </select>
+            <select id="familyGroupSelect" class="rank-select" style="display: none;">
+            </select>
+            <button id="searchButton">Search</button>
+          </div>
+        </div>
+
+        <div id="progressBanner" class="progress-banner" style="display: none">
+          <div class="progress-bar-large">
+            <div class="progress-bar-fill-large" id="progressFill"></div>
+          </div>
+          <div class="progress-text" id="progressText">0 / 0 observed</div>
+        </div>
+
+        <div class="controls" id="controls" style="display: none">
+          <label for="iconicFilterSelect" id="groupFilterLabel" style="display: none;">Group:</label>
+          <select id="iconicFilterSelect" style="display: none;">
+            <option value="all">All</option>
+          </select>
+          <label for="sortSelect">Sort by:</label>
+          <select id="sortSelect">
+            <option value="observed-first">Observed First</option>
+            <option value="not-observed-first">Not Observed First</option>
+            <option value="name-asc">Name (A-Z)</option>
+            <option value="name-desc">Name (Z-A)</option>
+          </select>
+          <label for="filterSelect" style="margin-left: 15px">Filter:</label>
+          <select id="filterSelect">
+            <option value="all">All</option>
+            <option value="observed">Observed</option>
+            <option value="not-observed">Not Observed</option>
+          </select>
+          <input
+            type="text"
+            id="searchFilter"
+            placeholder="Search..."
+            style="
+              padding: 8px 12px;
+              border: 2px solid #ddd;
+              border-radius: 5px;
+              font-size: 14px;
+              width: 180px;
+              margin-left: 15px;
+            "
+          />
+        </div>
+
+        <div id="loadingContainer" class="loading-container" style="display: none">
+          <div class="loading-text">Loading data...</div>
+          <div class="loading-subtext" id="loadingStatus">Fetching taxonomic information</div>
+        </div>
+
+        <div id="taxonGrid" class="taxon-grid"></div>
+      </main>
+    </div>
+
+    <script src="constants.js"></script>
+    <script src="shared-utils.js"></script>
+    <script src="autocomplete.js"></script>
+    <script>
+      const usernameInput = document.getElementById("usernameInput");
+      const usernameAutocomplete = document.getElementById("usernameAutocomplete");
+      const rankSelect = document.getElementById("rankSelect");
+      const searchButton = document.getElementById("searchButton");
+      const loadingContainer = document.getElementById("loadingContainer");
+      const loadingStatus = document.getElementById("loadingStatus");
+      const taxonGrid = document.getElementById("taxonGrid");
+      const errorMessage = document.getElementById("errorMessage");
+      const progressBanner = document.getElementById("progressBanner");
+      const controls = document.getElementById("controls");
+      const sortSelect = document.getElementById("sortSelect");
+      const filterSelect = document.getElementById("filterSelect");
+      const searchFilter = document.getElementById("searchFilter");
+      const iconicFilterSelect = document.getElementById("iconicFilterSelect");
+      const groupFilterLabel = document.getElementById("groupFilterLabel");
+      const familyGroupSelect = document.getElementById("familyGroupSelect");
+
+      let taxonData = [];
+      let currentUserId = null;
+      let currentRank = "order";
+      const LIFE_TAXON_ID = 48460; // Life - root of all taxa
+
+      const rankLabels = {
+        kingdom: { singular: "kingdom", plural: "kingdoms" },
+        phylum: { singular: "phylum", plural: "phyla" },
+        class: { singular: "class", plural: "classes" },
+        order: { singular: "order", plural: "orders" },
+        family: { singular: "family", plural: "families" }
+      };
+
+      // Filter options based on rank - only show groups higher than current rank
+      const filterOptionsByRank = {
+        kingdom: [], // No filter for kingdoms
+        phylum: [
+          { value: "1", label: "Animals" },
+          { value: "47126", label: "Plants" },
+          { value: "47170", label: "Fungi" },
+          { value: "48222", label: "Chromista" },
+          { value: "47686", label: "Protozoa" },
+          { value: "67333", label: "Bacteria" },
+          { value: "151817", label: "Archaea" },
+          { value: "131236", label: "Viruses" }
+        ],
+        class: [
+          { value: "1", label: "Animals" },
+          { value: "47126", label: "Plants" },
+          { value: "47170", label: "Fungi" },
+          { value: "48222", label: "Chromista" },
+          { value: "47686", label: "Protozoa" },
+          { value: "67333", label: "Bacteria" },
+          { value: "151817", label: "Archaea" },
+          { value: "131236", label: "Viruses" },
+          { value: "2", label: "Chordates" },
+          { value: "47120", label: "Arthropods" },
+          { value: "47115", label: "Mollusks" },
+          { value: "47534", label: "Cnidarians" },
+          { value: "47549", label: "Echinoderms" },
+          { value: "47491", label: "Annelids" },
+          { value: "211194", label: "Flowering Plants" }
+        ],
+        order: [
+          { value: "1", label: "Animals" },
+          { value: "2", label: "Chordates" },
+          { value: "47120", label: "Arthropods" },
+          { value: "47115", label: "Mollusks" },
+          { value: "47534", label: "Cnidarians" },
+          { value: "47549", label: "Echinoderms" },
+          { value: "3", label: "Birds" },
+          { value: "40151", label: "Mammals" },
+          { value: "26036", label: "Reptiles" },
+          { value: "20978", label: "Amphibians" },
+          { value: "47178", label: "Ray-finned Fish" },
+          { value: "47158", label: "Insects" },
+          { value: "47119", label: "Arachnids" },
+          { value: "47126", label: "Plants" },
+          { value: "211194", label: "Flowering Plants" },
+          { value: "47170", label: "Fungi" }
+        ],
+        family: [
+          { value: "1", label: "Animals" },
+          { value: "3", label: "Birds" },
+          { value: "40151", label: "Mammals" },
+          { value: "26036", label: "Reptiles" },
+          { value: "85553", label: "Snakes" },
+          { value: "85987", label: "Lizards" },
+          { value: "39532", label: "Turtles" },
+          { value: "20978", label: "Amphibians" },
+          { value: "20979", label: "Frogs" },
+          { value: "20985", label: "Salamanders" },
+          { value: "47178", label: "Fish" },
+          { value: "47158", label: "Insects" },
+          { value: "47157", label: "Butterflies & Moths" },
+          { value: "47208", label: "Beetles" },
+          { value: "47822", label: "Bees" },
+          { value: "47792", label: "Dragonflies" },
+          { value: "47119", label: "Arachnids" },
+          { value: "47118", label: "Spiders" },
+          { value: "47115", label: "Mollusks" },
+          { value: "47114", label: "Snails & Slugs" },
+          { value: "47584", label: "Crustaceans" },
+          { value: "47126", label: "Plants" },
+          { value: "211194", label: "Flowering Plants" },
+          { value: "136329", label: "Grasses" },
+          { value: "47170", label: "Fungi" }
+        ]
+      };
+
+      // Populate family group select (no "All" option, Animals is default)
+      function populateFamilyGroupSelect() {
+        const options = filterOptionsByRank.family;
+        familyGroupSelect.innerHTML = options.map(opt =>
+          `<option value="${opt.value}">${opt.label}</option>`
+        ).join("");
+      }
+      populateFamilyGroupSelect();
+
+      // Show/hide family group select based on rank
+      function updateFamilyGroupVisibility() {
+        if (rankSelect.value === "family") {
+          familyGroupSelect.style.display = "";
+        } else {
+          familyGroupSelect.style.display = "none";
+        }
+      }
+      rankSelect.addEventListener("change", updateFamilyGroupVisibility);
+      updateFamilyGroupVisibility();
+
+      function populateGroupFilter() {
+        const options = filterOptionsByRank[currentRank] || [];
+
+        // Hide post-search filter for kingdoms and families (families use pre-search selector)
+        if (options.length === 0 || currentRank === "family") {
+          groupFilterLabel.style.display = "none";
+          iconicFilterSelect.style.display = "none";
+          iconicFilterSelect.value = "all";
+        } else {
+          groupFilterLabel.style.display = "";
+          iconicFilterSelect.style.display = "";
+          iconicFilterSelect.innerHTML = '<option value="all">All</option>';
+          options.forEach(opt => {
+            iconicFilterSelect.innerHTML += `<option value="${opt.value}">${opt.label}</option>`;
+          });
+        }
+      }
+
+      // Initialize from URL/localStorage
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlUsername = urlParams.get("user");
+      const savedUsername = localStorage.getItem("inatUsername");
+
+      if (urlUsername) {
+        usernameInput.value = urlUsername;
+        localStorage.setItem("inatUsername", urlUsername);
+      } else if (savedUsername) {
+        usernameInput.value = savedUsername;
+      }
+
+      // Username autocomplete
+      let usernameSearchTimeout = null;
+      usernameInput.addEventListener("input", (e) => {
+        clearTimeout(usernameSearchTimeout);
+        const query = e.target.value.trim();
+
+        if (query.length < 2) {
+          usernameAutocomplete.innerHTML = "";
+          usernameAutocomplete.style.display = "none";
+          return;
+        }
+
+        usernameSearchTimeout = setTimeout(async () => {
+          try {
+            const response = await fetch(
+              `${API_BASE}/users/autocomplete?q=${encodeURIComponent(query)}`
+            );
+            const data = await response.json();
+
+            if (data.results && data.results.length > 0) {
+              usernameAutocomplete.innerHTML = data.results
+                .slice(0, 10)
+                .map((user) => `
+                  <div class="username-suggestion" data-login="${user.login}">
+                    <div class="username-name">${user.login}</div>
+                    <div class="username-info">${(user.observations_count || 0).toLocaleString()} observations</div>
+                  </div>
+                `)
+                .join("");
+              usernameAutocomplete.style.display = "block";
+
+              document.querySelectorAll("#usernameAutocomplete .username-suggestion").forEach((item) => {
+                item.addEventListener("click", () => {
+                  usernameInput.value = item.dataset.login;
+                  usernameAutocomplete.innerHTML = "";
+                  usernameAutocomplete.style.display = "none";
+                });
+              });
+            } else {
+              usernameAutocomplete.style.display = "none";
+            }
+          } catch (error) {
+            console.error("Error fetching users:", error);
+          }
+        }, 300);
+      });
+
+      // Hide autocomplete on outside click
+      document.addEventListener("click", (e) => {
+        if (!usernameInput.contains(e.target) && !usernameAutocomplete.contains(e.target)) {
+          usernameAutocomplete.style.display = "none";
+        }
+      });
+
+      // Search handlers
+      searchButton.addEventListener("click", fetchData);
+      usernameInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") fetchData();
+      });
+
+      // Filter/sort handlers
+      sortSelect.addEventListener("change", displayTaxa);
+      filterSelect.addEventListener("change", displayTaxa);
+      searchFilter.addEventListener("input", displayTaxa);
+      iconicFilterSelect.addEventListener("change", displayTaxa);
+
+      async function fetchData() {
+        const username = usernameInput.value.trim();
+        currentRank = rankSelect.value;
+        // For families, use the selected group; for others, use Life taxon
+        const taxonId = currentRank === "family" ? parseInt(familyGroupSelect.value) : LIFE_TAXON_ID;
+
+        if (!username) {
+          showError("Please enter a username");
+          return;
+        }
+
+        hideError();
+        loadingContainer.style.display = "block";
+        taxonGrid.innerHTML = "";
+        progressBanner.style.display = "none";
+        controls.style.display = "none";
+
+        const labels = rankLabels[currentRank];
+
+        try {
+          // Get user ID
+          loadingStatus.textContent = "Finding user...";
+          const userResponse = await fetch(`${API_BASE}/users/autocomplete?q=${encodeURIComponent(username)}`);
+          const userData = await userResponse.json();
+
+          if (!userData.results || userData.results.length === 0) {
+            throw new Error("User not found");
+          }
+
+          const userId = userData.results[0].id;
+          currentUserId = userId;
+          localStorage.setItem("inatUsername", username);
+
+          // Fetch all taxa of the selected rank within the parent taxon
+          loadingStatus.textContent = `Fetching ${labels.plural} in this taxon...`;
+          const taxaResponse = await fetch(
+            `${API_BASE}/taxa?taxon_id=${taxonId}&rank=${currentRank}&per_page=500&is_active=true`
+          );
+          const taxaData = await taxaResponse.json();
+
+          if (!taxaData.results || taxaData.results.length === 0) {
+            throw new Error(`No ${labels.plural} found for this taxon`);
+          }
+
+          let taxa = [...taxaData.results];
+          const totalTaxaCount = taxaData.total_results || taxa.length;
+          const taxaPerPage = 500;
+          const totalTaxaPages = Math.ceil(totalTaxaCount / taxaPerPage);
+
+          if (totalTaxaPages > 1) {
+            loadingStatus.textContent = `Fetching all ${labels.plural} (${totalTaxaCount} total)...`;
+            for (let page = 2; page <= totalTaxaPages; page++) {
+              const additionalResponse = await fetch(
+                `${API_BASE}/taxa?taxon_id=${taxonId}&rank=${currentRank}&per_page=${taxaPerPage}&page=${page}&is_active=true`
+              );
+              const additionalData = await additionalResponse.json();
+              if (additionalData.results) {
+                taxa.push(...additionalData.results);
+              }
+            }
+          }
+
+          loadingStatus.textContent = `Found ${taxa.length} ${labels.plural}. Fetching your species...`;
+
+          // Fetch user's species to determine which taxa they've observed
+          const taxaIds = taxa.map(t => t.id);
+          const perPage = 500;
+          let allUserSpecies = [];
+          let page = 1;
+          let totalResults = 0;
+
+          // Fetch first page
+          const firstResponse = await fetch(
+            `${API_BASE}/observations/species_counts?user_id=${userId}&taxon_id=${taxonId}&per_page=${perPage}&page=1`
+          );
+          const firstData = await firstResponse.json();
+          allUserSpecies = firstData.results || [];
+          totalResults = firstData.total_results || 0;
+
+          // Fetch remaining pages sequentially
+          const totalPages = Math.ceil(totalResults / perPage);
+          for (page = 2; page <= totalPages; page++) {
+            loadingStatus.textContent = `Fetching your species... (page ${page}/${totalPages})`;
+            const response = await fetch(
+              `${API_BASE}/observations/species_counts?user_id=${userId}&taxon_id=${taxonId}&per_page=${perPage}&page=${page}`
+            );
+            const data = await response.json();
+            if (data.results) {
+              allUserSpecies.push(...data.results);
+            }
+          }
+
+          loadingStatus.textContent = `Analyzing ${labels.singular} completion...`;
+
+          // Build a set of observed taxon IDs by checking ancestor_ids of user's species
+          const observedTaxonIds = new Set();
+          for (const species of allUserSpecies) {
+            if (species.taxon && species.taxon.ancestor_ids) {
+              for (const ancestorId of species.taxon.ancestor_ids) {
+                if (taxaIds.includes(ancestorId)) {
+                  observedTaxonIds.add(ancestorId);
+                }
+              }
+              // Also check if the species itself is in our taxa list
+              if (taxaIds.includes(species.taxon.id)) {
+                observedTaxonIds.add(species.taxon.id);
+              }
+            }
+          }
+
+          // Build taxon data with ancestor_ids for filtering
+          taxonData = taxa.map(taxon => {
+            const observed = observedTaxonIds.has(taxon.id);
+            const photoUrl = taxon.default_photo?.square_url || null;
+
+            return {
+              id: taxon.id,
+              name: taxon.name,
+              commonName: taxon.preferred_common_name || null,
+              observed,
+              iconicTaxonName: taxon.iconic_taxon_name,
+              photoUrl,
+              ancestorIds: taxon.ancestor_ids || []
+            };
+          });
+
+          // Populate and reset group filter based on rank
+          populateGroupFilter();
+
+          loadingContainer.style.display = "none";
+          progressBanner.style.display = "block";
+          controls.style.display = "flex";
+
+          updateSummaryStats();
+          displayTaxa();
+
+        } catch (error) {
+          console.error("Error:", error);
+          loadingContainer.style.display = "none";
+          showError(error.message || "Error fetching data. Please try again.");
+        }
+      }
+
+      function updateSummaryStats() {
+        const labels = rankLabels[currentRank];
+        const iconicFilter = iconicFilterSelect.value;
+
+        // Filter data for stats based on iconic filter
+        let dataForStats = taxonData;
+        if (iconicFilter !== "all") {
+          const filterId = parseInt(iconicFilter);
+          dataForStats = taxonData.filter(t => t.ancestorIds.includes(filterId) || t.id === filterId);
+        }
+
+        const totalTaxa = dataForStats.length;
+        const taxaObserved = dataForStats.filter(t => t.observed).length;
+        const overallProgress = totalTaxa > 0 ? Math.round((taxaObserved / totalTaxa) * 100) : 0;
+
+        document.getElementById("progressFill").style.width = overallProgress + "%";
+        document.getElementById("progressText").textContent = `${taxaObserved} / ${totalTaxa} ${labels.plural} observed (${overallProgress}%)`;
+      }
+
+      function displayTaxa() {
+        const labels = rankLabels[currentRank];
+        const sortBy = sortSelect.value;
+        const filterBy = filterSelect.value;
+        const searchText = searchFilter.value.toLowerCase().trim();
+        const iconicFilter = iconicFilterSelect.value;
+
+        // Update stats based on filter
+        updateSummaryStats();
+
+        // Filter data
+        let filteredData = [...taxonData];
+
+        // Filter by iconic taxon group
+        if (iconicFilter !== "all") {
+          const filterId = parseInt(iconicFilter);
+          filteredData = filteredData.filter(t => t.ancestorIds.includes(filterId) || t.id === filterId);
+        }
+
+        if (filterBy === "observed") {
+          filteredData = filteredData.filter(t => t.observed);
+        } else if (filterBy === "not-observed") {
+          filteredData = filteredData.filter(t => !t.observed);
+        }
+
+        if (searchText) {
+          filteredData = filteredData.filter(t =>
+            t.name.toLowerCase().includes(searchText) ||
+            (t.commonName && t.commonName.toLowerCase().includes(searchText))
+          );
+        }
+
+        // Sort data
+        filteredData.sort((a, b) => {
+          if (sortBy === "observed-first") {
+            if (a.observed !== b.observed) return b.observed - a.observed;
+            return a.name.localeCompare(b.name);
+          } else if (sortBy === "not-observed-first") {
+            if (a.observed !== b.observed) return a.observed - b.observed;
+            return a.name.localeCompare(b.name);
+          } else if (sortBy === "name-asc") {
+            return a.name.localeCompare(b.name);
+          } else if (sortBy === "name-desc") {
+            return b.name.localeCompare(a.name);
+          }
+          return 0;
+        });
+
+        // Render
+        taxonGrid.innerHTML = filteredData.map(taxon => {
+          const cardClass = taxon.observed ? "observed" : "not-observed";
+          const badge = taxon.observed
+            ? `<span class="observed-badge">Observed</span>`
+            : `<span class="not-observed-badge">Not Yet</span>`;
+          const icon = getIconicTaxonIcon(taxon.iconicTaxonName);
+
+          const username = usernameInput.value.trim();
+          const taxonUrl = taxon.observed
+            ? `https://www.inaturalist.org/observations?user_id=${encodeURIComponent(username)}&taxon_id=${taxon.id}&view=species`
+            : `https://www.inaturalist.org/taxa/${taxon.id}`;
+          const photoHtml = taxon.photoUrl
+            ? `<img src="${taxon.photoUrl}" alt="${escapeHtml(taxon.name)}" class="taxon-photo">`
+            : `<div class="taxon-photo-placeholder">${icon}</div>`;
+
+          return `
+            <div class="taxon-card ${cardClass}" onclick="window.open('${taxonUrl}', '_blank')">
+              <div class="taxon-card-content">
+                ${photoHtml}
+                <div class="taxon-info">
+                  <div class="taxon-header">
+                    <div>
+                      <div class="taxon-name">${escapeHtml(taxon.name)}</div>
+                      ${taxon.commonName ? `<div class="taxon-common-name">${escapeHtml(taxon.commonName)}</div>` : ""}
+                    </div>
+                    ${badge}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        if (filteredData.length === 0) {
+          taxonGrid.innerHTML = `<div style="text-align: center; padding: 40px; color: #666;">No ${labels.plural} match your filters.</div>`;
+        }
+      }
+
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.add("show");
+      }
+
+      function hideError() {
+        errorMessage.classList.remove("show");
+      }
+    </script>
+    <script src="dark-mode.js"></script>
+  </body>
+</html>

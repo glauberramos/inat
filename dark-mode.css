@@ -847,3 +847,199 @@ body.dark-mode .observed-check {
   color: #8bc34a;
 }
 
+/* Family Completion page */
+body.dark-mode .family-card {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .family-card.observed {
+  border-left-color: #27ae60;
+}
+
+body.dark-mode .family-card.not-observed {
+  opacity: 0.7;
+}
+
+body.dark-mode .family-card.not-observed:hover {
+  opacity: 1;
+}
+
+body.dark-mode .family-name {
+  color: #e0e0e0;
+}
+
+body.dark-mode .family-name a {
+  color: #e0e0e0;
+}
+
+body.dark-mode .family-common-name {
+  color: #aaa;
+}
+
+body.dark-mode .family-stats {
+  color: #aaa;
+}
+
+body.dark-mode .family-photo-placeholder {
+  background: #3d3d3d;
+  color: #888;
+}
+
+body.dark-mode .iconic-btn {
+  background: #3d3d3d;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-mode .iconic-btn:hover {
+  background: #74ac00;
+  color: white;
+  border-color: #74ac00;
+}
+
+body.dark-mode .iconic-btn.active {
+  background: #74ac00;
+  color: white;
+  border-color: #74ac00;
+}
+
+/* Order Completion page */
+body.dark-mode .order-card {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .order-card.observed {
+  border-left-color: #27ae60;
+}
+
+body.dark-mode .order-card.not-observed {
+  opacity: 0.7;
+}
+
+body.dark-mode .order-card.not-observed:hover {
+  opacity: 1;
+}
+
+body.dark-mode .order-name {
+  color: #e0e0e0;
+}
+
+body.dark-mode .order-common-name {
+  color: #aaa;
+}
+
+body.dark-mode .order-stats {
+  color: #aaa;
+}
+
+body.dark-mode .order-photo-placeholder {
+  background: #3d3d3d;
+  color: #888;
+}
+
+/* Taxonomy Completion page */
+body.dark-mode .taxon-card {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-mode .taxon-card.observed {
+  border-left-color: #27ae60;
+}
+
+body.dark-mode .taxon-card.not-observed {
+  opacity: 0.7;
+}
+
+body.dark-mode .taxon-card.not-observed:hover {
+  opacity: 1;
+}
+
+body.dark-mode .taxon-name {
+  color: #e0e0e0;
+}
+
+body.dark-mode .taxon-common-name {
+  color: #aaa;
+}
+
+body.dark-mode .taxon-stats {
+  color: #aaa;
+}
+
+body.dark-mode .taxon-photo-placeholder {
+  background: #3d3d3d;
+  color: #888;
+}
+
+body.dark-mode .rank-select {
+  background: #3d3d3d;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-mode #iconicFilterSelect {
+  background: #3d3d3d;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-mode .progress-banner {
+  background: #2d2d2d;
+}
+
+body.dark-mode .progress-bar-large {
+  background: #444;
+}
+
+body.dark-mode .progress-text {
+  color: #e0e0e0;
+}
+
+body.dark-mode .progress-subtext {
+  color: #aaa;
+}
+
+body.dark-mode .progress-bar-container {
+  background: #444;
+}
+
+body.dark-mode .stat-value {
+  color: #e0e0e0;
+}
+
+body.dark-mode .stat-label {
+  color: #aaa;
+}
+
+body.dark-mode .not-observed-badge {
+  background: #444;
+  color: #aaa;
+}
+
+body.dark-mode .loading-container {
+  color: #aaa;
+}
+
+body.dark-mode .loading-subtext {
+  color: #777;
+}
+
+body.dark-mode #searchFilter {
+  background: #3d3d3d;
+  border-color: #555 !important;
+  color: #e0e0e0;
+}
+
+body.dark-mode #searchFilter::placeholder {
+  color: #888;
+}
+
+body.dark-mode #filterSelect {
+  background: #3d3d3d !important;
+  border-color: #555 !important;
+  color: #e0e0e0;
+}
+
