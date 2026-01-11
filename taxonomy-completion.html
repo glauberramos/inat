@@ -431,6 +431,8 @@
           <select id="sortSelect">
             <option value="observed-first">Observed First</option>
             <option value="not-observed-first">Not Observed First</option>
+            <option value="species-desc">Species (High to Low)</option>
+            <option value="species-asc">Species (Low to High)</option>
             <option value="name-asc">Name (A-Z)</option>
             <option value="name-desc">Name (Z-A)</option>
           </select>
@@ -896,6 +898,10 @@
           } else if (sortBy === "not-observed-first") {
             if (a.observed !== b.observed) return a.observed - b.observed;
             return a.name.localeCompare(b.name);
+          } else if (sortBy === "species-desc") {
+            return b.speciesCount - a.speciesCount;
+          } else if (sortBy === "species-asc") {
+            return a.speciesCount - b.speciesCount;
           } else if (sortBy === "name-asc") {
             return a.name.localeCompare(b.name);
           } else if (sortBy === "name-desc") {
