@@ -714,16 +714,16 @@
 
       compareButton.addEventListener("click", compareSpecies);
 
-      async function fetchSpecies(placeId, taxonId) {
+      async function fetchSpecies(placeId, taxonId, placeName) {
         const perPage = 500;
-        let allResults = [];
 
         // Build taxon parameter
         const taxonParam = taxonId ? `&taxon_id=${taxonId}` : '';
         const selectedLanguage = document.getElementById("languageSelect").value;
         const localeParam = `&locale=${selectedLanguage}`;
 
-        // Fetch first page
+        // Fetch first page to get total_results
+        loading.textContent = `Loading ${placeName} species (page 1)...`;
         const firstResponse = await fetch(
           `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=1&verifiable=true${taxonParam}${localeParam}`
         );
@@ -733,27 +733,21 @@
           return [];
         }
 
-        allResults = [...firstData.results];
+        // Start with first page results
+        let allResults = [...firstData.results];
+        const totalResults = firstData.total_results;
+        const totalPages = Math.ceil(totalResults / perPage);
 
-        // If there are more results, fetch remaining pages
-        const totalAvailable = firstData.total_results;
-        const totalPages = Math.ceil(totalAvailable / perPage);
-
-        if (totalPages > 1) {
-          const promises = [];
-          for (let p = 2; p <= totalPages; p++) {
-            promises.push(
-              fetch(
-                `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=${p}&verifiable=true${taxonParam}${localeParam}`
-              )
-                .then(res => res.json())
-                .then(data => data.results || [])
-            );
+        // Fetch remaining pages one by one
+        for (let page = 2; page <= totalPages; page++) {
+          loading.textContent = `Loading ${placeName} species (page ${page}/${totalPages})...`;
+          const response = await fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=${page}&verifiable=true${taxonParam}${localeParam}`
+          );
+          const data = await response.json();
+          if (data.results) {
+            allResults.push(...data.results);
           }
-          const additionalResults = await Promise.all(promises);
-          additionalResults.forEach(results => {
-            allResults.push(...results);
-          });
         }
 
         return allResults;
@@ -838,12 +832,17 @@
         exportButton.style.display = "none";
 
         try {
-          // Fetch species from both places and user's observed species in parallel
-          const [speciesA, speciesB, observedIds] = await Promise.all([
-            fetchSpecies(placeA, taxonId),
-            fetchSpecies(placeB, taxonId),
-            fetchUserObservedSpecies(username, taxonId)
-          ]);
+          // Fetch species from Place A first
+          const speciesA = await fetchSpecies(placeA, taxonId, placeNameA);
+
+          // Then fetch species from Place B
+          const speciesB = await fetchSpecies(placeB, taxonId, placeNameB);
+
+          // Fetch user observed species
+          if (username) {
+            loading.textContent = "Loading user observations...";
+          }
+          const observedIds = await fetchUserObservedSpecies(username, taxonId);
 
           userObservedTaxonIds = observedIds;
 
