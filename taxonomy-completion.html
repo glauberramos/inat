@@ -796,9 +796,9 @@
           let page = 1;
           let totalResults = 0;
 
-          // Fetch first page
+          // Fetch first page (verifiable=true excludes casual observations, matching iNaturalist default)
           const firstResponse = await fetch(
-            `${API_BASE}/observations/species_counts?user_id=${userId}&taxon_id=${taxonId}&per_page=${perPage}&page=1`
+            `${API_BASE}/observations/species_counts?user_id=${userId}&taxon_id=${taxonId}&per_page=${perPage}&page=1&verifiable=true`
           );
           const firstData = await firstResponse.json();
           allUserSpecies = firstData.results || [];
@@ -809,7 +809,7 @@
           for (page = 2; page <= totalPages; page++) {
             loadingStatus.textContent = `Fetching your species... (page ${page}/${totalPages})`;
             const response = await fetch(
-              `${API_BASE}/observations/species_counts?user_id=${userId}&taxon_id=${taxonId}&per_page=${perPage}&page=${page}`
+              `${API_BASE}/observations/species_counts?user_id=${userId}&taxon_id=${taxonId}&per_page=${perPage}&page=${page}&verifiable=true`
             );
             const data = await response.json();
             if (data.results) {
@@ -821,16 +821,19 @@
 
           // Build a map of taxon ID -> species count
           const taxonSpeciesCount = new Map();
-          for (const species of allUserSpecies) {
-            if (species.taxon && species.taxon.ancestor_ids) {
-              for (const ancestorId of species.taxon.ancestor_ids) {
-                if (taxaIds.includes(ancestorId)) {
-                  taxonSpeciesCount.set(ancestorId, (taxonSpeciesCount.get(ancestorId) || 0) + 1);
+          for (const item of allUserSpecies) {
+            if (item.taxon && item.taxon.ancestor_ids) {
+              // Check if the taxon itself is in our taxa list first
+              if (taxaIds.includes(item.taxon.id)) {
+                taxonSpeciesCount.set(item.taxon.id, (taxonSpeciesCount.get(item.taxon.id) || 0) + 1);
+              } else {
+                // Find the first matching ancestor at the current rank
+                for (const ancestorId of item.taxon.ancestor_ids) {
+                  if (taxaIds.includes(ancestorId)) {
+                    taxonSpeciesCount.set(ancestorId, (taxonSpeciesCount.get(ancestorId) || 0) + 1);
+                    break; // Only count once per species
+                  }
                 }
-              }
-              // Also check if the species itself is in our taxa list
-              if (taxaIds.includes(species.taxon.id)) {
-                taxonSpeciesCount.set(species.taxon.id, (taxonSpeciesCount.get(species.taxon.id) || 0) + 1);
               }
             }
           }
