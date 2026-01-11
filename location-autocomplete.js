@@ -17,13 +17,53 @@ function initLocationAutocomplete(
   const onClear = options?.onClear || null;
   const debounceMs = options?.debounceMs || 300;
   const minChars = options?.minChars || 2;
-  const maxResults = options?.maxResults || 10;
+  const maxResults = options?.maxResults || 20;
   const suggestionClass = options?.suggestionClass || 'username-suggestion';
   const nameClass = options?.nameClass || 'username-name';
   const infoClass = options?.infoClass || 'username-info';
 
   let searchTimeout = null;
   let selectedPlace = null;
+
+  // Place type mappings
+  const placeTypes = {
+    6: 'Street',
+    7: 'Town',
+    8: 'State',
+    9: 'County',
+    10: 'Local Admin',
+    12: 'Country',
+    13: 'Island',
+    16: 'Suburb',
+    19: 'Colloquial',
+    20: 'Point of Interest',
+    21: 'Region',
+    22: 'Continent',
+    24: 'Estate',
+    25: 'Historical County',
+    29: 'Drainage',
+    100: 'Open Space',
+    1001: 'Territory',
+    1002: 'District',
+    1003: 'Province',
+    1004: 'Commune',
+    1005: 'Municipality',
+    1006: 'Prefecture',
+    1007: 'Department',
+    1008: 'Canton',
+    1009: 'Parish',
+    1010: 'Borough',
+    1011: 'Ward',
+    1013: 'Suburb'
+  };
+
+  function getPlaceTypeName(place) {
+    if (place.place_type_name) return place.place_type_name;
+    if (place.place_type && placeTypes[place.place_type]) {
+      return placeTypes[place.place_type];
+    }
+    return '';
+  }
 
   function updateUrl(placeId, placeName) {
     const url = new URL(window.location);
@@ -83,13 +123,14 @@ function initLocationAutocomplete(
     autocompleteElement.innerHTML = places
       .slice(0, maxResults)
       .map(function(place) {
+        var placeTypeName = getPlaceTypeName(place);
         return `
           <div class="${suggestionClass}"
                data-place-id="${place.id}"
                data-place-name="${place.display_name || place.name}"
                data-place-location="${place.location || ''}">
-            <div class="${nameClass}">${place.display_name || place.name}</div>
-            <div class="${infoClass}">${place.place_type_name || ''}</div>
+            <span class="${nameClass}">${place.display_name || place.name}</span>
+            ${placeTypeName ? `<span class="${infoClass}">${placeTypeName.toUpperCase()}</span>` : ''}
           </div>
         `;
       })

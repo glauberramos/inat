@@ -677,9 +677,11 @@ input[type="checkbox"] {
 }
 
 .username-suggestion .username-info {
-  font-size: 0.9rem;
-  color: #666;
-  margin-top: 2px;
+  font-size: 0.75rem;
+  color: #999;
+  margin-left: 8px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
 }
 
 .username-search-container {
