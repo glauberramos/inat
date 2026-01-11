@@ -411,6 +411,24 @@
             </select>
             <select id="familyGroupSelect" class="rank-select" style="display: none;">
             </select>
+            <select id="languageSelect" class="rank-select">
+              <option value="en" selected>English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="pt">Portuguese</option>
+              <option value="it">Italian</option>
+              <option value="nl">Dutch</option>
+              <option value="sv">Swedish</option>
+              <option value="pl">Polish</option>
+              <option value="da">Danish</option>
+              <option value="fi">Finnish</option>
+              <option value="no">Norwegian</option>
+              <option value="ru">Russian</option>
+              <option value="zh">Chinese</option>
+              <option value="ja">Japanese</option>
+              <option value="ko">Korean</option>
+            </select>
             <button id="searchButton">Search</button>
           </div>
         </div>
@@ -486,6 +504,7 @@
       const iconicFilterSelect = document.getElementById("iconicFilterSelect");
       const groupFilterLabel = document.getElementById("groupFilterLabel");
       const familyGroupSelect = document.getElementById("familyGroupSelect");
+      const languageSelect = document.getElementById("languageSelect");
 
       let taxonData = [];
       let currentUserId = null;
@@ -627,6 +646,17 @@
         usernameInput.value = savedUsername;
       }
 
+      // Load saved language
+      const savedLanguage = localStorage.getItem("inatLanguage");
+      if (savedLanguage) {
+        languageSelect.value = savedLanguage;
+      }
+
+      // Save language on change
+      languageSelect.addEventListener("change", () => {
+        localStorage.setItem("inatLanguage", languageSelect.value);
+      });
+
       // Username autocomplete
       let usernameSearchTimeout = null;
       usernameInput.addEventListener("input", (e) => {
@@ -728,8 +758,10 @@
 
           // Fetch all taxa of the selected rank within the parent taxon
           loadingStatus.textContent = `Fetching ${labels.plural} in this taxon...`;
+          const selectedLanguage = languageSelect.value;
+          const localeParam = `&locale=${selectedLanguage}`;
           const taxaResponse = await fetch(
-            `${API_BASE}/taxa?taxon_id=${taxonId}&rank=${currentRank}&per_page=500&is_active=true`
+            `${API_BASE}/taxa?taxon_id=${taxonId}&rank=${currentRank}&per_page=500&is_active=true${localeParam}`
           );
           const taxaData = await taxaResponse.json();
 
@@ -746,7 +778,7 @@
             loadingStatus.textContent = `Fetching all ${labels.plural} (${totalTaxaCount} total)...`;
             for (let page = 2; page <= totalTaxaPages; page++) {
               const additionalResponse = await fetch(
-                `${API_BASE}/taxa?taxon_id=${taxonId}&rank=${currentRank}&per_page=${taxaPerPage}&page=${page}&is_active=true`
+                `${API_BASE}/taxa?taxon_id=${taxonId}&rank=${currentRank}&per_page=${taxaPerPage}&page=${page}&is_active=true${localeParam}`
               );
               const additionalData = await additionalResponse.json();
               if (additionalData.results) {
