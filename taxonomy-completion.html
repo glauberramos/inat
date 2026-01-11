@@ -88,6 +88,7 @@
         justify-content: space-between;
         font-size: 0.85rem;
         color: #666;
+        margin-top: 8px;
       }
 
       .taxon-stats span {
@@ -784,25 +785,26 @@
 
           loadingStatus.textContent = `Analyzing ${labels.singular} completion...`;
 
-          // Build a set of observed taxon IDs by checking ancestor_ids of user's species
-          const observedTaxonIds = new Set();
+          // Build a map of taxon ID -> species count
+          const taxonSpeciesCount = new Map();
           for (const species of allUserSpecies) {
             if (species.taxon && species.taxon.ancestor_ids) {
               for (const ancestorId of species.taxon.ancestor_ids) {
                 if (taxaIds.includes(ancestorId)) {
-                  observedTaxonIds.add(ancestorId);
+                  taxonSpeciesCount.set(ancestorId, (taxonSpeciesCount.get(ancestorId) || 0) + 1);
                 }
               }
               // Also check if the species itself is in our taxa list
               if (taxaIds.includes(species.taxon.id)) {
-                observedTaxonIds.add(species.taxon.id);
+                taxonSpeciesCount.set(species.taxon.id, (taxonSpeciesCount.get(species.taxon.id) || 0) + 1);
               }
             }
           }
 
           // Build taxon data with ancestor_ids for filtering
           taxonData = taxa.map(taxon => {
-            const observed = observedTaxonIds.has(taxon.id);
+            const speciesCount = taxonSpeciesCount.get(taxon.id) || 0;
+            const observed = speciesCount > 0;
             const photoUrl = taxon.default_photo?.square_url || null;
 
             return {
@@ -810,6 +812,8 @@
               name: taxon.name,
               commonName: taxon.preferred_common_name || null,
               observed,
+              speciesCount,
+              totalSpecies: taxon.observations_species_count || 0,
               iconicTaxonName: taxon.iconic_taxon_name,
               photoUrl,
               ancestorIds: taxon.ancestor_ids || []
@@ -927,6 +931,9 @@
                       ${taxon.commonName ? `<div class="taxon-common-name">${escapeHtml(taxon.commonName)}</div>` : ""}
                     </div>
                     ${badge}
+                  </div>
+                  <div class="taxon-stats">
+                    <span class="species-count">${taxon.speciesCount.toLocaleString()} species</span>
                   </div>
                 </div>
               </div>
