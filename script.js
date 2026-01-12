@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const languageSelect = document.getElementById("languageSelect");
   const downloadButton = document.getElementById("downloadButton");
   const locationName = document.getElementById("locationName");
+  const mapBoundsInput = document.getElementById("mapBoundsInput");
 
   // Load saved username, place ID, taxon, and limit preference from localStorage
   const savedUsername = localStorage.getItem("inatUsername");
@@ -210,6 +211,16 @@ document.addEventListener("DOMContentLoaded", function () {
       taxonId = localStorage.getItem("inatTaxonId");
     }
 
+    // Check for map bounds selection
+    let mapBounds = null;
+    if (mapBoundsInput && mapBoundsInput.value) {
+      try {
+        mapBounds = JSON.parse(mapBoundsInput.value);
+      } catch (e) {
+        console.error("Error parsing map bounds:", e);
+      }
+    }
+
     showMissingCheckbox.checked = false;
     showSpottedCheckbox.checked = false;
 
@@ -218,7 +229,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    if (!placeId) {
+    if (!placeId && !mapBounds) {
       placeId = "any";
     }
 
@@ -231,11 +242,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const userObservations = await getUserObservations(
         username,
         placeId,
-        taxonId
+        taxonId,
+        mapBounds
       );
 
       // Then get the top species for the place
-      const topSpecies = await getTopSpecies(placeId, taxonId);
+      const topSpecies = await getTopSpecies(placeId, taxonId, mapBounds);
 
       // Display the species
       displaySpecies(topSpecies, userObservations);
@@ -260,7 +272,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  async function getUserObservations(username, placeId, taxonId) {
+  async function getUserObservations(username, placeId, taxonId, mapBounds) {
     const taxonParam = taxonId === "all" ? "" : `&taxon_id=${taxonId}`;
     const captiveParam =
       wildCheckbox && wildCheckbox.checked ? "&captive=false" : "";
@@ -293,21 +305,25 @@ document.addEventListener("DOMContentLoaded", function () {
     const projectId = localStorage.getItem("inatProjectId");
     let allPlacesParam = "";
 
-    if (projectId) {
+    if (includeAllPlacesCheckbox && includeAllPlacesCheckbox.checked) {
+      // Include all places - don't filter by location
+      allPlacesParam = "";
+    } else if (mapBounds) {
+      // Map bounds selection takes priority
+      if (mapBounds.type === "circle") {
+        allPlacesParam = `&lat=${mapBounds.lat}&lng=${mapBounds.lng}&radius=${(mapBounds.radius / 1000).toFixed(2)}`;
+      } else if (mapBounds.type === "rectangle") {
+        allPlacesParam = `&swlat=${mapBounds.swlat}&swlng=${mapBounds.swlng}&nelat=${mapBounds.nelat}&nelng=${mapBounds.nelng}`;
+      }
+    } else if (projectId) {
       // If project is selected, use project filtering
-      allPlacesParam =
-        includeAllPlacesCheckbox && includeAllPlacesCheckbox.checked
-          ? ""
-          : `&project_id=${projectId}`;
-    } else {
+      allPlacesParam = `&project_id=${projectId}`;
+    } else if (placeId && placeId !== "any") {
       // If place is selected, use place filtering
-      allPlacesParam =
-        includeAllPlacesCheckbox && includeAllPlacesCheckbox.checked
-          ? ""
-          : `&place_id=${placeId}`;
+      allPlacesParam = `&place_id=${placeId}`;
     }
 
-    const url = `https://api.inaturalist.org/v1/observations/taxonomy?user_login=${username}${allPlacesParam}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}`;
+    const url = `https://api.inaturalist.org/v1/observations/taxonomy?user_login=${username}${allPlacesParam}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${monthParam}`;
     const response = await fetch(url);
     const data = await response.json();
 
@@ -316,7 +332,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return allObservationIds;
   }
 
-  async function getTopSpecies(placeId, taxonId) {
+  async function getTopSpecies(placeId, taxonId, mapBounds) {
     const taxonParam = taxonId === "all" ? "" : `&taxon_id=${taxonId}`;
     const captiveParam =
       wildCheckbox && wildCheckbox.checked ? "&captive=false" : "";
@@ -353,20 +369,28 @@ document.addEventListener("DOMContentLoaded", function () {
     const projectId = localStorage.getItem("inatProjectId");
     let locationParam = "";
 
-    if (projectId) {
+    if (mapBounds) {
+      // Map bounds selection takes priority
+      if (mapBounds.type === "circle") {
+        locationParam = `lat=${mapBounds.lat}&lng=${mapBounds.lng}&radius=${(mapBounds.radius / 1000).toFixed(2)}`;
+      } else if (mapBounds.type === "rectangle") {
+        locationParam = `swlat=${mapBounds.swlat}&swlng=${mapBounds.swlng}&nelat=${mapBounds.nelat}&nelng=${mapBounds.nelng}`;
+      }
+    } else if (projectId) {
       // If project is selected, use project filtering
-      locationParam = `&project_id=${projectId}`;
-    } else {
+      locationParam = `project_id=${projectId}`;
+    } else if (placeId && placeId !== "any") {
       // If place is selected, use place filtering
-      locationParam = `&place_id=${placeId}`;
+      locationParam = `place_id=${placeId}`;
     }
+
+    // Build base URL with location param if present
+    const baseUrl = `https://api.inaturalist.org/v1/observations/species_counts?${locationParam}`;
 
     if (limit === "5000") {
       const getSpeciesCounts = (page = 1) =>
         fetch(
-          `https://api.inaturalist.org/v1/observations/species_counts?${locationParam.substring(
-            1
-          )}&per_page=500&page=${page}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`
+          `${baseUrl}&per_page=500&page=${page}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`
         )
           .then((response) => response.json())
           .then((data) => data.results);
@@ -382,17 +406,13 @@ document.addEventListener("DOMContentLoaded", function () {
       const results = [];
 
       // First call: get first 500 species
-      const url1 = `https://api.inaturalist.org/v1/observations/species_counts?${locationParam.substring(
-        1
-      )}&per_page=500${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`;
+      const url1 = `${baseUrl}&per_page=500${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`;
       const response1 = await fetch(url1);
       const data1 = await response1.json();
       results.push(...data1.results);
 
       // Second call: get next 500 species (page 2)
-      const url2 = `https://api.inaturalist.org/v1/observations/species_counts?${locationParam.substring(
-        1
-      )}&per_page=500&page=2${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`;
+      const url2 = `${baseUrl}&per_page=500&page=2${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`;
       const response2 = await fetch(url2);
       const data2 = await response2.json();
       results.push(...data2.results);
@@ -400,9 +420,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return results;
     } else {
       // Regular single API call for other limits
-      const url = `https://api.inaturalist.org/v1/observations/species_counts?${locationParam.substring(
-        1
-      )}&per_page=${limit}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`;
+      const url = `${baseUrl}&per_page=${limit}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`;
       const response = await fetch(url);
       const data = await response.json();
 

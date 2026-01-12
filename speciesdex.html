@@ -59,6 +59,8 @@
     </script>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="dark-mode.css" />
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
       @media (max-width: 480px) {
         .place-search-container,
@@ -144,6 +146,215 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
       }
+
+      /* Map Modal Styles */
+      .map-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+      }
+
+      .map-modal.show {
+        display: flex;
+      }
+
+      .map-modal-content {
+        background: #fff;
+        border-radius: 16px;
+        width: 94%;
+        max-width: 720px;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      .map-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        background: #fafafa;
+        border-bottom: 1px solid #eee;
+      }
+
+      .map-modal-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .map-modal-close {
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        color: #999;
+        padding: 4px 8px;
+        line-height: 1;
+        border-radius: 6px;
+        transition: all 0.2s;
+      }
+
+      .map-modal-close:hover {
+        background: #eee;
+        color: #333;
+      }
+
+      .map-container {
+        height: 420px;
+        position: relative;
+        background: #e8e8e8;
+      }
+
+      #areaMap {
+        width: 100%;
+        height: 100%;
+      }
+
+      .map-toolbar {
+        position: absolute;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        display: flex;
+        gap: 4px;
+        background: white;
+        padding: 4px;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .map-tool-btn {
+        background: transparent;
+        border: none;
+        border-radius: 6px;
+        width: 36px;
+        height: 36px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        transition: all 0.2s;
+        color: #555;
+      }
+
+      .map-tool-btn:hover {
+        background: #f0f0f0;
+      }
+
+      .map-tool-btn.active {
+        background: #74ac00;
+        color: white;
+      }
+
+      .map-modal-footer {
+        padding: 16px 20px;
+        background: #fafafa;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .map-info {
+        font-size: 0.8rem;
+        color: #888;
+        flex: 1;
+      }
+
+      .map-modal-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .map-cancel-btn {
+        background: white;
+        border: 1px solid #ddd;
+        color: #555;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .map-cancel-btn:hover {
+        background: #f5f5f5;
+        border-color: #ccc;
+      }
+
+      .map-apply-btn {
+        background: #74ac00;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .map-apply-btn:hover {
+        background: #629200;
+        transform: translateY(-1px);
+      }
+
+      .map-open-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+      }
+
+      .map-open-btn:hover {
+        opacity: 1;
+      }
+
+      .place-search-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      @media (max-width: 600px) {
+        .map-container {
+          height: 320px;
+        }
+        .map-modal-footer {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 12px;
+        }
+        .map-info {
+          text-align: center;
+        }
+        .map-modal-actions {
+          justify-content: stretch;
+        }
+        .map-modal-actions button {
+          flex: 1;
+        }
+      }
     </style>
   </head>
   <body>
@@ -203,16 +414,20 @@
             <option value="47126">Plants</option>
             <option value="47170">Fungi</option>
           </select>
-          <div class="place-search-container">
-            <input
-              type="text"
-              id="placeNameInput"
-              placeholder="Search place or project..."
-              autocomplete="off"
-            />
-            <div id="placeAutocomplete" class="place-autocomplete"></div>
+          <div class="place-search-wrapper">
+            <div class="place-search-container">
+              <input
+                type="text"
+                id="placeNameInput"
+                placeholder="Search place or project..."
+                autocomplete="off"
+              />
+              <div id="placeAutocomplete" class="place-autocomplete"></div>
+            </div>
+            <button type="button" class="map-open-btn" id="openMapBtn" title="Select area on map">🗺️</button>
           </div>
           <input type="text" id="placeIdInput" style="display: none" />
+          <input type="hidden" id="mapBoundsInput" />
           <select id="limitSelect" class="limit-select">
             <option value="100">Top 100 Species</option>
             <option value="200">Top 200 Species</option>
@@ -469,6 +684,457 @@
     <script src="script.js"></script>
     <script src="search.js"></script>
     <script src="download.js"></script>
+    <!-- Map Modal -->
+    <div class="map-modal" id="mapModal">
+      <div class="map-modal-content">
+        <div class="map-modal-header">
+          <h3>Select Area</h3>
+          <button class="map-modal-close" id="mapModalClose">&times;</button>
+        </div>
+        <div class="map-container">
+          <div id="areaMap"></div>
+          <div class="map-toolbar">
+            <button class="map-tool-btn active" id="circleToolBtn" title="Circle">⭕</button>
+            <button class="map-tool-btn" id="rectangleToolBtn" title="Rectangle">🔲</button>
+            <button class="map-tool-btn" id="myLocationBtn" title="My location">📍</button>
+          </div>
+        </div>
+        <div class="map-modal-footer">
+          <div class="map-info" id="mapInfo">Click on the map to select an area</div>
+          <div class="map-modal-actions">
+            <button class="map-cancel-btn" id="mapCancelBtn">Cancel</button>
+            <button class="map-apply-btn" id="mapApplyBtn">Apply</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Map Selection Script -->
+    <script>
+      (function() {
+        let areaMap = null;
+        let currentSelection = null;
+        let selectionType = 'circle'; // 'circle' or 'rectangle'
+        let isDragging = false;
+        let isResizing = false;
+        let resizeHandle = null;
+        let defaultRadius = 50000; // 50km default
+        let dragStartLatLng = null;
+        let dragStartBounds = null;
+        let circleHandles = [];
+        let rectHandles = [];
+        let justFinishedInteraction = false; // Prevent click after drag/resize
+
+        // Initialize map when modal opens
+        function initAreaMap() {
+          if (areaMap) return;
+
+          areaMap = L.map('areaMap').setView([20, 0], 2);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+          }).addTo(areaMap);
+
+          // Map click handler
+          areaMap.on('click', function(e) {
+            if (isDragging || isResizing || justFinishedInteraction) {
+              justFinishedInteraction = false;
+              return;
+            }
+            placeSelection(e.latlng);
+          });
+
+          // Single mousemove handler for all drag/resize operations
+          areaMap.on('mousemove', function(e) {
+            // Check resize FIRST (before drag) to prioritize handle interactions
+            if (isResizing && currentSelection) {
+              if (selectionType === 'circle') {
+                const center = currentSelection.getLatLng();
+                const newRadius = center.distanceTo(e.latlng);
+                currentSelection.setRadius(Math.max(100, newRadius)); // Min 100m
+                defaultRadius = currentSelection.getRadius();
+                updateCircleHandles();
+              } else if (resizeHandle !== null) {
+                const bounds = currentSelection.getBounds();
+                let south = bounds.getSouth();
+                let north = bounds.getNorth();
+                let west = bounds.getWest();
+                let east = bounds.getEast();
+
+                switch(resizeHandle) {
+                  case 0: // NW - change north and west
+                    north = e.latlng.lat;
+                    west = e.latlng.lng;
+                    break;
+                  case 1: // NE - change north and east
+                    north = e.latlng.lat;
+                    east = e.latlng.lng;
+                    break;
+                  case 2: // SE - change south and east
+                    south = e.latlng.lat;
+                    east = e.latlng.lng;
+                    break;
+                  case 3: // SW - change south and west
+                    south = e.latlng.lat;
+                    west = e.latlng.lng;
+                    break;
+                }
+                currentSelection.setBounds([[south, west], [north, east]]);
+                updateRectangleHandles();
+              }
+              updateMapInfo();
+            } else if (isDragging && currentSelection) {
+              if (selectionType === 'circle') {
+                currentSelection.setLatLng(e.latlng);
+                updateCircleHandles();
+              } else {
+                const latDiff = e.latlng.lat - dragStartLatLng.lat;
+                const lngDiff = e.latlng.lng - dragStartLatLng.lng;
+                const newBounds = [
+                  [dragStartBounds.getSouth() + latDiff, dragStartBounds.getWest() + lngDiff],
+                  [dragStartBounds.getNorth() + latDiff, dragStartBounds.getEast() + lngDiff]
+                ];
+                currentSelection.setBounds(newBounds);
+                dragStartLatLng = e.latlng;
+                dragStartBounds = currentSelection.getBounds();
+                updateRectangleHandles();
+              }
+              updateMapInfo();
+            }
+          });
+
+          // Single mouseup handler
+          areaMap.on('mouseup', function() {
+            if (isDragging || isResizing) {
+              justFinishedInteraction = true; // Prevent click from firing
+              isDragging = false;
+              isResizing = false;
+              resizeHandle = null;
+              areaMap.dragging.enable();
+            }
+          });
+        }
+
+        function placeSelection(latlng) {
+          clearSelection();
+
+          // Calculate size based on current map view (about 1/4 of visible area)
+          const mapBounds = areaMap.getBounds();
+          const viewHeight = mapBounds.getNorth() - mapBounds.getSouth();
+          const viewWidth = mapBounds.getEast() - mapBounds.getWest();
+          const selectionSize = Math.min(viewHeight, viewWidth) * 0.25;
+
+          if (selectionType === 'circle') {
+            // Convert degrees to meters (approximate)
+            const radiusInMeters = selectionSize * 111000 / 2;
+            currentSelection = L.circle(latlng, {
+              radius: radiusInMeters,
+              color: '#74ac00',
+              fillColor: '#74ac00',
+              fillOpacity: 0.2,
+              weight: 2
+            }).addTo(areaMap);
+
+            // Make circle draggable
+            setupCircleDrag(currentSelection);
+            addCircleResizeHandles(currentSelection);
+          } else {
+            // Rectangle - use selection size relative to view
+            const halfHeight = selectionSize / 2;
+            const halfWidth = selectionSize * 0.75; // slightly wider
+            const bounds = [
+              [latlng.lat - halfHeight, latlng.lng - halfWidth],
+              [latlng.lat + halfHeight, latlng.lng + halfWidth]
+            ];
+            currentSelection = L.rectangle(bounds, {
+              color: '#74ac00',
+              fillColor: '#74ac00',
+              fillOpacity: 0.2,
+              weight: 2
+            }).addTo(areaMap);
+
+            setupRectangleDrag(currentSelection);
+            addRectangleResizeHandles(currentSelection);
+          }
+
+          updateMapInfo();
+        }
+
+        function setupCircleDrag(circle) {
+          circle.on('mousedown', function(e) {
+            if (isResizing) return;
+            isDragging = true;
+            areaMap.dragging.disable();
+            L.DomEvent.stopPropagation(e);
+          });
+        }
+
+        function setupRectangleDrag(rect) {
+          rect.on('mousedown', function(e) {
+            if (isResizing) return;
+            isDragging = true;
+            dragStartLatLng = e.latlng;
+            dragStartBounds = rect.getBounds();
+            areaMap.dragging.disable();
+            L.DomEvent.stopPropagation(e);
+          });
+        }
+
+        function addCircleResizeHandles(circle) {
+          circleHandles.forEach(h => areaMap.removeLayer(h));
+          circleHandles = [];
+
+          const center = circle.getLatLng();
+          const radius = circle.getRadius();
+          const handlePositions = [
+            L.latLng(center.lat, center.lng + radius / 111000 / Math.cos(center.lat * Math.PI / 180)),
+            L.latLng(center.lat, center.lng - radius / 111000 / Math.cos(center.lat * Math.PI / 180)),
+            L.latLng(center.lat + radius / 111000, center.lng),
+            L.latLng(center.lat - radius / 111000, center.lng)
+          ];
+
+          handlePositions.forEach((pos, i) => {
+            const handle = L.circleMarker(pos, {
+              radius: 8,
+              color: '#74ac00',
+              fillColor: 'white',
+              fillOpacity: 1,
+              weight: 2,
+              bubblingMouseEvents: false
+            }).addTo(areaMap);
+
+            handle.on('mousedown', function(e) {
+              isResizing = true;
+              isDragging = false; // Explicitly prevent dragging
+              areaMap.dragging.disable();
+              L.DomEvent.stopPropagation(e);
+              L.DomEvent.preventDefault(e);
+            });
+
+            handle.bringToFront();
+            circleHandles.push(handle);
+          });
+        }
+
+        function updateCircleHandles() {
+          if (!currentSelection || selectionType !== 'circle') return;
+          const center = currentSelection.getLatLng();
+          const radius = currentSelection.getRadius();
+          const positions = [
+            L.latLng(center.lat, center.lng + radius / 111000 / Math.cos(center.lat * Math.PI / 180)),
+            L.latLng(center.lat, center.lng - radius / 111000 / Math.cos(center.lat * Math.PI / 180)),
+            L.latLng(center.lat + radius / 111000, center.lng),
+            L.latLng(center.lat - radius / 111000, center.lng)
+          ];
+          circleHandles.forEach((h, i) => h.setLatLng(positions[i]));
+        }
+
+        function addRectangleResizeHandles(rect) {
+          rectHandles.forEach(h => areaMap.removeLayer(h));
+          rectHandles = [];
+
+          const bounds = rect.getBounds();
+          const corners = [
+            bounds.getNorthWest(),
+            bounds.getNorthEast(),
+            bounds.getSouthEast(),
+            bounds.getSouthWest()
+          ];
+
+          corners.forEach((pos, i) => {
+            const handle = L.circleMarker(pos, {
+              radius: 8,
+              color: '#74ac00',
+              fillColor: 'white',
+              fillOpacity: 1,
+              weight: 2,
+              bubblingMouseEvents: false
+            }).addTo(areaMap);
+
+            handle.on('mousedown', function(e) {
+              isResizing = true;
+              isDragging = false; // Explicitly prevent dragging
+              resizeHandle = i;
+              areaMap.dragging.disable();
+              L.DomEvent.stopPropagation(e);
+              L.DomEvent.preventDefault(e);
+            });
+
+            handle.bringToFront();
+            rectHandles.push(handle);
+          });
+        }
+
+        function updateRectangleHandles() {
+          if (!currentSelection || selectionType !== 'rectangle') return;
+          const bounds = currentSelection.getBounds();
+          const positions = [
+            bounds.getNorthWest(),
+            bounds.getNorthEast(),
+            bounds.getSouthEast(),
+            bounds.getSouthWest()
+          ];
+          rectHandles.forEach((h, i) => h.setLatLng(positions[i]));
+        }
+
+        function clearSelection() {
+          if (currentSelection) {
+            areaMap.removeLayer(currentSelection);
+            currentSelection = null;
+          }
+          circleHandles.forEach(h => areaMap.removeLayer(h));
+          circleHandles = [];
+          rectHandles.forEach(h => areaMap.removeLayer(h));
+          rectHandles = [];
+          updateMapInfo();
+        }
+
+        function updateMapInfo() {
+          const info = document.getElementById('mapInfo');
+          if (!currentSelection) {
+            info.textContent = 'Click on map to place selection, drag to move, use handles to resize';
+            return;
+          }
+
+          if (selectionType === 'circle') {
+            const center = currentSelection.getLatLng();
+            const radius = currentSelection.getRadius();
+            info.textContent = `Circle: ${center.lat.toFixed(4)}, ${center.lng.toFixed(4)} | Radius: ${(radius / 1000).toFixed(1)} km`;
+          } else {
+            const bounds = currentSelection.getBounds();
+            info.textContent = `Rectangle: ${bounds.getSouth().toFixed(4)} to ${bounds.getNorth().toFixed(4)} lat, ${bounds.getWest().toFixed(4)} to ${bounds.getEast().toFixed(4)} lng`;
+          }
+        }
+
+        function getSelectionBounds() {
+          if (!currentSelection) return null;
+
+          if (selectionType === 'circle') {
+            const center = currentSelection.getLatLng();
+            const radius = currentSelection.getRadius();
+            return {
+              type: 'circle',
+              lat: center.lat,
+              lng: center.lng,
+              radius: radius
+            };
+          } else {
+            const bounds = currentSelection.getBounds();
+            return {
+              type: 'rectangle',
+              swlat: bounds.getSouth(),
+              swlng: bounds.getWest(),
+              nelat: bounds.getNorth(),
+              nelng: bounds.getEast()
+            };
+          }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+          const openMapBtn = document.getElementById('openMapBtn');
+          const mapModal = document.getElementById('mapModal');
+          const mapModalClose = document.getElementById('mapModalClose');
+          const mapCancelBtn = document.getElementById('mapCancelBtn');
+          const mapApplyBtn = document.getElementById('mapApplyBtn');
+          const circleToolBtn = document.getElementById('circleToolBtn');
+          const rectangleToolBtn = document.getElementById('rectangleToolBtn');
+          const myLocationBtn = document.getElementById('myLocationBtn');
+
+          openMapBtn.addEventListener('click', function() {
+            mapModal.classList.add('show');
+            setTimeout(function() {
+              initAreaMap();
+              areaMap.invalidateSize();
+            }, 100);
+          });
+
+          mapModalClose.addEventListener('click', function() {
+            mapModal.classList.remove('show');
+          });
+
+          mapCancelBtn.addEventListener('click', function() {
+            mapModal.classList.remove('show');
+          });
+
+          mapModal.addEventListener('click', function(e) {
+            if (e.target === mapModal) {
+              mapModal.classList.remove('show');
+            }
+          });
+
+          circleToolBtn.addEventListener('click', function() {
+            selectionType = 'circle';
+            circleToolBtn.classList.add('active');
+            rectangleToolBtn.classList.remove('active');
+            clearSelection();
+          });
+
+          rectangleToolBtn.addEventListener('click', function() {
+            selectionType = 'rectangle';
+            rectangleToolBtn.classList.add('active');
+            circleToolBtn.classList.remove('active');
+            clearSelection();
+          });
+
+          myLocationBtn.addEventListener('click', function() {
+            if (navigator.geolocation) {
+              myLocationBtn.disabled = true;
+              myLocationBtn.style.opacity = '0.5';
+              navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                  const lat = pos.coords.latitude;
+                  const lng = pos.coords.longitude;
+                  if (areaMap) {
+                    areaMap.setView([lat, lng], 10);
+                    placeSelection(L.latLng(lat, lng));
+                  }
+                  myLocationBtn.disabled = false;
+                  myLocationBtn.style.opacity = '1';
+                },
+                function(error) {
+                  console.error('Geolocation error:', error);
+                  alert('Could not get your location. Please check your browser permissions.');
+                  myLocationBtn.disabled = false;
+                  myLocationBtn.style.opacity = '1';
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+              );
+            } else {
+              alert('Geolocation is not supported by your browser.');
+            }
+          });
+
+          mapApplyBtn.addEventListener('click', function() {
+            const selection = getSelectionBounds();
+            if (!selection) {
+              alert('Please make a selection on the map first.');
+              return;
+            }
+
+            // Store the bounds and update the UI
+            const mapBoundsInput = document.getElementById('mapBoundsInput');
+            const placeNameInput = document.getElementById('placeNameInput');
+            const placeIdInput = document.getElementById('placeIdInput');
+
+            mapBoundsInput.value = JSON.stringify(selection);
+            placeIdInput.value = ''; // Clear place ID when using map selection
+
+            if (selection.type === 'circle') {
+              placeNameInput.value = `Map area: ${selection.lat.toFixed(2)}, ${selection.lng.toFixed(2)} (${(selection.radius / 1000).toFixed(0)} km radius)`;
+            } else {
+              placeNameInput.value = `Map area: ${selection.swlat.toFixed(2)} to ${selection.nelat.toFixed(2)} lat`;
+            }
+
+            mapModal.classList.remove('show');
+          });
+        });
+      })();
+    </script>
+
     <script
       defer
       data-domain="glauberramos.github.io/inat"

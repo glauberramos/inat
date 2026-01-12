@@ -225,6 +225,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const id = suggestion.dataset.id;
         const name = suggestion.querySelector(".place-name").textContent;
 
+        // Clear map bounds when selecting place or project
+        const mapBoundsInput = document.getElementById("mapBoundsInput");
+        if (mapBoundsInput) {
+          mapBoundsInput.value = "";
+        }
+
         if (type === "place") {
           // Handle place selection
           placeNameInput.value = name;
