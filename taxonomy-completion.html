@@ -409,7 +409,7 @@
               <option value="order" selected>Orders</option>
               <option value="family">Families</option>
             </select>
-            <select id="familyGroupSelect" class="rank-select" style="display: none;">
+            <select id="groupSelect" class="rank-select" style="display: none;">
             </select>
             <select id="languageSelect" class="rank-select">
               <option value="en" selected>English</option>
@@ -503,7 +503,7 @@
       const searchFilter = document.getElementById("searchFilter");
       const iconicFilterSelect = document.getElementById("iconicFilterSelect");
       const groupFilterLabel = document.getElementById("groupFilterLabel");
-      const familyGroupSelect = document.getElementById("familyGroupSelect");
+      const groupSelect = document.getElementById("groupSelect");
       const languageSelect = document.getElementById("languageSelect");
 
       let taxonData = [];
@@ -547,24 +547,23 @@
           { value: "47534", label: "Cnidarians" },
           { value: "47549", label: "Echinoderms" },
           { value: "47491", label: "Annelids" },
-          { value: "211194", label: "Flowering Plants" }
+          { value: "47125", label: "Flowering Plants" }
         ],
         order: [
           { value: "1", label: "Animals" },
-          { value: "2", label: "Chordates" },
-          { value: "47120", label: "Arthropods" },
-          { value: "47115", label: "Mollusks" },
-          { value: "47534", label: "Cnidarians" },
-          { value: "47549", label: "Echinoderms" },
+          { value: "355675", label: "Vertebrates" },
           { value: "3", label: "Birds" },
           { value: "40151", label: "Mammals" },
           { value: "26036", label: "Reptiles" },
           { value: "20978", label: "Amphibians" },
-          { value: "47178", label: "Ray-finned Fish" },
+          { value: "47178", label: "Fish" },
+          { value: "47120", label: "Arthropods" },
           { value: "47158", label: "Insects" },
           { value: "47119", label: "Arachnids" },
+          { value: "47115", label: "Mollusks" },
+          { value: "85493", label: "Crustaceans" },
           { value: "47126", label: "Plants" },
-          { value: "211194", label: "Flowering Plants" },
+          { value: "47125", label: "Flowering Plants" },
           { value: "47170", label: "Fungi" }
         ],
         family: [
@@ -588,39 +587,41 @@
           { value: "47118", label: "Spiders" },
           { value: "47115", label: "Mollusks" },
           { value: "47114", label: "Snails & Slugs" },
-          { value: "47584", label: "Crustaceans" },
+          { value: "85493", label: "Crustaceans" },
           { value: "47126", label: "Plants" },
-          { value: "211194", label: "Flowering Plants" },
+          { value: "47125", label: "Flowering Plants" },
           { value: "136329", label: "Grasses" },
           { value: "47170", label: "Fungi" }
         ]
       };
 
-      // Populate family group select (no "All" option, Animals is default)
-      function populateFamilyGroupSelect() {
-        const options = filterOptionsByRank.family;
-        familyGroupSelect.innerHTML = options.map(opt =>
+      // Populate group select based on rank (no "All" option, Animals is default)
+      function populateGroupSelect() {
+        const rank = rankSelect.value;
+        const options = filterOptionsByRank[rank] || [];
+        groupSelect.innerHTML = options.map(opt =>
           `<option value="${opt.value}">${opt.label}</option>`
         ).join("");
       }
-      populateFamilyGroupSelect();
 
-      // Show/hide family group select based on rank
-      function updateFamilyGroupVisibility() {
-        if (rankSelect.value === "family") {
-          familyGroupSelect.style.display = "";
+      // Show/hide group select based on rank (only for family and order)
+      function updateGroupSelectVisibility() {
+        const rank = rankSelect.value;
+        if (rank === "family" || rank === "order") {
+          populateGroupSelect();
+          groupSelect.style.display = "";
         } else {
-          familyGroupSelect.style.display = "none";
+          groupSelect.style.display = "none";
         }
       }
-      rankSelect.addEventListener("change", updateFamilyGroupVisibility);
-      updateFamilyGroupVisibility();
+      rankSelect.addEventListener("change", updateGroupSelectVisibility);
+      updateGroupSelectVisibility();
 
       function populateGroupFilter() {
         const options = filterOptionsByRank[currentRank] || [];
 
-        // Hide post-search filter for kingdoms and families (families use pre-search selector)
-        if (options.length === 0 || currentRank === "family") {
+        // Hide post-search filter for kingdoms, families, and orders (they use pre-search selector)
+        if (options.length === 0 || currentRank === "family" || currentRank === "order") {
           groupFilterLabel.style.display = "none";
           iconicFilterSelect.style.display = "none";
           iconicFilterSelect.value = "all";
@@ -727,7 +728,7 @@
         const username = usernameInput.value.trim();
         currentRank = rankSelect.value;
         // For families, use the selected group; for others, use Life taxon
-        const taxonId = currentRank === "family" ? parseInt(familyGroupSelect.value) : LIFE_TAXON_ID;
+        const taxonId = (currentRank === "family" || currentRank === "order") ? parseInt(groupSelect.value) : LIFE_TAXON_ID;
 
         if (!username) {
           showError("Please enter a username");
