@@ -787,6 +787,9 @@
             }
           }
 
+          // Filter out taxa with no observations on iNaturalist
+          taxa = taxa.filter(t => t.observations_count > 0);
+
           loadingStatus.textContent = `Found ${taxa.length} ${labels.plural}. Fetching your species...`;
 
           // Fetch user's species to determine which taxa they've observed
