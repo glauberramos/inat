@@ -787,8 +787,8 @@
             }
           }
 
-          // Filter out taxa with no observations on iNaturalist
-          taxa = taxa.filter(t => t.observations_count > 0);
+          // Filter out extinct taxa and taxa with no observations on iNaturalist
+          taxa = taxa.filter(t => !t.extinct && t.observations_count > 0);
 
           loadingStatus.textContent = `Found ${taxa.length} ${labels.plural}. Fetching your species...`;
 
