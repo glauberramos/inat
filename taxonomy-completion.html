@@ -409,6 +409,7 @@
               <option value="order" selected>Orders</option>
               <option value="family">Families</option>
             </select>
+            <label for="groupSelect" id="groupSelectLabel" style="display: none; font-weight: 500;">in</label>
             <select id="groupSelect" class="rank-select" style="display: none;">
             </select>
             <select id="languageSelect" class="rank-select">
@@ -504,6 +505,7 @@
       const iconicFilterSelect = document.getElementById("iconicFilterSelect");
       const groupFilterLabel = document.getElementById("groupFilterLabel");
       const groupSelect = document.getElementById("groupSelect");
+      const groupSelectLabel = document.getElementById("groupSelectLabel");
       const languageSelect = document.getElementById("languageSelect");
 
       let taxonData = [];
@@ -610,8 +612,10 @@
         if (rank === "family" || rank === "order") {
           populateGroupSelect();
           groupSelect.style.display = "";
+          groupSelectLabel.style.display = "";
         } else {
           groupSelect.style.display = "none";
+          groupSelectLabel.style.display = "none";
         }
       }
       rankSelect.addEventListener("change", updateGroupSelectVisibility);
