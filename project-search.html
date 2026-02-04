@@ -395,6 +395,7 @@
             <option value="updated">Updated</option>
             <option value="distance">Distance</option>
             <option value="featured">Featured</option>
+            <option value="members">Members</option>
           </select>
           <label class="checkbox-label">
             <input type="checkbox" id="umbrellaOnly" />
@@ -483,8 +484,9 @@
         pagination.classList.remove("show");
 
         try {
-          // Build URL with parameters
-          let url = `https://api.inaturalist.org/v1/projects?per_page=${perPage}&page=${page}`;
+          // Build URL with parameters using v2 API
+          const fields = "title,description,icon,header_image_url,is_umbrella,user_id,created_at,user_ids,project_type,rule_preferences.field,rule_preferences.value,search_parameters.field,search_parameters.value,admins.user.login,admins.user.id";
+          let url = `https://api.inaturalist.org/v2/projects?per_page=${perPage}&page=${page}&fields=${encodeURIComponent(fields)}`;
 
           if (nameQuery) {
             url += `&q=${encodeURIComponent(nameQuery)}`;
@@ -495,7 +497,7 @@
           }
 
           const orderBy = orderBySelect.value;
-          if (orderBy) {
+          if (orderBy && orderBy !== "members") {
             url += `&order_by=${orderBy}`;
           }
 
@@ -503,11 +505,13 @@
             url += `&type=umbrella`;
           }
 
-          console.log("Fetching projects with URL:", url);
-          console.log("Order by value:", orderBy);
-
           const response = await fetch(url);
           const data = await response.json();
+
+          // Client-side sort by member count
+          if (orderBy === "members" && data.results) {
+            data.results.sort((a, b) => (b.user_ids?.length || 0) - (a.user_ids?.length || 0));
+          }
 
           loading.style.display = "none";
 
@@ -549,11 +553,17 @@
                   return div.innerHTML;
                 };
 
+                // Get member count
+                let membersHtml = "";
+                const memberCount = project.user_ids ? project.user_ids.length : 0;
+                if (memberCount > 0) {
+                  membersHtml = `<p><strong>Members:</strong> ${memberCount.toLocaleString()}</p>`;
+                }
+
                 // Get creator information
                 let creatorHtml = "";
                 if (project.user_id) {
                   const username =
-                    project.user?.login ||
                     project.admins?.[0]?.user?.login ||
                     `user ${project.user_id}`;
                   creatorHtml = `<p><strong>Created by:</strong> <a href="https://www.inaturalist.org/people/${
@@ -689,6 +699,7 @@
                           }</p>`
                         : ""
                     }
+                    ${membersHtml}
                     ${creatorHtml}
                     ${createdDateHtml}
                     ${dateRangeHtml}
