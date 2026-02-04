@@ -423,7 +423,6 @@
       let currentPage = 1;
       let totalPages = 1;
       let totalResults = 0;
-      const perPage = 200;
 
       const nameInput = document.getElementById("nameInput");
       const locationInput = document.getElementById("locationInput");
@@ -468,7 +467,32 @@
         selectedLocation = { id: savedPlace.id, name: savedPlace.name };
       }
 
-      // Fetch projects for a specific page
+      const apiPerPage = 200;
+      const callsPerPage = 5;
+      const resultsPerPage = apiPerPage * callsPerPage; // 1000
+
+      function buildBaseUrl() {
+        const nameQuery = nameInput.value.trim();
+        const orderBy = orderBySelect.value;
+        const fields = "title,description,icon,header_image_url,is_umbrella,user_id,created_at,user_ids,project_type,rule_preferences.field,rule_preferences.value,search_parameters.field,search_parameters.value,admins.user.login,admins.user.id";
+        let url = `https://api.inaturalist.org/v2/projects?per_page=${apiPerPage}&fields=${encodeURIComponent(fields)}`;
+
+        if (nameQuery) {
+          url += `&q=${encodeURIComponent(nameQuery)}`;
+        }
+        if (selectedLocation) {
+          url += `&place_id=${selectedLocation.id}`;
+        }
+        if (orderBy && orderBy !== "members") {
+          url += `&order_by=${orderBy}`;
+        }
+        if (umbrellaOnlyCheckbox.checked) {
+          url += `&type=umbrella`;
+        }
+        return url;
+      }
+
+      // Fetch projects for a specific page (5 sequential API calls of 200 = 1000 per page)
       async function fetchProjects(page = 1) {
         const nameQuery = nameInput.value.trim();
 
@@ -484,45 +508,40 @@
         pagination.classList.remove("show");
 
         try {
-          // Build URL with parameters using v2 API
-          const fields = "title,description,icon,header_image_url,is_umbrella,user_id,created_at,user_ids,project_type,rule_preferences.field,rule_preferences.value,search_parameters.field,search_parameters.value,admins.user.login,admins.user.id";
-          let url = `https://api.inaturalist.org/v2/projects?per_page=${perPage}&page=${page}&fields=${encodeURIComponent(fields)}`;
+          const baseUrl = buildBaseUrl();
+          const startApiPage = (page - 1) * callsPerPage + 1;
+          let allResults = [];
+          let total = 0;
 
-          if (nameQuery) {
-            url += `&q=${encodeURIComponent(nameQuery)}`;
-          }
+          for (let i = 0; i < callsPerPage; i++) {
+            const apiPage = startApiPage + i;
+            const response = await fetch(`${baseUrl}&page=${apiPage}`);
+            const data = await response.json();
+            total = data.total_results || 0;
 
-          if (selectedLocation) {
-            url += `&place_id=${selectedLocation.id}`;
+            if (data.results && data.results.length > 0) {
+              allResults = allResults.concat(data.results);
+            }
+
+            // Stop early if we've fetched all available results
+            if (apiPage * apiPerPage >= total) break;
           }
 
           const orderBy = orderBySelect.value;
-          if (orderBy && orderBy !== "members") {
-            url += `&order_by=${orderBy}`;
-          }
-
-          if (umbrellaOnlyCheckbox.checked) {
-            url += `&type=umbrella`;
-          }
-
-          const response = await fetch(url);
-          const data = await response.json();
-
-          // Client-side sort by member count
-          if (orderBy === "members" && data.results) {
-            data.results.sort((a, b) => (b.user_ids?.length || 0) - (a.user_ids?.length || 0));
+          if (orderBy === "members") {
+            allResults.sort((a, b) => (b.user_ids?.length || 0) - (a.user_ids?.length || 0));
           }
 
           loading.style.display = "none";
 
-          if (data.results && data.results.length > 0) {
+          if (allResults.length > 0) {
             // Update pagination state
             currentPage = page;
-            totalResults = data.total_results || 0;
-            totalPages = Math.ceil(totalResults / perPage);
+            totalResults = total;
+            totalPages = Math.ceil(totalResults / resultsPerPage);
 
             // Display projects
-            projectsContainer.innerHTML = data.results
+            projectsContainer.innerHTML = allResults
               .map((project) => {
                 // Get header image and icon
                 let headerImageUrl =
@@ -711,7 +730,7 @@
               .join("");
 
             // Update pagination UI
-            if (totalResults > perPage) {
+            if (totalResults > resultsPerPage) {
               pagination.classList.add("show");
               pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
               prevPageBtn.disabled = currentPage === 1;
