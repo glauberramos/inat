@@ -62,12 +62,17 @@ document.addEventListener("DOMContentLoaded", function () {
   const urlPlaceId = urlParams.get("place_id");
   const urlPlaceName = urlParams.get("place");
 
+  const savedMapArea = localStorage.getItem("inatMapArea");
+
   // Handle place: URL param takes priority, then localStorage
   if (urlPlaceId && urlPlaceName) {
     placeIdInput.value = urlPlaceId;
     placeNameInput.value = urlPlaceName;
     localStorage.setItem("inatPlaceId", urlPlaceId);
     localStorage.setItem("inatPlaceName", urlPlaceName);
+  } else if (savedMapArea) {
+    mapBoundsInput.value = savedMapArea;
+    placeNameInput.value = localStorage.getItem("inatPlaceName") || "Map area";
   } else if (savedProject) {
     placeNameInput.value = savedProject;
   } else if (savedPlaceId && savedPlaceName) {
@@ -119,8 +124,10 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.removeItem("inatPlaceId");
       localStorage.removeItem("inatProject");
       localStorage.removeItem("inatProjectId");
+      localStorage.removeItem("inatMapArea");
       placeIdInput.value = "";
       placeNameInput.value = "";
+      if (mapBoundsInput) mapBoundsInput.value = "";
       updateUrlWithPlace(null, null);
       updateLocationName();
     }

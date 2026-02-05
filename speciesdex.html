@@ -1129,6 +1129,13 @@
               placeNameInput.value = `Map area: ${selection.swlat.toFixed(2)} to ${selection.nelat.toFixed(2)} lat`;
             }
 
+            // Save to localStorage and clear place/project
+            localStorage.setItem('inatMapArea', JSON.stringify(selection));
+            localStorage.setItem('inatPlaceName', placeNameInput.value);
+            localStorage.removeItem('inatPlaceId');
+            localStorage.removeItem('inatProject');
+            localStorage.removeItem('inatProjectId');
+
             mapModal.classList.remove('show');
           });
         });

@@ -230,6 +230,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (mapBoundsInput) {
           mapBoundsInput.value = "";
         }
+        localStorage.removeItem("inatMapArea");
 
         if (type === "place") {
           // Handle place selection
