@@ -694,6 +694,7 @@
         <!-- Display Options -->
         <div class="option-group">
           <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" id="showTitle" checked /> Title</label>
             <label class="checkbox-label"><input type="checkbox" id="showLocation" checked /> Location</label>
             <label class="checkbox-label"><input type="checkbox" id="showGrade" /> Research Grade</label>
             <label class="checkbox-label"><input type="checkbox" id="showNotes" /> Notes</label>
@@ -757,6 +758,7 @@
         dateTo: "",
         dateOn: "",
         embedType: "script",
+        showTitle: true,
         showLocation: true,
         showGrade: false,
         showNotes: false,
@@ -866,6 +868,11 @@
       });
 
       // Display options
+      document.getElementById("showTitle").addEventListener("change", (e) => {
+        state.showTitle = e.target.checked;
+        renderPreview();
+        updateEmbedCode();
+      });
       document.getElementById("showLocation").addEventListener("change", (e) => {
         state.showLocation = e.target.checked;
         renderPreview();
@@ -1162,6 +1169,7 @@
           }
         }
 
+        if (!state.showTitle) attrs.push(`data-inat-show-title="false"`);
         if (!state.showLocation) attrs.push(`data-inat-show-location="false"`);
         if (state.showGrade) attrs.push(`data-inat-show-grade="true"`);
         if (state.showNotes) attrs.push(`data-inat-show-notes="true"`);
@@ -1205,6 +1213,7 @@
               if (state.dateTo) params.set("date_to", state.dateTo);
             }
           }
+          if (!state.showTitle) params.set("show_title", "false");
           if (!state.showLocation) params.set("show_location", "false");
           if (state.showGrade) params.set("show_grade", "true");
           if (state.showNotes) params.set("show_notes", "true");

@@ -35,6 +35,7 @@
       this.showGrade = container.dataset.inatShowGrade === "true";
       this.showLocation = container.dataset.inatShowLocation !== "false";
       this.showNotes = container.dataset.inatShowNotes === "true";
+      this.showTitle = container.dataset.inatShowTitle !== "false";
       this.borderRadius = container.dataset.inatRadius !== undefined ? parseInt(container.dataset.inatRadius) : 12;
       this.observations = [];
 
@@ -510,8 +511,8 @@
       header.innerHTML = `
         <div class="inat-w-header-left">
           <img class="inat-w-header-logo" src="https://static.inaturalist.org/sites/1-logo.svg" alt="iNaturalist" />
-          <span class="inat-w-header-sep">/</span>
-          <span class="inat-w-header-title">${this.escapeHtml(this.title || this.source)}</span>
+          ${this.showTitle ? `<span class="inat-w-header-sep">/</span>
+          <span class="inat-w-header-title">${this.escapeHtml(this.title || this.source)}</span>` : ""}
         </div>
       `;
       this.container.appendChild(header);
