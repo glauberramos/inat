@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>iNaturalist Widget</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: transparent;
+        overflow-x: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="widget"></div>
+    <script src="inat-widget.js"></script>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const widget = document.getElementById("widget");
+
+      const attrMap = {
+        source: "data-inat-source",
+        type: "data-inat-source-type",
+        layout: "data-inat-layout",
+        limit: "data-inat-limit",
+        order_by: "data-inat-order-by",
+        theme: "data-inat-theme",
+        taxon: "data-inat-taxon",
+        quality: "data-inat-quality",
+        date_from: "data-inat-date-from",
+        date_to: "data-inat-date-to",
+        date: "data-inat-date",
+        title: "data-inat-title",
+      };
+
+      widget.setAttribute("data-inat-widget", "");
+
+      for (const [param, attr] of Object.entries(attrMap)) {
+        const val = params.get(param);
+        if (val) widget.setAttribute(attr, val);
+      }
+
+      if (window.initInatWidgets) {
+        window.initInatWidgets();
+      }
+    </script>
+  </body>
+</html>

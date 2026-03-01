@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>iNaturalist Widget Builder</title>
+    <link rel="icon" href="favicon.ico" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #f0f2f5;
+        color: #1a1a2e;
+        min-height: 100vh;
+      }
+
+      /* Top bar */
+      .topbar {
+        background: #fff;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .topbar img {
+        width: 28px;
+        height: 28px;
+      }
+      .topbar h1 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a2e;
+      }
+      .topbar-badge {
+        font-size: 11px;
+        font-weight: 600;
+        background: #74ac00;
+        color: #fff;
+        padding: 2px 8px;
+        border-radius: 10px;
+      }
+
+      /* Layout */
+      .app {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        min-height: calc(100vh - 53px);
+      }
+
+      /* Sidebar */
+      .sidebar {
+        background: #fff;
+        border-right: 1px solid #e2e8f0;
+        padding: 24px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #94a3b8;
+        margin-bottom: 8px;
+      }
+
+      /* Source input */
+      .source-section {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .source-type-tabs {
+        display: flex;
+        gap: 4px;
+        background: #f1f5f9;
+        padding: 3px;
+        border-radius: 8px;
+      }
+      .source-type-tab {
+        flex: 1;
+        padding: 7px 8px;
+        border: none;
+        background: transparent;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        color: #64748b;
+        transition: all 0.15s;
+      }
+      .source-type-tab.active {
+        background: #fff;
+        color: #1a1a2e;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+
+      .search-wrapper {
+        position: relative;
+      }
+      .search-input {
+        width: 100%;
+        padding: 10px 12px 10px 36px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #1a1a2e;
+        background: #fff;
+        transition: border-color 0.15s;
+        outline: none;
+      }
+      .search-input:focus {
+        border-color: #74ac00;
+        box-shadow: 0 0 0 3px rgba(116,172,0,0.1);
+      }
+      .search-icon {
+        position: absolute;
+        left: 11px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 14px;
+        pointer-events: none;
+      }
+
+      /* Autocomplete */
+      .autocomplete-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        margin-top: 4px;
+        max-height: 240px;
+        overflow-y: auto;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        z-index: 50;
+        display: none;
+      }
+      .autocomplete-results.visible {
+        display: block;
+      }
+      .autocomplete-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        cursor: pointer;
+        transition: background 0.1s;
+        border-bottom: 1px solid #f1f5f9;
+      }
+      .autocomplete-item:last-child { border-bottom: none; }
+      .autocomplete-item:hover {
+        background: #f8fafc;
+      }
+      .autocomplete-item img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #f1f5f9;
+      }
+      .autocomplete-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .autocomplete-name {
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .autocomplete-sub {
+        font-size: 11px;
+        color: #94a3b8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* Options */
+      .option-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .option-row {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .option-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+      }
+
+      /* Select */
+      .custom-select {
+        padding: 9px 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 13px;
+        background: #fff;
+        color: #1a1a2e;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.15s;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 32px;
+      }
+      .custom-select:focus {
+        border-color: #74ac00;
+      }
+
+      /* Date input */
+      .date-input {
+        padding: 9px 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 13px;
+        background: #fff;
+        color: #1a1a2e;
+        outline: none;
+        transition: border-color 0.15s;
+        font-family: inherit;
+      }
+      .date-input:focus {
+        border-color: #74ac00;
+      }
+      .date-row {
+        display: flex;
+        gap: 8px;
+      }
+      .date-row .date-input {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* Range */
+      .range-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .range-input {
+        flex: 1;
+        accent-color: #74ac00;
+        height: 6px;
+        cursor: pointer;
+      }
+      .range-value {
+        font-size: 14px;
+        font-weight: 700;
+        color: #74ac00;
+        min-width: 28px;
+        text-align: right;
+      }
+
+      /* Layout picker */
+      .layout-picker {
+        display: flex;
+        gap: 8px;
+      }
+      .layout-option {
+        flex: 1;
+        padding: 12px 8px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        background: #fff;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.15s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+      }
+      .layout-option:hover {
+        border-color: #cbd5e1;
+      }
+      .layout-option.active {
+        border-color: #74ac00;
+        background: #f0fdf4;
+      }
+      .layout-icon {
+        font-size: 22px;
+        line-height: 1;
+      }
+      .layout-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #64748b;
+      }
+      .layout-option.active .layout-label {
+        color: #74ac00;
+      }
+
+      /* Theme picker */
+      .theme-picker {
+        display: flex;
+        gap: 8px;
+      }
+      .theme-option {
+        flex: 1;
+        padding: 10px 8px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        background: #fff;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.15s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .theme-option:hover {
+        border-color: #cbd5e1;
+      }
+      .theme-option.active {
+        border-color: #74ac00;
+        background: #f0fdf4;
+      }
+      .theme-swatch {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 2px solid #e2e8f0;
+      }
+      .theme-swatch-light { background: #ffffff; }
+      .theme-swatch-dark { background: #0f172a; }
+      .theme-swatch-transparent {
+        background: repeating-conic-gradient(#e2e8f0 0% 25%, transparent 0% 50%) 50% / 12px 12px;
+      }
+      .theme-label {
+        font-size: 10px;
+        font-weight: 600;
+        color: #64748b;
+      }
+      .theme-option.active .theme-label {
+        color: #74ac00;
+      }
+
+      /* Embed code */
+      .embed-section {
+      }
+      .embed-tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 10px;
+        background: #f1f5f9;
+        padding: 3px;
+        border-radius: 8px;
+      }
+      .embed-tab {
+        flex: 1;
+        padding: 6px 8px;
+        border: none;
+        background: transparent;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        color: #64748b;
+        transition: all 0.15s;
+      }
+      .embed-tab.active {
+        background: #fff;
+        color: #1a1a2e;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+      .embed-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .embed-toggle:hover {
+        border-color: #cbd5e1;
+      }
+      .embed-toggle-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+      }
+      .embed-toggle-icon {
+        font-size: 16px;
+      }
+      .embed-arrow {
+        font-size: 12px;
+        color: #94a3b8;
+        transition: transform 0.2s;
+      }
+      .embed-arrow.open { transform: rotate(180deg); }
+      .embed-code-area {
+        display: none;
+        margin-top: 10px;
+      }
+      .embed-code-area.visible {
+        display: block;
+      }
+      .embed-code {
+        background: #1e293b;
+        color: #e2e8f0;
+        border-radius: 8px;
+        padding: 14px;
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 12px;
+        line-height: 1.6;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+        position: relative;
+      }
+      .copy-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        padding: 5px 10px;
+        border: none;
+        background: #334155;
+        color: #e2e8f0;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .copy-btn:hover { background: #475569; }
+      .copy-btn.copied { background: #74ac00; }
+
+      /* Observation ID section */
+      .obs-id-section {
+        display: none;
+      }
+      .obs-id-section.visible {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      /* Hidden sections for observation mode */
+      .hidden-for-obs {
+        transition: opacity 0.15s;
+      }
+      .hidden-for-obs.obs-mode {
+        display: none;
+      }
+
+      /* Preview area */
+      .preview-area {
+        padding: 32px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        overflow-y: auto;
+        background: #f0f2f5;
+      }
+      .preview-area.preview-dark {
+        background: #1a1a2e;
+      }
+      .preview-area.preview-transparent {
+        background: repeating-conic-gradient(#e8e8e8 0% 25%, #fff 0% 50%) 50% / 20px 20px;
+      }
+      .preview-container {
+        width: 100%;
+        max-width: 800px;
+      }
+      .preview-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 80px 20px;
+        color: #94a3b8;
+        text-align: center;
+      }
+      .preview-empty-icon { font-size: 48px; opacity: 0.5; }
+      .preview-empty-text { font-size: 16px; font-weight: 600; }
+      .preview-empty-sub { font-size: 13px; }
+
+      /* Responsive */
+      @media (max-width: 900px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          border-right: none;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        .preview-area {
+          padding: 20px;
+          min-height: 60vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <img src="logo.png" alt="iNaturalist" />
+      <h1>iNat Widget Builder</h1>
+      <span class="topbar-badge">Beta</span>
+    </div>
+
+    <div class="app">
+      <aside class="sidebar">
+        <!-- Source -->
+        <div class="source-section">
+          <div class="source-type-tabs">
+            <button class="source-type-tab active" data-type="user">User</button>
+            <button class="source-type-tab" data-type="project">Project</button>
+            <button class="source-type-tab" data-type="place">Place</button>
+          </div>
+          <div class="search-wrapper" id="searchWrapper">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              class="search-input"
+              id="sourceInput"
+              placeholder="Search for a user…"
+              autocomplete="off"
+            />
+            <div class="autocomplete-results" id="autocompleteResults"></div>
+          </div>
+          <div class="obs-id-section" id="obsIdSection">
+            <input
+              type="text"
+              class="search-input"
+              id="obsIdInput"
+              placeholder="Enter observation ID or URL…"
+              style="padding-left: 12px"
+            />
+          </div>
+        </div>
+
+        <!-- Filters (hidden for observation mode) -->
+        <div class="option-group hidden-for-obs" id="filtersSection">
+
+          <div class="option-row">
+            <div class="option-label">Taxon</div>
+            <div class="search-wrapper">
+              <span class="search-icon">🌿</span>
+              <input
+                type="text"
+                class="search-input"
+                id="taxonInput"
+                placeholder="Filter by species or taxon…"
+                autocomplete="off"
+              />
+              <div class="autocomplete-results" id="taxonAutocomplete"></div>
+            </div>
+          </div>
+
+          <div class="option-row">
+            <div class="option-label">Quality Grade</div>
+            <select class="custom-select" id="qualitySelect">
+              <option value="">Any</option>
+              <option value="research,needs_id">Verifiable (non-casual)</option>
+              <option value="research">Research Grade</option>
+              <option value="needs_id">Needs ID</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Layout (hidden for observation mode) -->
+        <div class="option-group hidden-for-obs" id="layoutSection">
+          <div class="layout-picker">
+            <button class="layout-option" data-layout="list">
+              <div class="layout-icon">☰</div>
+              <div class="layout-label">List</div>
+            </button>
+            <button class="layout-option active" data-layout="grid">
+              <div class="layout-icon">⊞</div>
+              <div class="layout-label">Grid</div>
+            </button>
+            <button class="layout-option" data-layout="cards">
+              <div class="layout-icon">▦</div>
+              <div class="layout-label">Cards</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Options (hidden for observation mode) -->
+        <div class="option-group hidden-for-obs" id="optionsSection">
+
+          <div class="option-row">
+            <div class="option-label">Observations</div>
+            <div class="range-row">
+              <input type="range" class="range-input" id="limitRange" min="1" max="50" value="10" />
+              <span class="range-value" id="limitValue">10</span>
+            </div>
+          </div>
+
+          <div class="option-row">
+            <div class="option-label">Order by</div>
+            <select class="custom-select" id="orderSelect">
+              <option value="observed_on">Date Observed</option>
+              <option value="created_at">Date Added</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Theme -->
+        <div class="option-group">
+          <div class="theme-picker">
+            <button class="theme-option active" data-theme="light">
+              <div class="theme-swatch theme-swatch-light"></div>
+              <div class="theme-label">Light</div>
+            </button>
+            <button class="theme-option" data-theme="dark">
+              <div class="theme-swatch theme-swatch-dark"></div>
+              <div class="theme-label">Dark</div>
+            </button>
+            <button class="theme-option" data-theme="transparent">
+              <div class="theme-swatch theme-swatch-transparent"></div>
+              <div class="theme-label">Transparent</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Embed Code -->
+        <div class="embed-section">
+          <div class="embed-toggle" id="embedToggle">
+            <div class="embed-toggle-left">
+              <span class="embed-toggle-icon">{ }</span>
+              <span>Get Embed Code</span>
+            </div>
+            <span class="embed-arrow" id="embedArrow">▼</span>
+          </div>
+          <div class="embed-code-area" id="embedCodeArea">
+            <div class="embed-tabs">
+              <button class="embed-tab active" data-embed="script">Script</button>
+              <button class="embed-tab" data-embed="iframe">Iframe</button>
+            </div>
+            <div class="embed-code" id="embedCode">
+              <button class="copy-btn" id="copyBtn">Copy</button>
+              <code id="embedCodeText"></code>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="preview-area" id="previewArea">
+        <div class="preview-container" id="previewContainer">
+          <div class="preview-empty">
+            <div class="preview-empty-icon">🌿</div>
+            <div class="preview-empty-text">Widget Preview</div>
+            <div class="preview-empty-sub">Search for a user, project, place, or enter an observation ID</div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="inat-widget.js"></script>
+    <script>
+      const WIDGET_JS_URL = "https://glauberramos.github.io/inat/inat-widget.js";
+      const WIDGET_EMBED_URL = "https://glauberramos.github.io/inat/widget-embed.html";
+
+      // State
+      let state = {
+        sourceType: "user",
+        source: "",
+        sourceDisplay: "",
+        layout: "grid",
+        limit: 10,
+        orderBy: "observed_on",
+        theme: "light",
+        taxon: "",
+        taxonName: "",
+        qualityGrade: "",
+        dateMode: "any",
+        dateFrom: "",
+        dateTo: "",
+        dateOn: "",
+        embedType: "script",
+      };
+
+      let searchTimeout = null;
+      let taxonTimeout = null;
+
+      // Elements
+      const sourceInput = document.getElementById("sourceInput");
+      const autocompleteResults = document.getElementById("autocompleteResults");
+      const obsIdInput = document.getElementById("obsIdInput");
+      const obsIdSection = document.getElementById("obsIdSection");
+      const searchWrapper = document.getElementById("searchWrapper");
+      const taxonInput = document.getElementById("taxonInput");
+      const taxonAutocomplete = document.getElementById("taxonAutocomplete");
+      const qualitySelect = document.getElementById("qualitySelect");
+      const limitRange = document.getElementById("limitRange");
+      const limitValue = document.getElementById("limitValue");
+      const orderSelect = document.getElementById("orderSelect");
+      const previewArea = document.getElementById("previewArea");
+      const previewContainer = document.getElementById("previewContainer");
+      const embedToggle = document.getElementById("embedToggle");
+      const embedArrow = document.getElementById("embedArrow");
+      const embedCodeArea = document.getElementById("embedCodeArea");
+      const embedCodeText = document.getElementById("embedCodeText");
+      const copyBtn = document.getElementById("copyBtn");
+
+      // Source type tabs
+      document.querySelectorAll(".source-type-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".source-type-tab").forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+          state.sourceType = tab.dataset.type;
+
+          const isObs = state.sourceType === "observation";
+          searchWrapper.style.display = isObs ? "none" : "";
+          obsIdSection.classList.toggle("visible", isObs);
+          document.querySelectorAll(".hidden-for-obs").forEach((el) =>
+            el.classList.toggle("obs-mode", isObs)
+          );
+
+          const placeholders = {
+            user: "Search for a user…",
+            project: "Search for a project…",
+            place: "Search for a place…",
+          };
+          sourceInput.placeholder = placeholders[state.sourceType] || "Search…";
+          sourceInput.value = "";
+          obsIdInput.value = "";
+          state.source = "";
+          state.sourceDisplay = "";
+          autocompleteResults.classList.remove("visible");
+          renderPreview();
+          updateEmbedCode();
+        });
+      });
+
+      // Observation ID input
+      obsIdInput.addEventListener("input", () => {
+        let val = obsIdInput.value.trim();
+        // Extract ID from URL
+        const match = val.match(/observations\/(\d+)/);
+        if (match) val = match[1];
+        state.source = val;
+      });
+      obsIdInput.addEventListener("change", () => {
+        renderPreview();
+        updateEmbedCode();
+      });
+      obsIdInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          renderPreview();
+          updateEmbedCode();
+        }
+      });
+
+      // Layout picker
+      document.querySelectorAll(".layout-option").forEach((opt) => {
+        opt.addEventListener("click", () => {
+          document.querySelectorAll(".layout-option").forEach((o) => o.classList.remove("active"));
+          opt.classList.add("active");
+          state.layout = opt.dataset.layout;
+          renderPreview();
+          updateEmbedCode();
+        });
+      });
+
+      // Theme picker
+      document.querySelectorAll(".theme-option").forEach((opt) => {
+        opt.addEventListener("click", () => {
+          document.querySelectorAll(".theme-option").forEach((o) => o.classList.remove("active"));
+          opt.classList.add("active");
+          state.theme = opt.dataset.theme;
+          previewArea.className = "preview-area";
+          if (state.theme === "dark") previewArea.classList.add("preview-dark");
+          if (state.theme === "transparent") previewArea.classList.add("preview-transparent");
+          renderPreview();
+          updateEmbedCode();
+        });
+      });
+
+      // Limit range
+      limitRange.addEventListener("input", () => {
+        state.limit = parseInt(limitRange.value);
+        limitValue.textContent = state.limit;
+      });
+      limitRange.addEventListener("change", () => {
+        renderPreview();
+        updateEmbedCode();
+      });
+
+      // Order
+      orderSelect.addEventListener("change", () => {
+        state.orderBy = orderSelect.value;
+        renderPreview();
+        updateEmbedCode();
+      });
+
+      // Quality grade
+      qualitySelect.addEventListener("change", () => {
+        state.qualityGrade = qualitySelect.value;
+        renderPreview();
+        updateEmbedCode();
+      });
+
+
+      // Taxon autocomplete
+      taxonInput.addEventListener("input", () => {
+        const q = taxonInput.value.trim();
+        if (q.length < 2) {
+          taxonAutocomplete.classList.remove("visible");
+          if (q.length === 0) {
+            state.taxon = "";
+            state.taxonName = "";
+            renderPreview();
+            updateEmbedCode();
+          }
+          return;
+        }
+        clearTimeout(taxonTimeout);
+        taxonTimeout = setTimeout(() => fetchTaxonAutocomplete(q), 300);
+      });
+
+      async function fetchTaxonAutocomplete(query) {
+        try {
+          const res = await fetch(
+            `https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(query)}&per_page=8`
+          );
+          const data = await res.json();
+          const taxa = data.results || [];
+          if (!taxa.length) {
+            taxonAutocomplete.classList.remove("visible");
+            return;
+          }
+          taxonAutocomplete.innerHTML = taxa
+            .map(
+              (t) => `
+            <div class="autocomplete-item" data-taxon-id="${t.id}" data-taxon-name="${escapeAttr(t.preferred_common_name || t.name)}">
+              <img src="${t.default_photo ? t.default_photo.square_url : ''}" alt="" style="${t.default_photo ? '' : 'background:#f1f5f9'}" />
+              <div class="autocomplete-info">
+                <div class="autocomplete-name">${escapeHtml(t.preferred_common_name || t.name)}</div>
+                <div class="autocomplete-sub"><em>${escapeHtml(t.name)}</em> · ${escapeHtml(t.rank || "")}</div>
+              </div>
+            </div>
+          `
+            )
+            .join("");
+          taxonAutocomplete.classList.add("visible");
+          taxonAutocomplete.querySelectorAll(".autocomplete-item").forEach((item) => {
+            item.addEventListener("click", () => {
+              state.taxon = item.dataset.taxonId;
+              state.taxonName = item.dataset.taxonName;
+              taxonInput.value = item.dataset.taxonName;
+              taxonAutocomplete.classList.remove("visible");
+              renderPreview();
+              updateEmbedCode();
+            });
+          });
+        } catch (err) {
+          taxonAutocomplete.classList.remove("visible");
+        }
+      }
+
+      // Search / autocomplete
+      sourceInput.addEventListener("input", () => {
+        const q = sourceInput.value.trim();
+        if (q.length < 2) {
+          autocompleteResults.classList.remove("visible");
+          return;
+        }
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => fetchAutocomplete(q), 300);
+      });
+
+      sourceInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          const q = sourceInput.value.trim();
+          if (q) {
+            state.source = q;
+            autocompleteResults.classList.remove("visible");
+            renderPreview();
+            updateEmbedCode();
+          }
+        }
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!autocompleteResults.contains(e.target) && e.target !== sourceInput) {
+          autocompleteResults.classList.remove("visible");
+        }
+        if (!taxonAutocomplete.contains(e.target) && e.target !== taxonInput) {
+          taxonAutocomplete.classList.remove("visible");
+        }
+      });
+
+      async function fetchAutocomplete(query) {
+        try {
+          if (state.sourceType === "user") {
+            const res = await fetch(
+              `https://api.inaturalist.org/v1/users/autocomplete?q=${encodeURIComponent(query)}&per_page=8`
+            );
+            const data = await res.json();
+            renderUserResults(data.results || []);
+          } else if (state.sourceType === "project") {
+            const res = await fetch(
+              `https://api.inaturalist.org/v1/projects/autocomplete?q=${encodeURIComponent(query)}&per_page=8`
+            );
+            const data = await res.json();
+            renderProjectResults(data.results || []);
+          } else if (state.sourceType === "place") {
+            const res = await fetch(
+              `https://api.inaturalist.org/v1/places/autocomplete?q=${encodeURIComponent(query)}&per_page=8`
+            );
+            const data = await res.json();
+            renderPlaceResults(data.results || []);
+          }
+        } catch (err) {
+          autocompleteResults.classList.remove("visible");
+        }
+      }
+
+      function renderUserResults(users) {
+        if (!users.length) {
+          autocompleteResults.classList.remove("visible");
+          return;
+        }
+        autocompleteResults.innerHTML = users
+          .map(
+            (u) => `
+          <div class="autocomplete-item" data-value="${escapeAttr(u.login)}" data-display="${escapeAttr(u.login)}">
+            <img src="${u.icon || ''}" alt="" style="${u.icon ? '' : 'background:#f1f5f9'}" />
+            <div class="autocomplete-info">
+              <div class="autocomplete-name">${escapeHtml(u.login)}</div>
+              <div class="autocomplete-sub">${escapeHtml(u.name || "")}${u.observations_count ? ` · ${u.observations_count.toLocaleString()} observations` : ""}</div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+        autocompleteResults.classList.add("visible");
+        bindAutocompleteClicks();
+      }
+
+      function renderProjectResults(projects) {
+        if (!projects.length) {
+          autocompleteResults.classList.remove("visible");
+          return;
+        }
+        autocompleteResults.innerHTML = projects
+          .map(
+            (p) => `
+          <div class="autocomplete-item" data-value="${escapeAttr(p.slug || String(p.id))}" data-display="${escapeAttr(p.title)}">
+            <img src="${p.icon || ''}" alt="" style="${p.icon ? '' : 'background:#f1f5f9'}" />
+            <div class="autocomplete-info">
+              <div class="autocomplete-name">${escapeHtml(p.title)}</div>
+              <div class="autocomplete-sub">${escapeHtml(p.project_type || "project")}${p.observation_count ? ` · ${p.observation_count.toLocaleString()} observations` : ""}</div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+        autocompleteResults.classList.add("visible");
+        bindAutocompleteClicks();
+      }
+
+      function renderPlaceResults(places) {
+        if (!places.length) {
+          autocompleteResults.classList.remove("visible");
+          return;
+        }
+        autocompleteResults.innerHTML = places
+          .map(
+            (p) => `
+          <div class="autocomplete-item" data-value="${p.id}" data-display="${escapeAttr(p.display_name || p.name)}">
+            <div style="width:32px;height:32px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📍</div>
+            <div class="autocomplete-info">
+              <div class="autocomplete-name">${escapeHtml(p.display_name || p.name)}</div>
+              <div class="autocomplete-sub">${escapeHtml(p.place_type_name || "place")}</div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+        autocompleteResults.classList.add("visible");
+        bindAutocompleteClicks();
+      }
+
+      function bindAutocompleteClicks() {
+        autocompleteResults.querySelectorAll(".autocomplete-item").forEach((item) => {
+          item.addEventListener("click", () => {
+            const val = item.dataset.value;
+            const display = item.dataset.display || val;
+            sourceInput.value = display;
+            state.source = val;
+            state.sourceDisplay = display;
+            autocompleteResults.classList.remove("visible");
+            renderPreview();
+            updateEmbedCode();
+          });
+        });
+      }
+
+      // Preview
+      function renderPreview() {
+        if (!state.source) {
+          previewContainer.innerHTML = `
+            <div class="preview-empty">
+              <div class="preview-empty-icon">🌿</div>
+              <div class="preview-empty-text">Widget Preview</div>
+              <div class="preview-empty-sub">Search for a user, project, place, or enter an observation ID</div>
+            </div>
+          `;
+          return;
+        }
+
+        const attrs = buildDataAttrs();
+
+        previewContainer.innerHTML = `<div ${attrs.join(" ")}></div>`;
+
+        // Remove old styles so widget re-injects them (theme may have changed)
+        const oldStyles = document.getElementById("inat-widget-styles");
+        if (oldStyles) oldStyles.remove();
+
+        // Re-initialize widget
+        if (window.initInatWidgets) {
+          window.initInatWidgets();
+        }
+      }
+
+      function buildDataAttrs() {
+        const attrs = [
+          `data-inat-widget`,
+          `data-inat-source="${escapeAttr(state.source)}"`,
+          `data-inat-source-type="${state.sourceType}"`,
+          `data-inat-theme="${state.theme}"`,
+        ];
+        if (state.sourceDisplay && state.sourceDisplay !== state.source) {
+          attrs.push(`data-inat-title="${escapeAttr(state.sourceDisplay)}"`);
+        }
+
+        if (state.sourceType !== "observation") {
+          attrs.push(`data-inat-layout="${state.layout}"`);
+          attrs.push(`data-inat-limit="${state.limit}"`);
+          attrs.push(`data-inat-order-by="${state.orderBy}"`);
+          if (state.taxon) attrs.push(`data-inat-taxon="${escapeAttr(state.taxon)}"`);
+          if (state.qualityGrade) attrs.push(`data-inat-quality="${escapeAttr(state.qualityGrade)}"`);
+          if (state.dateOn) {
+            attrs.push(`data-inat-date="${escapeAttr(state.dateOn)}"`);
+          } else {
+            if (state.dateFrom) attrs.push(`data-inat-date-from="${escapeAttr(state.dateFrom)}"`);
+            if (state.dateTo) attrs.push(`data-inat-date-to="${escapeAttr(state.dateTo)}"`);
+          }
+        }
+
+        return attrs;
+      }
+
+      // Embed code
+      embedToggle.addEventListener("click", () => {
+        const isOpen = embedCodeArea.classList.toggle("visible");
+        embedArrow.classList.toggle("open", isOpen);
+        if (isOpen) updateEmbedCode();
+      });
+
+      // Embed type tabs
+      document.querySelectorAll(".embed-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".embed-tab").forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+          state.embedType = tab.dataset.embed;
+          updateEmbedCode();
+        });
+      });
+
+      function updateEmbedCode() {
+        const attrs = buildDataAttrs();
+
+        if (state.embedType === "iframe") {
+          // Build iframe URL
+          const params = new URLSearchParams();
+          params.set("source", state.source || "username");
+          params.set("type", state.sourceType);
+          params.set("theme", state.theme);
+          if (state.sourceDisplay && state.sourceDisplay !== state.source) {
+            params.set("title", state.sourceDisplay);
+          }
+          if (state.sourceType !== "observation") {
+            params.set("layout", state.layout);
+            params.set("limit", state.limit);
+            params.set("order_by", state.orderBy);
+            if (state.taxon) params.set("taxon", state.taxon);
+            if (state.qualityGrade) params.set("quality", state.qualityGrade);
+            if (state.dateOn) {
+              params.set("date", state.dateOn);
+            } else {
+              if (state.dateFrom) params.set("date_from", state.dateFrom);
+              if (state.dateTo) params.set("date_to", state.dateTo);
+            }
+          }
+          const iframeUrl = `${WIDGET_EMBED_URL}?${params.toString()}`;
+          const code = `<!-- iNaturalist Widget (iframe) -->\n<iframe\n  src="${iframeUrl}"\n  width="100%"\n  height="100%"\n  frameborder="0"\n  style="border:none;border-radius:12px"\n></iframe>`;
+          embedCodeText.textContent = code;
+        } else {
+          const code = `<!-- iNaturalist Widget -->\n<div\n  ${attrs.join("\n  ")}\n></div>\n<script src="${WIDGET_JS_URL}"><\/script>`;
+          embedCodeText.textContent = code;
+        }
+      }
+
+      copyBtn.addEventListener("click", () => {
+        const text = embedCodeText.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          copyBtn.textContent = "Copied!";
+          copyBtn.classList.add("copied");
+          setTimeout(() => {
+            copyBtn.textContent = "Copy";
+            copyBtn.classList.remove("copied");
+          }, 2000);
+        });
+      });
+
+      // Helpers
+      function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      }
+      function escapeAttr(str) {
+        if (!str) return "";
+        return String(str).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+
+      // Init
+      updateEmbedCode();
+    </script>
+  </body>
+</html>
