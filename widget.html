@@ -700,6 +700,17 @@
           </div>
         </div>
 
+        <!-- Border Radius -->
+        <div class="option-group">
+          <div class="option-row">
+            <label class="option-label" for="borderRadius">Border Radius</label>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input type="number" id="borderRadius" class="custom-select" value="12" min="0" max="50" style="width:72px;padding-right:12px;background-image:none;cursor:text;appearance:textfield;-moz-appearance:textfield" />
+              <span style="font-size:12px;color:#94a3b8">px</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Embed Code -->
         <div class="embed-section">
           <div class="embed-tabs">
@@ -749,6 +760,7 @@
         showLocation: true,
         showGrade: false,
         showNotes: false,
+        borderRadius: 12,
       };
 
       let searchTimeout = null;
@@ -866,6 +878,13 @@
       });
       document.getElementById("showNotes").addEventListener("change", (e) => {
         state.showNotes = e.target.checked;
+        renderPreview();
+        updateEmbedCode();
+      });
+
+      // Border radius
+      document.getElementById("borderRadius").addEventListener("input", (e) => {
+        state.borderRadius = Math.max(0, Math.min(50, parseInt(e.target.value) || 0));
         renderPreview();
         updateEmbedCode();
       });
@@ -1146,6 +1165,7 @@
         if (!state.showLocation) attrs.push(`data-inat-show-location="false"`);
         if (state.showGrade) attrs.push(`data-inat-show-grade="true"`);
         if (state.showNotes) attrs.push(`data-inat-show-notes="true"`);
+        if (state.borderRadius !== 12) attrs.push(`data-inat-radius="${state.borderRadius}"`);
 
         return attrs;
       }
@@ -1188,6 +1208,7 @@
           if (!state.showLocation) params.set("show_location", "false");
           if (state.showGrade) params.set("show_grade", "true");
           if (state.showNotes) params.set("show_notes", "true");
+          if (state.borderRadius !== 12) params.set("radius", state.borderRadius);
           const iframeUrl = `${WIDGET_EMBED_URL}?${params.toString()}`;
           const code = `<!-- iNaturalist Widget (iframe) -->\n<iframe\n  src="${iframeUrl}"\n  width="100%"\n  height="100%"\n  frameborder="0"\n  style="border:none;border-radius:12px"\n></iframe>`;
           embedCodeText.textContent = code;

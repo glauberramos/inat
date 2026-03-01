@@ -35,6 +35,7 @@
       this.showGrade = container.dataset.inatShowGrade === "true";
       this.showLocation = container.dataset.inatShowLocation !== "false";
       this.showNotes = container.dataset.inatShowNotes === "true";
+      this.borderRadius = container.dataset.inatRadius !== undefined ? parseInt(container.dataset.inatRadius) : 12;
       this.observations = [];
 
       this.injectStyles();
@@ -500,6 +501,8 @@
     render() {
       this.container.innerHTML = "";
       this.container.className = `inat-w inat-theme-${this.theme}`;
+      this.container.style.setProperty("--inat-radius", `${this.borderRadius}px`);
+      this.container.style.setProperty("--inat-radius-sm", `${Math.max(0, this.borderRadius - 4)}px`);
 
       // Header
       const header = document.createElement("div");
