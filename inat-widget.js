@@ -32,6 +32,9 @@
       this.dateFrom = container.dataset.inatDateFrom || "";
       this.dateTo = container.dataset.inatDateTo || "";
       this.dateOn = container.dataset.inatDate || "";
+      this.showGrade = container.dataset.inatShowGrade === "true";
+      this.showLocation = container.dataset.inatShowLocation !== "false";
+      this.showNotes = container.dataset.inatShowNotes === "true";
       this.observations = [];
 
       this.injectStyles();
@@ -332,8 +335,8 @@
           position: absolute;
           bottom: 8px;
           right: 8px;
-          width: 56px;
-          height: 56px;
+          width: 48px;
+          height: 48px;
           border-radius: 50%;
           border: 3px solid var(--inat-card-bg);
           overflow: hidden;
@@ -460,6 +463,24 @@
           font-size: 12px;
           font-weight: 500;
           color: var(--inat-accent) !important;
+        }
+
+        /* Quality grade badge */
+        .inat-w-grade {
+          font-size: 10px;
+          font-weight: 600;
+          padding: 1px 6px;
+          border-radius: 4px;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+        .inat-w-grade-research {
+          background: var(--inat-accent);
+          color: #fff;
+        }
+        .inat-w-grade-needs_id {
+          background: #f59e0b;
+          color: #fff;
         }
 
         /* Placeholder image */
@@ -630,6 +651,7 @@
             <div class="inat-w-list-scientific">${this.escapeHtml(scientific)}</div>
             <div class="inat-w-list-meta">${this.escapeHtml(user)} · ${date}</div>
           </div>
+          ${this.showGrade && obs.quality_grade && obs.quality_grade !== "casual" ? `<span class="inat-w-grade inat-w-grade-${obs.quality_grade}">${obs.quality_grade === "research" ? "RG" : "Needs ID"}</span>` : ""}
         `;
         wrap.appendChild(item);
       });
@@ -682,6 +704,7 @@
         const user = obs.user ? obs.user.login : "Unknown";
         const userIcon = obs.user && obs.user.icon ? obs.user.icon : null;
         const place = obs.place_guess || "Unknown location";
+        const notes = obs.description || "";
         const url = `https://www.inaturalist.org/observations/${obs.id}`;
         const photos = obs.photos || [];
         const hasMultiPhotos = photos.length > 1;
@@ -741,10 +764,18 @@
                 <span class="inat-w-card-detail-label">Date:</span>
                 <span class="inat-w-card-detail-value">${date}</span>
               </div>
-              <div class="inat-w-card-detail">
+              ${this.showLocation ? `<div class="inat-w-card-detail">
                 <span class="inat-w-card-detail-label">Location:</span>
                 <span class="inat-w-card-detail-value">${this.escapeHtml(place)}</span>
-              </div>
+              </div>` : ""}
+              ${this.showGrade && obs.quality_grade && obs.quality_grade !== "casual" ? `<div class="inat-w-card-detail">
+                <span class="inat-w-card-detail-label">Grade:</span>
+                <span class="inat-w-card-detail-value"><span class="inat-w-grade inat-w-grade-${obs.quality_grade}">${obs.quality_grade === "research" ? "Research Grade" : "Needs ID"}</span></span>
+              </div>` : ""}
+              ${this.showNotes && notes ? `<div class="inat-w-card-detail">
+                <span class="inat-w-card-detail-label">Notes:</span>
+                <span class="inat-w-card-detail-value">${this.escapeHtml(notes)}</span>
+              </div>` : ""}
             </div>
           </div>
         `;

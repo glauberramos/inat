@@ -198,6 +198,22 @@
         flex-direction: column;
         gap: 10px;
       }
+      .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 13px;
+        color: #475569;
+        cursor: pointer;
+      }
+      .checkbox-label input {
+        accent-color: #74ac00;
+      }
       .option-row {
         display: flex;
         flex-direction: column;
@@ -675,6 +691,15 @@
           </div>
         </div>
 
+        <!-- Display Options -->
+        <div class="option-group">
+          <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" id="showLocation" checked /> Location</label>
+            <label class="checkbox-label"><input type="checkbox" id="showGrade" /> Research Grade</label>
+            <label class="checkbox-label"><input type="checkbox" id="showNotes" /> Notes</label>
+          </div>
+        </div>
+
         <!-- Embed Code -->
         <div class="embed-section">
           <div class="embed-tabs">
@@ -721,6 +746,9 @@
         dateTo: "",
         dateOn: "",
         embedType: "script",
+        showLocation: true,
+        showGrade: false,
+        showNotes: false,
       };
 
       let searchTimeout = null;
@@ -823,6 +851,23 @@
           renderPreview();
           updateEmbedCode();
         });
+      });
+
+      // Display options
+      document.getElementById("showLocation").addEventListener("change", (e) => {
+        state.showLocation = e.target.checked;
+        renderPreview();
+        updateEmbedCode();
+      });
+      document.getElementById("showGrade").addEventListener("change", (e) => {
+        state.showGrade = e.target.checked;
+        renderPreview();
+        updateEmbedCode();
+      });
+      document.getElementById("showNotes").addEventListener("change", (e) => {
+        state.showNotes = e.target.checked;
+        renderPreview();
+        updateEmbedCode();
       });
 
       // Limit range
@@ -1098,6 +1143,10 @@
           }
         }
 
+        if (!state.showLocation) attrs.push(`data-inat-show-location="false"`);
+        if (state.showGrade) attrs.push(`data-inat-show-grade="true"`);
+        if (state.showNotes) attrs.push(`data-inat-show-notes="true"`);
+
         return attrs;
       }
 
@@ -1136,6 +1185,9 @@
               if (state.dateTo) params.set("date_to", state.dateTo);
             }
           }
+          if (!state.showLocation) params.set("show_location", "false");
+          if (state.showGrade) params.set("show_grade", "true");
+          if (state.showNotes) params.set("show_notes", "true");
           const iframeUrl = `${WIDGET_EMBED_URL}?${params.toString()}`;
           const code = `<!-- iNaturalist Widget (iframe) -->\n<iframe\n  src="${iframeUrl}"\n  width="100%"\n  height="100%"\n  frameborder="0"\n  style="border:none;border-radius:12px"\n></iframe>`;
           embedCodeText.textContent = code;
