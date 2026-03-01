@@ -330,16 +330,15 @@
         }
         .inat-w-card-taxon-badge {
           position: absolute;
-          bottom: -28px;
-          left: 50%;
-          transform: translateX(-50%);
+          bottom: 8px;
+          right: 8px;
           width: 56px;
           height: 56px;
           border-radius: 50%;
           border: 3px solid var(--inat-card-bg);
           overflow: hidden;
           background: var(--inat-border);
-          z-index: 1;
+          z-index: 4;
           box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         .inat-w-card-taxon-img {
@@ -348,7 +347,7 @@
           object-fit: cover;
         }
         .inat-w-card-body {
-          padding: 36px 16px 16px;
+          padding: 16px;
           text-align: center;
         }
         .inat-w-card-common {
@@ -693,7 +692,7 @@
               ${userIcon ? `<img class="inat-w-card-taxon-img" src="${userIcon}" alt="${this.escapeHtml(user)}" loading="lazy" />` : `<div class="inat-w-no-photo" style="border-radius:50%">👤</div>`}
             </div>
           ` : "";
-        const bodyPadding = isMultiUser ? "36px 16px 16px" : "16px";
+        const bodyPadding = "16px";
 
         let photoHtml;
         if (hasMultiPhotos) {
