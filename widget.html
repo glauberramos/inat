@@ -763,11 +763,19 @@
             place: "Search for a place…",
           };
           sourceInput.placeholder = placeholders[state.sourceType] || "Search…";
-          sourceInput.value = "";
           obsIdInput.value = "";
-          state.source = "";
-          state.sourceDisplay = "";
           autocompleteResults.classList.remove("visible");
+
+          const savedUser = state.sourceType === "user" ? localStorage.getItem("inatUsername") : null;
+          if (savedUser) {
+            state.source = savedUser;
+            state.sourceDisplay = savedUser;
+            sourceInput.value = savedUser;
+          } else {
+            sourceInput.value = "";
+            state.source = "";
+            state.sourceDisplay = "";
+          }
           renderPreview();
           updateEmbedCode();
         });
