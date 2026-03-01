@@ -489,7 +489,6 @@
           <span class="inat-w-header-sep">/</span>
           <span class="inat-w-header-title">${this.escapeHtml(this.title || this.source)}</span>
         </div>
-        <a class="inat-w-header-link" href="${this.getSourceUrl()}" target="_blank" rel="noopener">View on iNaturalist →</a>
       `;
       this.container.appendChild(header);
 
@@ -501,7 +500,7 @@
       // Footer
       const footer = document.createElement("div");
       footer.className = "inat-w-footer";
-      footer.innerHTML = `<a href="${WIDGET_BASE}/widget" target="_blank" rel="noopener">Powered by iNat Widget</a>`;
+      footer.innerHTML = `<a href="${this.getSourceUrl()}" target="_blank" rel="noopener">View more on iNaturalist →</a>`;
       this.container.appendChild(footer);
     }
 
