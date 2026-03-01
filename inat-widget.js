@@ -821,10 +821,10 @@
       if (!dateStr) return "Unknown date";
       try {
         const d = new Date(dateStr);
-        return d.toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
+        return d.toLocaleDateString("en-GB", {
           day: "numeric",
+          month: "long",
+          year: "numeric",
         });
       } catch {
         return dateStr;
