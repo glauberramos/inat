@@ -1053,7 +1053,8 @@
         let veteran10Count = 0;
 
         dates.forEach((dateStr) => {
-          const date = new Date(dateStr);
+          const [y, m, d] = dateStr.split('-').map(Number);
+          const date = new Date(Date.UTC(y, m - 1, d));
           const count = histogram[dateStr];
           if (date <= cutoff2Years) veteran2Count += count;
           if (date <= cutoff5Years) veteran5Count += count;
@@ -1065,8 +1066,10 @@
         let currentStreak = 1;
 
         for (let i = 1; i < dates.length; i++) {
-          const prevDate = new Date(dates[i - 1]);
-          const currDate = new Date(dates[i]);
+          const [py, pm, pd] = dates[i - 1].split('-').map(Number);
+          const [cy, cm, cd] = dates[i].split('-').map(Number);
+          const prevDate = Date.UTC(py, pm - 1, pd);
+          const currDate = Date.UTC(cy, cm - 1, cd);
           const diffDays = Math.round(
             (currDate - prevDate) / (1000 * 60 * 60 * 24)
           );
@@ -1080,11 +1083,9 @@
         }
 
         // New Year achievement (observations on January 1st)
-        // Use UTC methods to avoid timezone issues with YYYY-MM-DD date strings
         let newYearCount = 0;
         dates.forEach((dateStr) => {
-          const date = new Date(dateStr);
-          if (date.getUTCMonth() === 0 && date.getUTCDate() === 1) {
+          if (dateStr.endsWith('-01-01')) {
             newYearCount += histogram[dateStr];
           }
         });
@@ -1117,16 +1118,14 @@
           "Dec",
         ];
         dates.forEach((dateStr) => {
-          const date = new Date(dateStr);
-          const monthIndex = date.getUTCMonth();
+          const monthIndex = parseInt(dateStr.split('-')[1], 10) - 1;
           observedMonths.add(monthNames[monthIndex]);
         });
 
         // Seasons achievement
         const observedSeasons = new Set();
         dates.forEach((dateStr) => {
-          const date = new Date(dateStr);
-          const month = date.getUTCMonth(); // 0-11
+          const month = parseInt(dateStr.split('-')[1], 10) - 1; // 0-11
           let season;
           if (month >= 2 && month <= 4) season = "Spring";
           else if (month >= 5 && month <= 7) season = "Summer";
@@ -1138,7 +1137,9 @@
         // Weekend warrior achievement (Saturday = 6, Sunday = 0)
         const weekendDays = new Set();
         dates.forEach((dateStr) => {
-          const date = new Date(dateStr);
+          // Parse YYYY-MM-DD directly to avoid timezone shifts
+          const [y, m, d] = dateStr.split('-').map(Number);
+          const date = new Date(Date.UTC(y, m - 1, d));
           const dayOfWeek = date.getUTCDay();
           if (dayOfWeek === 0 || dayOfWeek === 6) {
             weekendDays.add(dateStr);
@@ -1151,8 +1152,9 @@
         // Year-round observer (observe on each of 365 unique calendar days)
         const uniqueCalendarDays = new Set();
         dates.forEach((dateStr) => {
-          const date = new Date(dateStr);
-          const monthDay = `${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+          // Parse directly from YYYY-MM-DD string to avoid timezone issues
+          const parts = dateStr.split('-');
+          const monthDay = `${parts[1]}-${parts[2]}`;
           // Ignore February 29 (leap day)
           if (monthDay !== '02-29') {
             uniqueCalendarDays.add(monthDay);
