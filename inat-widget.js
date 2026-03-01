@@ -320,9 +320,13 @@
           height: 100%;
           object-fit: cover;
         }
-        .inat-w-card-cover .inat-w-card-photos {
+        .inat-w-card-photos-clip {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
           overflow: hidden;
-          clip-path: inset(0);
         }
         .inat-w-card-taxon-badge {
           position: absolute;
@@ -389,14 +393,15 @@
         /* Card photo navigation */
         .inat-w-card-photos {
           display: flex;
+          width: 100%;
           height: 100%;
           transition: transform 0.3s ease;
         }
-        .inat-w-card-photos img {
+        .inat-w-card-cover .inat-w-card-photos img {
           width: 100%;
+          min-width: 100%;
           height: 100%;
           object-fit: cover;
-          flex-shrink: 0;
         }
         .inat-w-card-nav {
           position: absolute;
@@ -699,7 +704,9 @@
             `<span class="inat-w-card-dot${i === 0 ? " active" : ""}"></span>`
           ).join("");
           photoHtml = `
-            <div class="inat-w-card-photos" data-index="0">${photoImgs}</div>
+            <div class="inat-w-card-photos-clip">
+              <div class="inat-w-card-photos" data-index="0">${photoImgs}</div>
+            </div>
             <button class="inat-w-card-nav inat-w-card-nav-prev" data-dir="-1">‹</button>
             <button class="inat-w-card-nav inat-w-card-nav-next" data-dir="1">›</button>
             <div class="inat-w-card-dots">${dots}</div>
@@ -753,7 +760,7 @@
               const photosEl = card.querySelector(".inat-w-card-photos");
               let idx = parseInt(photosEl.dataset.index) || 0;
               const dir = parseInt(btn.dataset.dir);
-              idx = Math.max(0, Math.min(photos.length - 1, idx + dir));
+              idx = (idx + dir + photos.length) % photos.length;
               photosEl.dataset.index = idx;
               photosEl.style.transform = `translateX(-${idx * 100}%)`;
               const dots = card.querySelectorAll(".inat-w-card-dot");
