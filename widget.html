@@ -677,22 +677,13 @@
 
         <!-- Embed Code -->
         <div class="embed-section">
-          <div class="embed-toggle" id="embedToggle">
-            <div class="embed-toggle-left">
-              <span class="embed-toggle-icon">{ }</span>
-              <span>Get Embed Code</span>
-            </div>
-            <span class="embed-arrow" id="embedArrow">▼</span>
+          <div class="embed-tabs">
+            <button class="embed-tab active" data-embed="script">Script</button>
+            <button class="embed-tab" data-embed="iframe">Iframe</button>
           </div>
-          <div class="embed-code-area" id="embedCodeArea">
-            <div class="embed-tabs">
-              <button class="embed-tab active" data-embed="script">Script</button>
-              <button class="embed-tab" data-embed="iframe">Iframe</button>
-            </div>
-            <div class="embed-code" id="embedCode">
-              <button class="copy-btn" id="copyBtn">Copy</button>
-              <code id="embedCodeText"></code>
-            </div>
+          <div class="embed-code" id="embedCode">
+            <button class="copy-btn" id="copyBtn">Copy</button>
+            <code id="embedCodeText"></code>
           </div>
         </div>
       </aside>
@@ -749,9 +740,6 @@
       const orderSelect = document.getElementById("orderSelect");
       const previewArea = document.getElementById("previewArea");
       const previewContainer = document.getElementById("previewContainer");
-      const embedToggle = document.getElementById("embedToggle");
-      const embedArrow = document.getElementById("embedArrow");
-      const embedCodeArea = document.getElementById("embedCodeArea");
       const embedCodeText = document.getElementById("embedCodeText");
       const copyBtn = document.getElementById("copyBtn");
 
@@ -1104,13 +1092,6 @@
 
         return attrs;
       }
-
-      // Embed code
-      embedToggle.addEventListener("click", () => {
-        const isOpen = embedCodeArea.classList.toggle("visible");
-        embedArrow.classList.toggle("open", isOpen);
-        if (isOpen) updateEmbedCode();
-      });
 
       // Embed type tabs
       document.querySelectorAll(".embed-tab").forEach((tab) => {
