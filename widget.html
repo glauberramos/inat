@@ -1159,6 +1159,15 @@
         return String(str).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       }
 
+      // Load saved username from localStorage
+      const savedUsername = localStorage.getItem("inatUsername");
+      if (savedUsername) {
+        state.source = savedUsername;
+        state.sourceDisplay = savedUsername;
+        sourceInput.value = savedUsername;
+        renderPreview();
+      }
+
       // Init
       updateEmbedCode();
     </script>
