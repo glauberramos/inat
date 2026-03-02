@@ -555,7 +555,7 @@
         return `https://www.inaturalist.org/observations/${encodeURIComponent(this.source)}`;
       }
       if (this.sourceType === "project") {
-        return `https://www.inaturalist.org/projects/${encodeURIComponent(this.source)}`;
+        return `https://www.inaturalist.org/projects/${encodeURIComponent(this.source)}?tab=observations`;
       }
       if (this.sourceType === "place") {
         return `https://www.inaturalist.org/observations?place_id=${encodeURIComponent(this.source)}`;
