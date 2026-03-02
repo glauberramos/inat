@@ -72,7 +72,6 @@
           line-height: 1.5;
           color: var(--inat-text);
           background: var(--inat-bg);
-          padding: 16px;
           border-radius: var(--inat-radius);
         }
         .inat-w.inat-theme-dark {
@@ -187,7 +186,7 @@
           display: flex;
           align-items: center;
           gap: 10px;
-          padding: 6px 10px;
+          padding: 4px 10px;
           border-radius: var(--inat-radius-sm);
           transition: background 0.15s;
           text-decoration: none !important;
@@ -496,7 +495,7 @@
 
         /* Compact grid */
         .inat-w-grid.inat-w-compact {
-          gap: 2px;
+          gap: 4px;
           grid-template-columns: repeat(auto-fill, 75px);
         }
         .inat-w-compact .inat-w-grid-item {
