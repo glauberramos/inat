@@ -356,7 +356,6 @@
           border: 3px solid var(--inat-card-bg);
           overflow: hidden;
           background: var(--inat-border);
-          z-index: 4;
           box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         .inat-w-card-taxon-img {
