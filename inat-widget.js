@@ -37,6 +37,7 @@
       this.showNotes = container.dataset.inatShowNotes === "true";
       this.showTitle = container.dataset.inatShowTitle !== "false";
       this.borderRadius = container.dataset.inatRadius !== undefined ? parseInt(container.dataset.inatRadius) : 12;
+      this.padding = container.dataset.inatPadding !== undefined ? parseInt(container.dataset.inatPadding) : 16;
       this.compact = container.dataset.inatCompact === "true";
       this.observations = [];
 
@@ -311,7 +312,6 @@
           gap: 16px;
         }
         .inat-w-card {
-          position: relative;
           background: var(--inat-card-bg);
           border-radius: var(--inat-radius);
           overflow: hidden;
@@ -329,7 +329,7 @@
         .inat-w-card-cover {
           position: relative;
           height: 180px;
-          overflow: hidden;
+          overflow: visible;
           background: var(--inat-border);
         }
         .inat-w-card-cover-img {
@@ -524,6 +524,7 @@
       this.container.className = `inat-w inat-theme-${this.theme}`;
       this.container.style.setProperty("--inat-radius", `${this.borderRadius}px`);
       this.container.style.setProperty("--inat-radius-sm", `${Math.max(0, this.borderRadius - 4)}px`);
+      this.container.style.padding = `${this.padding}px`;
 
       // Header
       const header = document.createElement("div");
@@ -765,6 +766,7 @@
         const coverHtml = `
           <div class="inat-w-card-cover">
             ${photoHtml}
+            ${avatarBadge}
           </div>
         `;
 
@@ -775,7 +777,6 @@
         card.rel = "noopener";
         card.innerHTML = `
           ${coverHtml}
-          ${avatarBadge}
           <div class="inat-w-card-body" style="padding: ${bodyPadding}">
             <div class="inat-w-card-common">${this.escapeHtml(name)}</div>
             <div class="inat-w-card-scientific">${this.escapeHtml(scientific)}</div>

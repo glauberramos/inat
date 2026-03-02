@@ -712,13 +712,22 @@
           </div>
         </div>
 
-        <!-- Border Radius -->
+        <!-- Border Radius & Padding -->
         <div class="option-group">
-          <div class="option-row">
-            <label class="option-label" for="borderRadius">Border Radius</label>
-            <div style="display:flex;align-items:center;gap:6px">
-              <input type="number" id="borderRadius" class="custom-select" value="12" min="0" max="50" style="width:72px;padding-right:12px;background-image:none;cursor:text;appearance:textfield;-moz-appearance:textfield" />
-              <span style="font-size:12px;color:#94a3b8">px</span>
+          <div style="display:flex;gap:12px">
+            <div style="flex:1">
+              <label class="option-label" for="borderRadius" style="margin-bottom:4px;display:block">Radius</label>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="number" id="borderRadius" class="custom-select" value="12" min="0" max="50" style="width:100%;padding-right:12px;background-image:none;cursor:text;appearance:textfield;-moz-appearance:textfield" />
+                <span style="font-size:12px;color:#94a3b8">px</span>
+              </div>
+            </div>
+            <div style="flex:1">
+              <label class="option-label" for="padding" style="margin-bottom:4px;display:block">Padding</label>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="number" id="padding" class="custom-select" value="16" min="0" max="50" style="width:100%;padding-right:12px;background-image:none;cursor:text;appearance:textfield;-moz-appearance:textfield" />
+                <span style="font-size:12px;color:#94a3b8">px</span>
+              </div>
             </div>
           </div>
         </div>
@@ -775,6 +784,7 @@
         showNotes: false,
         compact: false,
         borderRadius: 12,
+        padding: 16,
       };
 
       let searchTimeout = null;
@@ -915,6 +925,11 @@
       // Border radius
       document.getElementById("borderRadius").addEventListener("input", (e) => {
         state.borderRadius = Math.max(0, Math.min(50, parseInt(e.target.value) || 0));
+        renderPreview();
+        updateEmbedCode();
+      });
+      document.getElementById("padding").addEventListener("input", (e) => {
+        state.padding = Math.max(0, Math.min(50, parseInt(e.target.value) || 0));
         renderPreview();
         updateEmbedCode();
       });
@@ -1203,6 +1218,7 @@
         if (state.showGrade) attrs.push(`data-inat-show-grade="true"`);
         if (state.showNotes) attrs.push(`data-inat-show-notes="true"`);
         if (state.borderRadius !== 12) attrs.push(`data-inat-radius="${state.borderRadius}"`);
+        if (state.padding !== 16) attrs.push(`data-inat-padding="${state.padding}"`);
         if (state.compact) attrs.push(`data-inat-compact="true"`);
 
         return attrs;
@@ -1248,6 +1264,7 @@
           if (state.showGrade) params.set("show_grade", "true");
           if (state.showNotes) params.set("show_notes", "true");
           if (state.borderRadius !== 12) params.set("radius", state.borderRadius);
+          if (state.padding !== 16) params.set("padding", state.padding);
           if (state.compact) params.set("compact", "true");
           const iframeUrl = `${WIDGET_EMBED_URL}?${params.toString()}`;
           const code = `<!-- iNaturalist Widget (iframe) -->\n<iframe\n  src="${iframeUrl}"\n  width="100%"\n  height="100%"\n  frameborder="0"\n  style="border:none;border-radius:12px"\n></iframe>`;
