@@ -37,6 +37,7 @@
       this.showNotes = container.dataset.inatShowNotes === "true";
       this.showTitle = container.dataset.inatShowTitle !== "false";
       this.borderRadius = container.dataset.inatRadius !== undefined ? parseInt(container.dataset.inatRadius) : 12;
+      this.compact = container.dataset.inatCompact === "true";
       this.observations = [];
 
       this.injectStyles();
@@ -485,6 +486,18 @@
           color: #fff;
         }
 
+        /* Compact grid */
+        .inat-w-grid.inat-w-compact {
+          gap: 2px;
+          grid-template-columns: repeat(auto-fill, 75px);
+        }
+        .inat-w-compact .inat-w-grid-item {
+          width: 75px;
+          height: 75px;
+        }
+        .inat-w-compact .inat-w-grid-overlay { display: none; }
+        .inat-w-compact .inat-w-grid-item:hover .inat-w-grid-img { transform: none; }
+
         /* Placeholder image */
         .inat-w-no-photo {
           display: flex;
@@ -666,12 +679,12 @@
 
     renderGrid() {
       const wrap = document.createElement("div");
-      wrap.className = "inat-w-grid";
+      wrap.className = "inat-w-grid" + (this.compact ? " inat-w-compact" : "");
 
       this.observations.forEach((obs) => {
         const name = this.getCommonName(obs);
         const scientific = this.getScientificName(obs);
-        const photo = this.getPhotoUrl(obs, "medium");
+        const photo = this.getPhotoUrl(obs, this.compact ? "square" : "medium");
         const photoCount = obs.photos ? obs.photos.length : 0;
         const url = `https://www.inaturalist.org/observations/${obs.id}`;
 

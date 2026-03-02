@@ -653,6 +653,17 @@
           </div>
         </div>
 
+        <!-- Display Options -->
+        <div class="option-group hidden-for-obs" id="displayOptionsSection">
+          <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" id="showTitle" checked /> Title</label>
+            <label class="checkbox-label" id="showLocationLabel"><input type="checkbox" id="showLocation" checked /> Location</label>
+            <label class="checkbox-label" id="showGradeLabel"><input type="checkbox" id="showGrade" /> Research Grade</label>
+            <label class="checkbox-label" id="showNotesLabel"><input type="checkbox" id="showNotes" /> Notes</label>
+            <label class="checkbox-label" id="compactLabel"><input type="checkbox" id="compact" /> Compact</label>
+          </div>
+        </div>
+
         <!-- Options (hidden for observation mode) -->
         <div class="option-group hidden-for-obs" id="optionsSection">
 
@@ -688,16 +699,6 @@
               <div class="theme-swatch theme-swatch-transparent"></div>
               <div class="theme-label">Transparent</div>
             </button>
-          </div>
-        </div>
-
-        <!-- Display Options -->
-        <div class="option-group">
-          <div class="checkbox-group">
-            <label class="checkbox-label"><input type="checkbox" id="showTitle" checked /> Title</label>
-            <label class="checkbox-label"><input type="checkbox" id="showLocation" checked /> Location</label>
-            <label class="checkbox-label"><input type="checkbox" id="showGrade" /> Research Grade</label>
-            <label class="checkbox-label"><input type="checkbox" id="showNotes" /> Notes</label>
           </div>
         </div>
 
@@ -762,6 +763,7 @@
         showLocation: true,
         showGrade: false,
         showNotes: false,
+        compact: false,
         borderRadius: 12,
       };
 
@@ -843,15 +845,25 @@
       });
 
       // Layout picker
+      function updateDisplayOptions() {
+        const isGrid = state.layout === "grid";
+        document.getElementById("showLocationLabel").style.display = isGrid ? "none" : "";
+        document.getElementById("showGradeLabel").style.display = isGrid ? "none" : "";
+        document.getElementById("showNotesLabel").style.display = isGrid ? "none" : "";
+        document.getElementById("compactLabel").style.display = isGrid ? "" : "none";
+      }
+
       document.querySelectorAll(".layout-option").forEach((opt) => {
         opt.addEventListener("click", () => {
           document.querySelectorAll(".layout-option").forEach((o) => o.classList.remove("active"));
           opt.classList.add("active");
           state.layout = opt.dataset.layout;
+          updateDisplayOptions();
           renderPreview();
           updateEmbedCode();
         });
       });
+      updateDisplayOptions();
 
       // Theme picker
       document.querySelectorAll(".theme-option").forEach((opt) => {
@@ -909,6 +921,12 @@
       // Order
       orderSelect.addEventListener("change", () => {
         state.orderBy = orderSelect.value;
+        renderPreview();
+        updateEmbedCode();
+      });
+
+      document.getElementById("compact").addEventListener("change", (e) => {
+        state.compact = e.target.checked;
         renderPreview();
         updateEmbedCode();
       });
@@ -1174,6 +1192,7 @@
         if (state.showGrade) attrs.push(`data-inat-show-grade="true"`);
         if (state.showNotes) attrs.push(`data-inat-show-notes="true"`);
         if (state.borderRadius !== 12) attrs.push(`data-inat-radius="${state.borderRadius}"`);
+        if (state.compact) attrs.push(`data-inat-compact="true"`);
 
         return attrs;
       }
@@ -1218,6 +1237,7 @@
           if (state.showGrade) params.set("show_grade", "true");
           if (state.showNotes) params.set("show_notes", "true");
           if (state.borderRadius !== 12) params.set("radius", state.borderRadius);
+          if (state.compact) params.set("compact", "true");
           const iframeUrl = `${WIDGET_EMBED_URL}?${params.toString()}`;
           const code = `<!-- iNaturalist Widget (iframe) -->\n<iframe\n  src="${iframeUrl}"\n  width="100%"\n  height="100%"\n  frameborder="0"\n  style="border:none;border-radius:12px"\n></iframe>`;
           embedCodeText.textContent = code;
