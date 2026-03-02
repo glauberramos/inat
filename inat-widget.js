@@ -312,6 +312,7 @@
           gap: 16px;
         }
         .inat-w-card {
+          position: relative;
           background: var(--inat-card-bg);
           border-radius: var(--inat-radius);
           overflow: hidden;
@@ -329,7 +330,7 @@
         .inat-w-card-cover {
           position: relative;
           height: 180px;
-          overflow: visible;
+          overflow: hidden;
           background: var(--inat-border);
         }
         .inat-w-card-cover-img {
@@ -347,7 +348,7 @@
         }
         .inat-w-card-taxon-badge {
           position: absolute;
-          bottom: 8px;
+          top: 156px;
           right: 8px;
           width: 48px;
           height: 48px;
@@ -766,7 +767,6 @@
         const coverHtml = `
           <div class="inat-w-card-cover">
             ${photoHtml}
-            ${avatarBadge}
           </div>
         `;
 
@@ -777,6 +777,7 @@
         card.rel = "noopener";
         card.innerHTML = `
           ${coverHtml}
+          ${avatarBadge}
           <div class="inat-w-card-body" style="padding: ${bodyPadding}">
             <div class="inat-w-card-common">${this.escapeHtml(name)}</div>
             <div class="inat-w-card-scientific">${this.escapeHtml(scientific)}</div>
