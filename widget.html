@@ -363,8 +363,11 @@
       }
       .theme-swatch-light { background: #ffffff; }
       .theme-swatch-dark { background: #0f172a; }
-      .theme-swatch-transparent {
-        background: repeating-conic-gradient(#e2e8f0 0% 25%, transparent 0% 50%) 50% / 12px 12px;
+      .theme-swatch-transparent-light {
+        background: repeating-conic-gradient(#e2e8f0 0% 25%, #fff 0% 50%) 50% / 12px 12px;
+      }
+      .theme-swatch-transparent-dark {
+        background: repeating-conic-gradient(#334155 0% 25%, #0f172a 0% 50%) 50% / 12px 12px;
       }
       .theme-label {
         font-size: 10px;
@@ -501,8 +504,11 @@
       .preview-area.preview-dark {
         background: #1a1a2e;
       }
-      .preview-area.preview-transparent {
+      .preview-area.preview-transparent-light {
         background: repeating-conic-gradient(#e8e8e8 0% 25%, #fff 0% 50%) 50% / 20px 20px;
+      }
+      .preview-area.preview-transparent-dark {
+        background: #1a1a2e;
       }
       .preview-container {
         width: 100%;
@@ -695,9 +701,13 @@
               <div class="theme-swatch theme-swatch-dark"></div>
               <div class="theme-label">Dark</div>
             </button>
-            <button class="theme-option" data-theme="transparent">
-              <div class="theme-swatch theme-swatch-transparent"></div>
-              <div class="theme-label">Transparent</div>
+            <button class="theme-option" data-theme="transparent-light">
+              <div class="theme-swatch theme-swatch-transparent-light"></div>
+              <div class="theme-label">Trans Light</div>
+            </button>
+            <button class="theme-option" data-theme="transparent-dark">
+              <div class="theme-swatch theme-swatch-transparent-dark"></div>
+              <div class="theme-label">Trans Dark</div>
             </button>
           </div>
         </div>
@@ -873,7 +883,8 @@
           state.theme = opt.dataset.theme;
           previewArea.className = "preview-area";
           if (state.theme === "dark") previewArea.classList.add("preview-dark");
-          if (state.theme === "transparent") previewArea.classList.add("preview-transparent");
+          if (state.theme === "transparent-light") previewArea.classList.add("preview-transparent-light");
+          if (state.theme === "transparent-dark") previewArea.classList.add("preview-transparent-dark");
           renderPreview();
           updateEmbedCode();
         });

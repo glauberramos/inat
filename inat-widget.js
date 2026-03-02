@@ -85,7 +85,7 @@
           --inat-shadow: 0 1px 3px rgba(0,0,0,0.3);
           --inat-shadow-hover: 0 10px 25px rgba(0,0,0,0.4);
         }
-        .inat-w.inat-theme-transparent {
+        .inat-w.inat-theme-transparent-light {
           --inat-bg: transparent;
           --inat-card-bg: #ffffff;
           --inat-text: #1a1a2e;
@@ -94,6 +94,19 @@
           --inat-hover: #f8fafc;
           --inat-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
           --inat-shadow-hover: 0 10px 25px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.06);
+        }
+        .inat-w.inat-theme-transparent-dark {
+          --inat-bg: transparent;
+          --inat-card-bg: #1e293b;
+          --inat-text: #f1f5f9;
+          --inat-text-secondary: #94a3b8;
+          --inat-border: #334155;
+          --inat-hover: #283548;
+          --inat-shadow: 0 1px 3px rgba(0,0,0,0.3);
+          --inat-shadow-hover: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .inat-theme-transparent-dark .inat-w-header-logo {
+          filter: brightness(0) invert(1);
         }
         .inat-w * { box-sizing: border-box; margin: 0; padding: 0; }
         .inat-w a { color: var(--inat-accent); text-decoration: none; }
@@ -106,8 +119,6 @@
           align-items: center;
           justify-content: space-between;
           margin-bottom: 12px;
-          padding-bottom: 10px;
-          border-bottom: 1px solid var(--inat-border);
         }
         .inat-w-header-left {
           display: flex;
@@ -457,15 +468,12 @@
         .inat-w-footer {
           display: flex;
           align-items: center;
-          justify-content: center;
           margin-top: 14px;
-          padding-top: 12px;
-          border-top: 1px solid var(--inat-border);
         }
         .inat-w-footer a {
           font-size: 12px;
           font-weight: 500;
-          color: var(--inat-accent) !important;
+          color: var(--inat-text-secondary) !important;
         }
 
         /* Quality grade badge */
