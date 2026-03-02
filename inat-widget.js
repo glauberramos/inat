@@ -347,7 +347,7 @@
         }
         .inat-w-card-taxon-badge {
           position: absolute;
-          top: 156px;
+          bottom: 8px;
           right: 8px;
           width: 48px;
           height: 48px;
