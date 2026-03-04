@@ -52,22 +52,21 @@ jobs:
             const syncedSlugs = new Set((allSyncLogs || []).map(r => r.project_slug));
             const neverSynced = (allProjects || []).filter(p => !syncedSlugs.has(p.slug));
 
-            const remaining = Math.max(0, 3 - (inProgress?.length || 0) - (pending?.length || 0) - neverSynced.length);
-
             // Done projects, oldest first
             const { data: done } = await db
               .from('cnc_sync_log')
               .select('project_slug')
               .eq('status', 'done')
-              .order('completed_at', { ascending: true })
-              .limit(remaining);
+              .order('completed_at', { ascending: true });
 
-            const slugs = [
+            const allSlugs = [
               ...(inProgress || []).map(r => r.project_slug),
               ...(pending || []).map(r => r.project_slug),
               ...neverSynced.map(p => p.slug),
               ...(done || []).map(r => r.project_slug),
             ];
+
+            const slugs = allSlugs.slice(0, 3);
 
             console.log('Projects to sync: ' + slugs.length);
             console.log('Never synced: ' + neverSynced.length);
