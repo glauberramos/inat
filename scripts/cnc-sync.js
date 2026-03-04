@@ -128,6 +128,7 @@ function mapObservation(obs, projectSlug) {
     quality_grade: obs.quality_grade || null,
     taxon_id: obs.taxon ? obs.taxon.id : null,
     taxon_name: obs.taxon ? obs.taxon.name : null,
+    taxon_rank: obs.taxon ? obs.taxon.rank : null,
     common_name: obs.taxon ? obs.taxon.preferred_common_name : null,
     iconic_taxon_name: obs.taxon ? obs.taxon.iconic_taxon_name : null,
     photo_url: photo,
@@ -296,7 +297,7 @@ async function syncProjectStats(project, index, total) {
       `${API_BASE}/observations/observers?project_id=${project.slug}&per_page=10`
     ),
     rateLimitedFetch(
-      `${API_BASE}/observations/species_counts?project_id=${project.slug}&per_page=10`
+      `${API_BASE}/observations/species_counts?project_id=${project.slug}&per_page=10&rank=species`
     ),
   ]);
 

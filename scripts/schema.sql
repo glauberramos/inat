@@ -27,6 +27,7 @@ create table cnc_observations (
   quality_grade text,
   taxon_id int,
   taxon_name text,
+  taxon_rank text,
   common_name text,
   iconic_taxon_name text,
   photo_url text,
