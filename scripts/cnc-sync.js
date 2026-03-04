@@ -86,7 +86,7 @@ async function fetchProjects() {
   for (let i = 0; i < projects.length; i++) {
     const p = projects[i];
     const countData = await rateLimitedFetch(
-      `${API_BASE}/observations?project_id=${p.slug}&verifiable=true&per_page=1`
+      `${API_BASE}/observations?project_id=${p.slug}&per_page=1`
     );
     p.total_observations = countData.total_results || 0;
     if ((i + 1) % 50 === 0 || i === projects.length - 1) {
@@ -173,7 +173,7 @@ async function fullSyncProject(projectSlug, resumeIdAbove = 0) {
   });
 
   while (true) {
-    const url = `${API_BASE}/observations?project_id=${projectSlug}&verifiable=true&per_page=${PER_PAGE}&order_by=id&order=asc${idAbove ? `&id_above=${idAbove}` : ""}`;
+    const url = `${API_BASE}/observations?project_id=${projectSlug}&per_page=${PER_PAGE}&order_by=id&order=asc${idAbove ? `&id_above=${idAbove}` : ""}`;
     const data = await rateLimitedFetch(url);
     const results = data.results || [];
 
@@ -225,7 +225,7 @@ async function incrementalSyncProject(projectSlug, completedAt) {
   console.log(`  Incremental sync since ${completedAt}`);
 
   while (true) {
-    const url = `${API_BASE}/observations?project_id=${projectSlug}&verifiable=true&per_page=${PER_PAGE}&order_by=id&order=asc${idAbove ? `&id_above=${idAbove}` : ""}&updated_since=${encodeURIComponent(completedAt)}`;
+    const url = `${API_BASE}/observations?project_id=${projectSlug}&per_page=${PER_PAGE}&order_by=id&order=asc${idAbove ? `&id_above=${idAbove}` : ""}&updated_since=${encodeURIComponent(completedAt)}`;
     const data = await rateLimitedFetch(url);
     const results = data.results || [];
 
@@ -293,10 +293,10 @@ async function syncProjectStats(project, index, total) {
 
   const [observersData, speciesData] = await Promise.all([
     rateLimitedFetch(
-      `${API_BASE}/observations/observers?project_id=${project.slug}&verifiable=true&per_page=10`
+      `${API_BASE}/observations/observers?project_id=${project.slug}&per_page=10`
     ),
     rateLimitedFetch(
-      `${API_BASE}/observations/species_counts?project_id=${project.slug}&verifiable=true&per_page=10`
+      `${API_BASE}/observations/species_counts?project_id=${project.slug}&per_page=10`
     ),
   ]);
 
