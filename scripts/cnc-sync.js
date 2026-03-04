@@ -219,13 +219,13 @@ async function fullSyncProject(projectSlug, resumeIdAbove = 0) {
 
 async function incrementalSyncProject(projectSlug, completedAt) {
   let totalFetched = 0;
-  let page = 1;
+  let idAbove = 0;
   const syncStartedAt = new Date().toISOString();
 
   console.log(`  Incremental sync since ${completedAt}`);
 
   while (true) {
-    const url = `${API_BASE}/observations?project_id=${projectSlug}&verifiable=true&per_page=${PER_PAGE}&order_by=id&order=asc&page=${page}&updated_since=${encodeURIComponent(completedAt)}`;
+    const url = `${API_BASE}/observations?project_id=${projectSlug}&verifiable=true&per_page=${PER_PAGE}&order_by=id&order=asc${idAbove ? `&id_above=${idAbove}` : ""}&updated_since=${encodeURIComponent(completedAt)}`;
     const data = await rateLimitedFetch(url);
     const results = data.results || [];
 
@@ -241,10 +241,10 @@ async function incrementalSyncProject(projectSlug, completedAt) {
     }
 
     totalFetched += results.length;
-    process.stdout.write(`  ${totalFetched} obs updated\r`);
+    idAbove = results[results.length - 1].id;
+    process.stdout.write(`  ${totalFetched} obs updated (id_above=${idAbove})\r`);
 
     if (results.length < PER_PAGE) break;
-    page++;
   }
 
   console.log(`  ${totalFetched} observations updated (incremental)`);
@@ -275,9 +275,12 @@ async function syncProject(projectSlug, index, total) {
   } else if (log.status === "in_progress") {
     // Resume interrupted full sync
     return fullSyncProject(projectSlug, log.last_id_above || 0);
-  } else if (log.status === "done") {
+  } else if (log.status === "done" && log.completed_at) {
     // Incremental sync
     return incrementalSyncProject(projectSlug, log.completed_at);
+  } else if (log.status === "done") {
+    // Done but no completed_at — do a full sync
+    return fullSyncProject(projectSlug);
   }
 
   return 0;
