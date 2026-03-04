@@ -36,7 +36,23 @@ jobs:
               .select('project_slug')
               .eq('status', 'in_progress');
 
-            const remaining = Math.max(0, 25 - (inProgress?.length || 0));
+            // Pending projects (explicitly marked pending in sync_log)
+            const { data: pending } = await db
+              .from('cnc_sync_log')
+              .select('project_slug')
+              .eq('status', 'pending');
+
+            // Projects with no sync_log entry at all (never synced)
+            const { data: allProjects } = await db
+              .from('cnc_projects')
+              .select('slug');
+            const { data: allSyncLogs } = await db
+              .from('cnc_sync_log')
+              .select('project_slug');
+            const syncedSlugs = new Set((allSyncLogs || []).map(r => r.project_slug));
+            const neverSynced = (allProjects || []).filter(p => !syncedSlugs.has(p.slug));
+
+            const remaining = Math.max(0, 25 - (inProgress?.length || 0) - (pending?.length || 0) - neverSynced.length);
 
             // Done projects, oldest first
             const { data: done } = await db
@@ -46,19 +62,15 @@ jobs:
               .order('completed_at', { ascending: true })
               .limit(remaining);
 
-            // Pending projects (new, not yet synced)
-            const { data: pending } = await db
-              .from('cnc_sync_log')
-              .select('project_slug')
-              .eq('status', 'pending');
-
             const slugs = [
               ...(inProgress || []).map(r => r.project_slug),
               ...(pending || []).map(r => r.project_slug),
+              ...neverSynced.map(p => p.slug),
               ...(done || []).map(r => r.project_slug),
             ];
 
             console.log('Projects to sync: ' + slugs.length);
+            console.log('Never synced: ' + neverSynced.length);
             const fs = require('fs');
             fs.appendFileSync(process.env.GITHUB_OUTPUT, 'slugs=' + JSON.stringify(slugs) + '\n');
           }
