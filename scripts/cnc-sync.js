@@ -129,6 +129,8 @@ function mapObservation(obs, projectSlug) {
     taxon_id: obs.taxon ? obs.taxon.id : null,
     taxon_name: obs.taxon ? obs.taxon.name : null,
     taxon_rank: obs.taxon ? obs.taxon.rank : null,
+    min_species_taxon_id: obs.taxon ? obs.taxon.min_species_taxon_id : null,
+    ancestor_ids: obs.taxon ? obs.taxon.ancestor_ids : null,
     common_name: obs.taxon ? obs.taxon.preferred_common_name : null,
     iconic_taxon_name: obs.taxon ? obs.taxon.iconic_taxon_name : null,
     photo_url: photo,

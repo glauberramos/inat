@@ -11,6 +11,8 @@ create table cnc_projects (
   total_observations int default 0,
   top_observers jsonb,
   top_species jsonb,
+  computed_stats jsonb,
+  computed_at timestamptz,
   synced_at timestamptz
 );
 
@@ -28,6 +30,8 @@ create table cnc_observations (
   taxon_id int,
   taxon_name text,
   taxon_rank text,
+  min_species_taxon_id int,
+  ancestor_ids jsonb,
   common_name text,
   iconic_taxon_name text,
   photo_url text,
