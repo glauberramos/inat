@@ -52,7 +52,7 @@ jobs:
             const syncedSlugs = new Set((allSyncLogs || []).map(r => r.project_slug));
             const neverSynced = (allProjects || []).filter(p => !syncedSlugs.has(p.slug));
 
-            const remaining = Math.max(0, 25 - (inProgress?.length || 0) - (pending?.length || 0) - neverSynced.length);
+            const remaining = Math.max(0, 3 - (inProgress?.length || 0) - (pending?.length || 0) - neverSynced.length);
 
             // Done projects, oldest first
             const { data: done } = await db
