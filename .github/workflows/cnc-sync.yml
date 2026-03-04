@@ -97,20 +97,3 @@ jobs:
           }
           "
 
-      - name: Consolidate metrics
-        run: |
-          SLUGS='${{ steps.projects.outputs.slugs }}'
-
-          echo "$SLUGS" | node -e "
-          const slugs = JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8'));
-          const { execSync } = require('child_process');
-
-          for (const slug of slugs) {
-            console.log('\n=== Consolidating: ' + slug + ' ===');
-            try {
-              execSync('node scripts/cnc-consolidate.js --project=' + slug, { stdio: 'inherit' });
-            } catch (e) {
-              console.error('Failed to consolidate ' + slug + ': ' + e.message);
-            }
-          }
-          "
