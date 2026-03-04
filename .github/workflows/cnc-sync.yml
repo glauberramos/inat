@@ -1,0 +1,79 @@
+name: CNC Hourly Sync
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install dotenv @supabase/supabase-js
+
+      - name: Get projects to sync
+        id: projects
+        run: |
+          node -e "
+          const { createClient } = require('@supabase/supabase-js');
+          const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+
+          async function main() {
+            // In-progress projects first (need to resume)
+            const { data: inProgress } = await db
+              .from('cnc_sync_log')
+              .select('project_slug')
+              .eq('status', 'in_progress');
+
+            const remaining = Math.max(0, 25 - (inProgress?.length || 0));
+
+            // Done projects, oldest first
+            const { data: done } = await db
+              .from('cnc_sync_log')
+              .select('project_slug')
+              .eq('status', 'done')
+              .order('completed_at', { ascending: true })
+              .limit(remaining);
+
+            const slugs = [
+              ...(inProgress || []).map(r => r.project_slug),
+              ...(done || []).map(r => r.project_slug),
+            ];
+
+            console.log('Projects to sync: ' + slugs.length);
+            const fs = require('fs');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'slugs=' + JSON.stringify(slugs) + '\n');
+          }
+
+          main().catch(e => { console.error(e); process.exit(1); });
+          "
+
+      - name: Sync projects
+        run: |
+          SLUGS='${{ steps.projects.outputs.slugs }}'
+          echo "Syncing $(echo "$SLUGS" | node -e "console.log(JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).length)") projects"
+
+          echo "$SLUGS" | node -e "
+          const slugs = JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8'));
+          const { execSync } = require('child_process');
+
+          for (const slug of slugs) {
+            console.log('\n=== Syncing: ' + slug + ' ===');
+            try {
+              execSync('node scripts/cnc-sync.js --project=' + slug, { stdio: 'inherit' });
+            } catch (e) {
+              console.error('Failed to sync ' + slug + ': ' + e.message);
+            }
+          }
+          "

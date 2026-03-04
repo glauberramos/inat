@@ -1,0 +1,13 @@
+{
+  "name": "cnc-sync",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node cnc-sync.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2",
+    "dotenv": "^16"
+  }
+}
