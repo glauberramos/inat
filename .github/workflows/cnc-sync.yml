@@ -46,8 +46,15 @@ jobs:
               .order('completed_at', { ascending: true })
               .limit(remaining);
 
+            // Pending projects (new, not yet synced)
+            const { data: pending } = await db
+              .from('cnc_sync_log')
+              .select('project_slug')
+              .eq('status', 'pending');
+
             const slugs = [
               ...(inProgress || []).map(r => r.project_slug),
+              ...(pending || []).map(r => r.project_slug),
               ...(done || []).map(r => r.project_slug),
             ];
 
