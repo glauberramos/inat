@@ -45,7 +45,7 @@ jobs:
           async function getCursor() {
             const { data } = await db
               .from('cnc_sync_log')
-              .select('project_slug')
+              .select('status')
               .eq('project_slug', CURSOR_KEY)
               .limit(1);
             return data && data.length > 0 ? data[0].status : null;
