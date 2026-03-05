@@ -40,12 +40,31 @@ jobs:
             return res.json();
           }
 
+          const CURSOR_KEY = '__check_updates_cursor';
+
+          async function getCursor() {
+            const { data } = await db
+              .from('cnc_sync_log')
+              .select('project_slug')
+              .eq('project_slug', CURSOR_KEY)
+              .limit(1);
+            return data && data.length > 0 ? data[0].status : null;
+          }
+
+          async function saveCursor(slug) {
+            await db.from('cnc_sync_log').upsert({
+              project_slug: CURSOR_KEY,
+              status: slug,
+              completed_at: new Date().toISOString()
+            }, { onConflict: 'project_slug' });
+          }
+
           async function main() {
             // Get all synced projects
             const { data: projects, error } = await db
               .from('cnc_projects')
               .select('slug, total_observations')
-              .order('total_observations', { ascending: true });
+              .order('slug', { ascending: true });
 
             if (error || !projects || projects.length === 0) {
               console.log('No projects found');
@@ -61,11 +80,31 @@ jobs:
             const syncedSlugs = new Set((syncLogs || []).map(r => r.project_slug));
             const syncedProjects = projects.filter(p => syncedSlugs.has(p.slug));
 
+            if (syncedProjects.length === 0) {
+              console.log('No synced projects to check');
+              return;
+            }
+
+            // Find where to start from cursor
+            const lastCursor = await getCursor();
+            let startIdx = 0;
+            if (lastCursor) {
+              const idx = syncedProjects.findIndex(p => p.slug > lastCursor);
+              startIdx = idx >= 0 ? idx : 0; // wrap around if past end
+              console.log('Resuming after: ' + lastCursor + ' (index ' + startIdx + ')');
+            }
+
             console.log('Checking ' + syncedProjects.length + ' synced projects...');
 
             let synced = 0;
-            for (const p of syncedProjects) {
-              if (synced >= 3) break;
+            let checked = 0;
+            let lastSlug = lastCursor;
+
+            while (synced < 3 && checked < syncedProjects.length) {
+              const idx = (startIdx + checked) % syncedProjects.length;
+              const p = syncedProjects[idx];
+              checked++;
+              lastSlug = p.slug;
 
               await new Promise(r => setTimeout(r, 1000));
               const data = await rateLimitedFetch(
@@ -105,7 +144,9 @@ jobs:
               }
             }
 
-            console.log('All projects up to date!');
+            // Save cursor for next run
+            await saveCursor(lastSlug);
+            console.log('Checked ' + checked + ', synced ' + synced + '. Cursor saved at: ' + lastSlug);
           }
 
           main().catch(e => { console.error(e); process.exit(1); });
