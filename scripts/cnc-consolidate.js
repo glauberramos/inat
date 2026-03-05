@@ -12,6 +12,7 @@ const args = process.argv.slice(2);
 const singleProject = args.find((a) => a.startsWith("--project="))?.split("=")[1];
 const dryRun = args.includes("--dry-run");
 const onlyIdentifications = args.includes("--only-identifications");
+const forceConsolidate = args.includes("--force");
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error("Missing SUPABASE_URL or SUPABASE_KEY.");
@@ -574,7 +575,7 @@ async function main() {
   } else {
     const { data, error } = await db
       .from("cnc_projects")
-      .select("slug")
+      .select("slug, total_observations")
       .order("total_observations", { ascending: true });
 
     if (error) throw new Error(`Fetch projects: ${error.message}`);
@@ -584,7 +585,23 @@ async function main() {
   console.log(`\nConsolidating ${projects.length} projects...\n`);
 
   for (let i = 0; i < projects.length; i++) {
-    await consolidateProject(projects[i].slug, i + 1, projects.length);
+    const project = projects[i];
+    const prefix = `[${i + 1}/${projects.length}] ${project.slug}`;
+
+    // Skip if no new data (unless single project or --force)
+    if (!singleProject && !forceConsolidate && project.total_observations != null) {
+      const { count } = await db
+        .from("cnc_observations")
+        .select("*", { count: "exact", head: true })
+        .eq("project_slug", project.slug);
+
+      if (count === project.total_observations) {
+        console.log(`${prefix}: no new data, skipping`);
+        continue;
+      }
+    }
+
+    await consolidateProject(project.slug, i + 1, projects.length);
   }
 
   console.log("\nDone!");
