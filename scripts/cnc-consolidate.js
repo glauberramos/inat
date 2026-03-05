@@ -369,6 +369,7 @@ async function consolidateProject(slug, index, total) {
       .update({
         computed_stats: stats,
         computed_at: new Date().toISOString(),
+        total_observations: stats.summary.total_observations,
       })
       .eq("slug", slug);
 
