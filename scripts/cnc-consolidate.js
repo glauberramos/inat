@@ -283,7 +283,7 @@ function computeStats(allObs) {
 
   // Marathon Observers
   const marathon_observers = allUsers
-    .filter((u) => Object.values(u.obsByDay).some((c) => c >= 20))
+    .filter((u) => Object.values(u.obsByDay).some((c) => c >= 100))
     .map((u) => {
       const best = Math.max(...Object.values(u.obsByDay));
       const bestDay = Object.entries(u.obsByDay).find(([, c]) => c === best)[0];
