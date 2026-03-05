@@ -1,0 +1,92 @@
+name: CNC Check Updates
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install dotenv @supabase/supabase-js
+
+      - name: Check and sync outdated project
+        run: |
+          node -e "
+          const { createClient } = require('@supabase/supabase-js');
+          const { execSync } = require('child_process');
+          const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+
+          async function rateLimitedFetch(url) {
+            const res = await fetch(url, { headers: { 'User-Agent': 'CNC-Check/1.0' } });
+            if (res.status === 429) {
+              console.log('Rate limited, waiting 60s...');
+              await new Promise(r => setTimeout(r, 60000));
+              return rateLimitedFetch(url);
+            }
+            if (!res.ok) throw new Error('API error ' + res.status);
+            return res.json();
+          }
+
+          async function main() {
+            // Get all synced projects
+            const { data: projects, error } = await db
+              .from('cnc_projects')
+              .select('slug, total_observations')
+              .order('total_observations', { ascending: true });
+
+            if (error || !projects || projects.length === 0) {
+              console.log('No projects found');
+              return;
+            }
+
+            // Only check projects that have been synced
+            const { data: syncLogs } = await db
+              .from('cnc_sync_log')
+              .select('project_slug')
+              .eq('status', 'done');
+
+            const syncedSlugs = new Set((syncLogs || []).map(r => r.project_slug));
+            const syncedProjects = projects.filter(p => syncedSlugs.has(p.slug));
+
+            console.log('Checking ' + syncedProjects.length + ' synced projects...');
+
+            for (const p of syncedProjects) {
+              await new Promise(r => setTimeout(r, 1000));
+              const data = await rateLimitedFetch(
+                'https://api.inaturalist.org/v1/observations?project_id=' + p.slug + '&per_page=1'
+              );
+              const apiCount = data.total_results || 0;
+              const dbCount = p.total_observations || 0;
+
+              if (apiCount !== dbCount) {
+                console.log(p.slug + ': DB=' + dbCount + ' API=' + apiCount + ' -> syncing');
+                try {
+                  execSync('node scripts/cnc-sync.js --project=' + p.slug, { stdio: 'inherit' });
+                  execSync('node scripts/cnc-consolidate.js --project=' + p.slug, { stdio: 'inherit' });
+                } catch (e) {
+                  console.error('Sync failed: ' + e.message);
+                }
+                return;
+              } else {
+                console.log(p.slug + ': OK (' + dbCount + ')');
+              }
+            }
+
+            console.log('All projects up to date!');
+          }
+
+          main().catch(e => { console.error(e); process.exit(1); });
+          "
