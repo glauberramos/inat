@@ -17,6 +17,7 @@ const projectsOnly = args.includes("--projects-only");
 const statsOnly = args.includes("--stats-only");
 const dryRun = args.includes("--dry-run");
 const fullSync = args.includes("--full");
+const updatedSinceOverride = args.find((a) => a.startsWith("--updated-since="))?.split("=")[1];
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error("Missing SUPABASE_URL or SUPABASE_KEY. Copy .env.example to .env and fill in values.");
@@ -284,9 +285,9 @@ async function syncProject(projectSlug, index, total) {
   } else if (log.status === "in_progress") {
     // Resume interrupted full sync
     return fullSyncProject(projectSlug, log.last_id_above || 0);
-  } else if (log.status === "done" && log.completed_at) {
-    // Incremental sync
-    return incrementalSyncProject(projectSlug, log.completed_at);
+  } else if (log.status === "done" && (updatedSinceOverride || log.completed_at)) {
+    // Incremental sync (use override date if provided)
+    return incrementalSyncProject(projectSlug, updatedSinceOverride || log.completed_at);
   } else if (log.status === "done") {
     // Done but no completed_at — do a full sync
     return fullSyncProject(projectSlug);
