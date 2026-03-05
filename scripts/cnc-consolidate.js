@@ -582,8 +582,10 @@ async function main() {
     projects = data;
   }
 
-  console.log(`\nConsolidating ${projects.length} projects...\n`);
+  const MAX_CONSOLIDATIONS = 25;
+  console.log(`\nConsolidating ${projects.length} projects (max ${MAX_CONSOLIDATIONS} with changes)...\n`);
 
+  let consolidated = 0;
   for (let i = 0; i < projects.length; i++) {
     const project = projects[i];
     const prefix = `[${i + 1}/${projects.length}] ${project.slug}`;
@@ -601,10 +603,17 @@ async function main() {
       }
     }
 
+    // Limit to MAX_CONSOLIDATIONS per run (unless single project or --force)
+    if (!singleProject && !forceConsolidate && consolidated >= MAX_CONSOLIDATIONS) {
+      console.log(`${prefix}: reached ${MAX_CONSOLIDATIONS} consolidations, stopping`);
+      break;
+    }
+
     await consolidateProject(project.slug, i + 1, projects.length);
+    consolidated++;
   }
 
-  console.log("\nDone!");
+  console.log(`\nDone! Consolidated ${consolidated} projects.`);
 }
 
 main().catch((err) => {
