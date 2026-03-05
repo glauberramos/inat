@@ -11,6 +11,7 @@ const SPECIES_OR_BELOW = new Set(["species", "subspecies", "variety", "form", "h
 const args = process.argv.slice(2);
 const singleProject = args.find((a) => a.startsWith("--project="))?.split("=")[1];
 const dryRun = args.includes("--dry-run");
+const onlyIdentifications = args.includes("--only-identifications");
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error("Missing SUPABASE_URL or SUPABASE_KEY.");
@@ -150,7 +151,7 @@ function computeStats(allObs) {
     if (!o.user_login) return;
     if (!userObsMap[o.user_login]) userObsMap[o.user_login] = { count: 0, icon: o.user_icon };
     userObsMap[o.user_login].count++;
-    if (o.min_species_taxon_id && SPECIES_OR_BELOW.has(o.taxon_rank)) {
+    if (o.min_species_taxon_id && leafSpecies.has(o.min_species_taxon_id)) {
       if (!userSpecies[o.user_login]) userSpecies[o.user_login] = { species: new Set(), icon: o.user_icon };
       userSpecies[o.user_login].species.add(o.min_species_taxon_id);
     }
@@ -171,7 +172,7 @@ function computeStats(allObs) {
   allObs.forEach((o) => {
     if (!o.min_species_taxon_id || !leafSpecies.has(o.min_species_taxon_id)) return;
     const sid = o.min_species_taxon_id;
-    if (!speciesObs[sid]) speciesObs[sid] = { name: o.common_name || o.taxon_name || "Unknown", sci: o.taxon_name, count: 0, photo: o.photo_url };
+    if (!speciesObs[sid]) speciesObs[sid] = { taxon_id: sid, name: o.common_name || o.taxon_name || "Unknown", sci: o.taxon_name, count: 0, photo: o.photo_url };
     if (o.taxon_rank === "species" || !speciesObs[sid].sci) {
       speciesObs[sid].name = o.common_name || o.taxon_name || speciesObs[sid].name;
       speciesObs[sid].sci = o.taxon_name || speciesObs[sid].sci;
@@ -302,35 +303,6 @@ function computeStats(allObs) {
     observed_on: s.firstObs ? s.firstObs.date : null,
   }));
 
-  // Out of Range Species
-  const outOfRangeMap = {};
-  allObs.forEach((o) => {
-    if (!o.out_of_range || !o.min_species_taxon_id || !leafSpecies.has(o.min_species_taxon_id)) return;
-    const tid = o.min_species_taxon_id;
-    if (!outOfRangeMap[tid]) {
-      outOfRangeMap[tid] = {
-        taxon_id: tid,
-        taxon_name: o.taxon_name, common_name: o.common_name,
-        photo_url: o.photo_url, obs_count: 0, observers: new Set(),
-      };
-    }
-    const entry = outOfRangeMap[tid];
-    if (o.taxon_rank === "species" || !entry.taxon_name) {
-      entry.taxon_name = o.taxon_name || entry.taxon_name;
-      entry.common_name = o.common_name || entry.common_name;
-      if (o.photo_url) entry.photo_url = o.photo_url;
-    }
-    entry.obs_count++;
-    if (o.user_login) entry.observers.add(o.user_login);
-  });
-
-  const out_of_range_species = Object.values(outOfRangeMap)
-    .sort((a, b) => b.obs_count - a.obs_count)
-    .map((s) => ({
-      taxon_id: s.taxon_id, taxon_name: s.taxon_name, common_name: s.common_name,
-      photo_url: s.photo_url, obs_count: s.obs_count, observers_count: s.observers.size,
-    }));
-
   // Community Favorites
   const community_favorites = allSpecies
     .filter((s) => s.observers.size > 1)
@@ -381,12 +353,15 @@ function computeStats(allObs) {
 
   // Most Faved
   const most_faved = [...allObs]
-    .filter((o) => o.faves_count > 0)
-    .sort((a, b) => b.faves_count - a.faves_count)
+    .map((o) => ({ ...o, engagement: (o.faves_count || 0) + (o.comments_count || 0) }))
+    .filter((o) => o.engagement > 0)
+    .sort((a, b) => b.engagement - a.engagement)
     .slice(0, 10)
     .map((o) => ({
       inat_id: o.inat_id, common_name: o.common_name, taxon_name: o.taxon_name,
-      photo_url: o.photo_url, user_login: o.user_login, faves_count: o.faves_count,
+      photo_url: o.photo_url, user_login: o.user_login,
+      faves_count: o.faves_count || 0, comments_count: o.comments_count || 0,
+      engagement: o.engagement,
     }));
 
   // Recent Observations
@@ -413,8 +388,6 @@ function computeStats(allObs) {
     exclusive_observers,
     one_hit_wonders,
     one_hit_wonders_total: oneHitWondersList.length,
-    out_of_range_species,
-    out_of_range_species_total: out_of_range_species.length,
     community_favorites,
     quality_champions,
     all_days_heroes,
@@ -476,11 +449,10 @@ async function consolidateProject(slug, index, total) {
       }
     }
 
-    // Sort by global count ascending, take top 10
+    // All species with < 100 global observations, sorted ascending
     stats.top_rare_species = speciesIds
-      .filter((id) => globalCounts[id] !== undefined)
+      .filter((id) => globalCounts[id] !== undefined && globalCounts[id] < 100)
       .sort((a, b) => (globalCounts[a] || 0) - (globalCounts[b] || 0))
-      .slice(0, 10)
       .map((id) => ({
         taxon_id: id,
         taxon_name: speciesInfo[id]?.taxon_name || "Unknown",
@@ -488,10 +460,34 @@ async function consolidateProject(slug, index, total) {
         photo_url: speciesInfo[id]?.photo_url || null,
         global_obs_count: globalCounts[id] || 0,
         project_obs_count: projectObsCount[id] || 0,
+        first_observed_here: (globalCounts[id] || 0) <= (projectObsCount[id] || 0),
       }));
   } catch (err) {
     console.warn(`${prefix}: rare species fetch failed: ${err.message}`);
     stats.top_rare_species = [];
+  }
+
+  // --- Identification stats (requires iNat API) ---
+  process.stdout.write(`${prefix}: fetching identification stats...\r`);
+  try {
+    const categories = ["improving", "supporting", "leading", "maverick"];
+    const idCounts = {};
+    let totalIds = 0;
+    for (const cat of categories) {
+      const data = await rateLimitedFetch(`${API_BASE}/identifications?observation_project_id=${slug}&category=${cat}&per_page=0`);
+      idCounts[cat] = data.total_results || 0;
+      totalIds += idCounts[cat];
+    }
+    stats.identifications = {
+      total: totalIds,
+      improving: idCounts.improving,
+      supporting: idCounts.supporting,
+      leading: idCounts.leading,
+      maverick: idCounts.maverick,
+    };
+  } catch (err) {
+    console.warn(`${prefix}: identifications fetch failed: ${err.message}`);
+    stats.identifications = null;
   }
 
   if (!dryRun) {
