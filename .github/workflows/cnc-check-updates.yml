@@ -63,7 +63,10 @@ jobs:
 
             console.log('Checking ' + syncedProjects.length + ' synced projects...');
 
+            let synced = 0;
             for (const p of syncedProjects) {
+              if (synced >= 3) break;
+
               await new Promise(r => setTimeout(r, 1000));
               const data = await rateLimitedFetch(
                 'https://api.inaturalist.org/v1/observations?project_id=' + p.slug + '&per_page=1'
@@ -74,12 +77,29 @@ jobs:
               if (apiCount !== dbCount) {
                 console.log(p.slug + ': DB=' + dbCount + ' API=' + apiCount + ' -> syncing');
                 try {
-                  execSync('node scripts/cnc-sync.js --project=' + p.slug + ' --full', { stdio: 'inherit' });
+                  // Try incremental first
+                  execSync('node scripts/cnc-sync.js --project=' + p.slug, { stdio: 'inherit' });
+
+                  // Check if count matches now
+                  await new Promise(r => setTimeout(r, 1000));
+                  const recheck = await rateLimitedFetch(
+                    'https://api.inaturalist.org/v1/observations?project_id=' + p.slug + '&per_page=1'
+                  );
+                  const { count: dbRecount } = await db
+                    .from('cnc_observations')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('project_slug', p.slug);
+
+                  if ((recheck.total_results || 0) !== (dbRecount || 0)) {
+                    console.log('Still mismatched after incremental (' + dbRecount + ' vs ' + recheck.total_results + '), doing full sync...');
+                    execSync('node scripts/cnc-sync.js --project=' + p.slug + ' --full', { stdio: 'inherit' });
+                  }
+
                   execSync('node scripts/cnc-consolidate.js --project=' + p.slug, { stdio: 'inherit' });
                 } catch (e) {
                   console.error('Sync failed: ' + e.message);
                 }
-                return;
+                synced++;
               } else {
                 console.log(p.slug + ': OK (' + dbCount + ')');
               }
