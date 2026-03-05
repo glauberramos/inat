@@ -2,7 +2,7 @@ name: CNC Hourly Sync
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -66,7 +66,7 @@ jobs:
               ...(done || []).map(r => r.project_slug),
             ];
 
-            const slugs = allSlugs.slice(0, 5);
+            const slugs = allSlugs.slice(0, 10);
 
             console.log('Projects to sync: ' + slugs.length);
             console.log('Never synced: ' + neverSynced.length);
