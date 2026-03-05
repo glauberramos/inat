@@ -399,8 +399,76 @@ function computeStats(allObs) {
   };
 }
 
+// ─── Fetch and compute identification stats ───
+async function fetchIdentificationStats(slug, prefix) {
+  process.stdout.write(`${prefix}: fetching identification stats...\r`);
+  const data = await rateLimitedFetch(`${API_BASE}/observations/identification_categories?project_id=${slug}`);
+  const idCounts = { improving: 0, supporting: 0, leading: 0, maverick: 0 };
+  let totalIds = 0;
+  for (const result of data.results || []) {
+    if (result.category in idCounts) {
+      idCounts[result.category] = result.count || 0;
+      totalIds += idCounts[result.category];
+    }
+  }
+  return {
+    total: totalIds,
+    improving: idCounts.improving,
+    supporting: idCounts.supporting,
+    leading: idCounts.leading,
+    maverick: idCounts.maverick,
+  };
+}
+
+// ─── Consolidate only identifications for a project ───
+async function consolidateIdentificationsOnly(slug, index, total) {
+  const prefix = `[${index}/${total}] ${slug}`;
+
+  // Load existing computed_stats
+  const { data, error: fetchErr } = await db
+    .from("cnc_projects")
+    .select("computed_stats")
+    .eq("slug", slug)
+    .single();
+
+  if (fetchErr || !data?.computed_stats) {
+    console.log(`${prefix}: no existing stats, skipping (run full consolidation first)`);
+    return;
+  }
+
+  const stats = data.computed_stats;
+
+  try {
+    stats.identifications = await fetchIdentificationStats(slug, prefix);
+  } catch (err) {
+    console.warn(`${prefix}: identifications fetch failed: ${err.message}`);
+    stats.identifications = null;
+  }
+
+  if (!dryRun) {
+    const { error } = await db
+      .from("cnc_projects")
+      .update({
+        computed_stats: stats,
+        computed_at: new Date().toISOString(),
+      })
+      .eq("slug", slug);
+
+    if (error) {
+      console.error(`${prefix}: update error: ${error.message}`);
+      return;
+    }
+  }
+
+  console.log(`${prefix}: identifications updated — ${stats.identifications?.total || 0} total ${dryRun ? "[DRY RUN]" : ""}`);
+}
+
 // ─── Consolidate a single project ───
 async function consolidateProject(slug, index, total) {
+  if (onlyIdentifications) {
+    return consolidateIdentificationsOnly(slug, index, total);
+  }
+
   const prefix = `[${index}/${total}] ${slug}`;
   process.stdout.write(`${prefix}: loading observations...\r`);
 
@@ -468,23 +536,8 @@ async function consolidateProject(slug, index, total) {
   }
 
   // --- Identification stats (requires iNat API) ---
-  process.stdout.write(`${prefix}: fetching identification stats...\r`);
   try {
-    const categories = ["improving", "supporting", "leading", "maverick"];
-    const idCounts = {};
-    let totalIds = 0;
-    for (const cat of categories) {
-      const data = await rateLimitedFetch(`${API_BASE}/identifications?observation_project_id=${slug}&category=${cat}&per_page=0`);
-      idCounts[cat] = data.total_results || 0;
-      totalIds += idCounts[cat];
-    }
-    stats.identifications = {
-      total: totalIds,
-      improving: idCounts.improving,
-      supporting: idCounts.supporting,
-      leading: idCounts.leading,
-      maverick: idCounts.maverick,
-    };
+    stats.identifications = await fetchIdentificationStats(slug, prefix);
   } catch (err) {
     console.warn(`${prefix}: identifications fetch failed: ${err.message}`);
     stats.identifications = null;
