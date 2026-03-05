@@ -19,6 +19,35 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+const API_BASE = "https://api.inaturalist.org/v1";
+let lastRequestTime = 0;
+
+async function rateLimitedFetch(url) {
+  const now = Date.now();
+  const elapsed = now - lastRequestTime;
+  if (elapsed < 1000) {
+    await new Promise((r) => setTimeout(r, 1000 - elapsed));
+  }
+  lastRequestTime = Date.now();
+
+  const response = await fetch(url, {
+    headers: { "User-Agent": "CNC-Consolidate-Script/1.0" },
+  });
+
+  if (response.status === 429) {
+    console.warn("  Rate limited (429). Waiting 60s...");
+    await new Promise((r) => setTimeout(r, 60000));
+    lastRequestTime = Date.now();
+    return rateLimitedFetch(url);
+  }
+
+  if (!response.ok) {
+    throw new Error(`API error ${response.status}: ${url}`);
+  }
+
+  return response.json();
+}
+
 // ─── Leaf species algorithm ───
 function computeLeafSpecies(obs) {
   const allMinSpecies = new Set();
@@ -258,6 +287,50 @@ function computeStats(allObs) {
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);
 
+  // One-Hit Wonders (species observed only once)
+  const oneHitWondersList = allSpecies
+    .filter((s) => s.obsCount === 1)
+    .sort((a, b) => {
+      const dateA = a.firstObs ? a.firstObs.date : "";
+      const dateB = b.firstObs ? b.firstObs.date : "";
+      return dateB.localeCompare(dateA);
+    });
+
+  const one_hit_wonders = oneHitWondersList.map((s) => ({
+    taxon_id: s.taxon_id, taxon_name: s.taxon_name, common_name: s.common_name,
+    photo_url: s.photo_url, observer: s.firstObs ? s.firstObs.login : "?",
+    observed_on: s.firstObs ? s.firstObs.date : null,
+  }));
+
+  // Out of Range Species
+  const outOfRangeMap = {};
+  allObs.forEach((o) => {
+    if (!o.out_of_range || !o.min_species_taxon_id || !leafSpecies.has(o.min_species_taxon_id)) return;
+    const tid = o.min_species_taxon_id;
+    if (!outOfRangeMap[tid]) {
+      outOfRangeMap[tid] = {
+        taxon_id: tid,
+        taxon_name: o.taxon_name, common_name: o.common_name,
+        photo_url: o.photo_url, obs_count: 0, observers: new Set(),
+      };
+    }
+    const entry = outOfRangeMap[tid];
+    if (o.taxon_rank === "species" || !entry.taxon_name) {
+      entry.taxon_name = o.taxon_name || entry.taxon_name;
+      entry.common_name = o.common_name || entry.common_name;
+      if (o.photo_url) entry.photo_url = o.photo_url;
+    }
+    entry.obs_count++;
+    if (o.user_login) entry.observers.add(o.user_login);
+  });
+
+  const out_of_range_species = Object.values(outOfRangeMap)
+    .sort((a, b) => b.obs_count - a.obs_count)
+    .map((s) => ({
+      taxon_id: s.taxon_id, taxon_name: s.taxon_name, common_name: s.common_name,
+      photo_url: s.photo_url, obs_count: s.obs_count, observers_count: s.observers.size,
+    }));
+
   // Community Favorites
   const community_favorites = allSpecies
     .filter((s) => s.observers.size > 1)
@@ -338,6 +411,10 @@ function computeStats(allObs) {
     exclusive_species,
     exclusive_species_total: exclusiveSpeciesList.length,
     exclusive_observers,
+    one_hit_wonders,
+    one_hit_wonders_total: oneHitWondersList.length,
+    out_of_range_species,
+    out_of_range_species_total: out_of_range_species.length,
     community_favorites,
     quality_champions,
     all_days_heroes,
@@ -362,6 +439,60 @@ async function consolidateProject(slug, index, total) {
 
   process.stdout.write(`${prefix}: computing stats for ${allObs.length} obs...\r`);
   const stats = computeStats(allObs);
+
+  // --- Top 10 Rare Species (requires iNat API) ---
+  process.stdout.write(`${prefix}: fetching rare species data...\r`);
+  try {
+    const leafSpecies = computeLeafSpecies(allObs);
+    const speciesIds = [...leafSpecies];
+
+    // Build a map of project obs counts per species
+    const projectObsCount = {};
+    const speciesInfo = {};
+    allObs.forEach((o) => {
+      if (!o.min_species_taxon_id || !leafSpecies.has(o.min_species_taxon_id)) return;
+      const tid = o.min_species_taxon_id;
+      projectObsCount[tid] = (projectObsCount[tid] || 0) + 1;
+      if (!speciesInfo[tid] || o.taxon_rank === "species") {
+        speciesInfo[tid] = {
+          taxon_name: o.taxon_name, common_name: o.common_name, photo_url: o.photo_url,
+        };
+      }
+    });
+
+    // Batch-fetch global observation counts from iNat API (30 IDs per request)
+    const globalCounts = {};
+    const BATCH_SIZE = 30;
+    for (let i = 0; i < speciesIds.length; i += BATCH_SIZE) {
+      const batch = speciesIds.slice(i, i + BATCH_SIZE);
+      const data = await rateLimitedFetch(`${API_BASE}/taxa/${batch.join(",")}`);
+      if (data.results) {
+        data.results.forEach((t) => {
+          globalCounts[t.id] = t.observations_count || 0;
+        });
+      }
+      if (i + BATCH_SIZE < speciesIds.length) {
+        process.stdout.write(`${prefix}: fetching taxa ${Math.min(i + BATCH_SIZE, speciesIds.length)}/${speciesIds.length}...\r`);
+      }
+    }
+
+    // Sort by global count ascending, take top 10
+    stats.top_rare_species = speciesIds
+      .filter((id) => globalCounts[id] !== undefined)
+      .sort((a, b) => (globalCounts[a] || 0) - (globalCounts[b] || 0))
+      .slice(0, 10)
+      .map((id) => ({
+        taxon_id: id,
+        taxon_name: speciesInfo[id]?.taxon_name || "Unknown",
+        common_name: speciesInfo[id]?.common_name || null,
+        photo_url: speciesInfo[id]?.photo_url || null,
+        global_obs_count: globalCounts[id] || 0,
+        project_obs_count: projectObsCount[id] || 0,
+      }));
+  } catch (err) {
+    console.warn(`${prefix}: rare species fetch failed: ${err.message}`);
+    stats.top_rare_species = [];
+  }
 
   if (!dryRun) {
     const { error } = await db

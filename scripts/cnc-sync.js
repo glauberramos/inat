@@ -138,6 +138,7 @@ function mapObservation(obs, projectSlug) {
     photo_url: photo,
     faves_count: obs.faves_count || 0,
     created_at: obs.created_at || null,
+    out_of_range: obs.out_of_range || false,
   };
 }
 

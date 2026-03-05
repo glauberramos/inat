@@ -2,7 +2,7 @@ name: CNC Check Updates
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 jobs:
