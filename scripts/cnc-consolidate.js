@@ -576,7 +576,7 @@ async function main() {
     const { data, error } = await db
       .from("cnc_projects")
       .select("slug, total_observations")
-      .order("total_observations", { ascending: true });
+      .order("total_observations", { ascending: false });
 
     if (error) throw new Error(`Fetch projects: ${error.message}`);
     projects = data;
@@ -603,8 +603,8 @@ async function main() {
       }
     }
 
-    // Limit to MAX_CONSOLIDATIONS per run (unless single project or --force)
-    if (!singleProject && !forceConsolidate && consolidated >= MAX_CONSOLIDATIONS) {
+    // Limit to MAX_CONSOLIDATIONS per run (unless single project mode)
+    if (!singleProject && consolidated >= MAX_CONSOLIDATIONS) {
       console.log(`${prefix}: reached ${MAX_CONSOLIDATIONS} consolidations, stopping`);
       break;
     }
