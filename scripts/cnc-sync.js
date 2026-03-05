@@ -16,6 +16,7 @@ const singleProject = args.find((a) => a.startsWith("--project="))?.split("=")[1
 const projectsOnly = args.includes("--projects-only");
 const statsOnly = args.includes("--stats-only");
 const dryRun = args.includes("--dry-run");
+const fullSync = args.includes("--full");
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error("Missing SUPABASE_URL or SUPABASE_KEY. Copy .env.example to .env and fill in values.");
@@ -268,6 +269,11 @@ async function syncProject(projectSlug, index, total) {
   if (dryRun) {
     console.log(`  [DRY RUN] Would sync observations`);
     return 0;
+  }
+
+  if (fullSync) {
+    // Force full sync from scratch
+    return fullSyncProject(projectSlug);
   }
 
   const log = await getSyncLog(projectSlug);

@@ -74,7 +74,7 @@ jobs:
               if (apiCount !== dbCount) {
                 console.log(p.slug + ': DB=' + dbCount + ' API=' + apiCount + ' -> syncing');
                 try {
-                  execSync('node scripts/cnc-sync.js --project=' + p.slug, { stdio: 'inherit' });
+                  execSync('node scripts/cnc-sync.js --project=' + p.slug + ' --full', { stdio: 'inherit' });
                   execSync('node scripts/cnc-consolidate.js --project=' + p.slug, { stdio: 'inherit' });
                 } catch (e) {
                   console.error('Sync failed: ' + e.message);
