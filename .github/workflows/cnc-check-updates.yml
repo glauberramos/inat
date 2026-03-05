@@ -133,7 +133,7 @@ jobs:
                     console.log('  Matched after incremental!');
                   } else {
                     // Step 2: Incremental with date - 1 day
-                    console.log('  Step 2: incremental with extended date (-1 day)... (DB=' + dbRecount + ' API=' + recheck.total_results + ')');
+                    console.log('  Step 2: incremental with extended date (-1 week)... (DB=' + dbRecount + ' API=' + recheck.total_results + ')');
                     const { data: logData } = await db
                       .from('cnc_sync_log')
                       .select('completed_at')
@@ -141,7 +141,7 @@ jobs:
                       .limit(1);
                     const completedAt = logData && logData[0] ? logData[0].completed_at : null;
                     if (completedAt) {
-                      const extendedDate = new Date(new Date(completedAt).getTime() - 24 * 60 * 60 * 1000).toISOString();
+                      const extendedDate = new Date(new Date(completedAt).getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
                       execSync('node scripts/cnc-sync.js --project=' + p.slug + ' --updated-since=' + extendedDate, { stdio: 'inherit' });
 
                       await new Promise(r => setTimeout(r, 1000));
