@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>iNat Supabase Sync Test</title>
+    <link rel="icon" href="favicon.ico" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        background: #f8f9fa;
+        min-height: 100vh;
+        color: #333;
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+        color: #2c3e50;
+        margin-bottom: 8px;
+      }
+
+      header p {
+        color: #666;
+        font-size: 0.95rem;
+      }
+
+      /* Config panel */
+      .config-panel {
+        background: #fff;
+        border: 1px solid #e8e8e8;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 24px;
+      }
+
+      .config-panel h2 {
+        font-size: 1rem;
+        color: #2c3e50;
+        margin-bottom: 12px;
+      }
+
+      .config-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+
+      .config-row label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+        min-width: 200px;
+        font-size: 0.8rem;
+        color: #666;
+        font-weight: 600;
+      }
+
+      .config-row input {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-family: monospace;
+      }
+
+      .config-row input:focus {
+        outline: none;
+        border-color: #74ac00;
+        box-shadow: 0 0 0 2px rgba(116, 172, 0, 0.15);
+      }
+
+      .config-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .config-status {
+        font-size: 0.8rem;
+        color: #666;
+        margin-left: 8px;
+      }
+
+      .config-status.connected {
+        color: #27ae60;
+      }
+
+      .config-status.error {
+        color: #e74c3c;
+      }
+
+      /* Search panel */
+      .search-panel {
+        background: #fff;
+        border: 1px solid #e8e8e8;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 24px;
+      }
+
+      .search-row {
+        display: flex;
+        gap: 12px;
+        align-items: end;
+      }
+
+      .search-row label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+        font-size: 0.8rem;
+        color: #666;
+        font-weight: 600;
+      }
+
+      .search-row input {
+        padding: 10px 14px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+      }
+
+      .search-row input:focus {
+        outline: none;
+        border-color: #74ac00;
+        box-shadow: 0 0 0 2px rgba(116, 172, 0, 0.15);
+      }
+
+      button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-primary {
+        background: #74ac00;
+        color: #fff;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        background: #5d8a00;
+      }
+
+      .btn-secondary {
+        background: #e8e8e8;
+        color: #333;
+      }
+
+      .btn-secondary:hover:not(:disabled) {
+        background: #ddd;
+      }
+
+      .btn-small {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+      }
+
+      /* Status / log */
+      .status-bar {
+        background: #2c3e50;
+        color: #ecf0f1;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 24px;
+        font-family: monospace;
+        font-size: 0.85rem;
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+      }
+
+      .status-bar.visible {
+        display: block;
+      }
+
+      .status-bar .log-line {
+        margin-bottom: 2px;
+      }
+
+      .status-bar .log-line.error {
+        color: #e74c3c;
+      }
+
+      .status-bar .log-line.success {
+        color: #2ecc71;
+      }
+
+      .status-bar .log-line.info {
+        color: #3498db;
+      }
+
+      /* Stats bar */
+      .stats-bar {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        display: none;
+      }
+
+      .stats-bar.visible {
+        display: flex;
+      }
+
+      .stat-card {
+        background: #fff;
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        padding: 12px 16px;
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+      }
+
+      .stat-card .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #74ac00;
+      }
+
+      .stat-card .stat-label {
+        font-size: 0.75rem;
+        color: #999;
+        text-transform: uppercase;
+      }
+
+      /* Observations grid */
+      .observations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+      }
+
+      .obs-card {
+        background: #fff;
+        border: 1px solid #e8e8e8;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: box-shadow 0.2s;
+      }
+
+      .obs-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .obs-photo {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: #eee;
+        display: block;
+      }
+
+      .obs-photo-placeholder {
+        width: 100%;
+        height: 200px;
+        background: #eee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #bbb;
+        font-size: 2rem;
+      }
+
+      .obs-body {
+        padding: 14px;
+      }
+
+      .obs-species {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+      }
+
+      .obs-common {
+        color: #666;
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+      }
+
+      .obs-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 0.75rem;
+        color: #999;
+      }
+
+      .obs-meta span {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+      }
+
+      .quality-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .quality-badge.research {
+        background: #e8f5e9;
+        color: #2e7d32;
+      }
+
+      .quality-badge.needs_id {
+        background: #fff3e0;
+        color: #e65100;
+      }
+
+      .quality-badge.casual {
+        background: #f3e5f5;
+        color: #7b1fa2;
+      }
+
+      .obs-count {
+        font-size: 0.75rem;
+        color: #74ac00;
+        font-weight: 600;
+      }
+
+      .load-more {
+        text-align: center;
+        margin-top: 24px;
+      }
+
+      /* View toggle */
+      .view-toggle {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        align-items: center;
+        display: none;
+      }
+
+      .view-toggle.visible {
+        display: flex;
+      }
+
+      .view-toggle .source-label {
+        font-size: 0.8rem;
+        color: #666;
+        font-weight: 600;
+      }
+
+      .toggle-btn {
+        padding: 6px 14px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        background: #fff;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .toggle-btn.active {
+        background: #74ac00;
+        color: #fff;
+        border-color: #74ac00;
+      }
+
+      /* Loading spinner */
+      .loading-spinner {
+        text-align: center;
+        padding: 60px 20px;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e8e8e8;
+        border-top-color: #74ac00;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 12px;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      .loading-spinner p {
+        color: #999;
+        font-size: 0.9rem;
+      }
+
+      /* Empty state */
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+      }
+
+      .empty-state .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 20px 12px;
+        }
+
+        .search-row {
+          flex-direction: column;
+        }
+
+        .config-row {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>iNat + Supabase Sync Test</h1>
+        <p>
+          Fetch iNaturalist observations, store in Supabase, serve from cache
+        </p>
+      </header>
+
+      <!-- Supabase config -->
+      <div class="config-panel">
+        <h2>Supabase Connection</h2>
+        <div class="config-row">
+          <label>
+            SUPABASE URL
+            <input
+              type="text"
+              id="supabaseUrl"
+              placeholder="https://xxxx.supabase.co"
+            />
+          </label>
+          <label>
+            ANON KEY
+            <input type="text" id="supabaseKey" placeholder="eyJ..." />
+          </label>
+        </div>
+        <div class="config-actions">
+          <button class="btn-secondary btn-small" onclick="saveConfig()">
+            Save Config
+          </button>
+          <button class="btn-secondary btn-small" onclick="testConnection()">
+            Test Connection
+          </button>
+          <span class="config-status" id="configStatus"></span>
+        </div>
+      </div>
+
+      <!-- Username search -->
+      <div class="search-panel">
+        <div class="search-row">
+          <label>
+            iNATURALIST USERNAME
+            <input
+              type="text"
+              id="username"
+              placeholder="e.g. kueda"
+              onkeydown="if(event.key==='Enter') startSync()"
+            />
+          </label>
+          <button class="btn-primary" id="syncBtn" onclick="startSync()">
+            Sync
+          </button>
+        </div>
+      </div>
+
+      <!-- Status log -->
+      <div class="status-bar" id="statusBar"></div>
+
+      <!-- Stats -->
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-card">
+          <div class="stat-value" id="statTotal">0</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statResearch">0</div>
+          <div class="stat-label">Research Grade</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statSpecies">0</div>
+          <div class="stat-label">Species</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statSyncTime">-</div>
+          <div class="stat-label">Last Synced</div>
+        </div>
+      </div>
+
+      <!-- View toggle: Observations vs Species -->
+      <div class="view-toggle" id="viewToggle">
+        <span class="source-label">View:</span>
+        <button
+          class="toggle-btn active"
+          id="btnViewObs"
+          onclick="switchView('observations')"
+        >
+          Observations
+        </button>
+        <button
+          class="toggle-btn"
+          id="btnViewSpecies"
+          onclick="switchView('species')"
+        >
+          Species
+        </button>
+      </div>
+
+
+      <!-- Observations -->
+      <div id="observationsContainer">
+        <div class="empty-state">
+          <div class="empty-icon">🔭</div>
+          <p>Enter a username and click Sync to get started</p>
+        </div>
+      </div>
+
+      <div class="load-more" id="loadMore" style="display: none">
+        <button class="btn-secondary" onclick="loadMoreObservations()">
+          Load More
+        </button>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      // ─── State ───
+      let db = null;
+      let currentView = "observations";
+      let currentUsername = "";
+      let displayedObservations = [];
+      let displayedSpecies = [];
+      let displayPage = 0;
+      let speciesPage = 0;
+      const DISPLAY_PAGE_SIZE = 200;
+      const INAT_PER_PAGE = 200;
+      const SYNC_CACHE_MINUTES = 30;
+
+      // ─── Config persistence ───
+      function loadConfig() {
+        const url = localStorage.getItem("sb_url") || "";
+        const key = localStorage.getItem("sb_key") || "";
+        document.getElementById("supabaseUrl").value = url;
+        document.getElementById("supabaseKey").value = key;
+        if (url && key) initSupabase(url, key);
+
+        const lastUser = localStorage.getItem("sb_last_user") || "";
+        document.getElementById("username").value = lastUser;
+      }
+
+      function saveConfig() {
+        const url = document.getElementById("supabaseUrl").value.trim();
+        const key = document.getElementById("supabaseKey").value.trim();
+        if (!url || !key) {
+          setConfigStatus("Please fill both fields", "error");
+          return;
+        }
+        localStorage.setItem("sb_url", url);
+        localStorage.setItem("sb_key", key);
+        initSupabase(url, key);
+        setConfigStatus("Config saved", "connected");
+      }
+
+      function initSupabase(url, key) {
+        db = window.supabase.createClient(url, key);
+      }
+
+      function setConfigStatus(msg, type) {
+        const el = document.getElementById("configStatus");
+        el.textContent = msg;
+        el.className = "config-status " + (type || "");
+      }
+
+      async function testConnection() {
+        if (!db) {
+          setConfigStatus("Save config first", "error");
+          return;
+        }
+        try {
+          const { data, error } = await db
+            .from("observations")
+            .select("inat_id", { count: "exact", head: true });
+          if (error) throw error;
+          setConfigStatus("Connected! Table found.", "connected");
+        } catch (e) {
+          setConfigStatus("Error: " + e.message, "error");
+        }
+      }
+
+      // ─── Logging ───
+      function log(msg, type = "") {
+        const bar = document.getElementById("statusBar");
+        bar.classList.add("visible");
+        const line = document.createElement("div");
+        line.className = "log-line " + type;
+        line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        bar.appendChild(line);
+        bar.scrollTop = bar.scrollHeight;
+      }
+
+      function showLoading(msg) {
+        document.getElementById("observationsContainer").innerHTML = `
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>${msg || "Loading..."}</p>
+          </div>`;
+      }
+
+      // ─── Sync flow ───
+      async function startSync() {
+        const username = document.getElementById("username").value.trim();
+        if (!username) return;
+        if (!db) {
+          log("Supabase not configured. Save config first.", "error");
+          return;
+        }
+
+        currentUsername = username;
+        localStorage.setItem("sb_last_user", username);
+        document.getElementById("syncBtn").disabled = true;
+        document.getElementById("statusBar").innerHTML = "";
+        showLoading("Syncing observations...");
+
+        try {
+          // Check if we have a recent sync
+          const lastSync = await getLastSync(username);
+          if (lastSync) {
+            const minutesAgo =
+              (Date.now() - new Date(lastSync).getTime()) / 60000;
+            if (minutesAgo < SYNC_CACHE_MINUTES) {
+              log(
+                `Cache is fresh (synced ${Math.round(minutesAgo)}min ago). Skipping API fetch.`,
+                "info"
+              );
+              await loadFromSupabase(username);
+              document.getElementById("syncBtn").disabled = false;
+              return;
+            }
+            log(
+              `Last sync was ${Math.round(minutesAgo)}min ago. Running incremental update...`,
+              "info"
+            );
+            await incrementalSync(username, lastSync);
+          } else {
+            log(`No cache found for "${username}". Running full sync...`, "info");
+            await fullSync(username);
+          }
+
+          await loadFromSupabase(username);
+        } catch (e) {
+          log("Sync failed: " + e.message, "error");
+          console.error(e);
+        }
+
+        document.getElementById("syncBtn").disabled = false;
+      }
+
+      async function getLastSync(username) {
+        const { data, error } = await db
+          .from("sync_log")
+          .select("synced_at")
+          .eq("username", username)
+          .order("synced_at", { ascending: false })
+          .limit(1);
+
+        if (error) {
+          log("Could not check sync log: " + error.message, "error");
+          return null;
+        }
+        return data.length > 0 ? data[0].synced_at : null;
+      }
+
+      async function updateSyncLog(username) {
+        // Insert row if it doesn't exist, then update only synced_at
+        await db.from("sync_log").upsert(
+          { username: username },
+          { onConflict: "username", ignoreDuplicates: true }
+        );
+        const { error } = await db.from("sync_log")
+          .update({ synced_at: new Date().toISOString() })
+          .eq("username", username);
+        if (error) log("Could not update sync log: " + error.message, "error");
+      }
+
+      // ─── Full sync (first time) ───
+      async function fullSync(username) {
+        let totalFetched = 0;
+        let idAbove = 0;
+        let hasMore = true;
+
+        while (hasMore) {
+          const url = `https://api.inaturalist.org/v1/observations?user_login=${encodeURIComponent(username)}&order_by=id&order=asc&per_page=${INAT_PER_PAGE}&id_above=${idAbove}`;
+
+          log(`Fetching page (id_above=${idAbove})...`);
+          const resp = await fetch(url, {
+            headers: { "User-Agent": "iNatSupabaseSyncTest/1.0" },
+          });
+          if (!resp.ok) throw new Error(`iNat API ${resp.status}`);
+
+          const json = await resp.json();
+          const results = json.results;
+
+          if (results.length === 0) {
+            hasMore = false;
+            break;
+          }
+
+          const rows = results.map(mapObservation).map((o) => ({
+            ...o,
+            username: username,
+          }));
+
+          const { error } = await db.from("observations").upsert(rows, {
+            onConflict: "inat_id",
+          });
+          if (error) throw new Error("Supabase upsert: " + error.message);
+
+          totalFetched += results.length;
+          idAbove = results[results.length - 1].id;
+          log(
+            `Stored ${results.length} observations (total: ${totalFetched})`,
+            "success"
+          );
+
+          // Respect rate limit (~60 req/min → ~1 per second)
+          await sleep(1000);
+        }
+
+        log(`Full sync complete: ${totalFetched} observations`, "success");
+        await updateSyncLog(username);
+      }
+
+      // ─── Incremental sync ───
+      async function incrementalSync(username, lastSync) {
+        let totalFetched = 0;
+        let page = 1;
+        let hasMore = true;
+
+        while (hasMore) {
+          const url = `https://api.inaturalist.org/v1/observations?user_login=${encodeURIComponent(username)}&order_by=id&order=asc&per_page=${INAT_PER_PAGE}&page=${page}&updated_since=${encodeURIComponent(lastSync)}`;
+
+          log(`Incremental fetch page ${page}...`);
+          const resp = await fetch(url, {
+            headers: { "User-Agent": "iNatSupabaseSyncTest/1.0" },
+          });
+          if (!resp.ok) throw new Error(`iNat API ${resp.status}`);
+
+          const json = await resp.json();
+          const results = json.results;
+
+          if (results.length === 0) {
+            hasMore = false;
+            break;
+          }
+
+          const rows = results.map(mapObservation).map((o) => ({
+            ...o,
+            username: username,
+          }));
+
+          const { error } = await db.from("observations").upsert(rows, {
+            onConflict: "inat_id",
+          });
+          if (error) throw new Error("Supabase upsert: " + error.message);
+
+          totalFetched += results.length;
+          log(
+            `Updated ${results.length} observations (total: ${totalFetched})`,
+            "success"
+          );
+
+          if (results.length < INAT_PER_PAGE) {
+            hasMore = false;
+          } else {
+            page++;
+            await sleep(1000);
+          }
+        }
+
+        log(
+          `Incremental sync complete: ${totalFetched} updated observations`,
+          "success"
+        );
+        await updateSyncLog(username);
+      }
+
+      // ─── Map iNat response → Supabase row ───
+      function mapObservation(obs) {
+        const photos = (obs.photos || []).map((p) =>
+          p.url ? p.url.replace("square", "medium") : null
+        ).filter(Boolean);
+
+        return {
+          inat_id: obs.id,
+          species_name: obs.taxon ? obs.taxon.name : obs.species_guess || null,
+          common_name:
+            obs.taxon && obs.taxon.preferred_common_name
+              ? obs.taxon.preferred_common_name
+              : null,
+          taxon_id: obs.taxon ? obs.taxon.id : null,
+          iconic_taxon_name: obs.taxon ? obs.taxon.iconic_taxon_name : null,
+          observed_on: obs.observed_on || null,
+          latitude: obs.geojson ? parseFloat(obs.geojson.coordinates[1]) : null,
+          longitude: obs.geojson
+            ? parseFloat(obs.geojson.coordinates[0])
+            : null,
+          photo_urls: photos,
+          quality_grade: obs.quality_grade || null,
+          description: obs.description || null,
+          place_guess: obs.place_guess || null,
+          inat_updated_at: obs.updated_at || null,
+        };
+      }
+
+      // ─── Load from Supabase ───
+      async function loadFromSupabase(username) {
+        log("Loading observations from Supabase...", "info");
+
+        const { count, error: countErr } = await db
+          .from("observations")
+          .select("*", { count: "exact", head: true })
+          .eq("username", username);
+
+        if (countErr) {
+          log("Count error: " + countErr.message, "error");
+          return;
+        }
+
+        // Get research grade count
+        const { count: researchCount } = await db
+          .from("observations")
+          .select("*", { count: "exact", head: true })
+          .eq("username", username)
+          .eq("quality_grade", "research");
+
+        // Get species count from species table
+        const { count: speciesCount } = await db
+          .from("species")
+          .select("*", { count: "exact", head: true })
+          .eq("username", username);
+
+        // Get last sync time
+        const lastSync = await getLastSync(username);
+
+        // Update stats
+        document.getElementById("statTotal").textContent =
+          count.toLocaleString();
+        document.getElementById("statResearch").textContent =
+          (researchCount || 0).toLocaleString();
+        document.getElementById("statSpecies").textContent =
+          (speciesCount || 0).toLocaleString();
+        document.getElementById("statSyncTime").textContent = lastSync
+          ? new Date(lastSync).toLocaleString()
+          : "-";
+
+        document.getElementById("statsBar").classList.add("visible");
+        document.getElementById("viewToggle").classList.add("visible");
+
+        // Load based on current view
+        if (currentView === "observations") {
+          displayPage = 0;
+          displayedObservations = [];
+          await loadPageFromSupabase(username);
+        } else {
+          speciesPage = 0;
+          displayedSpecies = [];
+          await loadSpeciesFromSupabase(username);
+        }
+      }
+
+      async function loadPageFromSupabase(username) {
+        const from = displayPage * DISPLAY_PAGE_SIZE;
+        const to = from + DISPLAY_PAGE_SIZE - 1;
+
+        const { data, error } = await db
+          .from("observations")
+          .select("*")
+          .eq("username", username)
+          .order("observed_on", { ascending: false })
+          .range(from, to);
+
+        if (error) {
+          log("Load error: " + error.message, "error");
+          return;
+        }
+
+        displayedObservations = displayedObservations.concat(data);
+        renderObservations(displayedObservations);
+
+        document.getElementById("loadMore").style.display =
+          data.length === DISPLAY_PAGE_SIZE ? "block" : "none";
+
+        log(
+          `Showing ${displayedObservations.length} observations from Supabase`,
+          "success"
+        );
+      }
+
+      // ─── Rendering ───
+      function renderObservations(observations) {
+        const container = document.getElementById("observationsContainer");
+
+        if (observations.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">📭</div>
+              <p>No observations found</p>
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = `<div class="observations-grid">${observations.map(renderCard).join("")}</div>`;
+      }
+
+      function renderCard(obs) {
+        const photo =
+          obs.photo_urls && obs.photo_urls.length > 0
+            ? `<img class="obs-photo" src="${escapeHtml(obs.photo_urls[0])}" alt="${escapeHtml(obs.species_name || "Observation")}" loading="lazy" onerror="this.outerHTML='<div class=\\'obs-photo-placeholder\\'>📷</div>'">`
+            : `<div class="obs-photo-placeholder">📷</div>`;
+
+        const species = obs.species_name || "Unknown species";
+        const common = obs.common_name || "";
+        const date = obs.observed_on || "Unknown date";
+        const place = obs.place_guess || "";
+        const quality = obs.quality_grade || "";
+
+        let qualityBadge = "";
+        if (quality) {
+          const cls =
+            quality === "research"
+              ? "research"
+              : quality === "needs_id"
+                ? "needs_id"
+                : "casual";
+          qualityBadge = `<span class="quality-badge ${cls}">${quality.replace("_", " ")}</span>`;
+        }
+
+        const inatLink = `https://www.inaturalist.org/observations/${obs.inat_id}`;
+
+        return `
+          <a href="${inatLink}" target="_blank" rel="noopener" class="obs-card" style="text-decoration:none;color:inherit;">
+            ${photo}
+            <div class="obs-body">
+              <div class="obs-species">${escapeHtml(species)}</div>
+              ${common ? `<div class="obs-common">${escapeHtml(common)}</div>` : ""}
+              <div class="obs-meta">
+                <span>📅 ${escapeHtml(date)}</span>
+                ${place ? `<span>📍 ${escapeHtml(place)}</span>` : ""}
+                ${qualityBadge}
+              </div>
+            </div>
+          </a>`;
+      }
+
+      function escapeHtml(str) {
+        if (!str) return "";
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      // ─── Species sync: always full fetch from species_counts ───
+      async function syncSpecies(username) {
+        const { data: logData } = await db
+          .from("sync_log")
+          .select("species_synced_at")
+          .eq("username", username)
+          .limit(1);
+
+        if (logData && logData.length > 0 && logData[0].species_synced_at) {
+          const minutesAgo = (Date.now() - new Date(logData[0].species_synced_at).getTime()) / 60000;
+          if (minutesAgo < SYNC_CACHE_MINUTES) {
+            log(`Species cache is fresh (synced ${Math.round(minutesAgo)}min ago). Skipping.`, "info");
+            return false;
+          }
+        }
+
+        log("Fetching species from iNat species_counts...", "info");
+
+        let totalFetched = 0;
+        let page = 1;
+        let hasMore = true;
+        let apiTotalResults = 0;
+
+        while (hasMore) {
+          const url = `https://api.inaturalist.org/v1/observations/species_counts?user_login=${encodeURIComponent(username)}&per_page=${INAT_PER_PAGE}&page=${page}`;
+
+          log(`Fetching species page ${page}...`);
+          const resp = await fetch(url, {
+            headers: { "User-Agent": "iNatSupabaseSyncTest/1.0" },
+          });
+          if (!resp.ok) throw new Error(`iNat API ${resp.status}`);
+
+          const json = await resp.json();
+          const results = json.results;
+          if (page === 1) apiTotalResults = json.total_results || 0;
+
+          if (results.length === 0) {
+            hasMore = false;
+            break;
+          }
+
+          const rows = results.map((r) => mapSpeciesResult(r, username));
+
+          const { error } = await db.from("species").upsert(rows, {
+            onConflict: "taxon_id,username",
+          });
+          if (error) throw new Error("Supabase species upsert: " + error.message);
+
+          totalFetched += results.length;
+          log(`Stored ${results.length} species (total: ${totalFetched})`, "success");
+
+          if (results.length < INAT_PER_PAGE) {
+            hasMore = false;
+          } else {
+            page++;
+            await sleep(1000);
+          }
+        }
+
+        // Update species sync timestamp
+        await db.from("sync_log").upsert(
+          { username: username },
+          { onConflict: "username", ignoreDuplicates: true }
+        );
+        await db.from("sync_log")
+          .update({ species_synced_at: new Date().toISOString() })
+          .eq("username", username);
+
+        log(`Species sync complete: ${totalFetched} species`, "success");
+        return apiTotalResults;
+      }
+
+      function mapSpeciesResult(r, username) {
+        return {
+          taxon_id: r.taxon.id,
+          username: username,
+          species_name: r.taxon.name || null,
+          common_name: r.taxon.preferred_common_name || null,
+          iconic_taxon_name: r.taxon.iconic_taxon_name || null,
+          photo_url: r.taxon.default_photo ? r.taxon.default_photo.medium_url : null,
+          obs_count: r.count,
+          rank: r.taxon.rank || null,
+        };
+      }
+
+      // ─── Load species from Supabase species table ───
+      async function loadSpeciesFromSupabase(username) {
+        log("Loading species from Supabase...", "info");
+
+        // Sync species first if needed
+        let speciesCount = false;
+        try {
+          speciesCount = await syncSpecies(username);
+        } catch (e) {
+          log("Species sync error: " + e.message, "error");
+        }
+
+        if (speciesCount) {
+          document.getElementById("statSpecies").textContent = speciesCount.toLocaleString();
+        }
+
+        const from = speciesPage * DISPLAY_PAGE_SIZE;
+        const to = from + DISPLAY_PAGE_SIZE - 1;
+
+        const { data, error } = await db
+          .from("species")
+          .select("*")
+          .eq("username", username)
+          .order("obs_count", { ascending: false })
+          .range(from, to);
+
+        if (error) {
+          log("Species load error: " + error.message, "error");
+          return;
+        }
+
+        displayedSpecies = displayedSpecies.concat(data);
+        renderSpecies(displayedSpecies);
+
+        document.getElementById("loadMore").style.display =
+          data.length === DISPLAY_PAGE_SIZE ? "block" : "none";
+
+        log(`Showing ${displayedSpecies.length} species from Supabase`, "success");
+      }
+
+      async function loadMoreSpeciesFromSupabase() {
+        speciesPage++;
+        await loadSpeciesPageOnly(currentUsername);
+      }
+
+      async function loadSpeciesPageOnly(username) {
+        const from = speciesPage * DISPLAY_PAGE_SIZE;
+        const to = from + DISPLAY_PAGE_SIZE - 1;
+
+        const { data, error } = await db
+          .from("species")
+          .select("*")
+          .eq("username", username)
+          .order("obs_count", { ascending: false })
+          .range(from, to);
+
+        if (error) {
+          log("Species load error: " + error.message, "error");
+          return;
+        }
+
+        displayedSpecies = displayedSpecies.concat(data);
+        renderSpecies(displayedSpecies);
+
+        document.getElementById("loadMore").style.display =
+          data.length === DISPLAY_PAGE_SIZE ? "block" : "none";
+      }
+
+      // ─── Species rendering ───
+      function renderSpecies(species) {
+        const container = document.getElementById("observationsContainer");
+
+        if (species.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">📭</div>
+              <p>No species found</p>
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = `<div class="observations-grid">${species.map(renderSpeciesCard).join("")}</div>`;
+      }
+
+      function renderSpeciesCard(sp) {
+        const photo = sp.photo_url
+          ? `<img class="obs-photo" src="${escapeHtml(sp.photo_url)}" alt="${escapeHtml(sp.species_name || "Species")}" loading="lazy" onerror="this.outerHTML='<div class=\\'obs-photo-placeholder\\'>📷</div>'">`
+          : `<div class="obs-photo-placeholder">📷</div>`;
+
+        const species = sp.species_name || "Unknown species";
+        const common = sp.common_name || "";
+        const iconic = sp.iconic_taxon_name || "";
+        const inatLink = `https://www.inaturalist.org/taxa/${sp.taxon_id}`;
+
+        return `
+          <a href="${inatLink}" target="_blank" rel="noopener" class="obs-card" style="text-decoration:none;color:inherit;">
+            ${photo}
+            <div class="obs-body">
+              <div class="obs-species">${escapeHtml(species)}</div>
+              ${common ? `<div class="obs-common">${escapeHtml(common)}</div>` : ""}
+              <div class="obs-meta">
+                <span class="obs-count">${sp.obs_count} observation${sp.obs_count !== 1 ? "s" : ""}</span>
+                ${iconic ? `<span>${escapeHtml(iconic)}</span>` : ""}
+              </div>
+            </div>
+          </a>`;
+      }
+
+      // ─── View toggle ───
+      function switchView(view) {
+        currentView = view;
+        document.getElementById("btnViewObs").classList.toggle("active", view === "observations");
+        document.getElementById("btnViewSpecies").classList.toggle("active", view === "species");
+
+        displayedObservations = [];
+        displayedSpecies = [];
+        displayPage = 0;
+        speciesPage = 0;
+
+        if (!currentUsername) return;
+
+        if (view === "observations") {
+          showLoading("Loading observations...");
+          loadPageFromSupabase(currentUsername);
+        } else {
+          showLoading("Loading species...");
+          loadSpeciesFromSupabase(currentUsername);
+        }
+      }
+
+      function loadMoreObservations() {
+        if (currentView === "observations") {
+          displayPage++;
+          loadPageFromSupabase(currentUsername);
+        } else {
+          loadMoreSpeciesFromSupabase();
+        }
+      }
+
+      // ─── Utilities ───
+      function sleep(ms) {
+        return new Promise((r) => setTimeout(r, ms));
+      }
+
+      // ─── Init ───
+      loadConfig();
+    </script>
+  </body>
+</html>
