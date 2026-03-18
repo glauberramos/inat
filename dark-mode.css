@@ -701,6 +701,19 @@ body.dark-mode #filterInput::placeholder {
   color: #888;
 }
 
+/* Date filter inputs */
+body.dark-mode #dateFrom,
+body.dark-mode #dateTo {
+  background: #3d3d3d !important;
+  border-color: #555 !important;
+  color: #e0e0e0;
+  color-scheme: dark;
+}
+
+body.dark-mode .date-separator {
+  color: #aaa !important;
+}
+
 /* US States map page */
 body.dark-mode .map-container {
   background: #2d2d2d;

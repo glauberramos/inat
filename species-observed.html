@@ -444,6 +444,15 @@
           width: 100%;
         }
 
+        .summary-search div[style*="gap: 8px"] {
+          width: 100%;
+        }
+
+        .summary-search div[style*="gap: 8px"] input[type="date"] {
+          flex: 1;
+          min-width: 0;
+        }
+
         .controls {
           flex-direction: column;
           align-items: stretch;
@@ -659,6 +668,21 @@
               <div id="taxonAutocomplete" class="username-autocomplete"></div>
               <input type="hidden" id="taxonId" value="" />
             </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input
+                type="date"
+                id="dateFrom"
+                title="Initial date of observation"
+                style="padding: 8px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; cursor: pointer;"
+              />
+              <span class="date-separator" style="color: #666; font-size: 14px;">to</span>
+              <input
+                type="date"
+                id="dateTo"
+                title="Final date of observation"
+                style="padding: 8px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; cursor: pointer;"
+              />
+            </div>
             <button id="searchButton">Search</button>
           </div>
         </div>
@@ -776,6 +800,8 @@
       const viewControls = document.getElementById("viewControls");
       const gridViewBtn = document.getElementById("gridViewBtn");
       const tableViewBtn = document.getElementById("tableViewBtn");
+      const dateFrom = document.getElementById("dateFrom");
+      const dateTo = document.getElementById("dateTo");
 
       let speciesData = [];
       let threatenedTaxonIds = new Set();
@@ -1012,6 +1038,15 @@
         const taxonId = taxonIdInput.value || null;
         const taxonParam = taxonId ? `&taxon_id=${taxonId}` : "";
 
+        // Get date range if set
+        const d1 = dateFrom.value;
+        const d2 = dateTo.value;
+        if ((d1 && !d2) || (!d1 && d2)) {
+          showError("Both initial and final dates are required");
+          return;
+        }
+        const dateParam = d1 && d2 ? `&d1=${d1}&d2=${d2}` : "";
+
         hideError();
         loading.style.display = "block";
         speciesContainer.innerHTML = "";
@@ -1043,7 +1078,7 @@
           // Fetch species count data - first page to get total_results
           const perPage = 500;
           const firstResponse = await fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=1${placeParam}${taxonParam}`
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=1${placeParam}${taxonParam}${dateParam}`
           );
           const firstData = await firstResponse.json();
 
@@ -1065,7 +1100,7 @@
             for (let page = 2; page <= totalPages; page++) {
               additionalPromises.push(
                 fetch(
-                  `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}${placeParam}${taxonParam}`
+                  `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}${placeParam}${taxonParam}${dateParam}`
                 )
                   .then((response) => response.json())
                   .then((data) => data.results)
@@ -1087,7 +1122,7 @@
           threatenedTaxonIds = new Set();
           const threatenedPerPage = 500;
           const firstThreatenedResponse = await fetch(
-            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${threatenedPerPage}&page=1&threatened=true${placeParam}${taxonParam}`
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${threatenedPerPage}&page=1&threatened=true${placeParam}${taxonParam}${dateParam}`
           );
           const firstThreatenedData = await firstThreatenedResponse.json();
           const threatenedTotalResults = firstThreatenedData.total_results || 0;
@@ -1110,7 +1145,7 @@
             for (let page = 2; page <= threatenedTotalPages; page++) {
               threatenedPromises.push(
                 fetch(
-                  `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${threatenedPerPage}&page=${page}&threatened=true${placeParam}${taxonParam}`
+                  `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${threatenedPerPage}&page=${page}&threatened=true${placeParam}${taxonParam}${dateParam}`
                 )
                   .then((response) => response.json())
                   .then((data) => data.results || [])
