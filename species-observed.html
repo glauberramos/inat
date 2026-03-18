@@ -630,7 +630,7 @@
       <main>
         <div class="summary-card" id="summaryCard">
           <div class="summary-search">
-            <div class="username-search-container" style="width: 300px">
+            <div class="username-search-container" style="flex: 1; min-width: 150px;">
               <input
                 type="text"
                 id="usernameInput"
@@ -643,7 +643,7 @@
                 class="username-autocomplete"
               ></div>
             </div>
-            <div class="username-search-container" style="width: 250px">
+            <div class="username-search-container" style="flex: 1; min-width: 150px;">
               <input
                 type="text"
                 id="locationInput"
@@ -657,7 +657,7 @@
               ></div>
               <input type="hidden" id="placeId" value="" />
             </div>
-            <div class="username-search-container" style="width: 250px">
+            <div class="username-search-container" style="flex: 1; min-width: 150px;">
               <input
                 type="text"
                 id="taxonInput"
@@ -668,19 +668,19 @@
               <div id="taxonAutocomplete" class="username-autocomplete"></div>
               <input type="hidden" id="taxonId" value="" />
             </div>
-            <div style="display: flex; gap: 8px; align-items: center;">
+            <div style="display: flex; gap: 8px; align-items: center; flex: 1; min-width: 150px;">
               <input
                 type="date"
                 id="dateFrom"
                 title="Initial date of observation"
-                style="padding: 8px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; cursor: pointer;"
+                style="padding: 8px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; cursor: pointer; flex: 1; min-width: 0;"
               />
               <span class="date-separator" style="color: #666; font-size: 14px;">to</span>
               <input
                 type="date"
                 id="dateTo"
                 title="Final date of observation"
-                style="padding: 8px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; cursor: pointer;"
+                style="padding: 8px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; cursor: pointer; flex: 1; min-width: 0;"
               />
             </div>
             <button id="searchButton">Search</button>
