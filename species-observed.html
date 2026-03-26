@@ -138,6 +138,25 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
       }
 
+      .endemic-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #8e44ad;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+        z-index: 9;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .threatened-badge + .endemic-badge {
+        top: 36px;
+      }
+
       .only-observer-badge {
         position: absolute;
         top: 8px;
@@ -595,9 +614,14 @@
         }
 
         .only-observer-badge,
-        .threatened-badge {
+        .threatened-badge,
+        .endemic-badge {
           font-size: 9px;
           padding: 3px 6px;
+        }
+
+        .threatened-badge + .endemic-badge {
+          top: 30px;
         }
       }
 
@@ -1467,6 +1491,15 @@
                       conservationStatusHtml = `<span class="conservation-status ${tableCS.config.class}">${tableCS.statusName}</span>`;
                     }
 
+                    // Get endemic status
+                    const tableIsEndemic = endemicTaxonIds.has(taxon.id);
+                    if (tableIsEndemic) {
+                      const endemicSpan = `<span class="conservation-status" style="background: #8e44ad; color: white;">Endemic</span>`;
+                      conservationStatusHtml = conservationStatusHtml === "-"
+                        ? endemicSpan
+                        : conservationStatusHtml + " " + endemicSpan;
+                    }
+
                     return `
                       <tr${
                         isOnlyObserver
@@ -1548,10 +1581,16 @@
                 conservationStatusHtml = `<div class="conservation-status ${gridCS.config.class}">${gridCS.statusName}</div>`;
               }
 
+              // Get endemic status
+              const isEndemic = endemicTaxonIds.has(taxon.id);
+              const endemicBadge = isEndemic ? `<div class="endemic-badge">Endemic</div>` : "";
+              const endemicStatusHtml = isEndemic ? `<div class="conservation-status" style="background: #8e44ad; color: white;">Endemic</div>` : "";
+
               return `
                 <div class="species-card${onlyObserverClass}">
                   ${onlyObserverBadge}
                   ${conservationBadge}
+                  ${endemicBadge}
                   <a href="https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${
                 taxon.id
               }" target="_blank" style="text-decoration: none; color: inherit;">
@@ -1578,6 +1617,7 @@
                         <div>Global: <span class="global-count">${globalCount.toLocaleString()}</span></div>
                       </div>
                       ${conservationStatusHtml}
+                      ${endemicStatusHtml}
                     </div>
                   </a>
                 </div>
