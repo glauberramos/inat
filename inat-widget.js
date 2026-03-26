@@ -39,6 +39,7 @@
       this.borderRadius = container.dataset.inatRadius !== undefined ? parseInt(container.dataset.inatRadius) : 12;
       this.padding = container.dataset.inatPadding !== undefined ? parseInt(container.dataset.inatPadding) : 16;
       this.compact = container.dataset.inatCompact === "true";
+      this.lang = container.dataset.inatLang || "";
       this.observations = [];
 
       this.injectStyles();
@@ -299,7 +300,6 @@
           display: flex;
           align-items: center;
           gap: 3px;
-          z-index: 2;
         }
         .inat-w-photo-count-icon {
           font-size: 9px;
@@ -435,7 +435,6 @@
           justify-content: center;
           opacity: 0;
           transition: opacity 0.2s;
-          z-index: 3;
         }
         .inat-w-card-cover:hover .inat-w-card-nav {
           opacity: 1;
@@ -450,7 +449,6 @@
           transform: translateX(-50%);
           display: flex;
           gap: 4px;
-          z-index: 3;
         }
         .inat-w-card-dot {
           width: 6px;
@@ -546,7 +544,7 @@
       // Footer
       const footer = document.createElement("div");
       footer.className = "inat-w-footer";
-      footer.innerHTML = `<a href="${this.getSourceUrl()}" target="_blank" rel="noopener">View more on iNaturalist →</a>`;
+      footer.innerHTML = `<a href="${this.getSourceUrl()}" target="_blank" rel="noopener">View more on iNaturalist &rarr;</a>`;
       this.container.appendChild(footer);
     }
 
@@ -567,7 +565,10 @@
       try {
         // Single observation mode
         if (this.sourceType === "observation") {
-          const response = await fetch(`${INAT_API}/observations/${encodeURIComponent(this.source)}`);
+          const singleParams = new URLSearchParams();
+          if (this.lang) singleParams.set("locale", this.lang);
+          const singleQuery = singleParams.toString();
+          const response = await fetch(`${INAT_API}/observations/${encodeURIComponent(this.source)}${singleQuery ? "?" + singleQuery : ""}`);
           if (!response.ok) throw new Error("Failed to fetch observation");
           const data = await response.json();
           if (data.results && data.results.length > 0) {
@@ -592,6 +593,11 @@
           params.set("place_id", this.source);
         } else {
           params.set("user_id", this.source);
+        }
+
+        // Language/locale
+        if (this.lang) {
+          params.set("locale", this.lang);
         }
 
         // Taxon filter
