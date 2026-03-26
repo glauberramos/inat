@@ -308,6 +308,45 @@
         margin: 20px 0;
       }
 
+      .results-summary {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-size: 13px;
+        color: #666;
+      }
+
+      .summary-stat {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+      }
+
+      .summary-stat .stat-value {
+        font-weight: 600;
+      }
+
+      .summary-stat.research .stat-value {
+        color: #74ac00;
+      }
+
+      .summary-stat.needs-id .stat-value {
+        color: #f39c12;
+      }
+
+      .summary-stat.threatened .stat-value {
+        color: #d12f19;
+      }
+
+      .summary-stat.endemic .stat-value {
+        color: #8e44ad;
+      }
+
+      .summary-separator {
+        color: #ddd;
+      }
+
       .view-buttons {
         display: flex;
         gap: 0;
@@ -480,6 +519,11 @@
 
         .view-btn {
           flex: 1;
+        }
+
+        .results-summary {
+          flex-wrap: wrap;
+          justify-content: center;
         }
 
         #resultsCount {
@@ -762,6 +806,16 @@
             <button id="tableViewBtn" class="view-btn">Table View</button>
           </div>
           <div id="resultsCount" style="color: #666; font-size: 14px"></div>
+          <div class="results-summary" id="resultsSummary" style="display: none">
+            <span class="summary-separator">|</span>
+            <span class="summary-stat research"><span class="stat-value" id="summaryResearch">0</span> research</span>
+            <span class="summary-separator">|</span>
+            <span class="summary-stat needs-id"><span class="stat-value" id="summaryNeedsId">0</span> needs ID</span>
+            <span class="summary-separator">|</span>
+            <span class="summary-stat threatened"><span class="stat-value" id="summaryThreatened">0</span> threatened</span>
+            <span class="summary-separator">|</span>
+            <span class="summary-stat endemic"><span class="stat-value" id="summaryEndemic">0</span> endemic</span>
+          </div>
         </div>
 
         <div class="loading" id="loading" style="display: none">Loading...</div>
@@ -805,6 +859,9 @@
 
       let speciesData = [];
       let threatenedTaxonIds = new Set();
+      let endemicTaxonIds = new Set();
+      let researchGradeCount = 0;
+      let needsIdCount = 0;
       let currentUserId = null;
       let currentUsername = null;
       let searchTimeout = null;
@@ -1125,7 +1182,7 @@
             `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${threatenedPerPage}&page=1&threatened=true${placeParam}${taxonParam}${dateParam}`
           );
           const firstThreatenedData = await firstThreatenedResponse.json();
-          const threatenedTotalResults = firstThreatenedData.total_results || 0;
+          let threatenedTotalResults = firstThreatenedData.total_results || 0;
 
           // Add first page results to set
           if (firstThreatenedData.results) {
@@ -1162,6 +1219,66 @@
               });
             });
           }
+
+          // Fetch endemic species count
+          endemicTaxonIds = new Set();
+          const endemicPerPage = 500;
+          const firstEndemicResponse = await fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${endemicPerPage}&page=1&endemic=true${placeParam}${taxonParam}${dateParam}`
+          );
+          const firstEndemicData = await firstEndemicResponse.json();
+          let endemicTotalResults = firstEndemicData.total_results || 0;
+
+          if (firstEndemicData.results) {
+            firstEndemicData.results.forEach((item) => {
+              if (item.taxon && item.taxon.id) {
+                endemicTaxonIds.add(item.taxon.id);
+              }
+            });
+          }
+
+          const endemicTotalPages = Math.ceil(endemicTotalResults / endemicPerPage);
+          if (endemicTotalPages > 1) {
+            const endemicPromises = [];
+            for (let page = 2; page <= endemicTotalPages; page++) {
+              endemicPromises.push(
+                fetch(
+                  `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${endemicPerPage}&page=${page}&endemic=true${placeParam}${taxonParam}${dateParam}`
+                )
+                  .then((response) => response.json())
+                  .then((data) => data.results || [])
+              );
+            }
+            const additionalEndemicResults = await Promise.all(endemicPromises);
+            additionalEndemicResults.forEach((results) => {
+              results.forEach((item) => {
+                if (item.taxon && item.taxon.id) {
+                  endemicTaxonIds.add(item.taxon.id);
+                }
+              });
+            });
+          }
+
+          // Fetch research grade and needs ID species counts
+          const [researchResponse, needsIdResponse] = await Promise.all([
+            fetch(
+              `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=1&quality_grade=research${placeParam}${taxonParam}${dateParam}`
+            ),
+            fetch(
+              `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=1&quality_grade=needs_id${placeParam}${taxonParam}${dateParam}`
+            ),
+          ]);
+          const researchData = await researchResponse.json();
+          const needsIdData = await needsIdResponse.json();
+          researchGradeCount = researchData.total_results || 0;
+          needsIdCount = needsIdData.total_results || 0;
+
+          // Update summary
+          document.getElementById("summaryResearch").textContent = researchGradeCount.toLocaleString();
+          document.getElementById("summaryNeedsId").textContent = needsIdCount.toLocaleString();
+          document.getElementById("summaryThreatened").textContent = threatenedTotalResults.toLocaleString();
+          document.getElementById("summaryEndemic").textContent = endemicTotalResults.toLocaleString();
+          document.getElementById("resultsSummary").style.display = "flex";
 
           controls.style.display = "flex";
           viewControls.style.display = "flex";
@@ -1236,6 +1353,58 @@
           resultCount !== 1 ? "s" : ""
         }`;
 
+        // Get conservation status from taxon, checking all available sources
+        const getConservationStatus = (taxon) => {
+          const statusConfig = {
+            cr: { color: "#8b0000", badge: "CR", class: "status-cr", name: "Critically Endangered" },
+            critically_endangered: { color: "#8b0000", badge: "CR", class: "status-cr", name: "Critically Endangered" },
+            en: { color: "#d12f19", badge: "EN", class: "status-en", name: "Endangered" },
+            endangered: { color: "#d12f19", badge: "EN", class: "status-en", name: "Endangered" },
+            vu: { color: "#f39c12", badge: "VU", class: "status-vu", name: "Vulnerable" },
+            vulnerable: { color: "#f39c12", badge: "VU", class: "status-vu", name: "Vulnerable" },
+            nt: { color: "#f1c40f", badge: "NT", class: "status-nt", name: "Near Threatened" },
+            near_threatened: { color: "#f1c40f", badge: "NT", class: "status-nt", name: "Near Threatened" },
+            lc: { color: "#27ae60", badge: "LC", class: "status-lc", name: "Least Concern" },
+            least_concern: { color: "#27ae60", badge: "LC", class: "status-lc", name: "Least Concern" },
+          };
+
+          // Priority order for threat levels (higher = more threatened)
+          const threatPriority = { cr: 5, critically_endangered: 5, en: 4, endangered: 4, vu: 3, vulnerable: 3, nt: 2, near_threatened: 2, lc: 1, least_concern: 1 };
+
+          // 1. Check taxon.conservation_status (singular - global status)
+          if (taxon.conservation_status && taxon.conservation_status.status) {
+            const status = taxon.conservation_status.status.toLowerCase();
+            const config = statusConfig[status];
+            if (config) {
+              return { status, statusName: taxon.conservation_status.status_name || config.name, config };
+            }
+          }
+
+          // 2. Check taxon.conservation_statuses (plural - includes regional)
+          if (taxon.conservation_statuses && taxon.conservation_statuses.length > 0) {
+            let best = null;
+            let bestPriority = -1;
+            for (const cs of taxon.conservation_statuses) {
+              if (cs.status) {
+                const s = cs.status.toLowerCase();
+                const p = threatPriority[s] || 0;
+                if (p > bestPriority && statusConfig[s]) {
+                  bestPriority = p;
+                  best = { status: s, statusName: cs.status_name || statusConfig[s].name, config: statusConfig[s] };
+                }
+              }
+            }
+            if (best) return best;
+          }
+
+          // 3. Fallback: if the species is in threatenedTaxonIds but has no status info, show as threatened
+          if (threatenedTaxonIds.has(taxon.id)) {
+            return { status: "threatened", statusName: "Threatened", config: { color: "#d12f19", badge: "TH", class: "status-en", name: "Threatened" } };
+          }
+
+          return null;
+        };
+
         // Escape HTML helper function
         const escapeHtml = (text) => {
           const div = document.createElement("div");
@@ -1293,33 +1462,9 @@
 
                     // Get conservation status
                     let conservationStatusHtml = "-";
-                    if (
-                      taxon.conservation_status &&
-                      taxon.conservation_status.status
-                    ) {
-                      const status =
-                        taxon.conservation_status.status.toLowerCase();
-                      const statusName =
-                        taxon.conservation_status.status_name ||
-                        status.toUpperCase();
-
-                      const statusConfig = {
-                        cr: { class: "status-cr" },
-                        critically_endangered: { class: "status-cr" },
-                        en: { class: "status-en" },
-                        endangered: { class: "status-en" },
-                        vu: { class: "status-vu" },
-                        vulnerable: { class: "status-vu" },
-                        nt: { class: "status-nt" },
-                        near_threatened: { class: "status-nt" },
-                        lc: { class: "status-lc" },
-                        least_concern: { class: "status-lc" },
-                      };
-
-                      const config = statusConfig[status];
-                      if (config) {
-                        conservationStatusHtml = `<span class="conservation-status ${config.class}">${statusName}</span>`;
-                      }
+                    const tableCS = getConservationStatus(taxon);
+                    if (tableCS) {
+                      conservationStatusHtml = `<span class="conservation-status ${tableCS.config.class}">${tableCS.statusName}</span>`;
                     }
 
                     return `
@@ -1397,53 +1542,10 @@
               // Get conservation status
               let conservationBadge = "";
               let conservationStatusHtml = "";
-              if (
-                taxon.conservation_status &&
-                taxon.conservation_status.status
-              ) {
-                const status = taxon.conservation_status.status.toLowerCase();
-                const statusName =
-                  taxon.conservation_status.status_name || status.toUpperCase();
-
-                // Map status codes to colors and badge text
-                const statusConfig = {
-                  cr: { color: "#8b0000", badge: "CR", class: "status-cr" },
-                  critically_endangered: {
-                    color: "#8b0000",
-                    badge: "CR",
-                    class: "status-cr",
-                  },
-                  en: { color: "#d12f19", badge: "EN", class: "status-en" },
-                  endangered: {
-                    color: "#d12f19",
-                    badge: "EN",
-                    class: "status-en",
-                  },
-                  vu: { color: "#f39c12", badge: "VU", class: "status-vu" },
-                  vulnerable: {
-                    color: "#f39c12",
-                    badge: "VU",
-                    class: "status-vu",
-                  },
-                  nt: { color: "#f1c40f", badge: "NT", class: "status-nt" },
-                  near_threatened: {
-                    color: "#f1c40f",
-                    badge: "NT",
-                    class: "status-nt",
-                  },
-                  lc: { color: "#27ae60", badge: "LC", class: "status-lc" },
-                  least_concern: {
-                    color: "#27ae60",
-                    badge: "LC",
-                    class: "status-lc",
-                  },
-                };
-
-                const config = statusConfig[status];
-                if (config) {
-                  conservationBadge = `<div class="threatened-badge" style="background: ${config.color};">${config.badge}</div>`;
-                  conservationStatusHtml = `<div class="conservation-status ${config.class}">${statusName}</div>`;
-                }
+              const gridCS = getConservationStatus(taxon);
+              if (gridCS) {
+                conservationBadge = `<div class="threatened-badge" style="background: ${gridCS.config.color};">${gridCS.config.badge}</div>`;
+                conservationStatusHtml = `<div class="conservation-status ${gridCS.config.class}">${gridCS.statusName}</div>`;
               }
 
               return `

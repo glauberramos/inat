@@ -451,6 +451,15 @@ body.dark-mode #resultsCount {
   color: #aaa;
 }
 
+/* Results summary */
+body.dark-mode .results-summary {
+  color: #aaa;
+}
+
+body.dark-mode .summary-separator {
+  color: #555;
+}
+
 /* Loading text */
 body.dark-mode .loading {
   color: #aaa;
