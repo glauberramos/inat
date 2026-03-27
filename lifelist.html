@@ -1097,6 +1097,7 @@
 
       casualCheckbox.addEventListener("change", () => {
         localStorage.setItem("inatIncludeCasual", casualCheckbox.checked);
+        startSearch();
       });
 
       function updatePhotos() {
