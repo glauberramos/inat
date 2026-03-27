@@ -77,7 +77,6 @@
           border-radius: var(--inat-radius);
           overflow: hidden;
           position: relative;
-          z-index: 0;
         }
         .inat-w.inat-theme-dark {
           --inat-bg: #0f172a;
@@ -170,7 +169,7 @@
           border-radius: 50%;
           animation: inat-spin 0.8s linear infinite;
         }
-        @keyframes inat-spin { to { transform: rotate(360deg); } }
+        @keyframes inat-spin { to { rotate: 360deg; } }
 
         /* Error */
         .inat-w-error {
@@ -257,10 +256,6 @@
           width: 100%;
           height: 100%;
           object-fit: cover;
-          transition: transform 0.3s;
-        }
-        .inat-w-grid-item:hover .inat-w-grid-img {
-          transform: scale(1.05);
         }
         .inat-w-grid-overlay {
           position: absolute;
@@ -319,7 +314,7 @@
           border-radius: var(--inat-radius);
           overflow: hidden;
           box-shadow: var(--inat-shadow);
-          transition: box-shadow 0.25s, transform 0.25s;
+          transition: box-shadow 0.25s;
           text-decoration: none !important;
           color: var(--inat-text) !important;
           display: block;
@@ -327,7 +322,6 @@
         }
         .inat-w-card:hover {
           box-shadow: var(--inat-shadow-hover);
-          transform: none;
         }
         .inat-w-card-cover {
           position: relative;
@@ -413,7 +407,7 @@
           display: flex;
           width: 100%;
           height: 100%;
-          transition: transform 0.3s ease;
+          transition: margin-left 0.3s ease;
         }
         .inat-w-card-cover .inat-w-card-photos img {
           width: 100%;
@@ -423,8 +417,9 @@
         }
         .inat-w-card-nav {
           position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
+          top: 0;
+          bottom: 0;
+          margin: auto 0;
           width: 28px;
           height: 28px;
           border-radius: 50%;
@@ -448,8 +443,10 @@
         .inat-w-card-dots {
           position: absolute;
           bottom: 8px;
-          left: 50%;
-          transform: translateX(-50%);
+          left: 0;
+          right: 0;
+          margin: 0 auto;
+          width: fit-content;
           display: flex;
           gap: 4px;
         }
@@ -504,7 +501,7 @@
           height: 75px;
         }
         .inat-w-compact .inat-w-grid-overlay { display: none; }
-        .inat-w-compact .inat-w-grid-item:hover .inat-w-grid-img { transform: none; }
+        .inat-w-compact .inat-w-grid-item:hover .inat-w-grid-img { }
 
         /* Placeholder image */
         .inat-w-no-photo {
@@ -825,7 +822,7 @@
               const dir = parseInt(btn.dataset.dir);
               idx = (idx + dir + photos.length) % photos.length;
               photosEl.dataset.index = idx;
-              photosEl.style.transform = `translateX(-${idx * 100}%)`;
+              photosEl.style.marginLeft = `-${idx * 100}%`;
               const dots = card.querySelectorAll(".inat-w-card-dot");
               dots.forEach((d, i) => d.classList.toggle("active", i === idx));
             });
