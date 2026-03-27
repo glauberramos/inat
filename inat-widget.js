@@ -76,6 +76,8 @@
           background: var(--inat-bg);
           border-radius: var(--inat-radius);
           overflow: hidden;
+          position: relative;
+          z-index: 0;
         }
         .inat-w.inat-theme-dark {
           --inat-bg: #0f172a;
@@ -325,7 +327,7 @@
         }
         .inat-w-card:hover {
           box-shadow: var(--inat-shadow-hover);
-          transform: translateY(-2px);
+          transform: none;
         }
         .inat-w-card-cover {
           position: relative;
