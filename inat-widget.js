@@ -75,6 +75,7 @@
           color: var(--inat-text);
           background: var(--inat-bg);
           border-radius: var(--inat-radius);
+          overflow: hidden;
         }
         .inat-w.inat-theme-dark {
           --inat-bg: #0f172a;

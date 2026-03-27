@@ -17,22 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const placeName = document.getElementById("placeNameInput").value.trim();
     const currentDate = new Date().toLocaleDateString();
 
-    // Get taxon name from the select dropdown or override input
-    const taxonSelect = document.getElementById("taxonSelect");
-    const taxonIdOverrideInput = document.getElementById(
-      "taxonIdOverrideInput"
-    );
-
-    let taxonName;
-    if (taxonIdOverrideInput && taxonIdOverrideInput.value.trim() !== "") {
-      // Use custom taxon name from override input
-      taxonName = taxonIdOverrideInput.value.trim();
-    } else {
-      // Use taxon name from select dropdown
-      const selectedTaxonOption =
-        taxonSelect.options[taxonSelect.selectedIndex];
-      taxonName = selectedTaxonOption.text;
-    }
+    // Get taxon name from the taxon input
+    const taxonInput = document.getElementById("taxonInput");
+    let taxonName = taxonInput && taxonInput.value.trim() ? taxonInput.value.trim() : "All Species";
 
     // Check if we have a project selected
     const projectName = localStorage.getItem("inatProject");

@@ -15,7 +15,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const placeNameInput = document.getElementById("placeNameInput");
   const placeIdInput = document.getElementById("placeIdInput");
   const usernameInput = document.getElementById("usernameInput");
-  const taxonSelect = document.getElementById("taxonSelect");
+  const taxonInput = document.getElementById("taxonInput");
+  const taxonAutocomplete = document.getElementById("taxonAutocomplete");
+  const taxonIdHidden = document.getElementById("taxonIdHidden");
   const searchButton = document.getElementById("searchButton");
   const speciesGrid = document.getElementById("speciesGrid");
   const loading = document.getElementById("loading");
@@ -31,7 +33,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const advancedOptionsSection = document.getElementById(
     "advancedOptionsSection"
   );
-  const taxonIdOverrideInput = document.getElementById("taxonIdOverrideInput");
   const wildCheckbox = document.getElementById("wildCheckbox");
   const includeAllPlacesCheckbox = document.getElementById(
     "includeAllPlacesCheckbox"
@@ -80,12 +81,12 @@ document.addEventListener("DOMContentLoaded", function () {
     placeNameInput.value = savedPlaceName;
   }
 
-  if (
-    savedTaxon &&
-    [...taxonSelect.options].map((option) => option.value).indexOf(savedTaxon) >
-      -1
-  ) {
-    taxonSelect.value = savedTaxon;
+  if (savedTaxon && savedTaxon !== "all") {
+    taxonIdHidden.value = savedTaxon;
+    const savedTaxonName = localStorage.getItem("inatTaxonName");
+    if (savedTaxonName) {
+      taxonInput.value = savedTaxonName;
+    }
   }
 
   if (savedLimit) {
@@ -133,29 +134,117 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Save taxon name when it changes
-  taxonIdOverrideInput.addEventListener("change", () => {
-    const taxonName = taxonIdOverrideInput.value.trim();
+  // Predefined popular taxons
+  const predefinedTaxons = [
+    { id: "", name: "All Species", rank: "" },
+    { id: "1", name: "Animals", rank: "Kingdom" },
+    { id: "355675", name: "Vertebrates", rank: "Subphylum" },
+    { id: "3", name: "Birds", rank: "Class" },
+    { id: "40151", name: "Mammals", rank: "Class" },
+    { id: "26036", name: "Reptiles", rank: "Class" },
+    { id: "20978", name: "Amphibians", rank: "Class" },
+    { id: "47178", name: "Fish", rank: "Superclass" },
+    { id: "47158", name: "Insects", rank: "Class" },
+    { id: "47157", name: "Butterflies and Moths", rank: "Order" },
+    { id: "47208", name: "Beetles", rank: "Order" },
+    { id: "47119", name: "Arachnids", rank: "Class" },
+    { id: "47115", name: "Mollusks", rank: "Phylum" },
+    { id: "47126", name: "Plants", rank: "Kingdom" },
+    { id: "47170", name: "Fungi", rank: "Kingdom" },
+  ];
 
-    if (taxonName == "") {
-      localStorage.removeItem("inatTaxonId");
-      taxonIdOverrideInput.value = "";
+  let taxonSearchTimeout;
+
+  function showPredefinedTaxons() {
+    taxonAutocomplete.innerHTML = predefinedTaxons
+      .map(
+        (taxon) => `
+        <div class="taxon-suggestion" data-id="${taxon.id}" data-name="${taxon.name}">
+          <div class="taxon-name">${taxon.name}</div>
+          <div class="taxon-rank">${taxon.rank || "All taxa"}</div>
+        </div>
+      `
+      )
+      .join("");
+    taxonAutocomplete.classList.add("active");
+    attachTaxonClickHandlers();
+  }
+
+  function attachTaxonClickHandlers() {
+    taxonAutocomplete.querySelectorAll(".taxon-suggestion").forEach((item) => {
+      item.addEventListener("click", () => {
+        const id = item.dataset.id;
+        const name = item.dataset.name;
+        taxonInput.value = id ? name : "";
+        taxonIdHidden.value = id;
+        if (id) {
+          localStorage.setItem("inatTaxonId", id);
+          localStorage.setItem("inatTaxonName", name);
+        } else {
+          localStorage.removeItem("inatTaxonId");
+          localStorage.removeItem("inatTaxonName");
+        }
+        taxonAutocomplete.classList.remove("active");
+      });
+    });
+  }
+
+  taxonInput.addEventListener("focus", () => {
+    if (!taxonInput.value.trim()) {
+      showPredefinedTaxons();
     }
   });
 
-  // Update grid class name when taxon changes
-  taxonSelect.addEventListener("change", (selected) => {
-    // Save the selected taxon to localStorage
-    localStorage.setItem("inatTaxonId", taxonSelect.value);
+  taxonInput.addEventListener("input", (e) => {
+    clearTimeout(taxonSearchTimeout);
+    const query = e.target.value.trim();
 
-    // Populate the taxonIdOverrideInput with the selected value, or clear if 'all'
-    if (taxonIdOverrideInput) {
-      if (taxonSelect.value === "all") {
-        taxonIdOverrideInput.value = "";
-      } else {
-        taxonIdOverrideInput.value =
-          taxonSelect.options[taxonSelect.selectedIndex].text;
+    // Clear taxon ID when input changes
+    taxonIdHidden.value = "";
+
+    if (!query) {
+      showPredefinedTaxons();
+      return;
+    }
+
+    if (query.length < 2) {
+      taxonAutocomplete.classList.remove("active");
+      return;
+    }
+
+    taxonSearchTimeout = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(query)}&per_page=10`
+        );
+        const data = await response.json();
+
+        if (data.results && data.results.length > 0) {
+          taxonAutocomplete.innerHTML = data.results
+            .map(
+              (taxon) => `
+              <div class="taxon-suggestion" data-id="${taxon.id}" data-name="${taxon.preferred_common_name || taxon.name}">
+                <div class="taxon-name">${taxon.preferred_common_name || taxon.name}</div>
+                <div class="taxon-rank">${taxon.name} · ${taxon.rank}</div>
+              </div>
+            `
+            )
+            .join("");
+          taxonAutocomplete.classList.add("active");
+          attachTaxonClickHandlers();
+        } else {
+          taxonAutocomplete.classList.remove("active");
+        }
+      } catch (error) {
+        console.error("Error searching taxons:", error);
       }
+    }, 300);
+  });
+
+  // Hide taxon autocomplete when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!taxonInput.contains(e.target) && !taxonAutocomplete.contains(e.target)) {
+      taxonAutocomplete.classList.remove("active");
     }
   });
 
@@ -193,13 +282,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  if (taxonIdOverrideInput) {
-    taxonIdOverrideInput.addEventListener("input", function () {
-      if (taxonSelect) {
-        taxonSelect.value = "all";
-      }
-    });
-  }
 
   // Allow Enter key to trigger search on username input
   usernameInput.addEventListener("keypress", function (e) {
@@ -211,12 +293,7 @@ document.addEventListener("DOMContentLoaded", function () {
   async function searchEspecies() {
     placeId = placeIdInput.value.trim();
     const username = usernameInput.value.trim();
-    let taxonId = taxonSelect.value;
-
-    // Check if we have a taxon ID from the search
-    if (taxonIdOverrideInput && taxonIdOverrideInput.value.trim() !== "") {
-      taxonId = localStorage.getItem("inatTaxonId");
-    }
+    let taxonId = taxonIdHidden.value || "all";
 
     // Check for map bounds selection
     let mapBounds = null;

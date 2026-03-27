@@ -72,8 +72,7 @@
 
         .place-search-container input,
         .username-search-container input,
-        .taxon-search-container input,
-        .taxon-id-override-input {
+        .taxon-search-container input {
           width: 100%;
           margin-right: 0;
         }
@@ -397,23 +396,17 @@
           </p>
         </div>
         <div class="search-container">
-          <select id="taxonSelect" class="taxon-select">
-            <option value="all" selected>All Species</option>
-            <option value="1">Animals</option>
-            <option value="355675">Vertebrates</option>
-            <option value="3">Birds</option>
-            <option value="40151">Mammals</option>
-            <option value="26036">Reptiles</option>
-            <option value="20978">Amphibians</option>
-            <option value="47178">Fish</option>
-            <option value="47158">Insects</option>
-            <option value="47157">Butterflies and Moths</option>
-            <option value="47208">Beetles</option>
-            <option value="47119">Arachnids</option>
-            <option value="47115">Mollusks</option>
-            <option value="47126">Plants</option>
-            <option value="47170">Fungi</option>
-          </select>
+          <div class="taxon-search-container">
+            <input
+              type="text"
+              id="taxonInput"
+              class="taxon-input"
+              placeholder="All Species"
+              autocomplete="off"
+            />
+            <div id="taxonAutocomplete" class="taxon-autocomplete"></div>
+            <input type="hidden" id="taxonIdHidden" value="" />
+          </div>
           <div class="place-search-wrapper">
             <div class="place-search-container">
               <input
@@ -453,15 +446,6 @@
           class="advanced-options-section"
           style="display: none"
         >
-          <div class="taxon-search-container">
-            <input
-              id="taxonIdOverrideInput"
-              class="taxon-id-override-input"
-              placeholder="Search for a taxon..."
-              autocomplete="off"
-            />
-            <div id="taxonAutocomplete" class="taxon-autocomplete"></div>
-          </div>
           <span class="language-select-container">
             <select id="languageSelect" class="language-select">
               <option value="en" selected>English</option>

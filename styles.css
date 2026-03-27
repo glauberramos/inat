@@ -73,7 +73,6 @@ h1 {
   margin-bottom: 20px;
 }
 
-.taxon-select,
 .limit-select {
   padding: 10px 15px;
   border: 2px solid #ddd;
@@ -89,13 +88,30 @@ h1 {
   background-size: 1em;
 }
 
-.taxon-select:hover,
 .limit-select:hover {
   border-color: #3498db;
 }
 
-.taxon-select:focus,
 .limit-select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.taxon-input {
+  padding: 10px 15px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  width: 200px;
+  background-color: white;
+}
+
+.taxon-input:hover {
+  border-color: #3498db;
+}
+
+.taxon-input:focus {
   outline: none;
   border-color: #3498db;
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
@@ -347,7 +363,6 @@ button:hover {
   }
 
   input,
-  .taxon-select,
   .limit-select,
   .language-select {
     width: 100%;
@@ -481,17 +496,6 @@ input[type="checkbox"] {
   margin-left: 15px;
 }
 
-.taxon-id-override-input {
-  padding: 10px 15px;
-  border: 2px solid #ddd;
-  border-radius: 5px;
-  font-size: 1rem;
-  width: 220px;
-  background-color: white;
-  margin-right: 10px;
-  position: relative;
-}
-
 .taxon-search-container {
   position: relative;
   display: inline-block;
@@ -499,17 +503,16 @@ input[type="checkbox"] {
 
 .taxon-autocomplete {
   position: absolute;
-  top: 43px;
-  right: 10px;
+  top: 100%;
+  left: 0;
+  right: 0;
   background: white;
   border: 2px solid #ddd;
   border-top: none;
   max-height: 200px;
   overflow-y: auto;
-  z-index: 1000;
   display: none;
-  width: 220px;
-  border-radius: 5px;
+  border-radius: 0 0 5px 5px;
 }
 
 .taxon-autocomplete.active {
