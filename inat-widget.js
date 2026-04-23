@@ -574,7 +574,7 @@
           if (data.results && data.results.length > 0) {
             this.observations = data.results;
           } else {
-            this.contentEl.innerHTML = `<div class="inat-w-error"><div class="inat-w-error-icon">🔍</div><div>Observation not found</div></div>`;
+            this.contentEl.innerHTML = `<div class="inat-w-error"><div class="inat-w-error-icon">&#x1F50D;</div><div>Observation not found</div></div>`;
             return;
           }
           this.renderObservations();
@@ -627,13 +627,13 @@
         this.observations = data.results || [];
 
         if (this.observations.length === 0) {
-          this.contentEl.innerHTML = `<div class="inat-w-error"><div class="inat-w-error-icon">🔍</div><div>No observations found</div></div>`;
+          this.contentEl.innerHTML = `<div class="inat-w-error"><div class="inat-w-error-icon">&#x1F50D;</div><div>No observations found</div></div>`;
           return;
         }
 
         this.renderObservations();
       } catch (err) {
-        this.contentEl.innerHTML = `<div class="inat-w-error"><div class="inat-w-error-icon">⚠️</div><div>Could not load observations. Check the source name and try again.</div></div>`;
+        this.contentEl.innerHTML = `<div class="inat-w-error"><div class="inat-w-error-icon">&#x26A0;&#xFE0F;</div><div>Could not load observations. Check the source name and try again.</div></div>`;
       }
     }
 
@@ -742,7 +742,7 @@
 
         const avatarBadge = isMultiUser ? `
             <div class="inat-w-card-taxon-badge">
-              ${userIcon ? `<img class="inat-w-card-taxon-img" src="${userIcon}" alt="${this.escapeHtml(user)}" loading="lazy" />` : `<div class="inat-w-no-photo" style="border-radius:50%">👤</div>`}
+              ${userIcon ? `<img class="inat-w-card-taxon-img" src="${userIcon}" alt="${this.escapeHtml(user)}" loading="lazy" />` : `<div class="inat-w-no-photo" style="border-radius:50%">&#x1F464;</div>`}
             </div>
           ` : "";
         const bodyPadding = "16px";
@@ -860,7 +860,7 @@
     }
 
     noPhotoIcon(obs) {
-      return this.hasSound(obs) ? "🔊" : "📷";
+      return this.hasSound(obs) ? "&#x1F50A;" : "&#x1F4F7;";
     }
 
     getTaxonPhoto(obs) {
