@@ -124,53 +124,6 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
 
-      .threatened-badge {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: bold;
-        text-transform: uppercase;
-        z-index: 10;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      }
-
-      .endemic-badge {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        background: #8e44ad;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: bold;
-        text-transform: uppercase;
-        z-index: 9;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      }
-
-      .threatened-badge + .endemic-badge {
-        top: 36px;
-      }
-
-      .only-observer-badge {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        background: linear-gradient(135deg, #ffd700, #ffed4e);
-        color: #2c3e50;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: bold;
-        z-index: 10;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      }
-
       .species-card.only-observer {
         border: 3px solid #ffd700;
         box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
@@ -181,13 +134,14 @@
       }
 
       .conservation-status {
-        font-size: 10px;
+        font-size: 12px;
         color: #666;
         margin-top: 4px;
-        padding: 3px 6px;
+        padding: 4px 8px;
         border-radius: 3px;
         font-weight: 500;
         display: inline-block;
+        text-transform: capitalize;
       }
 
       .status-cr {
@@ -360,6 +314,10 @@
 
       .summary-stat.endemic .stat-value {
         color: #8e44ad;
+      }
+
+      .summary-stat.introduced .stat-value {
+        color: #e67e22;
       }
 
       .summary-separator {
@@ -613,16 +571,6 @@
           font-size: 12px;
         }
 
-        .only-observer-badge,
-        .threatened-badge,
-        .endemic-badge {
-          font-size: 9px;
-          padding: 3px 6px;
-        }
-
-        .threatened-badge + .endemic-badge {
-          top: 30px;
-        }
       }
 
       /* Hide default pipeback widget */
@@ -839,6 +787,8 @@
             <span class="summary-stat threatened"><span class="stat-value" id="summaryThreatened">0</span> threatened</span>
             <span class="summary-separator">|</span>
             <span class="summary-stat endemic"><span class="stat-value" id="summaryEndemic">0</span> endemic</span>
+            <span class="summary-separator">|</span>
+            <span class="summary-stat introduced"><span class="stat-value" id="summaryIntroduced">0</span> introduced</span>
           </div>
         </div>
 
@@ -884,6 +834,7 @@
       let speciesData = [];
       let threatenedTaxonIds = new Set();
       let endemicTaxonIds = new Set();
+      let introducedTaxonIds = new Set();
       let researchGradeCount = 0;
       let needsIdCount = 0;
       let currentUserId = null;
@@ -1283,6 +1234,45 @@
             });
           }
 
+          // Fetch introduced species count
+          introducedTaxonIds = new Set();
+          const introducedPerPage = 500;
+          const firstIntroducedResponse = await fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${introducedPerPage}&page=1&introduced=true${placeParam}${taxonParam}${dateParam}`
+          );
+          const firstIntroducedData = await firstIntroducedResponse.json();
+          let introducedTotalResults = firstIntroducedData.total_results || 0;
+
+          if (firstIntroducedData.results) {
+            firstIntroducedData.results.forEach((item) => {
+              if (item.taxon && item.taxon.id) {
+                introducedTaxonIds.add(item.taxon.id);
+              }
+            });
+          }
+
+          const introducedTotalPages = Math.ceil(introducedTotalResults / introducedPerPage);
+          if (introducedTotalPages > 1) {
+            const introducedPromises = [];
+            for (let page = 2; page <= introducedTotalPages; page++) {
+              introducedPromises.push(
+                fetch(
+                  `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${introducedPerPage}&page=${page}&introduced=true${placeParam}${taxonParam}${dateParam}`
+                )
+                  .then((response) => response.json())
+                  .then((data) => data.results || [])
+              );
+            }
+            const additionalIntroducedResults = await Promise.all(introducedPromises);
+            additionalIntroducedResults.forEach((results) => {
+              results.forEach((item) => {
+                if (item.taxon && item.taxon.id) {
+                  introducedTaxonIds.add(item.taxon.id);
+                }
+              });
+            });
+          }
+
           // Fetch research grade and needs ID species counts
           const [researchResponse, needsIdResponse] = await Promise.all([
             fetch(
@@ -1302,6 +1292,7 @@
           document.getElementById("summaryNeedsId").textContent = needsIdCount.toLocaleString();
           document.getElementById("summaryThreatened").textContent = threatenedTotalResults.toLocaleString();
           document.getElementById("summaryEndemic").textContent = endemicTotalResults.toLocaleString();
+          document.getElementById("summaryIntroduced").textContent = introducedTotalResults.toLocaleString();
           document.getElementById("resultsSummary").style.display = "flex";
 
           controls.style.display = "flex";
@@ -1500,6 +1491,15 @@
                         : conservationStatusHtml + " " + endemicSpan;
                     }
 
+                    // Get introduced status
+                    const tableIsIntroduced = introducedTaxonIds.has(taxon.id);
+                    if (tableIsIntroduced) {
+                      const introducedSpan = `<span class="conservation-status" style="background: #e67e22; color: white;">Introduced</span>`;
+                      conservationStatusHtml = conservationStatusHtml === "-"
+                        ? introducedSpan
+                        : conservationStatusHtml + " " + introducedSpan;
+                    }
+
                     return `
                       <tr${
                         isOnlyObserver
@@ -1568,29 +1568,28 @@
               const isOnlyObserver =
                 userCount === globalCount && globalCount > 0;
               const onlyObserverClass = isOnlyObserver ? " only-observer" : "";
-              const onlyObserverBadge = isOnlyObserver
-                ? `<div class="only-observer-badge">⭐ Only Observer</div>`
-                : "";
 
               // Get conservation status
-              let conservationBadge = "";
               let conservationStatusHtml = "";
               const gridCS = getConservationStatus(taxon);
               if (gridCS) {
-                conservationBadge = `<div class="threatened-badge" style="background: ${gridCS.config.color};">${gridCS.config.badge}</div>`;
                 conservationStatusHtml = `<div class="conservation-status ${gridCS.config.class}">${gridCS.statusName}</div>`;
               }
 
               // Get endemic status
               const isEndemic = endemicTaxonIds.has(taxon.id);
-              const endemicBadge = isEndemic ? `<div class="endemic-badge">Endemic</div>` : "";
               const endemicStatusHtml = isEndemic ? `<div class="conservation-status" style="background: #8e44ad; color: white;">Endemic</div>` : "";
+
+              // Get introduced status
+              const isIntroduced = introducedTaxonIds.has(taxon.id);
+              const introducedStatusHtml = isIntroduced ? `<div class="conservation-status" style="background: #e67e22; color: white;">Introduced</div>` : "";
+
+              const onlyObserverStatusHtml = isOnlyObserver
+                ? `<div class="conservation-status" style="background: linear-gradient(135deg, #ffd700, #ffed4e); color: #2c3e50;">⭐ Only Observer</div>`
+                : "";
 
               return `
                 <div class="species-card${onlyObserverClass}">
-                  ${onlyObserverBadge}
-                  ${conservationBadge}
-                  ${endemicBadge}
                   <a href="https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${
                 taxon.id
               }" target="_blank" style="text-decoration: none; color: inherit;">
@@ -1616,8 +1615,10 @@
                         <div>Your obs: <span class="user-count">${userCount.toLocaleString()}</span></div>
                         <div>Global: <span class="global-count">${globalCount.toLocaleString()}</span></div>
                       </div>
+                      ${onlyObserverStatusHtml}
                       ${conservationStatusHtml}
                       ${endemicStatusHtml}
+                      ${introducedStatusHtml}
                     </div>
                   </a>
                 </div>
