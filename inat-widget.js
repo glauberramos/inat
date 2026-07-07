@@ -41,6 +41,9 @@
       this.padding = container.dataset.inatPadding !== undefined ? parseInt(container.dataset.inatPadding) : 16;
       this.compact = container.dataset.inatCompact === "true";
       this.lang = container.dataset.inatLang || "";
+      this.pagination = container.dataset.inatPagination === "true";
+      this.page = 1;
+      this.totalResults = 0;
       this.observations = [];
 
       this.injectStyles();
@@ -528,6 +531,37 @@
         .inat-w-compact .inat-w-grid-overlay { display: none; }
         .inat-w-compact .inat-w-grid-item:hover .inat-w-grid-img { }
 
+        /* Pagination */
+        .inat-w-pagination {
+          display: none;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          margin-top: 14px;
+        }
+        .inat-w-pagination.inat-w-pagination-visible {
+          display: flex;
+        }
+        .inat-w-page-btn {
+          padding: 6px 12px;
+          border: 1px solid var(--inat-border);
+          background: var(--inat-card-bg);
+          color: var(--inat-text);
+          border-radius: var(--inat-radius-sm);
+          font-size: 12px;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        .inat-w-page-btn:hover:not(:disabled) { background: var(--inat-hover); }
+        .inat-w-page-btn:disabled { opacity: 0.4; cursor: default; }
+        .inat-w-page-info {
+          font-size: 12px;
+          color: var(--inat-text-secondary);
+          white-space: nowrap;
+        }
+
         /* Placeholder image */
         .inat-w-no-photo {
           display: flex;
@@ -566,11 +600,49 @@
       this.contentEl.innerHTML = `<div class="inat-w-loading"><div class="inat-w-spinner"></div><span>Loading observations…</span></div>`;
       this.container.appendChild(this.contentEl);
 
+      // Pagination
+      this.paginationEl = document.createElement("div");
+      this.paginationEl.className = "inat-w-pagination";
+      this.container.appendChild(this.paginationEl);
+
       // Footer
       const footer = document.createElement("div");
       footer.className = "inat-w-footer";
       footer.innerHTML = `<a href="${this.getSourceUrl()}" target="_blank" rel="noopener">View more on iNaturalist &rarr;</a>`;
       this.container.appendChild(footer);
+    }
+
+    renderPagination() {
+      if (!this.pagination || this.sourceType === "observation") return;
+      // The API rejects requests where page * per_page exceeds 10,000 results
+      const maxPage = Math.max(1, Math.floor(10000 / this.limit));
+      const totalPages = Math.min(
+        maxPage,
+        Math.max(1, Math.ceil(this.totalResults / this.limit))
+      );
+      if (totalPages <= 1) {
+        this.paginationEl.classList.remove("inat-w-pagination-visible");
+        return;
+      }
+      this.paginationEl.innerHTML = `
+        <button class="inat-w-page-btn" data-page-prev ${this.page <= 1 ? "disabled" : ""}>&larr; Prev</button>
+        <span class="inat-w-page-info">Page ${this.page} of ${totalPages}</span>
+        <button class="inat-w-page-btn" data-page-next ${this.page >= totalPages ? "disabled" : ""}>Next &rarr;</button>
+      `;
+      this.paginationEl.classList.add("inat-w-pagination-visible");
+      this.paginationEl
+        .querySelector("[data-page-prev]")
+        .addEventListener("click", () => this.goToPage(this.page - 1));
+      this.paginationEl
+        .querySelector("[data-page-next]")
+        .addEventListener("click", () => this.goToPage(this.page + 1));
+    }
+
+    goToPage(page) {
+      if (page < 1 || page === this.page) return;
+      this.page = page;
+      this.contentEl.innerHTML = `<div class="inat-w-loading"><div class="inat-w-spinner"></div><span>Loading…</span></div>`;
+      this.fetchObservations();
     }
 
     getSourceUrl() {
@@ -611,6 +683,9 @@
         const params = new URLSearchParams({
           per_page: this.limit,
         });
+        if (this.pagination && this.page > 1) {
+          params.set("page", this.page);
+        }
         if (!isSpecies) {
           params.set("order", "desc");
           params.set("order_by", this.orderBy);
@@ -653,14 +728,17 @@
 
         const data = await response.json();
         this.observations = data.results || [];
+        this.totalResults = data.total_results || 0;
 
         if (this.observations.length === 0) {
           const emptyMsg = isSpecies ? "No species found" : "No observations found";
           this.contentEl.innerHTML = `<div class="inat-w-error"><div class="inat-w-error-icon">&#x1F50D;</div><div>${emptyMsg}</div></div>`;
+          this.renderPagination();
           return;
         }
 
         this.renderObservations();
+        this.renderPagination();
       } catch (err) {
         const errMsg = this.dataType === "species"
           ? "Could not load species. Check the source name and try again."
