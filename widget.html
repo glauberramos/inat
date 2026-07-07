@@ -679,6 +679,16 @@
             <label class="checkbox-label" id="compactLabel"><input type="checkbox" id="compact" /> Compact</label>
             <label class="checkbox-label"><input type="checkbox" id="paginationCheck" /> Pagination</label>
           </div>
+          <div class="option-row">
+            <div class="option-label">Custom text (top right)</div>
+            <input
+              type="text"
+              class="search-input"
+              id="headerTextInput"
+              placeholder="e.g. My nature journal"
+              style="padding-left: 12px"
+            />
+          </div>
         </div>
 
         <!-- Options (hidden for observation mode) -->
@@ -851,6 +861,7 @@
         showNotes: false,
         compact: false,
         pagination: false,
+        headerText: "",
         borderRadius: 12,
         padding: 16,
         lang: "",
@@ -1052,6 +1063,19 @@
         state.pagination = e.target.checked;
         renderPreview();
         updateEmbedCode();
+      });
+
+      // Custom header text (re-render on blur/Enter to avoid refetching per keystroke)
+      const headerTextInput = document.getElementById("headerTextInput");
+      headerTextInput.addEventListener("input", () => {
+        state.headerText = headerTextInput.value.trim();
+        updateEmbedCode();
+      });
+      headerTextInput.addEventListener("change", () => {
+        renderPreview();
+      });
+      headerTextInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") renderPreview();
       });
 
       // Language
@@ -1320,6 +1344,7 @@
         }
 
         if (!state.showTitle) attrs.push(`data-inat-show-title="false"`);
+        if (state.headerText) attrs.push(`data-inat-header-text="${escapeAttr(state.headerText)}"`);
         if (!isSpecies) {
           if (!state.showLocation) attrs.push(`data-inat-show-location="false"`);
           if (state.showGrade) attrs.push(`data-inat-show-grade="true"`);
@@ -1372,6 +1397,7 @@
             }
           }
           if (!state.showTitle) params.set("show_title", "false");
+          if (state.headerText) params.set("header_text", state.headerText);
           if (!isSpecies) {
             if (!state.showLocation) params.set("show_location", "false");
             if (state.showGrade) params.set("show_grade", "true");

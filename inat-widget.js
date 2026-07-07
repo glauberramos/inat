@@ -28,6 +28,7 @@
       this.layout = container.dataset.inatLayout || "grid";
       this.theme = container.dataset.inatTheme || "light";
       this.title = container.dataset.inatTitle || "";
+      this.headerText = container.dataset.inatHeaderText || "";
       this.taxon = container.dataset.inatTaxon || "";
       this.qualityGrade = container.dataset.inatQuality || "";
       this.dateFrom = container.dataset.inatDateFrom || "";
@@ -153,6 +154,15 @@
           font-size: 11px;
           font-weight: 500;
           color: var(--inat-accent) !important;
+        }
+        .inat-w-header-text {
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--inat-text-secondary);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin-left: 12px;
         }
 
         /* Loading */
@@ -592,6 +602,7 @@
           ${this.showTitle ? `<span class="inat-w-header-sep">/</span>
           <span class="inat-w-header-title">${this.escapeHtml(this.title || this.source)}</span>` : ""}
         </div>
+        ${this.headerText ? `<span class="inat-w-header-text">${this.escapeHtml(this.headerText)}</span>` : ""}
       `;
       this.container.appendChild(header);
 
