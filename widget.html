@@ -969,10 +969,11 @@
       // Layout picker
       function updateDisplayOptions() {
         const isGrid = state.layout === "grid";
+        const hasCompact = isGrid || state.layout === "cards";
         document.getElementById("showLocationLabel").style.display = isGrid ? "none" : "";
         document.getElementById("showGradeLabel").style.display = isGrid ? "none" : "";
         document.getElementById("showNotesLabel").style.display = isGrid ? "none" : "";
-        document.getElementById("compactLabel").style.display = isGrid ? "" : "none";
+        document.getElementById("compactLabel").style.display = hasCompact ? "" : "none";
       }
 
       document.querySelectorAll(".layout-option").forEach((opt) => {

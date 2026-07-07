@@ -416,6 +416,18 @@
           white-space: nowrap;
         }
 
+        /* Compact cards */
+        .inat-w-cards.inat-w-compact {
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          gap: 10px;
+        }
+        .inat-w-cards.inat-w-compact .inat-w-card-cover { height: 110px; }
+        .inat-w-cards.inat-w-compact .inat-w-card-body { padding: 10px; }
+        .inat-w-cards.inat-w-compact .inat-w-card-common { font-size: 13px; }
+        .inat-w-cards.inat-w-compact .inat-w-card-scientific { font-size: 11px; margin-bottom: 8px; }
+        .inat-w-cards.inat-w-compact .inat-w-card-details { padding: 8px; font-size: 11px; }
+        .inat-w-cards.inat-w-compact .inat-w-card-taxon-badge { width: 36px; height: 36px; border-width: 2px; }
+
         /* Card photo navigation */
         .inat-w-card-photos {
           display: flex;
@@ -859,7 +871,7 @@
 
     renderCards() {
       const wrap = document.createElement("div");
-      wrap.className = "inat-w-cards";
+      wrap.className = "inat-w-cards" + (this.compact ? " inat-w-compact" : "");
 
       const isMultiUser = this.sourceType === "project" || this.sourceType === "place";
 
@@ -881,7 +893,6 @@
               ${userIcon ? `<img class="inat-w-card-taxon-img" src="${userIcon}" alt="${this.escapeHtml(user)}" loading="lazy" />` : `<div class="inat-w-no-photo" style="border-radius:50%">&#x1F464;</div>`}
             </div>
           ` : "";
-        const bodyPadding = "16px";
 
         let photoHtml;
         if (hasMultiPhotos) {
@@ -902,7 +913,7 @@
         } else {
           photoHtml = coverPhoto
             ? `<img class="inat-w-card-cover-img" src="${coverPhoto}" alt="${this.escapeHtml(name)}" loading="lazy" />`
-            : `<div class="inat-w-no-photo" style="height:180px">${this.noPhotoIcon(obs)}</div>`;
+            : `<div class="inat-w-no-photo">${this.noPhotoIcon(obs)}</div>`;
         }
 
         const coverHtml = `
@@ -919,7 +930,7 @@
         card.rel = "noopener";
         card.innerHTML = `
           ${coverHtml}
-          <div class="inat-w-card-body" style="padding: ${bodyPadding}">
+          <div class="inat-w-card-body">
             <div class="inat-w-card-common">${this.escapeHtml(name)}</div>
             <div class="inat-w-card-scientific">${this.escapeHtml(scientific)}</div>
             <div class="inat-w-card-details">
@@ -1062,7 +1073,7 @@
 
     renderSpeciesCards() {
       const wrap = document.createElement("div");
-      wrap.className = "inat-w-cards";
+      wrap.className = "inat-w-cards" + (this.compact ? " inat-w-compact" : "");
       this.speciesItems().forEach(({ count, taxon }) => {
         const name = this.speciesCommonName(taxon);
         const sci = this.speciesScientificName(taxon);
@@ -1075,7 +1086,7 @@
         card.rel = "noopener";
         card.innerHTML = `
           <div class="inat-w-card-cover">
-            ${cover ? `<img class="inat-w-card-cover-img" src="${cover}" alt="${this.escapeHtml(name)}" loading="lazy" />` : `<div class="inat-w-no-photo" style="height:180px">&#x1F33F;</div>`}
+            ${cover ? `<img class="inat-w-card-cover-img" src="${cover}" alt="${this.escapeHtml(name)}" loading="lazy" />` : `<div class="inat-w-no-photo">&#x1F33F;</div>`}
             <span class="inat-w-count-badge">${this.formatCount(count)} obs</span>
           </div>
           <div class="inat-w-card-body">
