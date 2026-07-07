@@ -19,6 +19,7 @@
       this.container = container;
       this.source = container.dataset.inatSource || "";
       this.sourceType = container.dataset.inatSourceType || "user";
+      this.dataType = container.dataset.inatDataType || "observations";
       this.limit = Math.min(
         50,
         Math.max(1, parseInt(container.dataset.inatLimit) || 10)
@@ -473,6 +474,30 @@
           color: var(--inat-text-secondary) !important;
         }
 
+        /* Species observation count badge */
+        .inat-w-count-badge {
+          position: absolute;
+          top: 6px;
+          left: 6px;
+          background: var(--inat-accent);
+          color: #fff;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 2px 8px;
+          border-radius: 10px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+        }
+        .inat-w-count-pill {
+          display: inline-block;
+          background: var(--inat-accent);
+          color: #fff;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 2px 8px;
+          border-radius: 10px;
+          flex-shrink: 0;
+        }
+
         /* Quality grade badge */
         .inat-w-grade {
           font-size: 10px;
@@ -552,13 +577,14 @@
       if (this.sourceType === "observation") {
         return `https://www.inaturalist.org/observations/${encodeURIComponent(this.source)}`;
       }
+      const speciesView = this.dataType === "species" ? "&view=species" : "";
       if (this.sourceType === "project") {
-        return `https://www.inaturalist.org/projects/${encodeURIComponent(this.source)}?tab=observations`;
+        return `https://www.inaturalist.org/projects/${encodeURIComponent(this.source)}?tab=observations${speciesView ? "&subtab=species" : ""}`;
       }
       if (this.sourceType === "place") {
-        return `https://www.inaturalist.org/observations?place_id=${encodeURIComponent(this.source)}`;
+        return `https://www.inaturalist.org/observations?place_id=${encodeURIComponent(this.source)}${speciesView}`;
       }
-      return `https://www.inaturalist.org/observations?user_id=${encodeURIComponent(this.source)}`;
+      return `https://www.inaturalist.org/observations?user_id=${encodeURIComponent(this.source)}${speciesView}`;
     }
 
     async fetchObservations() {
@@ -581,11 +607,14 @@
           return;
         }
 
+        const isSpecies = this.dataType === "species";
         const params = new URLSearchParams({
           per_page: this.limit,
-          order: "desc",
-          order_by: this.orderBy,
         });
+        if (!isSpecies) {
+          params.set("order", "desc");
+          params.set("order_by", this.orderBy);
+        }
 
         if (this.sourceType === "project") {
           params.set("project_id", this.source);
@@ -618,22 +647,25 @@
           if (this.dateTo) params.set("d2", this.dateTo);
         }
 
-        const response = await fetch(
-          `${INAT_API}/observations?${params.toString()}`
-        );
-        if (!response.ok) throw new Error("Failed to fetch observations");
+        const endpoint = isSpecies ? "observations/species_counts" : "observations";
+        const response = await fetch(`${INAT_API}/${endpoint}?${params.toString()}`);
+        if (!response.ok) throw new Error("Failed to fetch");
 
         const data = await response.json();
         this.observations = data.results || [];
 
         if (this.observations.length === 0) {
-          this.contentEl.innerHTML = `<div class="inat-w-error"><div class="inat-w-error-icon">&#x1F50D;</div><div>No observations found</div></div>`;
+          const emptyMsg = isSpecies ? "No species found" : "No observations found";
+          this.contentEl.innerHTML = `<div class="inat-w-error"><div class="inat-w-error-icon">&#x1F50D;</div><div>${emptyMsg}</div></div>`;
           return;
         }
 
         this.renderObservations();
       } catch (err) {
-        this.contentEl.innerHTML = `<div class="inat-w-error"><div class="inat-w-error-icon">&#x26A0;&#xFE0F;</div><div>Could not load observations. Check the source name and try again.</div></div>`;
+        const errMsg = this.dataType === "species"
+          ? "Could not load species. Check the source name and try again."
+          : "Could not load observations. Check the source name and try again.";
+        this.contentEl.innerHTML = `<div class="inat-w-error"><div class="inat-w-error-icon">&#x26A0;&#xFE0F;</div><div>${errMsg}</div></div>`;
       }
     }
 
@@ -641,6 +673,21 @@
       // Single observation always renders as card
       if (this.sourceType === "observation") {
         this.renderCards();
+        return;
+      }
+      if (this.dataType === "species") {
+        switch (this.layout) {
+          case "list":
+            this.renderSpeciesList();
+            break;
+          case "cards":
+            this.renderSpeciesCards();
+            break;
+          case "grid":
+          default:
+            this.renderSpeciesGrid();
+            break;
+        }
         return;
       }
       switch (this.layout) {
@@ -832,6 +879,123 @@
         wrap.appendChild(card);
       });
 
+      this.contentEl.innerHTML = "";
+      this.contentEl.appendChild(wrap);
+    }
+
+    speciesItems() {
+      // species_counts results have shape { count, taxon }
+      return this.observations.map((r) => ({
+        count: r.count,
+        taxon: r.taxon || {},
+      }));
+    }
+
+    speciesPhoto(taxon, size) {
+      const photo = taxon && taxon.default_photo;
+      if (!photo) return null;
+      const url = photo[`${size}_url`] || photo.medium_url || photo.square_url;
+      return url || null;
+    }
+
+    speciesUrl(taxon) {
+      if (!taxon || !taxon.id) return "https://www.inaturalist.org";
+      return `https://www.inaturalist.org/taxa/${taxon.id}`;
+    }
+
+    speciesCommonName(taxon) {
+      if (!taxon) return "Unknown species";
+      return taxon.preferred_common_name || taxon.name || "Unknown species";
+    }
+
+    speciesScientificName(taxon) {
+      return (taxon && taxon.name) || "";
+    }
+
+    formatCount(n) {
+      if (n == null) return "";
+      return n.toLocaleString();
+    }
+
+    renderSpeciesList() {
+      const wrap = document.createElement("div");
+      wrap.className = "inat-w-list";
+      this.speciesItems().forEach(({ count, taxon }) => {
+        const name = this.speciesCommonName(taxon);
+        const sci = this.speciesScientificName(taxon);
+        const photo = this.speciesPhoto(taxon, "square");
+        const url = this.speciesUrl(taxon);
+        const item = document.createElement("a");
+        item.className = "inat-w-list-item";
+        item.href = url;
+        item.target = "_blank";
+        item.rel = "noopener";
+        item.innerHTML = `
+          ${photo ? `<img class="inat-w-list-img" src="${photo}" alt="${this.escapeHtml(name)}" loading="lazy" />` : `<div class="inat-w-list-img inat-w-no-photo" style="width:48px;height:48px;flex-shrink:0;font-size:16px">&#x1F33F;</div>`}
+          <div class="inat-w-list-info">
+            <div class="inat-w-list-name">${this.escapeHtml(name)}</div>
+            <div class="inat-w-list-scientific">${this.escapeHtml(sci)}</div>
+          </div>
+          <span class="inat-w-count-pill">${this.formatCount(count)}</span>
+        `;
+        wrap.appendChild(item);
+      });
+      this.contentEl.innerHTML = "";
+      this.contentEl.appendChild(wrap);
+    }
+
+    renderSpeciesGrid() {
+      const wrap = document.createElement("div");
+      wrap.className = "inat-w-grid" + (this.compact ? " inat-w-compact" : "");
+      this.speciesItems().forEach(({ count, taxon }) => {
+        const name = this.speciesCommonName(taxon);
+        const sci = this.speciesScientificName(taxon);
+        const photo = this.speciesPhoto(taxon, this.compact ? "square" : "medium");
+        const url = this.speciesUrl(taxon);
+        const item = document.createElement("a");
+        item.className = "inat-w-grid-item";
+        item.href = url;
+        item.target = "_blank";
+        item.rel = "noopener";
+        item.innerHTML = `
+          ${photo ? `<img class="inat-w-grid-img" src="${photo}" alt="${this.escapeHtml(name)}" loading="lazy" />` : `<div class="inat-w-no-photo" style="aspect-ratio:1">&#x1F33F;</div>`}
+          <span class="inat-w-count-badge">${this.formatCount(count)}</span>
+          <div class="inat-w-grid-overlay">
+            <div class="inat-w-grid-name">${this.escapeHtml(name)}</div>
+            <div class="inat-w-grid-sci">${this.escapeHtml(sci)}</div>
+          </div>
+        `;
+        wrap.appendChild(item);
+      });
+      this.contentEl.innerHTML = "";
+      this.contentEl.appendChild(wrap);
+    }
+
+    renderSpeciesCards() {
+      const wrap = document.createElement("div");
+      wrap.className = "inat-w-cards";
+      this.speciesItems().forEach(({ count, taxon }) => {
+        const name = this.speciesCommonName(taxon);
+        const sci = this.speciesScientificName(taxon);
+        const cover = this.speciesPhoto(taxon, "medium");
+        const url = this.speciesUrl(taxon);
+        const card = document.createElement("a");
+        card.className = "inat-w-card";
+        card.href = url;
+        card.target = "_blank";
+        card.rel = "noopener";
+        card.innerHTML = `
+          <div class="inat-w-card-cover">
+            ${cover ? `<img class="inat-w-card-cover-img" src="${cover}" alt="${this.escapeHtml(name)}" loading="lazy" />` : `<div class="inat-w-no-photo" style="height:180px">&#x1F33F;</div>`}
+            <span class="inat-w-count-badge">${this.formatCount(count)} obs</span>
+          </div>
+          <div class="inat-w-card-body">
+            <div class="inat-w-card-common">${this.escapeHtml(name)}</div>
+            <div class="inat-w-card-scientific">${this.escapeHtml(sci)}</div>
+          </div>
+        `;
+        wrap.appendChild(card);
+      });
       this.contentEl.innerHTML = "";
       this.contentEl.appendChild(wrap);
     }

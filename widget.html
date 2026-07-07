@@ -492,6 +492,11 @@
         display: none;
       }
 
+      /* Hidden checkboxes/options for species mode */
+      .hidden-for-species.species-mode {
+        display: none !important;
+      }
+
       /* Preview area */
       .preview-area {
         padding: 32px;
@@ -584,6 +589,11 @@
       <aside class="sidebar">
         <!-- Source -->
         <div class="source-section">
+          <div class="section-label">Display</div>
+          <div class="source-type-tabs" id="dataTypeTabs">
+            <button class="source-type-tab active" data-data-type="observations">Observations</button>
+            <button class="source-type-tab" data-data-type="species">Top Species</button>
+          </div>
           <div class="source-type-tabs">
             <button class="source-type-tab active" data-type="user">User</button>
             <button class="source-type-tab" data-type="project">Project</button>
@@ -663,9 +673,9 @@
         <div class="option-group hidden-for-obs" id="displayOptionsSection">
           <div class="checkbox-group">
             <label class="checkbox-label"><input type="checkbox" id="showTitle" checked /> Title</label>
-            <label class="checkbox-label" id="showLocationLabel"><input type="checkbox" id="showLocation" checked /> Location</label>
-            <label class="checkbox-label" id="showGradeLabel"><input type="checkbox" id="showGrade" /> Research Grade</label>
-            <label class="checkbox-label" id="showNotesLabel"><input type="checkbox" id="showNotes" /> Notes</label>
+            <label class="checkbox-label hidden-for-species" id="showLocationLabel"><input type="checkbox" id="showLocation" checked /> Location</label>
+            <label class="checkbox-label hidden-for-species" id="showGradeLabel"><input type="checkbox" id="showGrade" /> Research Grade</label>
+            <label class="checkbox-label hidden-for-species" id="showNotesLabel"><input type="checkbox" id="showNotes" /> Notes</label>
             <label class="checkbox-label" id="compactLabel"><input type="checkbox" id="compact" /> Compact</label>
           </div>
         </div>
@@ -674,14 +684,14 @@
         <div class="option-group hidden-for-obs" id="optionsSection">
 
           <div class="option-row">
-            <div class="option-label">Observations</div>
+            <div class="option-label" id="limitLabel">Observations</div>
             <div class="range-row">
               <input type="range" class="range-input" id="limitRange" min="1" max="50" value="10" />
               <span class="range-value" id="limitValue">10</span>
             </div>
           </div>
 
-          <div class="option-row">
+          <div class="option-row hidden-for-species">
             <div class="option-label">Order by</div>
             <select class="custom-select" id="orderSelect">
               <option value="observed_on">Date Observed</option>
@@ -818,6 +828,7 @@
 
       // State
       let state = {
+        dataType: "observations",
         sourceType: "user",
         source: "",
         sourceDisplay: "",
@@ -864,10 +875,31 @@
       const embedCodeText = document.getElementById("embedCodeText");
       const copyBtn = document.getElementById("copyBtn");
 
-      // Source type tabs
-      document.querySelectorAll(".source-type-tab").forEach((tab) => {
+      // Data type tabs (Observations vs Species)
+      const limitLabel = document.getElementById("limitLabel");
+      function applyDataTypeMode() {
+        const isSpecies = state.dataType === "species";
+        document.querySelectorAll(".hidden-for-species").forEach((el) => {
+          el.classList.toggle("species-mode", isSpecies);
+        });
+        limitLabel.textContent = isSpecies ? "Top Species" : "Observations";
+      }
+      document.querySelectorAll("#dataTypeTabs .source-type-tab").forEach((tab) => {
         tab.addEventListener("click", () => {
-          document.querySelectorAll(".source-type-tab").forEach((t) => t.classList.remove("active"));
+          document.querySelectorAll("#dataTypeTabs .source-type-tab").forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+          state.dataType = tab.dataset.dataType;
+          applyDataTypeMode();
+          renderPreview();
+          updateEmbedCode();
+        });
+      });
+      applyDataTypeMode();
+
+      // Source type tabs
+      document.querySelectorAll(".source-section > .source-type-tabs:not(#dataTypeTabs) .source-type-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".source-section > .source-type-tabs:not(#dataTypeTabs) .source-type-tab").forEach((t) => t.classList.remove("active"));
           tab.classList.add("active");
           state.sourceType = tab.dataset.type;
 
@@ -1253,12 +1285,14 @@
       }
 
       function buildDataAttrs() {
+        const isSpecies = state.dataType === "species";
         const attrs = [
           `data-inat-widget`,
           `data-inat-source="${escapeAttr(state.source)}"`,
           `data-inat-source-type="${state.sourceType}"`,
           `data-inat-theme="${state.theme}"`,
         ];
+        if (isSpecies) attrs.push(`data-inat-data-type="species"`);
         if (state.sourceDisplay && state.sourceDisplay !== state.source) {
           attrs.push(`data-inat-title="${escapeAttr(state.sourceDisplay)}"`);
         }
@@ -1266,7 +1300,7 @@
         if (state.sourceType !== "observation") {
           attrs.push(`data-inat-layout="${state.layout}"`);
           attrs.push(`data-inat-limit="${state.limit}"`);
-          attrs.push(`data-inat-order-by="${state.orderBy}"`);
+          if (!isSpecies) attrs.push(`data-inat-order-by="${state.orderBy}"`);
           if (state.taxon) attrs.push(`data-inat-taxon="${escapeAttr(state.taxon)}"`);
           if (state.qualityGrade) attrs.push(`data-inat-quality="${escapeAttr(state.qualityGrade)}"`);
           if (state.dateOn) {
@@ -1278,9 +1312,11 @@
         }
 
         if (!state.showTitle) attrs.push(`data-inat-show-title="false"`);
-        if (!state.showLocation) attrs.push(`data-inat-show-location="false"`);
-        if (state.showGrade) attrs.push(`data-inat-show-grade="true"`);
-        if (state.showNotes) attrs.push(`data-inat-show-notes="true"`);
+        if (!isSpecies) {
+          if (!state.showLocation) attrs.push(`data-inat-show-location="false"`);
+          if (state.showGrade) attrs.push(`data-inat-show-grade="true"`);
+          if (state.showNotes) attrs.push(`data-inat-show-notes="true"`);
+        }
         if (state.borderRadius !== 12) attrs.push(`data-inat-radius="${state.borderRadius}"`);
         if (state.padding !== 16) attrs.push(`data-inat-padding="${state.padding}"`);
         if (state.compact) attrs.push(`data-inat-compact="true"`);
@@ -1303,18 +1339,20 @@
         const attrs = buildDataAttrs();
 
         if (state.embedType === "iframe") {
+          const isSpecies = state.dataType === "species";
           // Build iframe URL
           const params = new URLSearchParams();
           params.set("source", state.source || "username");
           params.set("type", state.sourceType);
           params.set("theme", state.theme);
+          if (isSpecies) params.set("data_type", "species");
           if (state.sourceDisplay && state.sourceDisplay !== state.source) {
             params.set("title", state.sourceDisplay);
           }
           if (state.sourceType !== "observation") {
             params.set("layout", state.layout);
             params.set("limit", state.limit);
-            params.set("order_by", state.orderBy);
+            if (!isSpecies) params.set("order_by", state.orderBy);
             if (state.taxon) params.set("taxon", state.taxon);
             if (state.qualityGrade) params.set("quality", state.qualityGrade);
             if (state.dateOn) {
@@ -1325,9 +1363,11 @@
             }
           }
           if (!state.showTitle) params.set("show_title", "false");
-          if (!state.showLocation) params.set("show_location", "false");
-          if (state.showGrade) params.set("show_grade", "true");
-          if (state.showNotes) params.set("show_notes", "true");
+          if (!isSpecies) {
+            if (!state.showLocation) params.set("show_location", "false");
+            if (state.showGrade) params.set("show_grade", "true");
+            if (state.showNotes) params.set("show_notes", "true");
+          }
           if (state.borderRadius !== 12) params.set("radius", state.borderRadius);
           if (state.padding !== 16) params.set("padding", state.padding);
           if (state.compact) params.set("compact", "true");
