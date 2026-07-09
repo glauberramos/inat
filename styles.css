@@ -219,7 +219,7 @@ button:hover {
 
 .species-card img {
   width: 100%;
-  height: 200px;
+  height: 260px;
   object-fit: cover;
   border-radius: 7px 7px 0 0px;
 }
@@ -352,7 +352,7 @@ button:hover {
   }
 
   .species-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 15px;
   }
 
@@ -415,6 +415,20 @@ button:hover {
     width: 100%;
   }
 
+  /* On mobile, lay the short toggles out in wrapping rows so several
+     fit per line instead of one per line. */
+  .advanced-options-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 16px;
+    width: 100%;
+  }
+
+  .advanced-options-toggles .advanced-options-checkbox {
+    width: auto;
+  }
+
   .month-filter-container {
     width: 100%;
   }
@@ -470,6 +484,12 @@ button:hover {
   display: inline-block;
   position: relative;
   top: 5px;
+}
+
+/* Wrapper only groups the short toggles; on desktop it stays transparent
+   to the flex row via display: contents. */
+.advanced-options-toggles {
+  display: contents;
 }
 
 #advancedOptionsButton {
@@ -553,6 +573,13 @@ input[type="checkbox"] {
   color: #333;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.checkbox-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
 }
 
 .location-name {

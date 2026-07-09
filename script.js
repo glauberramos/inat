@@ -377,13 +377,9 @@ document.addEventListener("DOMContentLoaded", function () {
         ? "&verifiable=true"
         : "";
 
-    // Get selected months
-    const monthCheckboxes = document.querySelectorAll(
-      ".month-checkbox:checked"
-    );
-    const selectedMonths = Array.from(monthCheckboxes).map((cb) => cb.value);
-    const monthParam =
-      selectedMonths.length > 0 ? `&month=${selectedMonths.join(",")}` : "";
+    // Note: the month filter is intentionally NOT applied to the user's own
+    // observations — it should only narrow the place's top species. A species
+    // counts as "observed" if the user has ever seen it, regardless of month.
 
     // Check if we have a project selected instead of a place
     const projectId = localStorage.getItem("inatProjectId");
@@ -407,7 +403,7 @@ document.addEventListener("DOMContentLoaded", function () {
       allPlacesParam = `&place_id=${placeId}`;
     }
 
-    const url = `https://api.inaturalist.org/v1/observations/taxonomy?user_login=${username}${allPlacesParam}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${monthParam}`;
+    const url = `https://api.inaturalist.org/v1/observations/taxonomy?user_login=${username}${allPlacesParam}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}`;
     const response = await fetch(url);
     const data = await response.json();
 

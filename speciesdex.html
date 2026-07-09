@@ -460,43 +460,45 @@
               <option value="zh">Chinese</option>
             </select>
           </span>
-          <span class="advanced-options-checkbox">
-            <input type="checkbox" id="wildCheckbox" class="wild-checkbox" />
-            <label for="wildCheckbox">Wild</label>
-          </span>
-          <span class="advanced-options-checkbox">
-            <input
-              type="checkbox"
-              id="researchGradeCheckbox"
-              class="research-grade-checkbox"
-            />
-            <label for="researchGradeCheckbox">Research Grade</label>
-          </span>
-          <span class="advanced-options-checkbox">
-            <input
-              type="checkbox"
-              id="threatenedCheckbox"
-              class="threatened-checkbox"
-            />
-            <label for="threatenedCheckbox">Threatened</label>
-          </span>
-          <span class="advanced-options-checkbox">
-            <input
-              type="checkbox"
-              id="endemicCheckbox"
-              class="endemic-checkbox"
-            />
-            <label for="endemicCheckbox">Endemic</label>
-          </span>
-          <span class="advanced-options-checkbox">
-            <input
-              type="checkbox"
-              id="verifiableCheckbox"
-              class="verifiable-checkbox"
-              checked
-            />
-            <label for="verifiableCheckbox">Verifiable</label>
-          </span>
+          <div class="advanced-options-toggles">
+            <span class="advanced-options-checkbox">
+              <input type="checkbox" id="wildCheckbox" class="wild-checkbox" />
+              <label for="wildCheckbox">Wild</label>
+            </span>
+            <span class="advanced-options-checkbox">
+              <input
+                type="checkbox"
+                id="researchGradeCheckbox"
+                class="research-grade-checkbox"
+              />
+              <label for="researchGradeCheckbox">Research Grade</label>
+            </span>
+            <span class="advanced-options-checkbox">
+              <input
+                type="checkbox"
+                id="threatenedCheckbox"
+                class="threatened-checkbox"
+              />
+              <label for="threatenedCheckbox">Threatened</label>
+            </span>
+            <span class="advanced-options-checkbox">
+              <input
+                type="checkbox"
+                id="endemicCheckbox"
+                class="endemic-checkbox"
+              />
+              <label for="endemicCheckbox">Endemic</label>
+            </span>
+            <span class="advanced-options-checkbox">
+              <input
+                type="checkbox"
+                id="verifiableCheckbox"
+                class="verifiable-checkbox"
+                checked
+              />
+              <label for="verifiableCheckbox">Verifiable</label>
+            </span>
+          </div>
           <span class="advanced-options-checkbox">
             <input
               type="checkbox"
@@ -647,18 +649,22 @@
         <div class="loading" id="loading">Loading...</div>
         <div class="checkbox-container" style="display: none;">
           <span id="locationName" class="location-name"></span>
-          <input
-            type="checkbox"
-            id="showMissingOnly"
-            class="show-missing-checkbox"
-          />
-          <label for="showMissingOnly">Show only missing</label>
-          <input
-            type="checkbox"
-            id="showSpottedOnly"
-            class="show-spotted-checkbox"
-          />
-          <label for="showSpottedOnly">Show only observed</label>
+          <span class="checkbox-item">
+            <input
+              type="checkbox"
+              id="showMissingOnly"
+              class="show-missing-checkbox"
+            />
+            <label for="showMissingOnly">Show only missing</label>
+          </span>
+          <span class="checkbox-item">
+            <input
+              type="checkbox"
+              id="showSpottedOnly"
+              class="show-spotted-checkbox"
+            />
+            <label for="showSpottedOnly">Show only observed</label>
+          </span>
         </div>
         <div class="species-grid" id="speciesGrid"></div>
       </main>
