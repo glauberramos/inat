@@ -742,6 +742,112 @@ body.dark-mode .stats-display {
   color: #e0e0e0;
 }
 
+body.dark-mode .map-open-btn,
+body.dark-mode .map-open-btn:hover {
+  background: none;
+  border: none;
+}
+
+/* Area select map modal */
+body.dark-mode .map-modal-content {
+  background: #1f1f1f;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+body.dark-mode .map-modal-header,
+body.dark-mode .map-modal-footer {
+  background: #262626;
+  border-color: #383838;
+}
+
+body.dark-mode .map-modal-header h3 {
+  color: #e0e0e0;
+}
+
+body.dark-mode .map-modal-close {
+  background: none;
+  color: #999;
+}
+
+body.dark-mode .map-modal-close:hover {
+  background: #383838;
+  color: #e0e0e0;
+}
+
+body.dark-mode .map-info {
+  color: #999;
+}
+
+body.dark-mode .map-toolbar {
+  background: #2d2d2d;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .map-tool-btn {
+  background: transparent;
+  color: #ccc;
+}
+
+body.dark-mode .map-tool-btn:hover {
+  background: #3a3a3a;
+}
+
+body.dark-mode .map-tool-btn.active {
+  background: #74ac00;
+  color: white;
+}
+
+body.dark-mode .map-cancel-btn {
+  background: #2d2d2d;
+  border-color: #4a4a4a;
+  color: #d0d0d0;
+}
+
+body.dark-mode .map-cancel-btn:hover {
+  background: #383838;
+  border-color: #5a5a5a;
+}
+
+/* Area map location search */
+body.dark-mode .map-search input {
+  background: #2d2d2d;
+  color: #e0e0e0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .map-search input:focus {
+  box-shadow: 0 2px 12px rgba(116, 172, 0, 0.5);
+}
+
+body.dark-mode .map-search-clear {
+  background: none;
+  color: #999;
+}
+
+body.dark-mode .map-search-clear:hover {
+  background: none;
+  color: #e0e0e0;
+}
+
+body.dark-mode .map-search-results {
+  background: #2d2d2d;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .map-search-result {
+  color: #d0d0d0;
+  border-bottom-color: #3d3d3d;
+}
+
+body.dark-mode .map-search-result:hover,
+body.dark-mode .map-search-result.active {
+  background: #3a4525;
+}
+
+body.dark-mode .map-search-empty {
+  color: #888;
+}
+
 body.dark-mode .stats-display .count {
   color: #74ac00;
 }

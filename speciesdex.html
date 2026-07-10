@@ -219,6 +219,93 @@
         height: 100%;
       }
 
+      .map-search {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 1000;
+        width: 260px;
+        max-width: calc(100% - 24px);
+      }
+
+      .map-search input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 9px 32px 9px 12px;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #333;
+        background: white;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+        outline: none;
+      }
+
+      .map-search input:focus {
+        box-shadow: 0 2px 12px rgba(116, 172, 0, 0.35);
+      }
+
+      .map-search-clear {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 36px;
+        width: 32px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        line-height: 1;
+        color: #999;
+        cursor: pointer;
+        display: none;
+      }
+
+      .map-search-clear:hover {
+        color: #333;
+      }
+
+      .map-search.has-text .map-search-clear {
+        display: block;
+      }
+
+      .map-search-results {
+        margin-top: 6px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+        max-height: 220px;
+        overflow-y: auto;
+        display: none;
+      }
+
+      .map-search-results.show {
+        display: block;
+      }
+
+      .map-search-result {
+        padding: 9px 12px;
+        font-size: 13px;
+        color: #444;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+        line-height: 1.3;
+      }
+
+      .map-search-result:last-child {
+        border-bottom: none;
+      }
+
+      .map-search-result:hover,
+      .map-search-result.active {
+        background: #f3f8e6;
+      }
+
+      .map-search-empty {
+        padding: 10px 12px;
+        font-size: 13px;
+        color: #999;
+      }
+
       .map-toolbar {
         position: absolute;
         top: 12px;
@@ -316,7 +403,7 @@
         background: none;
         border: none;
         cursor: pointer;
-        font-size: 1.2rem;
+        font-size: 1.6rem;
         padding: 5px;
         display: flex;
         align-items: center;
@@ -326,6 +413,7 @@
       }
 
       .map-open-btn:hover {
+        background: none;
         opacity: 1;
       }
 
@@ -683,6 +771,11 @@
         </div>
         <div class="map-container">
           <div id="areaMap"></div>
+          <div class="map-search">
+            <input type="text" id="mapSearchInput" placeholder="Search for a location..." autocomplete="off" />
+            <button type="button" id="mapSearchClear" class="map-search-clear" title="Clear">&times;</button>
+            <div class="map-search-results" id="mapSearchResults"></div>
+          </div>
           <div class="map-toolbar">
             <button class="map-tool-btn active" id="circleToolBtn" title="Circle">⭕</button>
             <button class="map-tool-btn" id="rectangleToolBtn" title="Rectangle">🔲</button>
@@ -722,7 +815,8 @@
         function initAreaMap() {
           if (areaMap) return;
 
-          areaMap = L.map('areaMap').setView([20, 0], 2);
+          areaMap = L.map('areaMap', { zoomControl: false }).setView([20, 0], 2);
+          L.control.zoom({ position: 'topright' }).addTo(areaMap);
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
             maxZoom: 19
@@ -1033,6 +1127,118 @@
           const circleToolBtn = document.getElementById('circleToolBtn');
           const rectangleToolBtn = document.getElementById('rectangleToolBtn');
           const myLocationBtn = document.getElementById('myLocationBtn');
+          const mapSearchInput = document.getElementById('mapSearchInput');
+          const mapSearchClear = document.getElementById('mapSearchClear');
+          const mapSearchResults = document.getElementById('mapSearchResults');
+
+          // --- Location search (Nominatim geocoding) ---
+          let searchDebounce = null;
+          let searchAbort = null;
+          let activeResultIndex = -1;
+
+          function hideSearchResults() {
+            mapSearchResults.classList.remove('show');
+            mapSearchResults.innerHTML = '';
+            activeResultIndex = -1;
+          }
+
+          function focusOnLocation(result) {
+            if (!areaMap) return;
+            const lat = parseFloat(result.lat);
+            const lng = parseFloat(result.lon);
+            if (result.boundingbox && result.boundingbox.length === 4) {
+              const bb = result.boundingbox.map(parseFloat);
+              // Nominatim: [south, north, west, east]
+              areaMap.fitBounds([[bb[0], bb[2]], [bb[1], bb[3]]], { maxZoom: 14 });
+            } else {
+              areaMap.setView([lat, lng], 12);
+            }
+          }
+
+          function renderSearchResults(results) {
+            mapSearchResults.innerHTML = '';
+            activeResultIndex = -1;
+            if (!results.length) {
+              const empty = document.createElement('div');
+              empty.className = 'map-search-empty';
+              empty.textContent = 'No locations found';
+              mapSearchResults.appendChild(empty);
+              mapSearchResults.classList.add('show');
+              return;
+            }
+            results.forEach(function(result) {
+              const item = document.createElement('div');
+              item.className = 'map-search-result';
+              item.textContent = result.display_name;
+              item.addEventListener('click', function() {
+                mapSearchInput.value = result.display_name;
+                mapSearchInput.parentElement.classList.add('has-text');
+                hideSearchResults();
+                focusOnLocation(result);
+              });
+              mapSearchResults.appendChild(item);
+            });
+            mapSearchResults.classList.add('show');
+          }
+
+          function performSearch(query) {
+            if (searchAbort) searchAbort.abort();
+            searchAbort = new AbortController();
+            const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=6&q=' + encodeURIComponent(query);
+            fetch(url, { signal: searchAbort.signal, headers: { 'Accept': 'application/json' } })
+              .then(function(res) { return res.json(); })
+              .then(function(data) { renderSearchResults(data || []); })
+              .catch(function(err) {
+                if (err.name !== 'AbortError') console.error('Location search error:', err);
+              });
+          }
+
+          mapSearchInput.addEventListener('input', function() {
+            const query = mapSearchInput.value.trim();
+            mapSearchInput.parentElement.classList.toggle('has-text', query.length > 0);
+            if (searchDebounce) clearTimeout(searchDebounce);
+            if (query.length < 3) {
+              hideSearchResults();
+              return;
+            }
+            searchDebounce = setTimeout(function() { performSearch(query); }, 350);
+          });
+
+          mapSearchInput.addEventListener('keydown', function(e) {
+            const items = mapSearchResults.querySelectorAll('.map-search-result');
+            if (e.key === 'ArrowDown' && items.length) {
+              e.preventDefault();
+              activeResultIndex = Math.min(activeResultIndex + 1, items.length - 1);
+            } else if (e.key === 'ArrowUp' && items.length) {
+              e.preventDefault();
+              activeResultIndex = Math.max(activeResultIndex - 1, 0);
+            } else if (e.key === 'Enter') {
+              e.preventDefault();
+              if (activeResultIndex >= 0 && items[activeResultIndex]) {
+                items[activeResultIndex].click();
+              } else if (items.length) {
+                items[0].click();
+              }
+              return;
+            } else if (e.key === 'Escape') {
+              hideSearchResults();
+              return;
+            } else {
+              return;
+            }
+            items.forEach(function(el, i) { el.classList.toggle('active', i === activeResultIndex); });
+          });
+
+          mapSearchClear.addEventListener('click', function() {
+            mapSearchInput.value = '';
+            mapSearchInput.parentElement.classList.remove('has-text');
+            hideSearchResults();
+            mapSearchInput.focus();
+          });
+
+          document.addEventListener('click', function(e) {
+            if (!e.target.closest('.map-search')) hideSearchResults();
+          });
 
           openMapBtn.addEventListener('click', function() {
             mapModal.classList.add('show');
