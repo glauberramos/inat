@@ -1117,6 +1117,56 @@
           }
         }
 
+        // Recreate a previously-applied selection on the map and focus on it
+        function restoreSelection(sel) {
+          if (!areaMap || !sel || !sel.type) return;
+          clearSelection();
+          selectionType = sel.type;
+
+          const circleBtn = document.getElementById('circleToolBtn');
+          const rectBtn = document.getElementById('rectangleToolBtn');
+
+          if (sel.type === 'circle') {
+            circleBtn.classList.add('active');
+            rectBtn.classList.remove('active');
+            currentSelection = L.circle([sel.lat, sel.lng], {
+              radius: sel.radius,
+              color: '#74ac00',
+              fillColor: '#74ac00',
+              fillOpacity: 0.2,
+              weight: 2
+            }).addTo(areaMap);
+            defaultRadius = sel.radius;
+            setupCircleDrag(currentSelection);
+            addCircleResizeHandles(currentSelection);
+          } else {
+            rectBtn.classList.add('active');
+            circleBtn.classList.remove('active');
+            currentSelection = L.rectangle([[sel.swlat, sel.swlng], [sel.nelat, sel.nelng]], {
+              color: '#74ac00',
+              fillColor: '#74ac00',
+              fillOpacity: 0.2,
+              weight: 2
+            }).addTo(areaMap);
+            setupRectangleDrag(currentSelection);
+            addRectangleResizeHandles(currentSelection);
+          }
+
+          areaMap.fitBounds(currentSelection.getBounds(), { maxZoom: 12, padding: [40, 40] });
+          updateMapInfo();
+        }
+
+        function restoreSavedSelection() {
+          // A named place/project takes precedence over a map area
+          const placeId = document.getElementById('placeIdInput');
+          if (placeId && placeId.value) return;
+          const boundsInput = document.getElementById('mapBoundsInput');
+          const raw = (boundsInput && boundsInput.value) || localStorage.getItem('inatMapArea');
+          let saved = null;
+          try { saved = raw ? JSON.parse(raw) : null; } catch (e) { saved = null; }
+          if (saved && saved.type) restoreSelection(saved);
+        }
+
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
           const openMapBtn = document.getElementById('openMapBtn');
@@ -1245,6 +1295,12 @@
             setTimeout(function() {
               initAreaMap();
               areaMap.invalidateSize();
+              if (currentSelection) {
+                // Selection already on the map from this session — just refocus
+                areaMap.fitBounds(currentSelection.getBounds(), { maxZoom: 12, padding: [40, 40] });
+              } else {
+                restoreSavedSelection();
+              }
             }, 100);
           });
 
