@@ -251,7 +251,7 @@
         /* ===== GRID LAYOUT ===== */
         .inat-w-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
           gap: 8px;
         }
         .inat-w-grid-item {
