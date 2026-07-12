@@ -180,6 +180,29 @@
         { id: 227779, year: 2025 },
       ];
 
+      // The CNC umbrella project uses the same slug pattern every year;
+      // resolve years newer than the hardcoded list at runtime so the
+      // achievement keeps working without an annual code change.
+      async function loadNewerCncProjects() {
+        const lastKnownYear = CNC_PROJECTS[CNC_PROJECTS.length - 1].year;
+        const currentYear = new Date().getFullYear();
+        const found = [];
+        for (let year = lastKnownYear + 1; year <= currentYear; year++) {
+          try {
+            const res = await fetch(
+              `https://api.inaturalist.org/v1/projects/city-nature-challenge-${year}`
+            );
+            const data = await res.json();
+            if (data.results && data.results[0] && data.results[0].id) {
+              found.push({ id: data.results[0].id, year });
+            }
+          } catch (e) {
+            // project for that year doesn't exist (yet) - skip it
+          }
+        }
+        return found;
+      }
+
       // Load username from URL parameter or localStorage
       const urlParams = new URLSearchParams(window.location.search);
       const urlUsername = urlParams.get("user");
@@ -651,7 +674,8 @@
           refreshAchievements();
 
           // Fetch City Nature Challenge participation (3 parallel batches)
-          const cncTasks = CNC_PROJECTS.map(project => () =>
+          const allCncProjects = CNC_PROJECTS.concat(await loadNewerCncProjects());
+          const cncTasks = allCncProjects.map(project => () =>
             fetch(`https://api.inaturalist.org/v1/observations?user_id=${userId}&project_id=${project.id}&per_page=1`)
               .then((res) => res.json())
               .then((data) => { updateProgress(); return data; })
@@ -660,7 +684,7 @@
 
           state.cncYears = cncResults
             .map((result, index) => ({
-              year: CNC_PROJECTS[index].year,
+              year: allCncProjects[index].year,
               participated: (result.total_results || 0) > 0,
             }))
             .filter((item) => item.participated)
