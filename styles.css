@@ -898,6 +898,14 @@ input[type="checkbox"] {
     padding: 8px 10px;
   }
 
+  /* The language select wrapper is a span, so its vertical margins are
+     ignored while inline; make it a block to give the select breathing
+     room from the checkbox rows below */
+  .language-select-container {
+    display: block;
+    margin: 10px 0 16px;
+  }
+
   /* Keep each checkbox tight against its own label and put the wide
      gap between option groups instead, so ownership reads clearly */
   .advanced-options-checkbox {
