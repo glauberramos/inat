@@ -792,7 +792,7 @@
         gridEl.appendChild(div);
       }
 
-      function addGridItem(sp, number) {
+      function addGridItem(sp, number, prepend = false) {
         const gridEl = document.getElementById("speciesGrid");
         const a = document.createElement("a");
         a.className = "species-card";
@@ -829,7 +829,11 @@
             ${observerDisplay}
           </div>
         `;
-        gridEl.appendChild(a);
+        if (prepend) {
+          gridEl.insertBefore(a, gridEl.firstChild);
+        } else {
+          gridEl.appendChild(a);
+        }
       }
       const autocompleteEl = document.getElementById("autocomplete");
 
@@ -1418,7 +1422,7 @@
         listEl.appendChild(li);
       }
 
-      function addResultItem(sp, number) {
+      function addResultItem(sp, number, prepend = false) {
         const listEl = document.getElementById("speciesList");
         const a = document.createElement("a");
         a.className = "species-item";
@@ -1460,7 +1464,14 @@
           <span class="species-date">${sp.observedOn}${observerDisplay}</span>
         </div>
       `;
-        listEl.appendChild(a);
+        // During loading, observations arrive oldest-first (order=asc, to capture
+        // each species' first sighting), so prepend to keep the live preview
+        // newest-first — matching the final sorted order.
+        if (prepend) {
+          listEl.insertBefore(a, listEl.firstChild);
+        } else {
+          listEl.appendChild(a);
+        }
       }
 
       function showNoResults() {
@@ -1593,8 +1604,8 @@
                 observerName: result.observerName,
                 showObserver: !username,
               };
-              addResultItem(itemData, foundCount);
-              addGridItem(itemData, foundCount);
+              addResultItem(itemData, foundCount, true);
+              addGridItem(itemData, foundCount, true);
             },
             placeId,
             projectId
@@ -1673,24 +1684,27 @@
       src="https://plausible.io/js/script.js"
     ></script>
     <script type="text/javascript">
-      window.$pipeback = [];
-      window.PIPEBACK_ID = "a069b910-4aef-4233-99cc-913e7fb30fb5";
+      window.$crisp = [];
+      window.CRISP_WEBSITE_ID = "69e5f089-9f10-41ef-a438-5d254be7b317";
       (function () {
         d = document;
         s = d.createElement("script");
-        s.src = "https://widget.pipeback.com/l.js";
+        s.src = "https://client.crisp.chat/l.js";
         s.async = 1;
         d.getElementsByTagName("head")[0].appendChild(s);
       })();
+      // Hide Crisp's default launcher; the "Send feedback" button opens the chat.
+      $crisp.push(["do", "chat:hide"]);
+      $crisp.push(["on", "chat:closed", function () { $crisp.push(["do", "chat:hide"]); }]);
 
       // Feedback button toggle
       let feedbackOpen = false;
       document.getElementById("feedbackBtn").addEventListener("click", () => {
         if (feedbackOpen) {
-          $pipeback.close();
+          $crisp.push(["do", "chat:close"]); $crisp.push(["do", "chat:hide"]);
           feedbackOpen = false;
         } else {
-          $pipeback.open();
+          $crisp.push(["do", "chat:show"]); $crisp.push(["do", "chat:open"]);
           feedbackOpen = true;
         }
       });

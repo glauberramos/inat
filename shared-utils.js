@@ -112,13 +112,13 @@ function updateProgress(percent, text, currentCheck) {
 function initFeedbackButton(buttonId = "feedbackBtn") {
   let feedbackOpen = false;
   const btn = document.getElementById(buttonId);
-  if (btn && typeof $pipeback !== "undefined") {
+  if (btn && typeof $crisp !== "undefined") {
     btn.addEventListener("click", () => {
       if (feedbackOpen) {
-        $pipeback.close();
+        $crisp.push(["do", "chat:close"]); $crisp.push(["do", "chat:hide"]);
         feedbackOpen = false;
       } else {
-        $pipeback.open();
+        $crisp.push(["do", "chat:show"]); $crisp.push(["do", "chat:open"]);
         feedbackOpen = true;
       }
     });
