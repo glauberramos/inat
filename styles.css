@@ -583,6 +583,41 @@ input[type="checkbox"] {
   white-space: nowrap;
 }
 
+.filter-toggle {
+  display: inline-flex;
+  gap: 3px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.filter-toggle-btn {
+  background: transparent;
+  color: #555;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.filter-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #333;
+}
+
+.filter-toggle-btn.active {
+  background: #74ac00;
+  color: white;
+}
+
+.filter-toggle-btn.active:hover {
+  background: #689a00;
+  color: white;
+}
+
 .location-name {
   font-weight: 500;
   color: #2c3e50;
@@ -849,6 +884,18 @@ input[type="checkbox"] {
     width: auto;
     left: 20px;
     right: 20px;
+  }
+
+  /* The filter toggle spans the row; its buttons share it equally
+     (and must not take the global 100% mobile button width) */
+  .filter-toggle {
+    width: 100%;
+  }
+
+  .filter-toggle-btn {
+    width: auto;
+    flex: 1;
+    padding: 8px 10px;
   }
 
   /* Keep each checkbox tight against its own label and put the wide

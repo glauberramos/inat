@@ -25,8 +25,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const totalCount = document.getElementById("totalCount");
   const percentObserved = document.getElementById("percentObserved");
   const progressBar = document.getElementById("progressBar");
-  const showMissingCheckbox = document.getElementById("showMissingOnly");
-  const showSpottedCheckbox = document.getElementById("showSpottedOnly");
+  const filterToggleButtons = document.querySelectorAll(".filter-toggle-btn");
+  let speciesFilter = "all";
   const advancedOptionsButton = document.getElementById(
     "advancedOptionsButton"
   );
@@ -257,19 +257,19 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Add event listeners for checkboxes
-  showMissingCheckbox.addEventListener("change", () => {
-    if (showMissingCheckbox.checked) {
-      showSpottedCheckbox.checked = false;
-    }
-    filterSpecies();
-  });
+  // Filter toggle: All / Missing / Observed
+  function setSpeciesFilter(filter) {
+    speciesFilter = filter;
+    filterToggleButtons.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.filter === filter);
+    });
+  }
 
-  showSpottedCheckbox.addEventListener("change", () => {
-    if (showSpottedCheckbox.checked) {
-      showMissingCheckbox.checked = false;
-    }
-    filterSpecies();
+  filterToggleButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      setSpeciesFilter(btn.dataset.filter);
+      filterSpecies();
+    });
   });
 
   if (advancedOptionsButton && advancedOptionsSection) {
@@ -305,8 +305,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    showMissingCheckbox.checked = false;
-    showSpottedCheckbox.checked = false;
+    setSpeciesFilter("all");
 
     if (!username) {
       alert("Please enter username");
@@ -610,18 +609,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function filterSpecies() {
     const cards = document.querySelectorAll(".species-card");
-    const showMissing = showMissingCheckbox.checked;
-    const showSpotted = showSpottedCheckbox.checked;
 
     cards.forEach((card) => {
-      if (showMissing) {
-        card.style.display = card.classList.contains("observed")
-          ? "none"
-          : "block";
-      } else if (showSpotted) {
-        card.style.display = card.classList.contains("observed")
-          ? "block"
-          : "none";
+      const observed = card.classList.contains("observed");
+      if (speciesFilter === "missing") {
+        card.style.display = observed ? "none" : "block";
+      } else if (speciesFilter === "observed") {
+        card.style.display = observed ? "block" : "none";
       } else {
         card.style.display = "block";
       }
