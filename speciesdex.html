@@ -57,8 +57,8 @@
       }
     }
     </script>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="dark-mode.css" />
+    <link rel="stylesheet" href="styles.css?v=3" />
+    <link rel="stylesheet" href="dark-mode.css?v=3" />
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
@@ -223,7 +223,7 @@
         position: absolute;
         top: 12px;
         left: 12px;
-        z-index: 1000;
+        z-index: 1001;
         width: 260px;
         max-width: calc(100% - 24px);
       }
@@ -421,6 +421,19 @@
         display: flex;
         align-items: center;
         gap: 5px;
+      }
+
+      /* On narrow screens the centered toolbar collides with the search bar,
+         so stack them: search on top (leaving room for the zoom control on
+         the right), toolbar below it */
+      @media (max-width: 760px) {
+        .map-search {
+          width: auto;
+          right: 56px;
+        }
+        .map-toolbar {
+          top: 62px;
+        }
       }
 
       @media (max-width: 600px) {
@@ -737,22 +750,11 @@
         <div class="loading" id="loading">Loading...</div>
         <div class="checkbox-container" style="display: none;">
           <span id="locationName" class="location-name"></span>
-          <span class="checkbox-item">
-            <input
-              type="checkbox"
-              id="showMissingOnly"
-              class="show-missing-checkbox"
-            />
-            <label for="showMissingOnly">Show only missing</label>
-          </span>
-          <span class="checkbox-item">
-            <input
-              type="checkbox"
-              id="showSpottedOnly"
-              class="show-spotted-checkbox"
-            />
-            <label for="showSpottedOnly">Show only observed</label>
-          </span>
+          <div class="filter-toggle" role="group" aria-label="Filter species">
+            <button type="button" class="filter-toggle-btn active" data-filter="all">All</button>
+            <button type="button" class="filter-toggle-btn" data-filter="missing">Missing</button>
+            <button type="button" class="filter-toggle-btn" data-filter="observed">Observed</button>
+          </div>
         </div>
         <div class="species-grid" id="speciesGrid"></div>
       </main>

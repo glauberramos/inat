@@ -533,6 +533,7 @@ input[type="checkbox"] {
   overflow-y: auto;
   display: none;
   border-radius: 0 0 5px 5px;
+  z-index: 1000;
 }
 
 .taxon-autocomplete.active {
@@ -580,6 +581,41 @@ input[type="checkbox"] {
   align-items: center;
   gap: 8px;
   white-space: nowrap;
+}
+
+.filter-toggle {
+  display: inline-flex;
+  gap: 3px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.filter-toggle-btn {
+  background: transparent;
+  color: #555;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.filter-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #333;
+}
+
+.filter-toggle-btn.active {
+  background: #74ac00;
+  color: white;
+}
+
+.filter-toggle-btn.active:hover {
+  background: #689a00;
+  color: white;
 }
 
 .location-name {
@@ -799,4 +835,85 @@ input[type="checkbox"] {
   background-color: #bdc3c7;
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+/* Mobile form alignment. Placed at the end of the file so these win over
+   the component rules above, which otherwise override the earlier
+   max-width: 480px block (same specificity, later source order). */
+@media (max-width: 480px) {
+  .advanced-options-section {
+    padding: 0 10px;
+  }
+
+  .place-search-wrapper {
+    width: 100%;
+  }
+
+  .place-search-container {
+    flex: 1;
+  }
+
+  /* keep the map button its natural size (global mobile rule makes
+     buttons 100% wide) so the place input fills the row */
+  .map-open-btn {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  #searchButton,
+  #advancedOptionsButton,
+  .search-button-advanced,
+  .download-button {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1rem;
+    /* fixed line height so emoji glyphs don't inflate button height */
+    line-height: 18px;
+  }
+
+  #advancedOptionsButton {
+    margin-left: 0;
+    /* 1px border: keep the same 42px outer height as the other buttons */
+    padding: 11px 20px;
+  }
+
+  /* The fixed feedback button gets stretched by the global 100% button
+     width and bleeds off the left viewport edge; pin it to the same
+     20px insets as the form controls instead */
+  .feedback-button {
+    width: auto;
+    left: 20px;
+    right: 20px;
+  }
+
+  /* The filter toggle spans the row; its buttons share it equally
+     (and must not take the global 100% mobile button width) */
+  .filter-toggle {
+    width: 100%;
+  }
+
+  .filter-toggle-btn {
+    width: auto;
+    flex: 1;
+    padding: 8px 10px;
+  }
+
+  /* Keep each checkbox tight against its own label and put the wide
+     gap between option groups instead, so ownership reads clearly */
+  .advanced-options-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 2px 8px;
+    top: 0;
+  }
+
+  .advanced-options-checkbox input[type="checkbox"] {
+    margin: 0;
+  }
+
+  .advanced-options-section label {
+    margin-left: 0;
+    top: 0;
+  }
 }

@@ -263,6 +263,27 @@ body.dark-mode .location-name {
   color: #e0e0e0;
 }
 
+body.dark-mode .filter-toggle {
+  background: #242424;
+  border-color: #444;
+}
+
+body.dark-mode .filter-toggle-btn {
+  background: transparent;
+  color: #bbb;
+}
+
+body.dark-mode .filter-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e0e0e0;
+}
+
+body.dark-mode .filter-toggle-btn.active,
+body.dark-mode .filter-toggle-btn.active:hover {
+  background: #74ac00;
+  color: white;
+}
+
 body.dark-mode label {
   color: #ccc;
 }
