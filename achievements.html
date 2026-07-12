@@ -2657,7 +2657,7 @@
                   if (taxon === 'Animalia') {
                     url = `https://www.inaturalist.org/observations?user_id=${currentUsername}&iconic_taxa=Animalia&view=species`;
                   } else if (taxon === 'Actinopterygii') {
-                    url = `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=${SPECIALTY_TAXONS.fishes.join(',')}&view=species`;
+                    url = `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${SPECIALTY_TAXONS.fishes.join(',')}&view=species`;
                   } else {
                     url = `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=${data.id}&view=species`;
                   }
