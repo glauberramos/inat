@@ -800,3 +800,44 @@ input[type="checkbox"] {
   cursor: not-allowed;
   opacity: 0.5;
 }
+
+/* Mobile form alignment. Placed at the end of the file so these win over
+   the component rules above, which otherwise override the earlier
+   max-width: 480px block (same specificity, later source order). */
+@media (max-width: 480px) {
+  .advanced-options-section {
+    padding: 0 10px;
+  }
+
+  .place-search-wrapper {
+    width: 100%;
+  }
+
+  .place-search-container {
+    flex: 1;
+  }
+
+  /* keep the map button its natural size (global mobile rule makes
+     buttons 100% wide) so the place input fills the row */
+  .map-open-btn {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  #searchButton,
+  #advancedOptionsButton,
+  .search-button-advanced,
+  .download-button {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1rem;
+    /* fixed line height so emoji glyphs don't inflate button height */
+    line-height: 18px;
+  }
+
+  #advancedOptionsButton {
+    margin-left: 0;
+    /* 1px border: keep the same 42px outer height as the other buttons */
+    padding: 11px 20px;
+  }
+}
