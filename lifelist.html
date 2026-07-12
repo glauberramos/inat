@@ -792,7 +792,7 @@
         gridEl.appendChild(div);
       }
 
-      function addGridItem(sp, number) {
+      function addGridItem(sp, number, prepend = false) {
         const gridEl = document.getElementById("speciesGrid");
         const a = document.createElement("a");
         a.className = "species-card";
@@ -829,7 +829,11 @@
             ${observerDisplay}
           </div>
         `;
-        gridEl.appendChild(a);
+        if (prepend) {
+          gridEl.insertBefore(a, gridEl.firstChild);
+        } else {
+          gridEl.appendChild(a);
+        }
       }
       const autocompleteEl = document.getElementById("autocomplete");
 
@@ -1418,7 +1422,7 @@
         listEl.appendChild(li);
       }
 
-      function addResultItem(sp, number) {
+      function addResultItem(sp, number, prepend = false) {
         const listEl = document.getElementById("speciesList");
         const a = document.createElement("a");
         a.className = "species-item";
@@ -1460,7 +1464,14 @@
           <span class="species-date">${sp.observedOn}${observerDisplay}</span>
         </div>
       `;
-        listEl.appendChild(a);
+        // During loading, observations arrive oldest-first (order=asc, to capture
+        // each species' first sighting), so prepend to keep the live preview
+        // newest-first — matching the final sorted order.
+        if (prepend) {
+          listEl.insertBefore(a, listEl.firstChild);
+        } else {
+          listEl.appendChild(a);
+        }
       }
 
       function showNoResults() {
@@ -1593,8 +1604,8 @@
                 observerName: result.observerName,
                 showObserver: !username,
               };
-              addResultItem(itemData, foundCount);
-              addGridItem(itemData, foundCount);
+              addResultItem(itemData, foundCount, true);
+              addGridItem(itemData, foundCount, true);
             },
             placeId,
             projectId
