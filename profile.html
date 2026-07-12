@@ -453,22 +453,22 @@
 
           // Group 2: /identifications endpoint
           const identificationsGroup = async () => {
-            const improvingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=improving&own_observation=false&per_page=0`);
+            const improvingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=improving&own_observation=false&current=true&current_taxon=true&per_page=0`);
             const improvingData = await improvingResponse.json();
             incrementLoadingProgress();
             await delay(500);
 
-            const supportingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=supporting&own_observation=false&per_page=0`);
+            const supportingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=supporting&own_observation=false&current=true&current_taxon=true&per_page=0`);
             const supportingData = await supportingResponse.json();
             incrementLoadingProgress();
             await delay(500);
 
-            const leadingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=leading&own_observation=false&per_page=0`);
+            const leadingResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=leading&own_observation=false&current=true&current_taxon=true&per_page=0`);
             const leadingData = await leadingResponse.json();
             incrementLoadingProgress();
             await delay(500);
 
-            const maverickResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=maverick&own_observation=false&per_page=0`);
+            const maverickResponse = await fetch(`https://api.inaturalist.org/v1/identifications?user_id=${user.id}&category=maverick&own_observation=false&current=true&current_taxon=true&per_page=0`);
             const maverickData = await maverickResponse.json();
             incrementLoadingProgress();
 

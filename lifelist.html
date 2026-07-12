@@ -710,6 +710,13 @@
         <option value="ja">Japanese</option>
         <option value="zh">Chinese</option>
       </select>
+      <select id="statusSelect" class="language-select" style="padding: 10px 15px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; cursor: pointer;">
+        <option value="" selected>All species</option>
+        <option value="native">Native</option>
+        <option value="introduced">Introduced</option>
+        <option value="threatened">Threatened</option>
+        <option value="endemic">Endemic</option>
+      </select>
       <button id="searchBtn" onclick="startSearch()">Load Lifelist</button>
       <label class="checkbox-label">
         <input type="checkbox" id="casualCheckbox" checked />
@@ -1214,11 +1221,13 @@
         const localeParam = `&locale=${selectedLanguage}`;
         const includeCasual = document.getElementById("casualCheckbox").checked;
         const qualityGradeParam = includeCasual ? "casual,needs_id,research" : "needs_id,research";
+        const speciesStatus = document.getElementById("statusSelect").value;
         let baseUrl = `${API_BASE}/observations/species_counts?per_page=${perPage}&quality_grade=${qualityGradeParam}${localeParam}`;
         if (username) baseUrl += `&user_login=${username}`;
         if (placeId) baseUrl += `&place_id=${placeId}`;
         if (projectId) baseUrl += `&project_id=${projectId}`;
         if (taxonId) baseUrl += `&taxon_id=${taxonId}`;
+        if (speciesStatus) baseUrl += `&${speciesStatus}=true`;
 
         // Fetch first page to get total count
         updateProgress(0, "Fetching species list (page 1)...", "");
