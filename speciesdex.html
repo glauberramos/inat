@@ -223,7 +223,7 @@
         position: absolute;
         top: 12px;
         left: 12px;
-        z-index: 1000;
+        z-index: 1001;
         width: 260px;
         max-width: calc(100% - 24px);
       }
@@ -421,6 +421,19 @@
         display: flex;
         align-items: center;
         gap: 5px;
+      }
+
+      /* On narrow screens the centered toolbar collides with the search bar,
+         so stack them: search on top (leaving room for the zoom control on
+         the right), toolbar below it */
+      @media (max-width: 760px) {
+        .map-search {
+          width: auto;
+          right: 56px;
+        }
+        .map-toolbar {
+          top: 62px;
+        }
       }
 
       @media (max-width: 600px) {
