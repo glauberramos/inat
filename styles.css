@@ -840,4 +840,13 @@ input[type="checkbox"] {
     /* 1px border: keep the same 42px outer height as the other buttons */
     padding: 11px 20px;
   }
+
+  /* The fixed feedback button gets stretched by the global 100% button
+     width and bleeds off the left viewport edge; pin it to the same
+     20px insets as the form controls instead */
+  .feedback-button {
+    width: auto;
+    left: 20px;
+    right: 20px;
+  }
 }
