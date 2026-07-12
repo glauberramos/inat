@@ -156,6 +156,13 @@
       const SPECIALTY_TAXONS = {
         lepidoptera: 47157, // Butterflies & Moths
         raptors: [71261, 67570, 19350, 559244], // Accipitriformes, Falconiformes, Strigiformes, Cathartiformes
+        // All fish, not just ray-finned (Actinopterygii). iNaturalist only
+        // treats Actinopterygii as an iconic taxon, so sharks/rays, jawless
+        // fish, and lobe-finned fish otherwise fall under "Other Animals".
+        // Sarcopterygii is deliberately NOT used as an ancestor because it
+        // cladistically contains all tetrapods; its two living fish orders
+        // (coelacanths, lungfishes) are listed directly instead.
+        fishes: [47178, 196614, 797045, 85511, 85509], // Actinopterygii, Chondrichthyes, Agnatha, Coelacanthiformes, Ceratodontiformes
         coleoptera: 47208, // Beetles
         anthophila: 630955, // Bees
         cetacea: 152871, // Whales & Dolphins
@@ -414,6 +421,7 @@
 
             let lepidopteraSpeciesCount = 0;
             let raptorSpeciesCount = 0;
+            let fishSpeciesCount = 0;
             let beetleSpeciesCount = 0;
             let beeSpeciesCount = 0;
             let cetaceaSpeciesCount = 0;
@@ -437,6 +445,9 @@
               }
               if (SPECIALTY_TAXONS.raptors.some((id) => ancestorIds.includes(id) || taxonId === id)) {
                 raptorSpeciesCount++;
+              }
+              if (SPECIALTY_TAXONS.fishes.some((id) => ancestorIds.includes(id) || taxonId === id)) {
+                fishSpeciesCount++;
               }
               if (ancestorIds.includes(SPECIALTY_TAXONS.coleoptera) || taxonId === SPECIALTY_TAXONS.coleoptera) {
                 beetleSpeciesCount++;
@@ -505,6 +516,7 @@
               iconicTaxonSpeciesCounts,
               lepidopteraSpeciesCount,
               raptorSpeciesCount,
+              fishSpeciesCount,
               beetleSpeciesCount,
               beeSpeciesCount,
               cetaceaSpeciesCount,
@@ -1281,6 +1293,7 @@
         iconicTaxonSpeciesCounts,
         lepidopteraSpeciesCount,
         raptorSpeciesCount,
+        fishSpeciesCount,
         beetleSpeciesCount,
         beeSpeciesCount,
         cetaceaSpeciesCount,
@@ -1606,6 +1619,18 @@
             completed: count >= goal,
           };
         });
+
+        // The "Fish Expert" badge covers all fish, not just the ray-finned
+        // (Actinopterygii) iconic taxon, so use the broader fish count that
+        // also includes sharks/rays, jawless fish, and lobe-finned fish.
+        // (iconicTaxonSpeciesCounts is left untouched so the separate
+        // "all iconic taxa" achievement keeps using the true iconic count.)
+        taxonAchievements["Actinopterygii"] = {
+          current: fishSpeciesCount,
+          total: taxonAchievements["Actinopterygii"].total,
+          completed:
+            fishSpeciesCount >= taxonAchievements["Actinopterygii"].total,
+        };
 
         // New specialty achievements
         const lepidopterist = {
@@ -2626,10 +2651,16 @@
             <div class="achievements-grid">
               ${Object.entries(ICONIC_TAXONS)
                 .map(([taxon, data]) => {
-                  // Use iconic_taxa parameter for Animalia, taxon_id for others
-                  const url = taxon === 'Animalia'
-                    ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&iconic_taxa=Animalia&view=species`
-                    : `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=${data.id}&view=species`;
+                  // Use iconic_taxa parameter for Animalia, taxon_id for others.
+                  // The fish badge covers all fish classes, so link to the full set.
+                  let url;
+                  if (taxon === 'Animalia') {
+                    url = `https://www.inaturalist.org/observations?user_id=${currentUsername}&iconic_taxa=Animalia&view=species`;
+                  } else if (taxon === 'Actinopterygii') {
+                    url = `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${SPECIALTY_TAXONS.fishes.join(',')}&view=species`;
+                  } else {
+                    url = `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=${data.id}&view=species`;
+                  }
                   return renderAchievementCard(
                     taxonAchievements[taxon],
                     data.emoji,
