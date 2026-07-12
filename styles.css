@@ -849,4 +849,23 @@ input[type="checkbox"] {
     left: 20px;
     right: 20px;
   }
+
+  /* Keep each checkbox tight against its own label and put the wide
+     gap between option groups instead, so ownership reads clearly */
+  .advanced-options-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 2px 8px;
+    top: 0;
+  }
+
+  .advanced-options-checkbox input[type="checkbox"] {
+    margin: 0;
+  }
+
+  .advanced-options-section label {
+    margin-left: 0;
+    top: 0;
+  }
 }
