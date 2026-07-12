@@ -732,22 +732,26 @@
             <option value="Actinopterygii">Actinopterygii</option>
             <option value="Reptilia">Reptilia</option>
           </select>
-          <label
+          <label for="statusFilterSelect" style="margin-left: 20px"
+            >Status:</label
+          >
+          <select
+            id="statusFilterSelect"
             style="
-              margin-left: 20px;
-              display: inline-flex;
-              align-items: center;
-              gap: 6px;
+              padding: 8px 12px;
+              border: 2px solid #ddd;
+              border-radius: 5px;
+              font-size: 14px;
+              background: white;
               cursor: pointer;
             "
           >
-            <input
-              type="checkbox"
-              id="conservationStatusFilter"
-              style="width: 16px; height: 16px; cursor: pointer"
-            />
-            <span>Threatened</span>
-          </label>
+            <option value="">All species</option>
+            <option value="native">Native</option>
+            <option value="introduced">Introduced</option>
+            <option value="threatened">Threatened</option>
+            <option value="endemic">Endemic</option>
+          </select>
           <label for="sortSelect" style="margin-left: 20px">Sort by:</label>
           <select id="sortSelect">
             <option value="user">User Observations (High to Low)</option>
@@ -820,9 +824,7 @@
       const summaryCard = document.getElementById("summaryCard");
       const controls = document.getElementById("controls");
       const iconicTaxonSelect = document.getElementById("iconicTaxonSelect");
-      const conservationStatusFilter = document.getElementById(
-        "conservationStatusFilter"
-      );
+      const statusFilterSelect = document.getElementById("statusFilterSelect");
       const sortSelect = document.getElementById("sortSelect");
       const filterInput = document.getElementById("filterInput");
       const viewControls = document.getElementById("viewControls");
@@ -835,6 +837,7 @@
       let threatenedTaxonIds = new Set();
       let endemicTaxonIds = new Set();
       let introducedTaxonIds = new Set();
+      let nativeTaxonIds = new Set();
       let researchGradeCount = 0;
       let needsIdCount = 0;
       let currentUserId = null;
@@ -1023,8 +1026,8 @@
         displaySpecies();
       });
 
-      // Conservation status filter handler
-      conservationStatusFilter.addEventListener("change", () => {
+      // Species status filter handler (native/introduced/threatened/endemic)
+      statusFilterSelect.addEventListener("change", () => {
         displaySpecies();
       });
 
@@ -1273,6 +1276,45 @@
             });
           }
 
+          // Fetch native species ids (for the status filter)
+          nativeTaxonIds = new Set();
+          const nativePerPage = 500;
+          const firstNativeResponse = await fetch(
+            `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${nativePerPage}&page=1&native=true${placeParam}${taxonParam}${dateParam}`
+          );
+          const firstNativeData = await firstNativeResponse.json();
+          const nativeTotalResults = firstNativeData.total_results || 0;
+
+          if (firstNativeData.results) {
+            firstNativeData.results.forEach((item) => {
+              if (item.taxon && item.taxon.id) {
+                nativeTaxonIds.add(item.taxon.id);
+              }
+            });
+          }
+
+          const nativeTotalPages = Math.ceil(nativeTotalResults / nativePerPage);
+          if (nativeTotalPages > 1) {
+            const nativePromises = [];
+            for (let page = 2; page <= nativeTotalPages; page++) {
+              nativePromises.push(
+                fetch(
+                  `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${nativePerPage}&page=${page}&native=true${placeParam}${taxonParam}${dateParam}`
+                )
+                  .then((response) => response.json())
+                  .then((data) => data.results || [])
+              );
+            }
+            const additionalNativeResults = await Promise.all(nativePromises);
+            additionalNativeResults.forEach((results) => {
+              results.forEach((item) => {
+                if (item.taxon && item.taxon.id) {
+                  nativeTaxonIds.add(item.taxon.id);
+                }
+              });
+            });
+          }
+
           // Fetch research grade and needs ID species counts
           const [researchResponse, needsIdResponse] = await Promise.all([
             fetch(
@@ -1310,7 +1352,7 @@
         // Filter data based on text input and iconic taxon
         const filterText = filterInput.value.trim().toLowerCase();
         const iconicTaxon = iconicTaxonSelect.value;
-        const onlyWithConservationStatus = conservationStatusFilter.checked;
+        const statusFilter = statusFilterSelect.value;
         let filteredData = speciesData;
 
         // Filter by iconic taxon
@@ -1320,11 +1362,20 @@
           });
         }
 
-        // Filter by threatened species (using API-fetched threatened taxon IDs)
-        if (onlyWithConservationStatus) {
-          filteredData = filteredData.filter((item) => {
-            return item.taxon && threatenedTaxonIds.has(item.taxon.id);
-          });
+        // Filter by species status (using API-fetched taxon ID sets)
+        if (statusFilter) {
+          const statusSets = {
+            native: nativeTaxonIds,
+            introduced: introducedTaxonIds,
+            threatened: threatenedTaxonIds,
+            endemic: endemicTaxonIds,
+          };
+          const statusSet = statusSets[statusFilter];
+          if (statusSet) {
+            filteredData = filteredData.filter((item) => {
+              return item.taxon && statusSet.has(item.taxon.id);
+            });
+          }
         }
 
         // Filter by text
