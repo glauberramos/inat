@@ -1042,24 +1042,27 @@
       src="https://plausible.io/js/script.js"
     ></script>
     <script type="text/javascript">
-      window.$pipeback = [];
-      window.PIPEBACK_ID = "a069b910-4aef-4233-99cc-913e7fb30fb5";
+      window.$crisp = [];
+      window.CRISP_WEBSITE_ID = "69e5f089-9f10-41ef-a438-5d254be7b317";
       (function () {
         d = document;
         s = d.createElement("script");
-        s.src = "https://widget.pipeback.com/l.js";
+        s.src = "https://client.crisp.chat/l.js";
         s.async = 1;
         d.getElementsByTagName("head")[0].appendChild(s);
       })();
+      // Hide Crisp's default launcher; the "Send feedback" button opens the chat.
+      $crisp.push(["do", "chat:hide"]);
+      $crisp.push(["on", "chat:closed", function () { $crisp.push(["do", "chat:hide"]); }]);
 
       // Feedback button toggle
       let feedbackOpen = false;
       document.getElementById("feedbackBtn").addEventListener("click", () => {
         if (feedbackOpen) {
-          $pipeback.close();
+          $crisp.push(["do", "chat:close"]); $crisp.push(["do", "chat:hide"]);
           feedbackOpen = false;
         } else {
-          $pipeback.open();
+          $crisp.push(["do", "chat:show"]); $crisp.push(["do", "chat:open"]);
           feedbackOpen = true;
         }
       });
