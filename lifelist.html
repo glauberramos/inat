@@ -792,6 +792,26 @@
         gridEl.appendChild(div);
       }
 
+      // Build primary + fallback photo URLs for a row. Observation photos
+      // occasionally fail to load (deleted, licensed host, or a size that was
+      // never generated), so always pair the chosen photo with a fallback to
+      // the species' default photo. `size` is "square" (list) or "medium" (grid).
+      function speciesPhotoSources(sp, useSpeciesPhoto, size) {
+        const sized = (url) => (url ? url.replace("square", size) : null);
+        const obs = sized(sp.imageUrl);
+        const def = sized(sp.defaultPhotoUrl);
+        const primary = useSpeciesPhoto ? (def || obs) : (obs || def);
+        const fallback = useSpeciesPhoto ? (obs || def) : (def || obs);
+        return { primary, fallback };
+      }
+
+      // Inline onerror that swaps to the fallback once (guards against a loop).
+      function photoOnError(fallback, primary) {
+        return fallback && fallback !== primary
+          ? ` onerror="this.onerror=null;this.src='${fallback}'"`
+          : "";
+      }
+
       function addGridItem(sp, number, prepend = false) {
         const gridEl = document.getElementById("speciesGrid");
         const a = document.createElement("a");
@@ -805,14 +825,9 @@
 
         // Check if we should use species photo or observation photo
         const useSpeciesPhoto = speciesPhotoCheckbox.checked;
-        const photoUrl = useSpeciesPhoto
-          ? (sp.defaultPhotoUrl || sp.imageUrl)
-          : (sp.imageUrl || sp.defaultPhotoUrl);
-
-        // Use medium size image for better quality in grid view
-        const mediumImageUrl = photoUrl ? photoUrl.replace(/square/, 'medium') : null;
-        const imageHtml = mediumImageUrl
-          ? `<img class="card-image" src="${mediumImageUrl}" alt="${displayName}">`
+        const { primary, fallback } = speciesPhotoSources(sp, useSpeciesPhoto, "medium");
+        const imageHtml = primary
+          ? `<img class="card-image" src="${primary}" alt="${displayName}" loading="lazy"${photoOnError(fallback, primary)}>`
           : `<div class="card-image-placeholder">${iconicIcon}</div>`;
 
         const observerDisplay = sp.showObserver && sp.observerLogin
@@ -1128,10 +1143,12 @@
             const obsId = parseInt(match[1]);
             const sp = lifelistData.find(s => s.observationId === obsId);
             if (sp) {
-              const photoUrl = useSpeciesPhoto
-                ? (sp.defaultPhotoUrl || sp.imageUrl)
-                : (sp.imageUrl || sp.defaultPhotoUrl);
-              img.src = photoUrl || "https://via.placeholder.com/40?text=?";
+              const { primary, fallback } = speciesPhotoSources(sp, useSpeciesPhoto, "square");
+              img.onerror = null;
+              img.src = primary || "https://via.placeholder.com/40?text=?";
+              if (fallback && fallback !== primary) {
+                img.onerror = function () { this.onerror = null; this.src = fallback; };
+              }
             }
           }
         });
@@ -1145,11 +1162,11 @@
             const obsId = parseInt(match[1]);
             const sp = lifelistData.find(s => s.observationId === obsId);
             if (sp) {
-              const photoUrl = useSpeciesPhoto
-                ? (sp.defaultPhotoUrl || sp.imageUrl)
-                : (sp.imageUrl || sp.defaultPhotoUrl);
-              if (photoUrl) {
-                img.src = photoUrl.replace(/square/, 'medium');
+              const { primary, fallback } = speciesPhotoSources(sp, useSpeciesPhoto, "medium");
+              img.onerror = null;
+              if (primary) img.src = primary;
+              if (fallback && fallback !== primary) {
+                img.onerror = function () { this.onerror = null; this.src = fallback; };
               }
             }
           }
@@ -1445,9 +1462,8 @@
 
         const iconicIcon = ICONIC_TAXON_ICONS[sp.iconicTaxon] || "🔍";
         const useSpeciesPhoto = speciesPhotoCheckbox.checked;
-        const photoUrl = useSpeciesPhoto
-          ? (sp.defaultPhotoUrl || sp.imageUrl)
-          : (sp.imageUrl || sp.defaultPhotoUrl);
+        const { primary, fallback } = speciesPhotoSources(sp, useSpeciesPhoto, "square");
+        const imgSrc = primary || "https://via.placeholder.com/40?text=?";
 
         const observerDisplay = sp.showObserver && sp.observerLogin
           ? `<span class="species-observer">by <a href="https://www.inaturalist.org/people/${sp.observerLogin}" target="_blank" onclick="event.stopPropagation();">${sp.observerName || sp.observerLogin}</a></span>`
@@ -1456,9 +1472,7 @@
         a.innerHTML = `
         <div class="species-number">#${number}</div>
         <span class="species-icon">${iconicIcon}</span>
-        <img class="species-image" src="${
-          photoUrl || "https://via.placeholder.com/40?text=?"
-        }" alt="${sp.commonName || sp.taxonName}">
+        <img class="species-image" src="${imgSrc}" alt="${sp.commonName || sp.taxonName}" loading="lazy"${photoOnError(fallback, primary)}>
         <div class="species-info">
           ${nameDisplay}
           <span class="species-date">${sp.observedOn}${observerDisplay}</span>
