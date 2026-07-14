@@ -1,18 +1,17 @@
 /* Dark mode toggle button */
 .dark-mode-toggle {
-  position: fixed;
+  position: absolute;
   top: 20px;
   right: 20px;
-  background: #74ac00;
+  background: transparent;
   border: none;
-  border-radius: 50%;
+  padding: 0;
   width: 44px;
   height: 44px;
   cursor: pointer;
-  font-size: 1.3rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-size: 1.7rem;
   z-index: 1000;
-  transition: all 0.3s;
+  transition: transform 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -20,7 +19,7 @@
 
 .dark-mode-toggle:hover {
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: transparent;
 }
 
 @media (max-width: 480px) {
@@ -29,7 +28,7 @@
     right: 10px;
     width: 38px;
     height: 38px;
-    font-size: 1.1rem;
+    font-size: 1.4rem;
   }
 }
 
@@ -71,6 +70,11 @@ body.dark-mode button {
 
 body.dark-mode button:hover {
   background: #5d8a00;
+}
+
+body.dark-mode .dark-mode-toggle,
+body.dark-mode .dark-mode-toggle:hover {
+  background: transparent;
 }
 
 body.dark-mode button:disabled {
@@ -251,7 +255,7 @@ body.dark-mode .status-text {
 }
 
 body.dark-mode .progress-bar {
-  background: #74ac00;
+  background: #444;
 }
 
 /* Checkbox containers */
@@ -313,15 +317,6 @@ body.dark-mode a {
 
 body.dark-mode a:hover {
   color: #9acd32;
-}
-
-/* Back button - keep it green in dark mode */
-body.dark-mode .back-button {
-  background: #74ac00;
-}
-
-body.dark-mode .back-button:hover {
-  background: #659900;
 }
 
 /* Badges */

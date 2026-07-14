@@ -8,7 +8,7 @@
     darkModeToggle.id = "darkModeToggle";
     darkModeToggle.className = "dark-mode-toggle";
     darkModeToggle.title = "Toggle dark mode";
-    darkModeToggle.textContent = "🌙";
+    darkModeToggle.textContent = "🌛";
     document.body.insertBefore(darkModeToggle, document.body.firstChild);
   }
 
@@ -23,6 +23,6 @@
     document.body.classList.toggle("dark-mode");
     const isDarkMode = document.body.classList.contains("dark-mode");
     localStorage.setItem("darkMode", isDarkMode);
-    darkModeToggle.textContent = isDarkMode ? "☀️" : "🌙";
+    darkModeToggle.textContent = isDarkMode ? "☀️" : "🌛";
   });
 })();

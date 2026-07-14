@@ -52,7 +52,7 @@
     }
     </script>
     <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="dark-mode.css" />
+    <link rel="stylesheet" href="dark-mode.css?v=5" />
     <style>
       .summary-card {
         background: white;
@@ -265,7 +265,7 @@
 
       .progress-bar-fill-large {
         height: 100%;
-        background: linear-gradient(90deg, #74ac00, #27ae60);
+        background: #74ac00;
         transition: width 0.5s ease;
         border-radius: 10px;
       }
@@ -399,25 +399,24 @@
       href="/inat"
       class="back-button"
       style="
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        background: #74ac00;
-        color: white;
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        background: #2d2d2d;
+        color: #ccc;
         text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 600;
-        padding: 10px 16px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 4px 10px;
         border-radius: 6px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         z-index: 1000;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        transition: all 0.3s;
+        gap: 5px;
+        transition: background 0.2s;
       "
-      onmouseover="this.style.background='#659900'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.2)'"
-      onmouseout="this.style.background='#74ac00'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.15)'"
+      onmouseover="this.style.background='#3d3d3d'"
+      onmouseout="this.style.background='#2d2d2d'"
     >
       <span style="font-size: 1rem">←</span> More tools
     </a>
