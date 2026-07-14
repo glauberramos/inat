@@ -501,12 +501,12 @@
             <option value="name-asc">Name (A-Z)</option>
             <option value="name-desc">Name (Z-A)</option>
           </select>
-          <label for="filterSelect" style="margin-left: 15px">Filter:</label>
-          <select id="filterSelect">
-            <option value="all">All</option>
-            <option value="observed">Observed</option>
-            <option value="not-observed">Not Observed</option>
-          </select>
+          <label style="margin-left: 15px">Filter:</label>
+          <div class="filter-toggle" role="group" aria-label="Filter species">
+            <button type="button" class="filter-toggle-btn active" data-filter="all">All</button>
+            <button type="button" class="filter-toggle-btn" data-filter="missing">Missing</button>
+            <button type="button" class="filter-toggle-btn" data-filter="observed">Observed</button>
+          </div>
           <input
             type="text"
             id="searchFilter"
@@ -546,7 +546,8 @@
       const progressBanner = document.getElementById("progressBanner");
       const controls = document.getElementById("controls");
       const sortSelect = document.getElementById("sortSelect");
-      const filterSelect = document.getElementById("filterSelect");
+      const filterToggleButtons = document.querySelectorAll(".filter-toggle-btn");
+      let currentFilter = "all";
       const searchFilter = document.getElementById("searchFilter");
       const iconicFilterSelect = document.getElementById("iconicFilterSelect");
       const groupFilterLabel = document.getElementById("groupFilterLabel");
@@ -770,7 +771,14 @@
 
       // Filter/sort handlers
       sortSelect.addEventListener("change", displayTaxa);
-      filterSelect.addEventListener("change", displayTaxa);
+      filterToggleButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          filterToggleButtons.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentFilter = btn.dataset.filter;
+          displayTaxa();
+        });
+      });
       searchFilter.addEventListener("input", displayTaxa);
       iconicFilterSelect.addEventListener("change", displayTaxa);
 
@@ -850,9 +858,9 @@
           let page = 1;
           let totalResults = 0;
 
-          // Fetch first page (verifiable=true excludes casual observations, matching iNaturalist default)
+          // Fetch first page (no verifiable filter so casual-grade observations are counted too)
           const firstResponse = await fetch(
-            `${API_BASE}/observations/species_counts?user_id=${userId}&taxon_id=${taxonId}&per_page=${perPage}&page=1&verifiable=true`
+            `${API_BASE}/observations/species_counts?user_id=${userId}&taxon_id=${taxonId}&per_page=${perPage}&page=1`
           );
           const firstData = await firstResponse.json();
           allUserSpecies = firstData.results || [];
@@ -863,7 +871,7 @@
           for (page = 2; page <= totalPages; page++) {
             loadingStatus.textContent = `Fetching your species... (page ${page}/${totalPages})`;
             const response = await fetch(
-              `${API_BASE}/observations/species_counts?user_id=${userId}&taxon_id=${taxonId}&per_page=${perPage}&page=${page}&verifiable=true`
+              `${API_BASE}/observations/species_counts?user_id=${userId}&taxon_id=${taxonId}&per_page=${perPage}&page=${page}`
             );
             const data = await response.json();
             if (data.results) {
@@ -950,7 +958,7 @@
       function displayTaxa() {
         const labels = rankLabels[currentRank];
         const sortBy = sortSelect.value;
-        const filterBy = filterSelect.value;
+        const filterBy = currentFilter;
         const searchText = searchFilter.value.toLowerCase().trim();
         const iconicFilter = iconicFilterSelect.value;
 
@@ -968,7 +976,7 @@
 
         if (filterBy === "observed") {
           filteredData = filteredData.filter(t => t.observed);
-        } else if (filterBy === "not-observed") {
+        } else if (filterBy === "missing") {
           filteredData = filteredData.filter(t => !t.observed);
         }
 
