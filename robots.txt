@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+Disallow: /inat/auth-test
+Disallow: /inat/auth-test.html
+Disallow: /inat/supabase-sync
+Disallow: /inat/supabase-sync.html
+Disallow: /inat/widget-test
+Disallow: /inat/widget-test.html
+Disallow: /inat/widget-embed
+Disallow: /inat/widget-embed.html
+
+Sitemap: https://glauberramos.github.io/inat/sitemap.xml
