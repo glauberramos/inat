@@ -42,6 +42,10 @@
       this.compact = container.dataset.inatCompact === "true";
       this.lang = container.dataset.inatLang || "";
       this.pagination = container.dataset.inatPagination === "true";
+      this.searchEnabled = container.dataset.inatSearch === "true";
+      this.showNames = container.dataset.inatShowNames === "true";
+      this.showCount = container.dataset.inatShowCount !== "false";
+      this.searchTaxon = null;
       this.page = 1;
       this.totalResults = 0;
       this.observations = [];
@@ -296,6 +300,13 @@
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+        }
+        /* Touch devices have no hover — always show tile names */
+        @media (hover: none) {
+          .inat-w-grid-item .inat-w-grid-overlay { opacity: 1; }
+        }
+        .inat-w-grid.inat-w-show-names .inat-w-grid-overlay {
+          opacity: 1;
         }
         /* Photo count badge on grid */
         .inat-w-photo-count {
@@ -583,6 +594,102 @@
           white-space: nowrap;
         }
 
+        /* Taxa search */
+        .inat-w-search {
+          position: relative;
+          margin-bottom: 12px;
+        }
+        .inat-w-search-input {
+          width: 100%;
+          padding: 8px 30px 8px 32px;
+          border: 1.5px solid var(--inat-border);
+          border-radius: var(--inat-radius-sm);
+          font-size: 13px;
+          font-family: inherit;
+          background: var(--inat-card-bg);
+          color: var(--inat-text);
+          outline: none;
+          transition: border-color 0.15s;
+        }
+        .inat-w-search-input::placeholder { color: var(--inat-text-secondary); }
+        .inat-w-search-input:focus { border-color: var(--inat-accent); }
+        .inat-w-search-icon {
+          position: absolute;
+          left: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 12px;
+          pointer-events: none;
+        }
+        .inat-w-search-clear {
+          position: absolute;
+          right: 6px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 20px;
+          height: 20px;
+          border: none;
+          border-radius: 50%;
+          background: var(--inat-border);
+          color: var(--inat-text-secondary);
+          font-size: 13px;
+          line-height: 1;
+          cursor: pointer;
+          display: none;
+          align-items: center;
+          justify-content: center;
+        }
+        .inat-w-search-clear.inat-w-visible { display: flex; }
+        .inat-w-search-results {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          margin-top: 4px;
+          background: var(--inat-card-bg);
+          border: 1px solid var(--inat-border);
+          border-radius: var(--inat-radius-sm);
+          box-shadow: var(--inat-shadow-hover);
+          max-height: 220px;
+          overflow-y: auto;
+          z-index: 20;
+          display: none;
+        }
+        .inat-w-search-results.inat-w-visible { display: block; }
+        .inat-w-search-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 10px;
+          cursor: pointer;
+        }
+        .inat-w-search-item:hover { background: var(--inat-hover); }
+        .inat-w-search-item img {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          object-fit: cover;
+          background: var(--inat-border);
+          flex-shrink: 0;
+        }
+        .inat-w-search-item-info { flex: 1; min-width: 0; }
+        .inat-w-search-item-name {
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--inat-text);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .inat-w-search-item-sub {
+          font-size: 10px;
+          color: var(--inat-text-secondary);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .inat-w-search-item-sub em { font-style: italic; }
+
         /* Placeholder image */
         .inat-w-no-photo {
           display: flex;
@@ -624,6 +731,11 @@
       `;
       this.container.appendChild(header);
 
+      // Taxa search bar
+      if (this.searchEnabled && this.sourceType !== "observation") {
+        this.renderSearchBar();
+      }
+
       // Content area
       this.contentEl = document.createElement("div");
       this.contentEl.innerHTML = `<div class="inat-w-loading"><div class="inat-w-spinner"></div><span>Loading observations…</span></div>`;
@@ -639,6 +751,109 @@
       footer.className = "inat-w-footer";
       footer.innerHTML = `<a href="${this.getSourceUrl()}" target="_blank" rel="noopener">View more on iNaturalist &rarr;</a>`;
       this.container.appendChild(footer);
+    }
+
+    renderSearchBar() {
+      const bar = document.createElement("div");
+      bar.className = "inat-w-search";
+      bar.innerHTML = `
+        <span class="inat-w-search-icon">&#x1F50D;</span>
+        <input type="text" class="inat-w-search-input" placeholder="Search any taxa (birds, oaks, fungi…)" autocomplete="off" />
+        <button type="button" class="inat-w-search-clear" aria-label="Clear search">&times;</button>
+        <div class="inat-w-search-results"></div>
+      `;
+      this.container.appendChild(bar);
+
+      const input = bar.querySelector(".inat-w-search-input");
+      const clearBtn = bar.querySelector(".inat-w-search-clear");
+      const results = bar.querySelector(".inat-w-search-results");
+      let searchTimeout = null;
+
+      const hideResults = () => results.classList.remove("inat-w-visible");
+
+      const applyTaxon = (taxonId, label) => {
+        this.searchTaxon = taxonId;
+        this.page = 1;
+        input.value = label || "";
+        clearBtn.classList.toggle("inat-w-visible", !!taxonId);
+        hideResults();
+        this.contentEl.innerHTML = `<div class="inat-w-loading"><div class="inat-w-spinner"></div><span>Loading…</span></div>`;
+        this.fetchObservations();
+      };
+
+      input.addEventListener("input", () => {
+        const q = input.value.trim();
+        clearTimeout(searchTimeout);
+        if (q.length < 2) {
+          hideResults();
+          // Reset filter when the box is emptied after an active search
+          if (q.length === 0 && this.searchTaxon) applyTaxon(null, "");
+          return;
+        }
+        searchTimeout = setTimeout(() => this.fetchTaxaSuggestions(q, results, applyTaxon), 300);
+      });
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") hideResults();
+        if (e.key === "Enter") {
+          const first = results.querySelector(".inat-w-search-item");
+          if (first) first.click();
+        }
+      });
+
+      clearBtn.addEventListener("click", () => applyTaxon(null, ""));
+
+      document.addEventListener("click", (e) => {
+        if (!bar.contains(e.target)) hideResults();
+      });
+    }
+
+    async fetchTaxaSuggestions(query, resultsEl, applyTaxon) {
+      try {
+        const params = new URLSearchParams({ q: query, per_page: 6 });
+        if (this.lang) params.set("locale", this.lang);
+        const res = await fetch(`${INAT_API}/taxa/autocomplete?${params.toString()}`);
+        if (!res.ok) throw new Error("autocomplete failed");
+        const data = await res.json();
+        const taxa = data.results || [];
+        resultsEl.innerHTML = "";
+        if (!taxa.length) {
+          resultsEl.classList.remove("inat-w-visible");
+          return;
+        }
+        taxa.forEach((t) => {
+          const displayName = t.preferred_common_name || t.name;
+          const item = document.createElement("div");
+          item.className = "inat-w-search-item";
+
+          const img = document.createElement("img");
+          img.src = t.default_photo && t.default_photo.square_url ? t.default_photo.square_url : "";
+          img.alt = "";
+          img.loading = "lazy";
+
+          const info = document.createElement("div");
+          info.className = "inat-w-search-item-info";
+          const nameEl = document.createElement("div");
+          nameEl.className = "inat-w-search-item-name";
+          nameEl.textContent = displayName;
+          const subEl = document.createElement("div");
+          subEl.className = "inat-w-search-item-sub";
+          const sciEl = document.createElement("em");
+          sciEl.textContent = t.name;
+          subEl.appendChild(sciEl);
+          subEl.appendChild(document.createTextNode(t.rank ? ` · ${t.rank}` : ""));
+          info.appendChild(nameEl);
+          info.appendChild(subEl);
+
+          item.appendChild(img);
+          item.appendChild(info);
+          item.addEventListener("click", () => applyTaxon(t.id, displayName));
+          resultsEl.appendChild(item);
+        });
+        resultsEl.classList.add("inat-w-visible");
+      } catch (err) {
+        resultsEl.classList.remove("inat-w-visible");
+      }
     }
 
     renderPagination() {
@@ -732,9 +947,10 @@
           params.set("locale", this.lang);
         }
 
-        // Taxon filter
-        if (this.taxon) {
-          params.set("taxon_id", this.taxon);
+        // Taxon filter (in-widget search takes precedence over the configured filter)
+        const taxonFilter = this.searchTaxon || this.taxon;
+        if (taxonFilter) {
+          params.set("taxon_id", taxonFilter);
         }
 
         // Quality grade filter
@@ -847,7 +1063,7 @@
 
     renderGrid() {
       const wrap = document.createElement("div");
-      wrap.className = "inat-w-grid" + (this.compact ? " inat-w-compact" : "");
+      wrap.className = "inat-w-grid" + (this.compact ? " inat-w-compact" : "") + (this.showNames ? " inat-w-show-names" : "");
 
       this.observations.forEach((obs) => {
         const name = this.getCommonName(obs);
@@ -1059,7 +1275,7 @@
             <div class="inat-w-list-name">${this.escapeHtml(name)}</div>
             <div class="inat-w-list-scientific">${this.escapeHtml(sci)}</div>
           </div>
-          <span class="inat-w-count-pill">${this.formatCount(count)}</span>
+          ${this.showCount ? `<span class="inat-w-count-pill">${this.formatCount(count)}</span>` : ""}
         `;
         wrap.appendChild(item);
       });
@@ -1069,7 +1285,7 @@
 
     renderSpeciesGrid() {
       const wrap = document.createElement("div");
-      wrap.className = "inat-w-grid" + (this.compact ? " inat-w-compact" : "");
+      wrap.className = "inat-w-grid" + (this.compact ? " inat-w-compact" : "") + (this.showNames ? " inat-w-show-names" : "");
       this.speciesItems().forEach(({ count, taxon }) => {
         const name = this.speciesCommonName(taxon);
         const sci = this.speciesScientificName(taxon);
@@ -1082,7 +1298,7 @@
         item.rel = "noopener";
         item.innerHTML = `
           ${photo ? `<img class="inat-w-grid-img" src="${photo}" alt="${this.escapeHtml(name)}" loading="lazy" />` : `<div class="inat-w-no-photo" style="aspect-ratio:1">&#x1F33F;</div>`}
-          <span class="inat-w-count-badge">${this.formatCount(count)}</span>
+          ${this.showCount ? `<span class="inat-w-count-badge">${this.formatCount(count)}</span>` : ""}
           <div class="inat-w-grid-overlay">
             <div class="inat-w-grid-name">${this.escapeHtml(name)}</div>
             <div class="inat-w-grid-sci">${this.escapeHtml(sci)}</div>
@@ -1110,7 +1326,7 @@
         card.innerHTML = `
           <div class="inat-w-card-cover">
             ${cover ? `<img class="inat-w-card-cover-img" src="${cover}" alt="${this.escapeHtml(name)}" loading="lazy" />` : `<div class="inat-w-no-photo">&#x1F33F;</div>`}
-            <span class="inat-w-count-badge">${this.formatCount(count)} obs</span>
+            ${this.showCount ? `<span class="inat-w-count-badge">${this.formatCount(count)} obs</span>` : ""}
           </div>
           <div class="inat-w-card-body">
             <div class="inat-w-card-common">${this.escapeHtml(name)}</div>

@@ -719,8 +719,11 @@
             <label class="checkbox-label hidden-for-species" id="showLocationLabel"><input type="checkbox" id="showLocation" checked /> Location</label>
             <label class="checkbox-label hidden-for-species" id="showGradeLabel"><input type="checkbox" id="showGrade" /> Research Grade</label>
             <label class="checkbox-label hidden-for-species" id="showNotesLabel"><input type="checkbox" id="showNotes" /> Notes</label>
+            <label class="checkbox-label" id="showNamesLabel"><input type="checkbox" id="showNames" /> Always show names</label>
+            <label class="checkbox-label" id="showCountLabel" style="display:none"><input type="checkbox" id="showCount" checked /> Obs count</label>
             <label class="checkbox-label" id="compactLabel"><input type="checkbox" id="compact" /> Compact</label>
             <label class="checkbox-label"><input type="checkbox" id="paginationCheck" /> Pagination</label>
+            <label class="checkbox-label"><input type="checkbox" id="searchCheck" /> Taxa search</label>
           </div>
           <div class="option-row">
             <div class="option-label">Custom text (top right)</div>
@@ -906,6 +909,9 @@
         showNotes: false,
         compact: false,
         pagination: false,
+        search: false,
+        showNames: false,
+        showCount: true,
         headerText: "",
         borderRadius: 12,
         padding: 16,
@@ -941,6 +947,7 @@
           el.classList.toggle("species-mode", isSpecies);
         });
         limitLabel.textContent = isSpecies ? "Top Species" : "Observations";
+        document.getElementById("showCountLabel").style.display = isSpecies ? "" : "none";
       }
       document.querySelectorAll("#dataTypeTabs .source-type-tab").forEach((tab) => {
         tab.addEventListener("click", () => {
@@ -1018,6 +1025,7 @@
         document.getElementById("showLocationLabel").style.display = isGrid ? "none" : "";
         document.getElementById("showGradeLabel").style.display = isGrid ? "none" : "";
         document.getElementById("showNotesLabel").style.display = isGrid ? "none" : "";
+        document.getElementById("showNamesLabel").style.display = isGrid ? "" : "none";
         document.getElementById("compactLabel").style.display = hasCompact ? "" : "none";
       }
 
@@ -1107,6 +1115,24 @@
 
       document.getElementById("paginationCheck").addEventListener("change", (e) => {
         state.pagination = e.target.checked;
+        renderPreview();
+        updateEmbedCode();
+      });
+
+      document.getElementById("searchCheck").addEventListener("change", (e) => {
+        state.search = e.target.checked;
+        renderPreview();
+        updateEmbedCode();
+      });
+
+      document.getElementById("showNames").addEventListener("change", (e) => {
+        state.showNames = e.target.checked;
+        renderPreview();
+        updateEmbedCode();
+      });
+
+      document.getElementById("showCount").addEventListener("change", (e) => {
+        state.showCount = e.target.checked;
         renderPreview();
         updateEmbedCode();
       });
@@ -1398,8 +1424,11 @@
         }
         if (state.borderRadius !== 12) attrs.push(`data-inat-radius="${state.borderRadius}"`);
         if (state.padding !== 16) attrs.push(`data-inat-padding="${state.padding}"`);
+        if (state.showNames && state.layout === "grid") attrs.push(`data-inat-show-names="true"`);
+        if (isSpecies && !state.showCount) attrs.push(`data-inat-show-count="false"`);
         if (state.compact) attrs.push(`data-inat-compact="true"`);
         if (state.pagination && state.sourceType !== "observation") attrs.push(`data-inat-pagination="true"`);
+        if (state.search && state.sourceType !== "observation") attrs.push(`data-inat-search="true"`);
         if (state.lang) attrs.push(`data-inat-lang="${escapeAttr(state.lang)}"`);
 
         return attrs;
@@ -1451,8 +1480,11 @@
           }
           if (state.borderRadius !== 12) params.set("radius", state.borderRadius);
           if (state.padding !== 16) params.set("padding", state.padding);
+          if (state.showNames && state.layout === "grid") params.set("show_names", "true");
+          if (isSpecies && !state.showCount) params.set("show_count", "false");
           if (state.compact) params.set("compact", "true");
           if (state.pagination && state.sourceType !== "observation") params.set("pagination", "true");
+          if (state.search && state.sourceType !== "observation") params.set("search", "true");
           if (state.lang) params.set("lang", state.lang);
           const iframeUrl = `${WIDGET_EMBED_URL}?${params.toString()}`;
           const code = `<!-- iNaturalist Widget (iframe) -->\n<iframe\n  src="${iframeUrl}"\n  width="100%"\n  height="100%"\n  frameborder="0"\n  style="border:none;border-radius:12px"\n></iframe>`;
