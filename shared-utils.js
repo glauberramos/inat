@@ -75,9 +75,8 @@ function getSavedLanguage() {
 // ===== Error Handling =====
 
 function showError(elementOrId, message) {
-  const element = typeof elementOrId === "string"
-    ? document.getElementById(elementOrId)
-    : elementOrId;
+  const element =
+    typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
   if (element) {
     element.textContent = message;
     element.style.display = "block";
@@ -86,9 +85,8 @@ function showError(elementOrId, message) {
 }
 
 function hideError(elementOrId) {
-  const element = typeof elementOrId === "string"
-    ? document.getElementById(elementOrId)
-    : elementOrId;
+  const element =
+    typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
   if (element) {
     element.style.display = "none";
     element.classList.remove("show");
@@ -107,22 +105,44 @@ function updateProgress(percent, text, currentCheck) {
   if (currentCheckEl) currentCheckEl.textContent = currentCheck || "";
 }
 
-// ===== Feedback Button =====
+// ===== Feedback Button (Crisp chat) =====
 
+const CRISP_WEBSITE_ID = "69e5f089-9f10-41ef-a438-5d254be7b317";
+
+// Loads Crisp, hides its default launcher, and wires the "Send feedback"
+// button to toggle the chat. Replaces the per-page inline boilerplate.
 function initFeedbackButton(buttonId = "feedbackBtn") {
-  let feedbackOpen = false;
   const btn = document.getElementById(buttonId);
-  if (btn && typeof $crisp !== "undefined") {
-    btn.addEventListener("click", () => {
-      if (feedbackOpen) {
-        $crisp.push(["do", "chat:close"]); $crisp.push(["do", "chat:hide"]);
-        feedbackOpen = false;
-      } else {
-        $crisp.push(["do", "chat:show"]); $crisp.push(["do", "chat:open"]);
-        feedbackOpen = true;
-      }
-    });
-  }
+  if (!btn) return;
+
+  window.$crisp = window.$crisp || [];
+  window.CRISP_WEBSITE_ID = CRISP_WEBSITE_ID;
+  const s = document.createElement("script");
+  s.src = "https://client.crisp.chat/l.js";
+  s.async = 1;
+  document.getElementsByTagName("head")[0].appendChild(s);
+
+  $crisp.push(["do", "chat:hide"]);
+  $crisp.push([
+    "on",
+    "chat:closed",
+    function () {
+      $crisp.push(["do", "chat:hide"]);
+    },
+  ]);
+
+  let feedbackOpen = false;
+  btn.addEventListener("click", () => {
+    if (feedbackOpen) {
+      $crisp.push(["do", "chat:close"]);
+      $crisp.push(["do", "chat:hide"]);
+      feedbackOpen = false;
+    } else {
+      $crisp.push(["do", "chat:show"]);
+      $crisp.push(["do", "chat:open"]);
+      feedbackOpen = true;
+    }
+  });
 }
 
 // ===== Service Worker =====
@@ -147,10 +167,23 @@ async function fetchJSON(url) {
 
 // ===== HTML Helpers =====
 
-function escapeHtml(text) {
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
+// Escape a value for safe interpolation into HTML (element content or
+// double-quoted attribute values). Pure string version so it also works
+// outside the DOM (tests) and on non-string API values.
+function escapeHtml(value) {
+  if (value === null || value === undefined) return "";
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// ===== Timing Helpers =====
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // ===== Init helpers =====
@@ -201,4 +234,9 @@ function initLanguage(selectElement) {
     });
   }
   return savedLanguage;
+}
+
+// Allow unit tests (Node) to import the pure helpers; no-op in the browser.
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { escapeHtml, sleep };
 }

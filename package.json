@@ -1,0 +1,22 @@
+{
+  "name": "inat-tools",
+  "version": "1.0.0",
+  "description": "Collection of tools for iNaturalist users - SpeciesDex, Lifelist, Profile stats, and more",
+  "private": true,
+  "scripts": {
+    "lint": "eslint .",
+    "format": "prettier --write \"*.js\" \"tests/**/*.js\"",
+    "format:check": "prettier --check \"*.js\" \"tests/**/*.js\"",
+    "test": "node --test \"tests/*.test.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/glauberramos/inat.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "eslint-plugin-html": "^8.1.0",
+    "prettier": "^3.3.0"
+  }
+}

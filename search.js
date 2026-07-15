@@ -55,17 +55,14 @@ document.addEventListener("DOMContentLoaded", function () {
   async function searchUsernames(query) {
     try {
       const response = await fetch(
-        `https://api.inaturalist.org/v1/users/autocomplete?q=${encodeURIComponent(
-          query
-        )}&per_page=10`
+        `${API_BASE}/users/autocomplete?q=${encodeURIComponent(query)}&per_page=10`
       );
       const data = await response.json();
 
       if (data.results && data.results.length > 0) {
         displayUsernameSuggestions(data.results);
       } else {
-        usernameAutocomplete.innerHTML =
-          '<div class="username-suggestion">No users found</div>';
+        usernameAutocomplete.innerHTML = '<div class="username-suggestion">No users found</div>';
         usernameAutocomplete.classList.add("active");
       }
     } catch (error) {
@@ -80,9 +77,9 @@ document.addEventListener("DOMContentLoaded", function () {
     usernameAutocomplete.innerHTML = users
       .map((user) => {
         return `
-          <div class="username-suggestion" data-username="${user.login}">
-            <div class="username-name">${user.login}</div>
-            <div class="username-info">${user.name || ""}</div>
+          <div class="username-suggestion" data-username="${escapeHtml(user.login)}">
+            <div class="username-name">${escapeHtml(user.login)}</div>
+            <div class="username-info">${escapeHtml(user.name || "")}</div>
           </div>
         `;
       })
@@ -91,14 +88,11 @@ document.addEventListener("DOMContentLoaded", function () {
     usernameAutocomplete.classList.add("active");
 
     // Add click handlers to suggestions
-    const suggestions = usernameAutocomplete.querySelectorAll(
-      ".username-suggestion"
-    );
+    const suggestions = usernameAutocomplete.querySelectorAll(".username-suggestion");
     suggestions.forEach((suggestion) => {
       suggestion.addEventListener("click", () => {
         const username = suggestion.dataset.username;
-        const usernameName =
-          suggestion.querySelector(".username-name").textContent;
+        const usernameName = suggestion.querySelector(".username-name").textContent;
 
         // Update input and save to localStorage
         usernameInput.value = usernameName;
@@ -112,10 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Close username autocomplete when clicking outside
   document.addEventListener("click", (e) => {
-    if (
-      !usernameInput.contains(e.target) &&
-      !usernameAutocomplete.contains(e.target)
-    ) {
+    if (!usernameInput.contains(e.target) && !usernameAutocomplete.contains(e.target)) {
       usernameAutocomplete.classList.remove("active");
     }
   });
@@ -145,17 +136,13 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       // Search for places
       const placesResponse = await fetch(
-        `https://api.inaturalist.org/v1/search?q=${encodeURIComponent(
-          query
-        )}&sources=places&per_page=7`
+        `${API_BASE}/search?q=${encodeURIComponent(query)}&sources=places&per_page=7`
       );
       const placesData = await placesResponse.json();
 
       // Search for projects
       const projectsResponse = await fetch(
-        `https://api.inaturalist.org/v1/projects?q=${encodeURIComponent(
-          query
-        )}&per_page=7`
+        `${API_BASE}/projects?q=${encodeURIComponent(query)}&per_page=7`
       );
       const projectsData = await projectsResponse.json();
 
@@ -183,16 +170,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (places.length > 0) {
       places.forEach((place) => {
         html += `
-          <div class="place-suggestion" data-type="place" data-id="${
-            place.record.id
-          }">
-            <div class="place-name">${
+          <div class="place-suggestion" data-type="place" data-id="${place.record.id}">
+            <div class="place-name">${escapeHtml(
               place.record.place_type === 12 || place.record.place_type === 29
                 ? place.record.name
                 : place.matches && place.matches.length > 0
-                ? place.matches.join(", ")
-                : place.record.name
-            }</div>
+                  ? place.matches.join(", ")
+                  : place.record.name
+            )}</div>
             <div class="place-type">Place</div>
           </div>
         `;
@@ -207,7 +192,7 @@ document.addEventListener("DOMContentLoaded", function () {
       projects.forEach((project) => {
         html += `
           <div class="place-suggestion project-suggestion" data-type="project" data-id="${project.id}">
-            <div class="place-name">${project.title}</div>
+            <div class="place-name">${escapeHtml(project.title)}</div>
             <div class="place-type">Project</div>
           </div>
         `;
@@ -274,10 +259,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Close autocomplete when clicking outside
   document.addEventListener("click", (e) => {
-    if (
-      !placeInput.contains(e.target) &&
-      !placeAutocomplete.contains(e.target)
-    ) {
+    if (!placeInput.contains(e.target) && !placeAutocomplete.contains(e.target)) {
       placeAutocomplete.classList.remove("active");
     }
   });
@@ -285,12 +267,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // Clear place input on focusout if no value is selected
   placeInput.addEventListener("focusout", (e) => {
     const hasPlaceSelected =
-      localStorage.getItem("inatPlaceId") ||
-      localStorage.getItem("inatProjectId");
+      localStorage.getItem("inatPlaceId") || localStorage.getItem("inatProjectId");
 
     if (!hasPlaceSelected && placeInput.value.trim()) {
       placeInput.value = "";
     }
   });
-
 });
