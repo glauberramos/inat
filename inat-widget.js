@@ -20,10 +20,7 @@
       this.source = container.dataset.inatSource || "";
       this.sourceType = container.dataset.inatSourceType || "user";
       this.dataType = container.dataset.inatDataType || "observations";
-      this.limit = Math.min(
-        50,
-        Math.max(1, parseInt(container.dataset.inatLimit) || 10)
-      );
+      this.limit = Math.min(50, Math.max(1, parseInt(container.dataset.inatLimit) || 10));
       this.orderBy = container.dataset.inatOrderBy || "observed_on";
       this.layout = container.dataset.inatLayout || "grid";
       this.theme = container.dataset.inatTheme || "light";
@@ -38,8 +35,10 @@
       this.showLocation = container.dataset.inatShowLocation !== "false";
       this.showNotes = container.dataset.inatShowNotes === "true";
       this.showTitle = container.dataset.inatShowTitle !== "false";
-      this.borderRadius = container.dataset.inatRadius !== undefined ? parseInt(container.dataset.inatRadius) : 12;
-      this.padding = container.dataset.inatPadding !== undefined ? parseInt(container.dataset.inatPadding) : 16;
+      this.borderRadius =
+        container.dataset.inatRadius !== undefined ? parseInt(container.dataset.inatRadius) : 12;
+      this.padding =
+        container.dataset.inatPadding !== undefined ? parseInt(container.dataset.inatPadding) : 16;
       this.compact = container.dataset.inatCompact === "true";
       this.lang = container.dataset.inatLang || "";
       this.pagination = container.dataset.inatPagination === "true";
@@ -602,7 +601,10 @@
       this.container.innerHTML = "";
       this.container.className = `inat-w inat-theme-${this.theme}`;
       this.container.style.setProperty("--inat-radius", `${this.borderRadius}px`);
-      this.container.style.setProperty("--inat-radius-sm", `${Math.max(0, this.borderRadius - 4)}px`);
+      this.container.style.setProperty(
+        "--inat-radius-sm",
+        `${Math.max(0, this.borderRadius - 4)}px`
+      );
       this.container.style.padding = `${this.padding}px`;
 
       // Header
@@ -611,8 +613,12 @@
       header.innerHTML = `
         <div class="inat-w-header-left">
           <img class="inat-w-header-logo" src="https://static.inaturalist.org/sites/1-logo.svg" alt="iNaturalist" />
-          ${this.showTitle ? `<span class="inat-w-header-sep">/</span>
-          <span class="inat-w-header-title">${this.escapeHtml(this.title || this.source)}</span>` : ""}
+          ${
+            this.showTitle
+              ? `<span class="inat-w-header-sep">/</span>
+          <span class="inat-w-header-title">${this.escapeHtml(this.title || this.source)}</span>`
+              : ""
+          }
         </div>
         ${this.headerText ? `<span class="inat-w-header-text">${this.escapeHtml(this.headerText)}</span>` : ""}
       `;
@@ -639,10 +645,7 @@
       if (!this.pagination || this.sourceType === "observation") return;
       // The API rejects requests where page * per_page exceeds 10,000 results
       const maxPage = Math.max(1, Math.floor(10000 / this.limit));
-      const totalPages = Math.min(
-        maxPage,
-        Math.max(1, Math.ceil(this.totalResults / this.limit))
-      );
+      const totalPages = Math.min(maxPage, Math.max(1, Math.ceil(this.totalResults / this.limit)));
       if (totalPages <= 1) {
         this.paginationEl.classList.remove("inat-w-pagination-visible");
         return;
@@ -689,7 +692,9 @@
           const singleParams = new URLSearchParams();
           if (this.lang) singleParams.set("locale", this.lang);
           const singleQuery = singleParams.toString();
-          const response = await fetch(`${INAT_API}/observations/${encodeURIComponent(this.source)}${singleQuery ? "?" + singleQuery : ""}`);
+          const response = await fetch(
+            `${INAT_API}/observations/${encodeURIComponent(this.source)}${singleQuery ? "?" + singleQuery : ""}`
+          );
           if (!response.ok) throw new Error("Failed to fetch observation");
           const data = await response.json();
           if (data.results && data.results.length > 0) {
@@ -763,9 +768,10 @@
         this.renderObservations();
         this.renderPagination();
       } catch (err) {
-        const errMsg = this.dataType === "species"
-          ? "Could not load species. Check the source name and try again."
-          : "Could not load observations. Check the source name and try again.";
+        const errMsg =
+          this.dataType === "species"
+            ? "Could not load species. Check the source name and try again."
+            : "Could not load observations. Check the source name and try again.";
         this.contentEl.innerHTML = `<div class="inat-w-error"><div class="inat-w-error-icon">&#x26A0;&#xFE0F;</div><div>${errMsg}</div></div>`;
       }
     }
@@ -888,20 +894,25 @@
         const photos = obs.photos || [];
         const hasMultiPhotos = photos.length > 1;
 
-        const avatarBadge = isMultiUser ? `
+        const avatarBadge = isMultiUser
+          ? `
             <div class="inat-w-card-taxon-badge">
               ${userIcon ? `<img class="inat-w-card-taxon-img" src="${userIcon}" alt="${this.escapeHtml(user)}" loading="lazy" />` : `<div class="inat-w-no-photo" style="border-radius:50%">&#x1F464;</div>`}
             </div>
-          ` : "";
+          `
+          : "";
 
         let photoHtml;
         if (hasMultiPhotos) {
-          const photoImgs = photos.map((p) =>
-            `<img src="${p.url ? p.url.replace("square", "medium") : ""}" alt="${this.escapeHtml(name)}" loading="lazy" />`
-          ).join("");
-          const dots = photos.map((_, i) =>
-            `<span class="inat-w-card-dot${i === 0 ? " active" : ""}"></span>`
-          ).join("");
+          const photoImgs = photos
+            .map(
+              (p) =>
+                `<img src="${p.url ? p.url.replace("square", "medium") : ""}" alt="${this.escapeHtml(name)}" loading="lazy" />`
+            )
+            .join("");
+          const dots = photos
+            .map((_, i) => `<span class="inat-w-card-dot${i === 0 ? " active" : ""}"></span>`)
+            .join("");
           photoHtml = `
             <div class="inat-w-card-photos-clip">
               <div class="inat-w-card-photos" data-index="0">${photoImgs}</div>
@@ -942,18 +953,30 @@
                 <span class="inat-w-card-detail-label">Date:</span>
                 <span class="inat-w-card-detail-value">${date}</span>
               </div>
-              ${this.showLocation ? `<div class="inat-w-card-detail">
+              ${
+                this.showLocation
+                  ? `<div class="inat-w-card-detail">
                 <span class="inat-w-card-detail-label">Location:</span>
                 <span class="inat-w-card-detail-value">${this.escapeHtml(place)}</span>
-              </div>` : ""}
-              ${this.showGrade && obs.quality_grade && obs.quality_grade !== "casual" ? `<div class="inat-w-card-detail">
+              </div>`
+                  : ""
+              }
+              ${
+                this.showGrade && obs.quality_grade && obs.quality_grade !== "casual"
+                  ? `<div class="inat-w-card-detail">
                 <span class="inat-w-card-detail-label">Grade:</span>
                 <span class="inat-w-card-detail-value"><span class="inat-w-grade inat-w-grade-${obs.quality_grade}">${obs.quality_grade === "research" ? "Research Grade" : "Needs ID"}</span></span>
-              </div>` : ""}
-              ${this.showNotes && notes ? `<div class="inat-w-card-detail">
+              </div>`
+                  : ""
+              }
+              ${
+                this.showNotes && notes
+                  ? `<div class="inat-w-card-detail">
                 <span class="inat-w-card-detail-label">Notes:</span>
                 <span class="inat-w-card-detail-value">${this.escapeHtml(notes)}</span>
-              </div>` : ""}
+              </div>`
+                  : ""
+              }
             </div>
           </div>
         `;
@@ -1101,8 +1124,7 @@
     }
 
     getCommonName(obs) {
-      if (obs.taxon && obs.taxon.preferred_common_name)
-        return obs.taxon.preferred_common_name;
+      if (obs.taxon && obs.taxon.preferred_common_name) return obs.taxon.preferred_common_name;
       if (obs.taxon && obs.taxon.name) return obs.taxon.name;
       return "Unknown species";
     }
@@ -1128,11 +1150,7 @@
     }
 
     getTaxonPhoto(obs) {
-      if (
-        obs.taxon &&
-        obs.taxon.default_photo &&
-        obs.taxon.default_photo.square_url
-      ) {
+      if (obs.taxon && obs.taxon.default_photo && obs.taxon.default_photo.square_url) {
         return obs.taxon.default_photo.square_url;
       }
       return this.getPhotoUrl(obs, "square");

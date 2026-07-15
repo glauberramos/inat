@@ -1,5 +1,5 @@
 // Dark mode functionality
-(function() {
+(function () {
   // Create dark mode toggle button if it doesn't exist
   let darkModeToggle = document.getElementById("darkModeToggle");
 
