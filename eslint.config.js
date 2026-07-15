@@ -111,9 +111,16 @@ module.exports = [
   },
   {
     // These files DEFINE the shared globals declared above; without this
-    // override their top-level declarations trip no-redeclare.
-    files: ["shared-utils.js", "constants.js", "autocomplete.js", "location-autocomplete.js"],
-    rules: { "no-redeclare": "off" },
+    // override their top-level declarations trip no-redeclare, and their
+    // functions look unused because consumers live in other <script> files.
+    files: [
+      "shared-utils.js",
+      "constants.js",
+      "autocomplete.js",
+      "location-autocomplete.js",
+      "calendar-modal.js",
+    ],
+    rules: { "no-redeclare": "off", "no-unused-vars": "off" },
   },
   {
     files: ["tests/**/*.js", "eslint.config.js"],

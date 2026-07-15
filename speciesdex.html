@@ -816,7 +816,6 @@
         let isDragging = false;
         let isResizing = false;
         let resizeHandle = null;
-        let defaultRadius = 50000; // 50km default
         let dragStartLatLng = null;
         let dragStartBounds = null;
         let circleHandles = [];
@@ -1175,7 +1174,7 @@
           const boundsInput = document.getElementById('mapBoundsInput');
           const raw = (boundsInput && boundsInput.value) || localStorage.getItem('inatMapArea');
           let saved = null;
-          try { saved = raw ? JSON.parse(raw) : null; } catch (e) { saved = null; }
+          try { saved = raw ? JSON.parse(raw) : null; } catch { saved = null; }
           if (saved && saved.type) restoreSelection(saved);
         }
 

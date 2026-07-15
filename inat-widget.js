@@ -7,7 +7,6 @@
   "use strict";
 
   const INAT_API = "https://api.inaturalist.org/v1";
-  const WIDGET_BASE = "https://glauberramos.github.io/inat";
 
   function initWidgets() {
     const containers = document.querySelectorAll("[data-inat-widget]");
@@ -851,7 +850,7 @@
           resultsEl.appendChild(item);
         });
         resultsEl.classList.add("inat-w-visible");
-      } catch (err) {
+      } catch {
         resultsEl.classList.remove("inat-w-visible");
       }
     }
@@ -983,7 +982,7 @@
 
         this.renderObservations();
         this.renderPagination();
-      } catch (err) {
+      } catch {
         const errMsg =
           this.dataType === "species"
             ? "Could not load species. Check the source name and try again."
@@ -1037,7 +1036,6 @@
         const photo = this.getPhotoUrl(obs, "square");
         const date = this.formatDate(obs);
         const user = obs.user ? obs.user.login : "";
-        const photoCount = obs.photos ? obs.photos.length : 0;
         const url = `https://www.inaturalist.org/observations/${obs.id}`;
 
         const item = document.createElement("a");
@@ -1072,7 +1070,6 @@
         const name = this.getCommonName(obs);
         const scientific = this.getScientificName(obs);
         const photo = this.getPhotoUrl(obs, this.compact ? "square" : "medium");
-        const photoCount = obs.photos ? obs.photos.length : 0;
         const url = `https://www.inaturalist.org/observations/${obs.id}`;
 
         const item = document.createElement("a");

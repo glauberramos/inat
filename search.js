@@ -92,7 +92,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const suggestions = usernameAutocomplete.querySelectorAll(".username-suggestion");
     suggestions.forEach((suggestion) => {
       suggestion.addEventListener("click", () => {
-        const username = suggestion.dataset.username;
         const usernameName = suggestion.querySelector(".username-name").textContent;
 
         // Update input and save to localStorage

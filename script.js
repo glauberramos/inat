@@ -34,7 +34,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const savedTaxon = localStorage.getItem("inatTaxonId");
   const savedLimit = localStorage.getItem("inatLimit");
   const savedProject = localStorage.getItem("inatProject");
-  const savedProjectId = localStorage.getItem("inatProjectId");
 
   // URL parameter handling
   const urlParams = new URLSearchParams(window.location.search);
