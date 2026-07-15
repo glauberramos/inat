@@ -2300,6 +2300,8 @@
     </div>
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="constants.js"></script>
+    <script src="shared-utils.js"></script>
     <script>
       // Location Picker Variables
       let locationMap = null;
@@ -3289,7 +3291,7 @@
           jwtToken = data.api_token;
           localStorage.setItem('inat_jwt_token', jwtToken);
 
-          const userResponse = await fetch('https://api.inaturalist.org/v1/users/me', {
+          const userResponse = await fetch(`${API_BASE}/users/me`, {
             headers: { 'Authorization': jwtToken }
           });
           const userData = await userResponse.json();
@@ -3313,8 +3315,8 @@
         const topUserInfo = document.getElementById('topUserInfo');
         topUserBar.classList.add('show');
         topUserInfo.innerHTML = `
-          <img src="${currentUser.icon || 'logo.png'}" alt="" onerror="this.src='logo.png'" />
-          <span class="top-user-name">${currentUser.name || currentUser.login}</span>
+          <img src="${escapeHtml(currentUser.icon || 'logo.png')}" alt="" onerror="this.src='logo.png'" />
+          <span class="top-user-name">${escapeHtml(currentUser.name || currentUser.login)}</span>
           <button class="top-logout-btn" onclick="logout()">Logout</button>
         `;
       }
@@ -3345,7 +3347,7 @@
         if (existingJwt) {
           jwtToken = existingJwt;
           try {
-            const response = await fetch('https://api.inaturalist.org/v1/users/me', {
+            const response = await fetch(`${API_BASE}/users/me`, {
               headers: { 'Authorization': jwtToken }
             });
             if (response.ok) {
@@ -3871,14 +3873,14 @@
 
         bulkTaxonTimeout = setTimeout(async () => {
           try {
-            const response = await fetch(`https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(query)}`);
+            const response = await fetch(`${API_BASE}/taxa/autocomplete?q=${encodeURIComponent(query)}`);
             const data = await response.json();
 
             if (data.results && data.results.length > 0) {
               bulkTaxonAutocomplete.innerHTML = data.results.slice(0, 8).map(taxon => `
-                <div class="taxon-suggestion-draft" data-id="${taxon.id}" data-name="${taxon.preferred_common_name || taxon.name}">
-                  <div class="taxon-name">${taxon.preferred_common_name || taxon.name}</div>
-                  <div class="taxon-sci-name">${taxon.name}</div>
+                <div class="taxon-suggestion-draft" data-id="${taxon.id}" data-name="${escapeHtml(taxon.preferred_common_name || taxon.name)}">
+                  <div class="taxon-name">${escapeHtml(taxon.preferred_common_name || taxon.name)}</div>
+                  <div class="taxon-sci-name">${escapeHtml(taxon.name)}</div>
                 </div>
               `).join('');
               bulkTaxonAutocomplete.style.display = 'block';
@@ -3925,13 +3927,13 @@
 
         bulkLocationTimeout = setTimeout(async () => {
           try {
-            const response = await fetch(`https://api.inaturalist.org/v1/places/autocomplete?q=${encodeURIComponent(query)}`);
+            const response = await fetch(`${API_BASE}/places/autocomplete?q=${encodeURIComponent(query)}`);
             const data = await response.json();
 
             if (data.results && data.results.length > 0) {
               bulkLocationAutocomplete.innerHTML = data.results.slice(0, 8).map(place => `
-                <div class="location-suggestion-draft" data-lat="${place.location ? place.location.split(',')[0] : ''}" data-lng="${place.location ? place.location.split(',')[1] : ''}" data-name="${place.display_name}">
-                  ${place.display_name}
+                <div class="location-suggestion-draft" data-lat="${escapeHtml(place.location ? place.location.split(',')[0] : '')}" data-lng="${escapeHtml(place.location ? place.location.split(',')[1] : '')}" data-name="${escapeHtml(place.display_name)}">
+                  ${escapeHtml(place.display_name)}
                 </div>
               `).join('');
               bulkLocationAutocomplete.style.display = 'block';
@@ -4057,7 +4059,7 @@
                     type="text"
                     class="taxon-input"
                     data-id="${draft.id}"
-                    value="${draft.taxon}"
+                    value="${escapeHtml(draft.taxon)}"
                     placeholder="Species name"
                     autocomplete="off"
                   />
@@ -4072,7 +4074,7 @@
                     type="datetime-local"
                     class="date-input"
                     data-id="${draft.id}"
-                    value="${draft.date}"
+                    value="${escapeHtml(draft.date)}"
                   />
                 </div>
               </div>
@@ -4083,7 +4085,7 @@
                     type="text"
                     class="location-input"
                     data-id="${draft.id}"
-                    value="${draft.location || (draft.latitude && draft.longitude ? `${draft.latitude.toFixed(4)}, ${draft.longitude.toFixed(4)}` : '')}"
+                    value="${escapeHtml(draft.location || (draft.latitude && draft.longitude ? `${draft.latitude.toFixed(4)}, ${draft.longitude.toFixed(4)}` : ''))}"
                     placeholder="Location"
                     autocomplete="off"
                   />
@@ -4093,7 +4095,7 @@
               <div class="draft-field">
                 <div class="draft-field-row">
                   <span class="draft-field-icon">📝</span>
-                  <textarea class="notes-input" data-id="${draft.id}" placeholder="Notes">${draft.notes}</textarea>
+                  <textarea class="notes-input" data-id="${draft.id}" placeholder="Notes">${escapeHtml(draft.notes)}</textarea>
                 </div>
               </div>
               <div class="submission-status ${
@@ -4318,7 +4320,7 @@
           taxonTimeout = setTimeout(async () => {
             try {
               const response = await fetch(
-                `https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(
+                `${API_BASE}/taxa/autocomplete?q=${encodeURIComponent(
                   query
                 )}`
               );
@@ -4329,11 +4331,11 @@
                   .slice(0, 10)
                   .map(
                     (taxon) => `
-                    <div class="taxon-suggestion-draft" data-id="${taxon.id}" data-name="${taxon.name}">
-                      <div class="taxon-name">${
+                    <div class="taxon-suggestion-draft" data-id="${taxon.id}" data-name="${escapeHtml(taxon.name)}">
+                      <div class="taxon-name">${escapeHtml(
                         taxon.preferred_common_name || taxon.name
-                      }</div>
-                      <div class="taxon-sci-name">${taxon.name}</div>
+                      )}</div>
+                      <div class="taxon-sci-name">${escapeHtml(taxon.name)}</div>
                     </div>
                   `
                   )
@@ -4390,7 +4392,7 @@
           locationTimeout = setTimeout(async () => {
             try {
               const response = await fetch(
-                `https://api.inaturalist.org/v1/places/autocomplete?q=${encodeURIComponent(
+                `${API_BASE}/places/autocomplete?q=${encodeURIComponent(
                   query
                 )}`
               );
@@ -4401,12 +4403,12 @@
                   .slice(0, 10)
                   .map(
                     (place) => `
-                    <div class="location-suggestion-draft" data-lat="${
+                    <div class="location-suggestion-draft" data-lat="${escapeHtml(
                       place.location ? place.location.split(",")[0] : ""
-                    }" data-lng="${
+                    )}" data-lng="${escapeHtml(
                       place.location ? place.location.split(",")[1] : ""
-                    }" data-name="${place.display_name}">
-                      ${place.display_name}
+                    )}" data-name="${escapeHtml(place.display_name)}">
+                      ${escapeHtml(place.display_name)}
                     </div>
                   `
                   )
@@ -4547,7 +4549,7 @@
           }
 
           // Call CV API
-          const response = await fetch('https://api.inaturalist.org/v1/computervision/score_image', {
+          const response = await fetch(`${API_BASE}/computervision/score_image`, {
             method: 'POST',
             headers: {
               'Authorization': jwtToken
@@ -4577,10 +4579,10 @@
           // Add common ancestor suggestion first if available (genus, tribe, family, etc.)
           if (commonAncestor && commonAncestor.taxon) {
             const ancestorTaxon = commonAncestor.taxon;
-            const ancestorPhoto = ancestorTaxon.default_photo?.square_url || ancestorTaxon.default_photo?.url || 'logo.png';
-            const ancestorCommonName = ancestorTaxon.preferred_common_name || '';
-            const ancestorScientificName = ancestorTaxon.name || 'Unknown';
-            const ancestorRank = ancestorTaxon.rank || '';
+            const ancestorPhoto = escapeHtml(ancestorTaxon.default_photo?.square_url || ancestorTaxon.default_photo?.url || 'logo.png');
+            const ancestorCommonName = escapeHtml(ancestorTaxon.preferred_common_name || '');
+            const ancestorScientificName = escapeHtml(ancestorTaxon.name || 'Unknown');
+            const ancestorRank = escapeHtml(ancestorTaxon.rank || '');
             const rankDisplay = ancestorRank ? `(${ancestorRank})` : '';
             const ancestorScore = (commonAncestor.score || 0).toFixed(1);
 
@@ -4601,10 +4603,10 @@
           suggestionsHtml += results.map((result, idx) => {
             const taxon = result.taxon;
             const score = (result.combined_score || 0).toFixed(1);
-            const photo = taxon.default_photo?.square_url || taxon.default_photo?.url || 'logo.png';
-            const commonName = taxon.preferred_common_name || '';
-            const scientificName = taxon.name || 'Unknown';
-            const rank = taxon.rank || '';
+            const photo = escapeHtml(taxon.default_photo?.square_url || taxon.default_photo?.url || 'logo.png');
+            const commonName = escapeHtml(taxon.preferred_common_name || '');
+            const scientificName = escapeHtml(taxon.name || 'Unknown');
+            const rank = escapeHtml(taxon.rank || '');
             const rankDisplay = (rank && rank !== 'species' && rank !== 'subspecies') ? `(${rank})` : '';
 
             return `
@@ -4655,7 +4657,7 @@
             errorMessage = 'The Computer Vision API requires special access from iNaturalist. Use the search field below to find species manually.';
           }
 
-          cvList.innerHTML = `<div class="cv-loading" style="color: #dc3545;">${errorMessage}</div>`;
+          cvList.innerHTML = `<div class="cv-loading" style="color: #dc3545;">${escapeHtml(errorMessage)}</div>`;
         } finally {
           identifyBtn.disabled = false;
           identifyBtn.textContent = '🤖';
@@ -4764,7 +4766,7 @@
           console.log("Creating observation:", observationData);
 
           const response = await fetch(
-            "https://api.inaturalist.org/v1/observations",
+            `${API_BASE}/observations`,
             {
               method: "POST",
               headers: {
@@ -4799,7 +4801,7 @@
             photoFormData.append("file", photoBlob, `photo_${Date.now()}_${i}.jpg`);
 
             const photoResponse = await fetch(
-              "https://api.inaturalist.org/v1/observation_photos",
+              `${API_BASE}/observation_photos`,
               {
                 method: "POST",
                 headers: {
@@ -4871,42 +4873,12 @@
       src="https://plausible.io/js/script.js"
     ></script>
     <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').then(registration => {
-          // Check for updates on page load
-          registration.update();
-        }).catch(err => {
-          console.log('ServiceWorker registration failed:', err);
-        });
-      }
+      registerServiceWorker();
     </script>
     <script src="dark-mode.js"></script>
     <button class="feedback-button" id="feedbackBtn">Send feedback</button>
     <script type="text/javascript">
-      window.$crisp = [];
-      window.CRISP_WEBSITE_ID = "69e5f089-9f10-41ef-a438-5d254be7b317";
-      (function () {
-        d = document;
-        s = d.createElement("script");
-        s.src = "https://client.crisp.chat/l.js";
-        s.async = 1;
-        d.getElementsByTagName("head")[0].appendChild(s);
-      })();
-      // Hide Crisp's default launcher; the "Send feedback" button opens the chat.
-      $crisp.push(["do", "chat:hide"]);
-      $crisp.push(["on", "chat:closed", function () { $crisp.push(["do", "chat:hide"]); }]);
-
-      // Feedback button toggle
-      let feedbackOpen = false;
-      document.getElementById("feedbackBtn").addEventListener("click", () => {
-        if (feedbackOpen) {
-          $crisp.push(["do", "chat:close"]); $crisp.push(["do", "chat:hide"]);
-          feedbackOpen = false;
-        } else {
-          $crisp.push(["do", "chat:show"]); $crisp.push(["do", "chat:open"]);
-          feedbackOpen = true;
-        }
-      });
+      initFeedbackButton();
     </script>
   </body>
 </html>
