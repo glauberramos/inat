@@ -541,7 +541,6 @@
       const loadingContainer = document.getElementById("loadingContainer");
       const loadingStatus = document.getElementById("loadingStatus");
       const taxonGrid = document.getElementById("taxonGrid");
-      const errorMessage = document.getElementById("errorMessage");
       const progressBanner = document.getElementById("progressBanner");
       const controls = document.getElementById("controls");
       const sortSelect = document.getElementById("sortSelect");
@@ -555,7 +554,6 @@
       const languageSelect = document.getElementById("languageSelect");
 
       let taxonData = [];
-      let currentUserId = null;
       let currentRank = "order";
       const LIFE_TAXON_ID = 48460; // Life - root of all taxa
 
@@ -811,7 +809,6 @@
           }
 
           const userId = userData.results[0].id;
-          currentUserId = userId;
           localStorage.setItem("inatUsername", username);
 
           // Fetch all taxa of the selected rank within the parent taxon

@@ -749,8 +749,6 @@
       const loading = document.getElementById("loading");
       const resultsCount = document.getElementById("resultsCount");
       const speciesContainer = document.getElementById("speciesContainer");
-      const errorMessage = document.getElementById("errorMessage");
-      const summaryCard = document.getElementById("summaryCard");
       const controls = document.getElementById("controls");
       const iconicTaxonSelect = document.getElementById("iconicTaxonSelect");
       const conservationStatusFilter = document.getElementById(
@@ -764,7 +762,6 @@
 
       let speciesData = [];
       let threatenedTaxonIds = new Set();
-      let currentUserId = null;
       let currentUsername = null;
       let searchTimeout = null;
       let currentView = "grid"; // 'grid' or 'table'
@@ -782,7 +779,7 @@
       }
 
       // Initialize location autocomplete
-      const locationAutocompleteInstance = initLocationAutocomplete(
+      initLocationAutocomplete(
         locationInput,
         locationAutocomplete,
         placeIdInput,
@@ -1019,7 +1016,6 @@
 
           const user = userData.results[0];
           const userId = user.id;
-          currentUserId = userId;
           currentUsername = user.login;
 
           // Save username to localStorage and update URL

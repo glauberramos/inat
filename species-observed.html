@@ -829,8 +829,6 @@
       const loading = document.getElementById("loading");
       const resultsCount = document.getElementById("resultsCount");
       const speciesContainer = document.getElementById("speciesContainer");
-      const errorMessage = document.getElementById("errorMessage");
-      const summaryCard = document.getElementById("summaryCard");
       const controls = document.getElementById("controls");
       const iconicTaxonSelect = document.getElementById("iconicTaxonSelect");
       const statusFilterSelect = document.getElementById("statusFilterSelect");
@@ -850,7 +848,6 @@
       let researchGradeCount = 0;
       let needsIdCount = 0;
       let currentUserId = null;
-      let currentUsername = null;
       let searchTimeout = null;
       let currentView = "grid"; // 'grid' or 'table'
 
@@ -867,7 +864,7 @@
       }
 
       // Initialize location autocomplete
-      const locationAutocompleteInstance = initLocationAutocomplete(
+      initLocationAutocomplete(
         locationInput,
         locationAutocomplete,
         placeIdInput,

@@ -1217,7 +1217,7 @@
               updateEmbedCode();
             });
           });
-        } catch (err) {
+        } catch {
           taxonAutocomplete.classList.remove("visible");
         }
       }
@@ -1275,7 +1275,7 @@
             const data = await res.json();
             renderPlaceResults(data.results || []);
           }
-        } catch (err) {
+        } catch {
           autocompleteResults.classList.remove("visible");
         }
       }

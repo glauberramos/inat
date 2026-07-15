@@ -274,7 +274,6 @@
       const profileContent = document.getElementById('profileContent');
       const emptyState = document.getElementById('emptyState');
       const loading = document.getElementById('loading');
-      const errorMessage = document.getElementById('errorMessage');
 
       let searchTimeout = null;
 
@@ -1278,8 +1277,6 @@
 
       // Calendar functions
       let currentUserId = null;
-      let currentUsername = null;
-      let currentUserJoinYear = null;
 
       // Helper function to format date as YYYY-MM-DD in local time
       function formatDateLocal(date) {
@@ -1291,8 +1288,6 @@
 
       async function loadCalendar(userId, username, joinYear) {
         currentUserId = userId;
-        currentUsername = username;
-        currentUserJoinYear = joinYear;
 
         const yearSelect = document.getElementById('calendarYearSelect');
         const currentYear = new Date().getFullYear();
@@ -1336,7 +1331,6 @@
 
       async function renderCalendarForYear(year) {
         const calendarGrid = document.getElementById('calendarGrid');
-        const calendarMonths = document.getElementById('calendarMonths');
 
         calendarGrid.innerHTML = '<div style="padding: 20px; color: #666;">Loading...</div>';
 
@@ -1487,10 +1481,8 @@
 
         let currentStreak = 0;
         let longestStreak = 0;
-        let tempStreak = 0;
         let longestStreakStart = null;
         let longestStreakEnd = null;
-        let tempStreakStart = null;
 
         // Get all dates sorted
         const dates = Object.keys(allDays).filter(d => allDays[d] > 0).sort();
