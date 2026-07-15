@@ -826,6 +826,8 @@ a.taxon-bar-col:hover {
   text-decoration: none;
   color: #333;
   transition: all 0.2s;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .project-item:hover {
@@ -838,11 +840,13 @@ a.taxon-bar-col:hover {
   height: 24px;
   border-radius: 4px;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .project-name {
   font-size: 14px;
   font-weight: 500;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -890,6 +894,7 @@ a.taxon-bar-col:hover {
 @media (max-width: 768px) {
   .projects-list {
     flex-direction: column;
+    flex-wrap: nowrap;
   }
 
   .projects-category-list {
