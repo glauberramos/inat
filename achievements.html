@@ -139,13 +139,13 @@
       const achievementsContainer = document.getElementById(
         "achievementsContainer"
       );
-      const errorMessage = document.getElementById("errorMessage");
       const achievementsProgress = document.getElementById(
         "achievementsProgress"
       );
 
       let searchTimeout = null;
       let currentUsername = "";
+      // eslint-disable-next-line no-unused-vars -- read by calendar-modal.js
       let calendarObservedDays = new Set();
 
       // All iconic taxons in iNaturalist with emojis
@@ -217,7 +217,7 @@
             if (data.results && data.results[0] && data.results[0].id) {
               found.push({ id: data.results[0].id, year });
             }
-          } catch (e) {
+          } catch {
             // project for that year doesn't exist (yet) - skip it
           }
         }
@@ -1590,10 +1590,6 @@
         const rareSpecies10 = rarityAchievements.rareSpecies10;
         const rareSpecies10_50 = rarityAchievements.rareSpecies10_50;
         const rareSpecies100_100 = rarityAchievements.rareSpecies100_100;
-
-        // Species in a day achievements - WIP: requires all observations
-        const speciesDay10 = { current: 0, total: 10, completed: false };
-        const speciesDay100 = { current: 0, total: 100, completed: false };
 
         // Observations in a day achievements - use histogram data
         const obsDay10 = histogramAchievements.obsDay10;

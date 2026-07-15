@@ -850,7 +850,6 @@
                 const center = currentSelection.getLatLng();
                 const newRadius = center.distanceTo(e.latlng);
                 currentSelection.setRadius(Math.max(100, newRadius)); // Min 100m
-                defaultRadius = currentSelection.getRadius();
                 updateCircleHandles();
               } else if (resizeHandle !== null) {
                 const bounds = currentSelection.getBounds();
@@ -1147,7 +1146,6 @@
               fillOpacity: 0.2,
               weight: 2
             }).addTo(areaMap);
-            defaultRadius = sel.radius;
             setupCircleDrag(currentSelection);
             addCircleResizeHandles(currentSelection);
           } else {

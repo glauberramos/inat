@@ -475,8 +475,6 @@
     <script src="constants.js"></script>
     <script src="shared-utils.js"></script>
     <script>
-      const DELAY_MS = 1000;
-
       let isSearching = false;
       let searchTimeout = null;
       let placeSearchTimeout = null;
@@ -666,7 +664,6 @@
 
         const perPage = 500;
         let allResults = [];
-        let page = 1;
         let totalPages = 1;
 
         // Build base URL
@@ -716,7 +713,6 @@
         onProgress,
         useCreatedAt = false
       ) {
-        const PARALLEL_REQUESTS = 3;
         const BATCH_SIZE = 200;
 
         const totalTaxa = Array.from(taxaMap.entries()); // All taxa to process
@@ -867,6 +863,7 @@
         }
       }
 
+      // eslint-disable-next-line no-unused-vars -- called from onclick attribute
       function downloadCSV() {
         if (firstObserverResults.length === 0) return;
 

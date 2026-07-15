@@ -771,13 +771,12 @@
       let isSearching = false;
       let searchTimeout = null;
       let lifelistData = []; // Store lifelist for CSV export
-      let currentView = 'list'; // 'list' or 'grid'
 
       const usernameInput = document.getElementById("username");
 
       // View toggle functions
+      // eslint-disable-next-line no-unused-vars -- called from onclick attribute
       function setView(view) {
-        currentView = view;
         const listEl = document.getElementById("speciesList");
         const gridEl = document.getElementById("speciesGrid");
         const listBtn = document.getElementById("listViewBtn");
@@ -1248,7 +1247,6 @@
 
         const perPage = 500;
         let allResults = [];
-        let page = 1;
         let totalPages = 1;
 
         // Build base URL with optional filters
@@ -1494,6 +1492,7 @@
         }
       }
 
+      // eslint-disable-next-line no-unused-vars -- called from onclick attribute
       function downloadCSV() {
         if (lifelistData.length === 0) return;
 
@@ -1585,7 +1584,7 @@
           let foundCount = 0;
           const allResults = [];
 
-          const firstObservations = await getFirstObservationsBatch(
+          await getFirstObservationsBatch(
             username,
             taxaMap,
             (checked, total, apiCalls) => {

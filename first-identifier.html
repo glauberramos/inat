@@ -675,7 +675,6 @@
 
         const perPage = 500;
         let allResults = [];
-        let page = 1;
         let totalPages = 1;
 
         // Build base URL - get species counts from user's identifications (research grade only)
@@ -730,8 +729,6 @@
         onFirstFound,
         onProgress
       ) {
-        const PARALLEL_REQUESTS = 3;
-
         // Convert to array of [id, taxon] pairs, preserving sort order
         const totalTaxa = sortedTaxa.map(({ taxon }) => [taxon.id, taxon]);
         const totalCount = totalTaxa.length;
