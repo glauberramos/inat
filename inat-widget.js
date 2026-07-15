@@ -45,6 +45,7 @@
       this.pagination = container.dataset.inatPagination === "true";
       this.searchEnabled = container.dataset.inatSearch === "true";
       this.showNames = container.dataset.inatShowNames === "true";
+      this.showCount = container.dataset.inatShowCount !== "false";
       this.searchTaxon = null;
       this.page = 1;
       this.totalResults = 0;
@@ -1251,7 +1252,7 @@
             <div class="inat-w-list-name">${this.escapeHtml(name)}</div>
             <div class="inat-w-list-scientific">${this.escapeHtml(sci)}</div>
           </div>
-          <span class="inat-w-count-pill">${this.formatCount(count)}</span>
+          ${this.showCount ? `<span class="inat-w-count-pill">${this.formatCount(count)}</span>` : ""}
         `;
         wrap.appendChild(item);
       });
@@ -1274,7 +1275,7 @@
         item.rel = "noopener";
         item.innerHTML = `
           ${photo ? `<img class="inat-w-grid-img" src="${photo}" alt="${this.escapeHtml(name)}" loading="lazy" />` : `<div class="inat-w-no-photo" style="aspect-ratio:1">&#x1F33F;</div>`}
-          <span class="inat-w-count-badge">${this.formatCount(count)}</span>
+          ${this.showCount ? `<span class="inat-w-count-badge">${this.formatCount(count)}</span>` : ""}
           <div class="inat-w-grid-overlay">
             <div class="inat-w-grid-name">${this.escapeHtml(name)}</div>
             <div class="inat-w-grid-sci">${this.escapeHtml(sci)}</div>
@@ -1302,7 +1303,7 @@
         card.innerHTML = `
           <div class="inat-w-card-cover">
             ${cover ? `<img class="inat-w-card-cover-img" src="${cover}" alt="${this.escapeHtml(name)}" loading="lazy" />` : `<div class="inat-w-no-photo">&#x1F33F;</div>`}
-            <span class="inat-w-count-badge">${this.formatCount(count)} obs</span>
+            ${this.showCount ? `<span class="inat-w-count-badge">${this.formatCount(count)} obs</span>` : ""}
           </div>
           <div class="inat-w-card-body">
             <div class="inat-w-card-common">${this.escapeHtml(name)}</div>
