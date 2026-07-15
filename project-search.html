@@ -429,6 +429,8 @@
         </div>
       </main>
     </div>
+    <script src="constants.js"></script>
+    <script src="shared-utils.js"></script>
     <script src="location-autocomplete.js"></script>
     <script>
       let selectedLocation = null;
@@ -509,12 +511,13 @@
         const nameQuery = nameInput.value.trim();
 
         if (!selectedLocation && !nameQuery) {
-          showError("Please enter a project name or select a location");
+          showError(errorMessage, "Please enter a project name or select a location");
+          locationInfo.classList.remove("show");
           return;
         }
 
         // Hide error and show loading
-        hideError();
+        hideError(errorMessage);
         loading.style.display = "block";
         projectsContainer.innerHTML = "";
         pagination.classList.remove("show");
@@ -576,13 +579,6 @@
                     .replace("/span.", "/medium.")
                     .replace("/large.", "/medium.");
                 }
-
-                // Helper function to escape HTML
-                const escapeHtml = (text) => {
-                  const div = document.createElement("div");
-                  div.textContent = text;
-                  return div.innerHTML;
-                };
 
                 // Get member count
                 let membersHtml = "";
@@ -702,12 +698,12 @@
                         ? `<div class="umbrella-badge">☂ Umbrella</div>`
                         : ""
                     }
-                    <img class="project-card-header-image" src="${headerImageUrl}" alt="${escapeHtml(
+                    <img class="project-card-header-image" src="${escapeHtml(headerImageUrl)}" alt="${escapeHtml(
                   project.title
                 )}" onerror="this.src='https://www.inaturalist.org/assets/logo-small.png'">
                     ${
                       iconUrl
-                        ? `<img class="project-card-icon" src="${iconUrl}" alt="${escapeHtml(
+                        ? `<img class="project-card-icon" src="${escapeHtml(iconUrl)}" alt="${escapeHtml(
                             project.title
                           )} icon" onerror="this.style.display='none'">`
                         : ""
@@ -752,11 +748,11 @@
             // Update location info
             let searchInfo = [];
             if (nameQuery) {
-              searchInfo.push(`<strong>Name:</strong> "${nameQuery}"`);
+              searchInfo.push(`<strong>Name:</strong> "${escapeHtml(nameQuery)}"`);
             }
             if (selectedLocation) {
               searchInfo.push(
-                `<strong>Location:</strong> ${selectedLocation.name}`
+                `<strong>Location:</strong> ${escapeHtml(selectedLocation.name)}`
               );
             }
             searchInfo.push(`<strong>Total Projects:</strong> ${totalResults}`);
@@ -776,11 +772,11 @@
 
             let searchInfo = [];
             if (nameQuery) {
-              searchInfo.push(`<strong>Name:</strong> "${nameQuery}"`);
+              searchInfo.push(`<strong>Name:</strong> "${escapeHtml(nameQuery)}"`);
             }
             if (selectedLocation) {
               searchInfo.push(
-                `<strong>Location:</strong> ${selectedLocation.name}`
+                `<strong>Location:</strong> ${escapeHtml(selectedLocation.name)}`
               );
             }
 
@@ -793,7 +789,8 @@
         } catch (error) {
           console.error("Error fetching projects:", error);
           loading.style.display = "none";
-          showError("Error fetching projects. Please try again.");
+          showError(errorMessage, "Error fetching projects. Please try again.");
+          locationInfo.classList.remove("show");
         }
       }
 
@@ -816,15 +813,6 @@
         }
       });
 
-      function showError(message) {
-        errorMessage.textContent = message;
-        errorMessage.classList.add("show");
-        locationInfo.classList.remove("show");
-      }
-
-      function hideError() {
-        errorMessage.classList.remove("show");
-      }
     </script>
     <script
       defer
@@ -833,36 +821,11 @@
     ></script>
     <button class="feedback-button" id="feedbackBtn">Send feedback</button>
     <script type="text/javascript">
-      window.$crisp = [];
-      window.CRISP_WEBSITE_ID = "69e5f089-9f10-41ef-a438-5d254be7b317";
-      (function () {
-        d = document;
-        s = d.createElement("script");
-        s.src = "https://client.crisp.chat/l.js";
-        s.async = 1;
-        d.getElementsByTagName("head")[0].appendChild(s);
-      })();
-      // Hide Crisp's default launcher; the "Send feedback" button opens the chat.
-      $crisp.push(["do", "chat:hide"]);
-      $crisp.push(["on", "chat:closed", function () { $crisp.push(["do", "chat:hide"]); }]);
-
-      // Feedback button toggle
-      let feedbackOpen = false;
-      document.getElementById("feedbackBtn").addEventListener("click", () => {
-        if (feedbackOpen) {
-          $crisp.push(["do", "chat:close"]); $crisp.push(["do", "chat:hide"]);
-          feedbackOpen = false;
-        } else {
-          $crisp.push(["do", "chat:show"]); $crisp.push(["do", "chat:open"]);
-          feedbackOpen = true;
-        }
-      });
+      initFeedbackButton();
     </script>
     <script src="dark-mode.js"></script>
     <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-      }
+      registerServiceWorker();
     </script>
   </body>
 </html>
