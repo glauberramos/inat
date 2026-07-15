@@ -731,8 +731,8 @@
               usernameAutocomplete.innerHTML = data.results
                 .slice(0, 10)
                 .map((user) => `
-                  <div class="username-suggestion" data-login="${user.login}">
-                    <div class="username-name">${user.login}</div>
+                  <div class="username-suggestion" data-login="${escapeHtml(user.login)}">
+                    <div class="username-name">${escapeHtml(user.login)}</div>
                     <div class="username-info">${(user.observations_count || 0).toLocaleString()} observations</div>
                   </div>
                 `)
@@ -788,11 +788,11 @@
         const taxonId = (currentRank === "family" || currentRank === "order") ? parseInt(groupSelect.value) : LIFE_TAXON_ID;
 
         if (!username) {
-          showError("Please enter a username");
+          showError("errorMessage", "Please enter a username");
           return;
         }
 
-        hideError();
+        hideError("errorMessage");
         loadingContainer.style.display = "block";
         taxonGrid.innerHTML = "";
         progressBanner.style.display = "none";
@@ -931,7 +931,7 @@
         } catch (error) {
           console.error("Error:", error);
           loadingContainer.style.display = "none";
-          showError(error.message || "Error fetching data. Please try again.");
+          showError("errorMessage", error.message || "Error fetching data. Please try again.");
         }
       }
 
@@ -1019,11 +1019,11 @@
             ? `https://www.inaturalist.org/observations?user_id=${encodeURIComponent(username)}&taxon_id=${taxon.id}&view=species`
             : `https://www.inaturalist.org/taxa/${taxon.id}`;
           const photoHtml = taxon.photoUrl
-            ? `<img src="${taxon.photoUrl}" alt="${escapeHtml(taxon.name)}" class="taxon-photo">`
+            ? `<img src="${escapeHtml(taxon.photoUrl)}" alt="${escapeHtml(taxon.name)}" class="taxon-photo">`
             : `<div class="taxon-photo-placeholder">${icon}</div>`;
 
           return `
-            <div class="taxon-card ${cardClass}" onclick="window.open('${taxonUrl}', '_blank')">
+            <div class="taxon-card ${cardClass}" onclick="window.open('${escapeHtml(taxonUrl)}', '_blank')">
               <div class="taxon-card-content">
                 ${photoHtml}
                 <div class="taxon-info">
@@ -1047,42 +1047,10 @@
           taxonGrid.innerHTML = `<div style="text-align: center; padding: 40px; color: #666;">No ${labels.plural} match your filters.</div>`;
         }
       }
-
-      function showError(message) {
-        errorMessage.textContent = message;
-        errorMessage.classList.add("show");
-      }
-
-      function hideError() {
-        errorMessage.classList.remove("show");
-      }
     </script>
     <button class="feedback-button" id="feedbackBtn">Send feedback</button>
     <script type="text/javascript">
-      window.$crisp = [];
-      window.CRISP_WEBSITE_ID = "69e5f089-9f10-41ef-a438-5d254be7b317";
-      (function () {
-        d = document;
-        s = d.createElement("script");
-        s.src = "https://client.crisp.chat/l.js";
-        s.async = 1;
-        d.getElementsByTagName("head")[0].appendChild(s);
-      })();
-      // Hide Crisp's default launcher; the "Send feedback" button opens the chat.
-      $crisp.push(["do", "chat:hide"]);
-      $crisp.push(["on", "chat:closed", function () { $crisp.push(["do", "chat:hide"]); }]);
-
-      // Feedback button toggle
-      let feedbackOpen = false;
-      document.getElementById("feedbackBtn").addEventListener("click", () => {
-        if (feedbackOpen) {
-          $crisp.push(["do", "chat:close"]); $crisp.push(["do", "chat:hide"]);
-          feedbackOpen = false;
-        } else {
-          $crisp.push(["do", "chat:show"]); $crisp.push(["do", "chat:open"]);
-          feedbackOpen = true;
-        }
-      });
+      initFeedbackButton();
     </script>
     <script
       defer
