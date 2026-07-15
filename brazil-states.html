@@ -361,6 +361,8 @@
       </main>
     </div>
     <div class="state-tooltip" id="stateTooltip"></div>
+    <script src="constants.js"></script>
+    <script src="shared-utils.js"></script>
     <script src="dark-mode.js"></script>
     <script>
       const usernameInput = document.getElementById("usernameInput");
@@ -417,12 +419,6 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlUsername = urlParams.get("user");
       const savedUsername = localStorage.getItem("inatUsername");
-
-      function updateUrlWithUsername(username) {
-        const url = new URL(window.location);
-        url.searchParams.set("user", username);
-        window.history.replaceState({}, "", url);
-      }
 
       if (urlUsername) {
         usernameInput.value = urlUsername;
@@ -491,7 +487,7 @@
         searchTimeout = setTimeout(async () => {
           try {
             const response = await fetch(
-              `https://api.inaturalist.org/v1/users/autocomplete?q=${encodeURIComponent(query)}`
+              `${API_BASE}/users/autocomplete?q=${encodeURIComponent(query)}`
             );
             const data = await response.json();
 
@@ -501,8 +497,8 @@
                 .map((user) => {
                   const obsCount = user.observations_count || 0;
                   return `
-                    <div class="username-suggestion" data-login="${user.login}">
-                      <div class="username-name">${user.login}</div>
+                    <div class="username-suggestion" data-login="${escapeHtml(user.login)}">
+                      <div class="username-name">${escapeHtml(user.login)}</div>
                       <div class="username-info">${obsCount.toLocaleString()} observations</div>
                     </div>
                   `;
@@ -558,24 +554,15 @@
         observedStatesList.innerHTML = "";
       }
 
-      function showError(message) {
-        errorMessage.textContent = message;
-        errorMessage.classList.add("show");
-      }
-
-      function hideError() {
-        errorMessage.classList.remove("show");
-      }
-
       async function fetchUserData() {
         const username = usernameInput.value.trim();
 
         if (!username) {
-          showError("Please enter a username");
+          showError("errorMessage", "Please enter a username");
           return;
         }
 
-        hideError();
+        hideError("errorMessage");
         resetMap();
         loadingContainer.style.display = "block";
         statsDisplay.style.display = "none";
@@ -584,13 +571,13 @@
         try {
           // Verify user exists
           const userResponse = await fetch(
-            `https://api.inaturalist.org/v1/users/autocomplete?q=${encodeURIComponent(username)}`
+            `${API_BASE}/users/autocomplete?q=${encodeURIComponent(username)}`
           );
           const userData = await userResponse.json();
 
           if (!userData.results || userData.results.length === 0) {
             loadingContainer.style.display = "none";
-            showError("User not found");
+            showError("errorMessage", "User not found");
             return;
           }
 
@@ -616,7 +603,7 @@
 
             try {
               const response = await fetch(
-                `https://api.inaturalist.org/v1/observations?user_id=${currentUsername}&place_id=${stateInfo.placeId}&per_page=1`
+                `${API_BASE}/observations?user_id=${currentUsername}&place_id=${stateInfo.placeId}&per_page=1`
               );
               const data = await response.json();
 
@@ -650,13 +637,13 @@
               .map((code) => ({ code, name: BR_STATES[code].name, placeId: BR_STATES[code].placeId }))
               .sort((a, b) => a.name.localeCompare(b.name));
             document.getElementById("observedStatesList").innerHTML = sortedStates
-              .map((state) => `<a href="https://www.inaturalist.org/observations?user_id=${currentUsername}&place_id=${state.placeId}" target="_blank" style="color: #74ac00;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${state.name}</a>`)
+              .map((state) => `<a href="https://www.inaturalist.org/observations?user_id=${escapeHtml(currentUsername)}&place_id=${state.placeId}" target="_blank" style="color: #74ac00;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${state.name}</a>`)
               .join(", ");
           }
         } catch (error) {
           console.error("Error fetching user data:", error);
           loadingContainer.style.display = "none";
-          showError("Error fetching data. Please try again.");
+          showError("errorMessage", "Error fetching data. Please try again.");
         }
       }
 
