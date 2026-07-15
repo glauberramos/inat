@@ -70,7 +70,14 @@ const browserGlobals = {
   clearInterval: "readonly",
   requestAnimationFrame: "readonly",
   IntersectionObserver: "readonly",
+  MutationObserver: "readonly",
   AbortController: "readonly",
+  FormData: "readonly",
+  Event: "readonly",
+  CustomEvent: "readonly",
+  Node: "readonly",
+  indexedDB: "readonly",
+  L: "readonly",
   Blob: "readonly",
   FileReader: "readonly",
   crypto: "readonly",
@@ -103,7 +110,13 @@ module.exports = [
     },
   },
   {
-    files: ["tests/**/*.js"],
+    // These files DEFINE the shared globals declared above; without this
+    // override their top-level declarations trip no-redeclare.
+    files: ["shared-utils.js", "constants.js", "autocomplete.js", "location-autocomplete.js"],
+    rules: { "no-redeclare": "off" },
+  },
+  {
+    files: ["tests/**/*.js", "eslint.config.js"],
     languageOptions: {
       sourceType: "commonjs",
       globals: { require: "readonly", process: "readonly", __dirname: "readonly" },

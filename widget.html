@@ -1458,6 +1458,8 @@
           const code = `<!-- iNaturalist Widget (iframe) -->\n<iframe\n  src="${iframeUrl}"\n  width="100%"\n  height="100%"\n  frameborder="0"\n  style="border:none;border-radius:12px"\n></iframe>`;
           embedCodeText.textContent = code;
         } else {
+          // The \/ keeps the closing script tag below from terminating this inline script.
+          // eslint-disable-next-line no-useless-escape
           const code = `<!-- iNaturalist Widget -->\n<div\n  ${attrs.join("\n  ")}\n></div>\n<script src="${WIDGET_JS_URL}"><\/script>`;
           embedCodeText.textContent = code;
         }

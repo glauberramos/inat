@@ -1,4 +1,5 @@
 // Calendar Modal Functions
+/* global calendarObservedDays */
 const MONTH_NAMES = [
   "Jan",
   "Feb",

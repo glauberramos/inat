@@ -1,16 +1,3 @@
-// Global function to update URL with place parameters
-function updateUrlWithPlace(placeId, placeName) {
-  const url = new URL(window.location);
-  if (placeId && placeName) {
-    url.searchParams.set("place_id", placeId);
-    url.searchParams.set("place", placeName);
-  } else {
-    url.searchParams.delete("place_id");
-    url.searchParams.delete("place");
-  }
-  window.history.replaceState({}, "", url);
-}
-
 document.addEventListener("DOMContentLoaded", function () {
   const placeNameInput = document.getElementById("placeNameInput");
   const placeIdInput = document.getElementById("placeIdInput");
@@ -282,7 +269,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   async function searchEspecies() {
-    placeId = placeIdInput.value.trim();
+    let placeId = placeIdInput.value.trim();
     const username = usernameInput.value.trim();
     let taxonId = taxonIdHidden.value || "all";
 
@@ -587,4 +574,7 @@ document.addEventListener("DOMContentLoaded", function () {
       locationName.textContent = "The whole world";
     }
   }
+  // search.js (loaded after this file) calls this from its place-suggestion
+  // click handler via a typeof guard; expose it so that call actually runs.
+  window.updateLocationName = updateLocationName;
 });

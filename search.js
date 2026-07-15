@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Place search functionality
   const placeInput = document.getElementById("placeNameInput");
+  const placeIdInput = document.getElementById("placeIdInput");
   const placeAutocomplete = document.getElementById("placeAutocomplete");
   let placeSearchTimeout;
 
@@ -219,7 +220,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (type === "place") {
           // Handle place selection
-          placeNameInput.value = name;
+          placeInput.value = name;
           placeIdInput.value = id;
           localStorage.setItem("inatPlaceId", id);
           localStorage.setItem("inatPlaceName", name);
@@ -232,7 +233,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         } else if (type === "project") {
           // Handle project selection
-          placeNameInput.value = name;
+          placeInput.value = name;
           placeIdInput.value = ""; // Clear place ID
           localStorage.removeItem("inatPlaceId");
           localStorage.removeItem("inatPlaceName");
@@ -248,10 +249,9 @@ document.addEventListener("DOMContentLoaded", function () {
         // Hide autocomplete
         placeAutocomplete.classList.remove("active");
 
-        // Update location name
-        if (typeof updateLocationName === "function") {
-          console.log("Updating location name");
-          updateLocationName();
+        // Update location name (exposed on window by script.js)
+        if (typeof window.updateLocationName === "function") {
+          window.updateLocationName();
         }
       });
     });
