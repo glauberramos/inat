@@ -1063,7 +1063,10 @@
 
     renderGrid() {
       const wrap = document.createElement("div");
-      wrap.className = "inat-w-grid" + (this.compact ? " inat-w-compact" : "") + (this.showNames ? " inat-w-show-names" : "");
+      wrap.className =
+        "inat-w-grid" +
+        (this.compact ? " inat-w-compact" : "") +
+        (this.showNames ? " inat-w-show-names" : "");
 
       this.observations.forEach((obs) => {
         const name = this.getCommonName(obs);
@@ -1285,7 +1288,10 @@
 
     renderSpeciesGrid() {
       const wrap = document.createElement("div");
-      wrap.className = "inat-w-grid" + (this.compact ? " inat-w-compact" : "") + (this.showNames ? " inat-w-show-names" : "");
+      wrap.className =
+        "inat-w-grid" +
+        (this.compact ? " inat-w-compact" : "") +
+        (this.showNames ? " inat-w-show-names" : "");
       this.speciesItems().forEach(({ count, taxon }) => {
         const name = this.speciesCommonName(taxon);
         const sci = this.speciesScientificName(taxon);
