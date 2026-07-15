@@ -533,9 +533,9 @@
             autocompleteEl.innerHTML = data.results
               .map(
                 (user) => `
-            <div class="autocomplete-item" data-login="${user.login}">
-              <div class="autocomplete-name">${user.login}</div>
-              <div class="autocomplete-login">${user.name || ""} · ${(
+            <div class="autocomplete-item" data-login="${escapeHtml(user.login)}">
+              <div class="autocomplete-name">${escapeHtml(user.login)}</div>
+              <div class="autocomplete-login">${escapeHtml(user.name || "")} · ${(
                   user.identifications_count || 0
                 ).toLocaleString()} identifications</div>
             </div>
@@ -619,11 +619,11 @@
               .map(
                 (place) => `
               <div class="autocomplete-item" data-id="${place.id}" data-name="${
-                  place.display_name
+                  escapeHtml(place.display_name)
                 }">
-                <div class="autocomplete-name">${place.display_name}</div>
+                <div class="autocomplete-name">${escapeHtml(place.display_name)}</div>
                 <div class="autocomplete-login">${
-                  place.place_type_name || ""
+                  escapeHtml(place.place_type_name || "")
                 }</div>
               </div>
             `
@@ -653,10 +653,6 @@
         } catch (error) {
           console.error("Error searching places:", error);
         }
-      }
-
-      function sleep(ms) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
       }
 
       async function getUserId(username) {
@@ -856,22 +852,6 @@
         onProgress(processedCount, totalCount, apiCalls);
       }
 
-      function updateProgress(percent, text, currentSpecies) {
-        document.getElementById("progressBar").style.width = percent + "%";
-        document.getElementById("progressText").textContent = text;
-        document.getElementById("currentCheck").textContent = currentSpecies;
-      }
-
-      function showError(message) {
-        const errorEl = document.getElementById("error");
-        errorEl.textContent = message;
-        errorEl.style.display = "block";
-      }
-
-      function hideError() {
-        document.getElementById("error").style.display = "none";
-      }
-
       function updateResultsCount(count) {
         const countEl = document.getElementById("resultsCount");
         let text = `Found ${count} first identification${
@@ -893,12 +873,12 @@
           ? new Date(sp.createdAt).toLocaleDateString()
           : "Unknown";
         li.innerHTML = `
-        <img class="species-image" src="${
+        <img class="species-image" src="${escapeHtml(
           sp.imageUrl || "https://via.placeholder.com/80?text=No+Image"
-        }" alt="${sp.commonName}">
+        )}" alt="${escapeHtml(sp.commonName)}">
         <div class="species-info">
-          <div class="species-name">${sp.commonName}${rankLabel}</div>
-          <div class="species-scientific">${sp.taxonName}</div>
+          <div class="species-name">${escapeHtml(sp.commonName)}${rankLabel}</div>
+          <div class="species-scientific">${escapeHtml(sp.taxonName)}</div>
           <div class="species-date">First identified: ${formattedDate}</div>
           ${
             sp.observationId
@@ -914,7 +894,7 @@
         const listEl = document.getElementById("speciesList");
         if (listEl.children.length === 0) {
           const placeContext = selectedPlaceName
-            ? ` in ${selectedPlaceName}`
+            ? ` in ${escapeHtml(selectedPlaceName)}`
             : "";
           listEl.innerHTML = `<li class="no-results">No first identifications found${placeContext}.</li>`;
         }
@@ -925,7 +905,7 @@
 
         const username = document.getElementById("username").value.trim();
         if (!username) {
-          showError("Please enter a username");
+          showError("error", "Please enter a username");
           return;
         }
 
@@ -933,7 +913,7 @@
         localStorage.setItem("inatUsername", username);
         updateUrlWithUsername(username);
 
-        hideError();
+        hideError("error");
         autocompleteEl.classList.remove("active");
         isSearching = true;
         document.getElementById("searchBtn").disabled = true;
@@ -949,7 +929,7 @@
           updateProgress(0, "Looking up user...", "");
           const userId = await getUserId(username);
           if (!userId) {
-            showError("User not found");
+            showError("error", "User not found");
             document.getElementById("progress").style.display = "none";
             isSearching = false;
             document.getElementById("searchBtn").disabled = false;
@@ -960,7 +940,7 @@
           const allTaxa = await getUserIdentificationSpecies(userId, username);
 
           if (allTaxa.length === 0) {
-            showError("No identifications found for this user");
+            showError("error", "No identifications found for this user");
             document.getElementById("progress").style.display = "none";
             isSearching = false;
             document.getElementById("searchBtn").disabled = false;
@@ -1028,7 +1008,7 @@
           document.getElementById("progress").style.display = "none";
           showNoResults();
         } catch (error) {
-          showError("Error: " + error.message);
+          showError("error", "Error: " + error.message);
           document.getElementById("progress").style.display = "none";
         }
 
@@ -1048,36 +1028,11 @@
       src="https://plausible.io/js/script.js"
     ></script>
     <script type="text/javascript">
-      window.$crisp = [];
-      window.CRISP_WEBSITE_ID = "69e5f089-9f10-41ef-a438-5d254be7b317";
-      (function () {
-        d = document;
-        s = d.createElement("script");
-        s.src = "https://client.crisp.chat/l.js";
-        s.async = 1;
-        d.getElementsByTagName("head")[0].appendChild(s);
-      })();
-      // Hide Crisp's default launcher; the "Send feedback" button opens the chat.
-      $crisp.push(["do", "chat:hide"]);
-      $crisp.push(["on", "chat:closed", function () { $crisp.push(["do", "chat:hide"]); }]);
-
-      // Feedback button toggle
-      let feedbackOpen = false;
-      document.getElementById("feedbackBtn").addEventListener("click", () => {
-        if (feedbackOpen) {
-          $crisp.push(["do", "chat:close"]); $crisp.push(["do", "chat:hide"]);
-          feedbackOpen = false;
-        } else {
-          $crisp.push(["do", "chat:show"]); $crisp.push(["do", "chat:open"]);
-          feedbackOpen = true;
-        }
-      });
+      initFeedbackButton();
     </script>
     <script src="dark-mode.js"></script>
     <script>
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("sw.js");
-      }
+      registerServiceWorker();
     </script>
   </body>
 </html>

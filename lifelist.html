@@ -818,9 +818,11 @@
       }
 
       // Inline onerror that swaps to the fallback once (guards against a loop).
+      // JSON.stringify makes the URL a safe JS string literal; escapeHtml keeps
+      // it from breaking out of the double-quoted HTML attribute.
       function photoOnError(fallback, primary) {
         return fallback && fallback !== primary
-          ? ` onerror="this.onerror=null;this.src='${fallback}'"`
+          ? ` onerror="this.onerror=null;this.src=${escapeHtml(JSON.stringify(fallback))}"`
           : "";
       }
 
@@ -839,20 +841,20 @@
         const useSpeciesPhoto = speciesPhotoCheckbox.checked;
         const { primary, fallback } = speciesPhotoSources(sp, useSpeciesPhoto, "medium");
         const imageHtml = primary
-          ? `<img class="card-image" src="${primary}" alt="${displayName}" loading="lazy"${photoOnError(fallback, primary)}>`
+          ? `<img class="card-image" src="${escapeHtml(primary)}" alt="${escapeHtml(displayName)}" loading="lazy"${photoOnError(fallback, primary)}>`
           : `<div class="card-image-placeholder">${iconicIcon}</div>`;
 
         const observerDisplay = sp.showObserver && sp.observerLogin
-          ? `<div class="card-observer">by <a href="https://www.inaturalist.org/people/${sp.observerLogin}" target="_blank" onclick="event.stopPropagation();">${sp.observerName || sp.observerLogin}</a></div>`
+          ? `<div class="card-observer">by <a href="https://www.inaturalist.org/people/${escapeHtml(sp.observerLogin)}" target="_blank" onclick="event.stopPropagation();">${escapeHtml(sp.observerName || sp.observerLogin)}</a></div>`
           : '';
 
         a.innerHTML = `
           <div class="card-number">#${number}</div>
           ${imageHtml}
           <div class="card-content">
-            <div class="card-common-name">${displayName}</div>
-            ${hasCommonName ? `<div class="card-sci-name">${sp.taxonName}</div>` : ''}
-            <div class="card-date">${sp.observedOn}</div>
+            <div class="card-common-name">${escapeHtml(displayName)}</div>
+            ${hasCommonName ? `<div class="card-sci-name">${escapeHtml(sp.taxonName)}</div>` : ''}
+            <div class="card-date">${escapeHtml(sp.observedOn)}</div>
             ${observerDisplay}
           </div>
         `;
@@ -921,9 +923,9 @@
             autocompleteEl.innerHTML = data.results
               .map(
                 (user) => `
-            <div class="autocomplete-item" data-login="${user.login}">
-              <div class="autocomplete-name">${user.login}</div>
-              <div class="autocomplete-login">${user.name || ""} · ${(user.observations_count || 0).toLocaleString()} observations</div>
+            <div class="autocomplete-item" data-login="${escapeHtml(user.login)}">
+              <div class="autocomplete-name">${escapeHtml(user.login)}</div>
+              <div class="autocomplete-login">${escapeHtml(user.name || "")} · ${(user.observations_count || 0).toLocaleString()} observations</div>
             </div>
           `
               )
@@ -1041,8 +1043,8 @@
             // Add places
             places.forEach((place) => {
               html += `
-                <div class="autocomplete-item" data-type="place" data-id="${place.id}" data-name="${place.display_name}">
-                  <div class="autocomplete-name">${place.display_name}</div>
+                <div class="autocomplete-item" data-type="place" data-id="${place.id}" data-name="${escapeHtml(place.display_name)}">
+                  <div class="autocomplete-name">${escapeHtml(place.display_name)}</div>
                   <div class="autocomplete-type">Place</div>
                 </div>
               `;
@@ -1056,8 +1058,8 @@
             // Add projects
             projects.forEach((project) => {
               html += `
-                <div class="autocomplete-item" data-type="project" data-id="${project.id}" data-name="${project.title}">
-                  <div class="autocomplete-name">${project.title}</div>
+                <div class="autocomplete-item" data-type="project" data-id="${project.id}" data-name="${escapeHtml(project.title)}">
+                  <div class="autocomplete-name">${escapeHtml(project.title)}</div>
                   <div class="autocomplete-type">Project</div>
                 </div>
               `;
@@ -1213,9 +1215,9 @@
             taxonAutocompleteEl.innerHTML = data.results
               .map(
                 (taxon) => `
-              <div class="autocomplete-item" data-id="${taxon.id}" data-name="${taxon.name}">
-                <div class="autocomplete-name">${taxon.preferred_common_name || taxon.name}</div>
-                <div class="autocomplete-rank">${taxon.rank}${taxon.preferred_common_name ? ` - ${taxon.name}` : ""}</div>
+              <div class="autocomplete-item" data-id="${taxon.id}" data-name="${escapeHtml(taxon.name)}">
+                <div class="autocomplete-name">${escapeHtml(taxon.preferred_common_name || taxon.name)}</div>
+                <div class="autocomplete-rank">${escapeHtml(taxon.rank)}${taxon.preferred_common_name ? ` - ${escapeHtml(taxon.name)}` : ""}</div>
               </div>
             `
               )
@@ -1422,22 +1424,6 @@
         return results;
       }
 
-      function updateProgress(percent, text, currentSpecies) {
-        document.getElementById("progressBar").style.width = percent + "%";
-        document.getElementById("progressText").textContent = text;
-        document.getElementById("currentCheck").textContent = currentSpecies;
-      }
-
-      function showError(message) {
-        const errorEl = document.getElementById("error");
-        errorEl.textContent = message;
-        errorEl.style.display = "block";
-      }
-
-      function hideError() {
-        document.getElementById("error").style.display = "none";
-      }
-
       function updateResultsCount(count) {
         const countEl = document.getElementById("resultsCount");
         countEl.textContent = `${count} species in lifelist`;
@@ -1465,11 +1451,11 @@
         const hasCommonName = sp.commonName && sp.commonName !== sp.taxonName;
         let nameDisplay;
         if (hasCommonName) {
-          const rankLabel = isHigherRank ? ` <span class="species-rank">(${sp.rank})</span>` : "";
-          nameDisplay = `<span class="species-name">${sp.commonName}${rankLabel}</span><span class="species-scientific">${sp.taxonName}</span>`;
+          const rankLabel = isHigherRank ? ` <span class="species-rank">(${escapeHtml(sp.rank)})</span>` : "";
+          nameDisplay = `<span class="species-name">${escapeHtml(sp.commonName)}${rankLabel}</span><span class="species-scientific">${escapeHtml(sp.taxonName)}</span>`;
         } else {
-          const rankLabel = isHigherRank ? ` <span class="species-rank">(${sp.rank})</span>` : "";
-          nameDisplay = `<span class="species-name">${sp.taxonName}${rankLabel}</span>`;
+          const rankLabel = isHigherRank ? ` <span class="species-rank">(${escapeHtml(sp.rank)})</span>` : "";
+          nameDisplay = `<span class="species-name">${escapeHtml(sp.taxonName)}${rankLabel}</span>`;
         }
 
         const iconicIcon = ICONIC_TAXON_ICONS[sp.iconicTaxon] || "🔍";
@@ -1478,16 +1464,16 @@
         const imgSrc = primary || "https://via.placeholder.com/40?text=?";
 
         const observerDisplay = sp.showObserver && sp.observerLogin
-          ? `<span class="species-observer">by <a href="https://www.inaturalist.org/people/${sp.observerLogin}" target="_blank" onclick="event.stopPropagation();">${sp.observerName || sp.observerLogin}</a></span>`
+          ? `<span class="species-observer">by <a href="https://www.inaturalist.org/people/${escapeHtml(sp.observerLogin)}" target="_blank" onclick="event.stopPropagation();">${escapeHtml(sp.observerName || sp.observerLogin)}</a></span>`
           : '';
 
         a.innerHTML = `
         <div class="species-number">#${number}</div>
         <span class="species-icon">${iconicIcon}</span>
-        <img class="species-image" src="${imgSrc}" alt="${sp.commonName || sp.taxonName}" loading="lazy"${photoOnError(fallback, primary)}>
+        <img class="species-image" src="${escapeHtml(imgSrc)}" alt="${escapeHtml(sp.commonName || sp.taxonName)}" loading="lazy"${photoOnError(fallback, primary)}>
         <div class="species-info">
           ${nameDisplay}
-          <span class="species-date">${sp.observedOn}${observerDisplay}</span>
+          <span class="species-date">${escapeHtml(sp.observedOn)}${observerDisplay}</span>
         </div>
       `;
         // During loading, observations arrive oldest-first (order=asc, to capture
@@ -1549,7 +1535,7 @@
         const taxonId = taxonIdInput.value || null;
 
         if (!username && !placeId && !projectId) {
-          showError("Please enter a username or select a place/project");
+          showError("error", "Please enter a username or select a place/project");
           return;
         }
 
@@ -1559,7 +1545,7 @@
           updateUrlWithUsername(username);
         }
 
-        hideError();
+        hideError("error");
         autocompleteEl.classList.remove("active");
         placeAutocompleteEl.classList.remove("active");
         taxonAutocompleteEl.classList.remove("active");
@@ -1578,7 +1564,7 @@
           const allSpecies = await getUserSpeciesCounts(username, placeId, projectId, taxonId);
 
           if (allSpecies.length === 0) {
-            showError(username ? "No species found for this user" : "No species found for this place/project");
+            showError("error", username ? "No species found for this user" : "No species found for this place/project");
             document.getElementById("progress").style.display = "none";
             isSearching = false;
             document.getElementById("searchBtn").disabled = false;
@@ -1690,7 +1676,7 @@
           }
           showNoResults();
         } catch (error) {
-          showError("Error: " + error.message);
+          showError("error", "Error: " + error.message);
           document.getElementById("progress").style.display = "none";
         }
 
@@ -1710,36 +1696,11 @@
       src="https://plausible.io/js/script.js"
     ></script>
     <script type="text/javascript">
-      window.$crisp = [];
-      window.CRISP_WEBSITE_ID = "69e5f089-9f10-41ef-a438-5d254be7b317";
-      (function () {
-        d = document;
-        s = d.createElement("script");
-        s.src = "https://client.crisp.chat/l.js";
-        s.async = 1;
-        d.getElementsByTagName("head")[0].appendChild(s);
-      })();
-      // Hide Crisp's default launcher; the "Send feedback" button opens the chat.
-      $crisp.push(["do", "chat:hide"]);
-      $crisp.push(["on", "chat:closed", function () { $crisp.push(["do", "chat:hide"]); }]);
-
-      // Feedback button toggle
-      let feedbackOpen = false;
-      document.getElementById("feedbackBtn").addEventListener("click", () => {
-        if (feedbackOpen) {
-          $crisp.push(["do", "chat:close"]); $crisp.push(["do", "chat:hide"]);
-          feedbackOpen = false;
-        } else {
-          $crisp.push(["do", "chat:show"]); $crisp.push(["do", "chat:open"]);
-          feedbackOpen = true;
-        }
-      });
+      initFeedbackButton();
     </script>
     <script src="dark-mode.js"></script>
     <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-      }
+      registerServiceWorker();
     </script>
   </body>
 </html>

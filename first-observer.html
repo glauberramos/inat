@@ -545,9 +545,9 @@
             autocompleteEl.innerHTML = data.results
               .map(
                 (user) => `
-            <div class="autocomplete-item" data-login="${user.login}">
-              <div class="autocomplete-name">${user.login}</div>
-              <div class="autocomplete-login">${user.name || ""} · ${(
+            <div class="autocomplete-item" data-login="${escapeHtml(user.login)}">
+              <div class="autocomplete-name">${escapeHtml(user.login)}</div>
+              <div class="autocomplete-login">${escapeHtml(user.name || "")} · ${(
                   user.observations_count || 0
                 ).toLocaleString()} observations</div>
             </div>
@@ -628,9 +628,9 @@
             placeAutocomplete.innerHTML = data.results
               .map(
                 (place) => `
-              <div class="autocomplete-item" data-id="${place.id}" data-name="${place.display_name}">
-                <div class="autocomplete-name">${place.display_name}</div>
-                <div class="autocomplete-login">${place.place_type_name || ''}</div>
+              <div class="autocomplete-item" data-id="${place.id}" data-name="${escapeHtml(place.display_name)}">
+                <div class="autocomplete-name">${escapeHtml(place.display_name)}</div>
+                <div class="autocomplete-login">${escapeHtml(place.place_type_name || '')}</div>
               </div>
             `
               )
@@ -659,10 +659,6 @@
         } catch (error) {
           console.error("Error searching places:", error);
         }
-      }
-
-      function sleep(ms) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
       }
 
       async function getUserSpeciesCounts(username) {
@@ -828,22 +824,6 @@
         onProgress(processedCount, taxaMap.size, apiCalls);
       }
 
-      function updateProgress(percent, text, currentSpecies) {
-        document.getElementById("progressBar").style.width = percent + "%";
-        document.getElementById("progressText").textContent = text;
-        document.getElementById("currentCheck").textContent = currentSpecies;
-      }
-
-      function showError(message) {
-        const errorEl = document.getElementById("error");
-        errorEl.textContent = message;
-        errorEl.style.display = "block";
-      }
-
-      function hideError() {
-        document.getElementById("error").style.display = "none";
-      }
-
       function updateResultsCount(count) {
         const countEl = document.getElementById("resultsCount");
         let text = `Found ${count} first observation${count !== 1 ? "s" : ""}`;
@@ -863,13 +843,13 @@
         const rankLabel =
           sp.rank && sp.rank !== "species" ? ` (${sp.rank})` : "";
         li.innerHTML = `
-        <img class="species-image" src="${
+        <img class="species-image" src="${escapeHtml(
           sp.imageUrl || "https://via.placeholder.com/80?text=No+Image"
-        }" alt="${sp.commonName}">
+        )}" alt="${escapeHtml(sp.commonName)}">
         <div class="species-info">
-          <div class="species-name">${sp.commonName}${rankLabel}</div>
-          <div class="species-scientific">${sp.taxonName}</div>
-          <div class="species-date">First observed: ${sp.observedOn}</div>
+          <div class="species-name">${escapeHtml(sp.commonName)}${rankLabel}</div>
+          <div class="species-scientific">${escapeHtml(sp.taxonName)}</div>
+          <div class="species-date">First observed: ${escapeHtml(sp.observedOn)}</div>
           <a class="species-link" href="https://www.inaturalist.org/observations/${
             sp.observationId
           }" target="_blank">View observation</a>
@@ -881,7 +861,7 @@
       function showNoResults() {
         const listEl = document.getElementById("speciesList");
         if (listEl.children.length === 0) {
-          const placeContext = selectedPlaceName ? ` in ${selectedPlaceName}` : "";
+          const placeContext = selectedPlaceName ? ` in ${escapeHtml(selectedPlaceName)}` : "";
           listEl.innerHTML =
             `<li class="no-results">No first observations found${placeContext}.</li>`;
         }
@@ -918,7 +898,7 @@
 
         const username = document.getElementById("username").value.trim();
         if (!username) {
-          showError("Please enter a username");
+          showError("error", "Please enter a username");
           return;
         }
 
@@ -926,7 +906,7 @@
         localStorage.setItem("inatUsername", username);
         updateUrlWithUsername(username);
 
-        hideError();
+        hideError("error");
         autocompleteEl.classList.remove("active");
         isSearching = true;
         document.getElementById("searchBtn").disabled = true;
@@ -945,7 +925,7 @@
           const allTaxa = await getUserSpeciesCounts(username);
 
           if (allTaxa.length === 0) {
-            showError("No observations found for this user");
+            showError("error", "No observations found for this user");
             document.getElementById("progress").style.display = "none";
             isSearching = false;
             document.getElementById("searchBtn").disabled = false;
@@ -1006,7 +986,7 @@
             document.getElementById("downloadBtn").style.display = "block";
           }
         } catch (error) {
-          showError("Error: " + error.message);
+          showError("error", "Error: " + error.message);
           document.getElementById("progress").style.display = "none";
         }
 
@@ -1026,36 +1006,11 @@
       src="https://plausible.io/js/script.js"
     ></script>
     <script type="text/javascript">
-      window.$crisp = [];
-      window.CRISP_WEBSITE_ID = "69e5f089-9f10-41ef-a438-5d254be7b317";
-      (function () {
-        d = document;
-        s = d.createElement("script");
-        s.src = "https://client.crisp.chat/l.js";
-        s.async = 1;
-        d.getElementsByTagName("head")[0].appendChild(s);
-      })();
-      // Hide Crisp's default launcher; the "Send feedback" button opens the chat.
-      $crisp.push(["do", "chat:hide"]);
-      $crisp.push(["on", "chat:closed", function () { $crisp.push(["do", "chat:hide"]); }]);
-
-      // Feedback button toggle
-      let feedbackOpen = false;
-      document.getElementById("feedbackBtn").addEventListener("click", () => {
-        if (feedbackOpen) {
-          $crisp.push(["do", "chat:close"]); $crisp.push(["do", "chat:hide"]);
-          feedbackOpen = false;
-        } else {
-          $crisp.push(["do", "chat:show"]); $crisp.push(["do", "chat:open"]);
-          feedbackOpen = true;
-        }
-      });
+      initFeedbackButton();
     </script>
     <script src="dark-mode.js"></script>
     <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-      }
+      registerServiceWorker();
     </script>
   </body>
 </html>
