@@ -558,9 +558,10 @@
           lastQualityData = qualityData;
           drawPieChart(qualityData);
 
-          const totalIdentifications = idData.improving + idData.supporting + idData.leading + idData.maverick;
-          document.getElementById('identificationsCount').textContent = totalIdentifications.toLocaleString();
-
+          // Note: don't overwrite #identificationsCount with the sum of the four
+          // category queries. Those queries filter by current_taxon=true and skip
+          // uncategorized IDs, so the sum undercounts compared to the number shown
+          // on the iNaturalist profile (user.identifications_count, set above).
           lastIdData = idData;
           drawIdPieChart(idData);
 
