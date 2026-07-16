@@ -562,6 +562,12 @@
           // category queries. Those queries filter by current_taxon=true and skip
           // uncategorized IDs, so the sum undercounts compared to the number shown
           // on the iNaturalist profile (user.identifications_count, set above).
+          // The gap (IDs of outdated taxa or without a category) goes into an
+          // "Other" slice so the chart total matches the profile count.
+          const categorizedIds = idData.improving + idData.supporting + idData.leading + idData.maverick;
+          const otherIds = Math.max(0, (user.identifications_count || 0) - categorizedIds);
+          if (otherIds > 0) idData.other = otherIds;
+
           lastIdData = idData;
           drawIdPieChart(idData);
 
@@ -669,7 +675,7 @@
       function drawIdPieChart(data) {
         const canvas = document.getElementById('idPieChart');
         const ctx = canvas.getContext('2d');
-        const total = data.improving + data.supporting + data.leading + data.maverick;
+        const total = data.improving + data.supporting + data.leading + data.maverick + (data.other || 0);
 
         if (total === 0) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -684,14 +690,16 @@
           improving: '#27ae60',
           supporting: '#3498db',
           leading: '#9b59b6',
-          maverick: '#e74c3c'
+          maverick: '#e74c3c',
+          other: '#95a5a6'
         };
 
         const labels = {
           improving: 'Improving',
           supporting: 'Supporting',
           leading: 'Leading',
-          maverick: 'Maverick'
+          maverick: 'Maverick',
+          other: 'Other'
         };
 
         // Draw pie chart
