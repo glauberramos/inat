@@ -47,6 +47,7 @@ const sharedGlobals = {
   $crisp: "readonly",
   html2canvas: "readonly",
   plausible: "readonly",
+  posthog: "readonly",
 };
 
 const browserGlobals = {
