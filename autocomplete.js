@@ -33,7 +33,10 @@ function createAutocomplete(config) {
 
     searchTimeout = setTimeout(async () => {
       try {
-        const url = typeof fetchUrl === "function" ? fetchUrl(query) : fetchUrl.replace("{query}", encodeURIComponent(query));
+        const url =
+          typeof fetchUrl === "function"
+            ? fetchUrl(query)
+            : fetchUrl.replace("{query}", encodeURIComponent(query));
         const response = await fetch(url);
         const data = await response.json();
 
@@ -81,11 +84,12 @@ function initUsernameAutocomplete(inputElement, containerElement, onSelect) {
   return createAutocomplete({
     inputElement,
     containerElement,
-    fetchUrl: (query) => `${API_BASE}/users/autocomplete?q=${encodeURIComponent(query)}&per_page=10`,
+    fetchUrl: (query) =>
+      `${API_BASE}/users/autocomplete?q=${encodeURIComponent(query)}&per_page=10`,
     formatResult: (user) => `
-      <div class="autocomplete-item" data-login="${user.login}">
-        <div class="autocomplete-name">${user.login}</div>
-        <div class="autocomplete-login">${user.name || ""} · ${(user.observations_count || 0).toLocaleString()} observations</div>
+      <div class="autocomplete-item" data-login="${escapeHtml(user.login)}">
+        <div class="autocomplete-name">${escapeHtml(user.login)}</div>
+        <div class="autocomplete-login">${escapeHtml(user.name || "")} · ${(user.observations_count || 0).toLocaleString()} observations</div>
       </div>
     `,
     onSelect: (user, item) => {
@@ -101,7 +105,8 @@ function initPlaceAutocomplete(inputElement, containerElement, onSelect, idInput
   return createAutocomplete({
     inputElement,
     containerElement,
-    fetchUrl: (query) => `${API_BASE}/places/autocomplete?q=${encodeURIComponent(query)}&per_page=10`,
+    fetchUrl: (query) =>
+      `${API_BASE}/places/autocomplete?q=${encodeURIComponent(query)}&per_page=10`,
     formatResult: (place) => `
       <div class="autocomplete-item" data-id="${place.id}" data-name="${escapeHtml(place.display_name)}">
         <div class="autocomplete-name">${escapeHtml(place.display_name)}</div>
@@ -121,14 +126,22 @@ function initPlaceAutocomplete(inputElement, containerElement, onSelect, idInput
 
 // ===== Taxon Autocomplete =====
 
-function initTaxonAutocomplete(inputElement, containerElement, onSelect, idInputElement = null, rankFilter = null) {
-  const defaultRankFilter = "kingdom,phylum,subphylum,class,subclass,order,suborder,family,subfamily,tribe,subtribe,genus,subgenus";
+function initTaxonAutocomplete(
+  inputElement,
+  containerElement,
+  onSelect,
+  idInputElement = null,
+  rankFilter = null
+) {
+  const defaultRankFilter =
+    "kingdom,phylum,subphylum,class,subclass,order,suborder,family,subfamily,tribe,subtribe,genus,subgenus";
   const ranks = rankFilter || defaultRankFilter;
 
   return createAutocomplete({
     inputElement,
     containerElement,
-    fetchUrl: (query) => `${API_BASE}/taxa/autocomplete?q=${encodeURIComponent(query)}&per_page=10&rank=${ranks}`,
+    fetchUrl: (query) =>
+      `${API_BASE}/taxa/autocomplete?q=${encodeURIComponent(query)}&per_page=10&rank=${ranks}`,
     formatResult: (taxon) => `
       <div class="autocomplete-item" data-id="${taxon.id}" data-name="${escapeHtml(taxon.name)}">
         <div class="autocomplete-name">${escapeHtml(taxon.preferred_common_name || taxon.name)}</div>
@@ -153,7 +166,8 @@ function initProjectAutocomplete(inputElement, containerElement, onSelect, idInp
   return createAutocomplete({
     inputElement,
     containerElement,
-    fetchUrl: (query) => `${API_BASE}/projects/autocomplete?q=${encodeURIComponent(query)}&per_page=10`,
+    fetchUrl: (query) =>
+      `${API_BASE}/projects/autocomplete?q=${encodeURIComponent(query)}&per_page=10`,
     formatResult: (project) => `
       <div class="autocomplete-item" data-id="${project.id}" data-name="${escapeHtml(project.title)}">
         <div class="autocomplete-name">${escapeHtml(project.title)}</div>

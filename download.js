@@ -33,9 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (projectName && projectId) {
       locationType = "Project";
       displayLocationName = projectName;
-      fileNameLocationName = projectName
-        .replace(/[^a-z0-9]/gi, "-")
-        .toLowerCase();
+      fileNameLocationName = projectName.replace(/[^a-z0-9]/gi, "-").toLowerCase();
     } else {
       displayLocationName = placeName || "THE WHOLE WORLD";
       fileNameLocationName = placeName
@@ -97,8 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const totalSpecies = spottedSpecies.length + missingSpecies.length;
     const spottedCount = spottedSpecies.length;
     const missingCount = missingSpecies.length;
-    const percentage =
-      totalSpecies > 0 ? Math.round((spottedCount / totalSpecies) * 100) : 0;
+    const percentage = totalSpecies > 0 ? Math.round((spottedCount / totalSpecies) * 100) : 0;
 
     return `SPECIES LIST FOR ${locationName.toUpperCase()}
 ${locationType}: ${locationName}
@@ -117,9 +114,7 @@ ${"=".repeat(50)}
 ❌ SPECIES YOU HAVEN'T OBSERVED (${missingCount}):
 ${
   missingSpecies.length > 0
-    ? missingSpecies
-        .map((species, index) => `${index + 1}. ${species}`)
-        .join("\n")
+    ? missingSpecies.map((species, index) => `${index + 1}. ${species}`).join("\n")
     : "All species observed!"
 }
 
@@ -128,9 +123,7 @@ ${"=".repeat(50)}
 ✅ SPECIES YOU'VE OBSERVED (${spottedCount}):
 ${
   spottedSpecies.length > 0
-    ? spottedSpecies
-        .map((species, index) => `${index + 1}. ${species}`)
-        .join("\n")
+    ? spottedSpecies.map((species, index) => `${index + 1}. ${species}`).join("\n")
     : "None yet!"
 }
 

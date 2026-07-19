@@ -1,16 +1,3 @@
-// Global function to update URL with place parameters
-function updateUrlWithPlace(placeId, placeName) {
-  const url = new URL(window.location);
-  if (placeId && placeName) {
-    url.searchParams.set("place_id", placeId);
-    url.searchParams.set("place", placeName);
-  } else {
-    url.searchParams.delete("place_id");
-    url.searchParams.delete("place");
-  }
-  window.history.replaceState({}, "", url);
-}
-
 document.addEventListener("DOMContentLoaded", function () {
   const placeNameInput = document.getElementById("placeNameInput");
   const placeIdInput = document.getElementById("placeIdInput");
@@ -27,19 +14,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const progressBar = document.getElementById("progressBar");
   const filterToggleButtons = document.querySelectorAll(".filter-toggle-btn");
   let speciesFilter = "all";
-  const advancedOptionsButton = document.getElementById(
-    "advancedOptionsButton"
-  );
-  const advancedOptionsSection = document.getElementById(
-    "advancedOptionsSection"
-  );
+  const advancedOptionsButton = document.getElementById("advancedOptionsButton");
+  const advancedOptionsSection = document.getElementById("advancedOptionsSection");
   const wildCheckbox = document.getElementById("wildCheckbox");
-  const includeAllPlacesCheckbox = document.getElementById(
-    "includeAllPlacesCheckbox"
-  );
-  const researchGradeCheckbox = document.getElementById(
-    "researchGradeCheckbox"
-  );
+  const includeAllPlacesCheckbox = document.getElementById("includeAllPlacesCheckbox");
+  const researchGradeCheckbox = document.getElementById("researchGradeCheckbox");
   const threatenedCheckbox = document.getElementById("threatenedCheckbox");
   const endemicCheckbox = document.getElementById("endemicCheckbox");
   const verifiableCheckbox = document.getElementById("verifiableCheckbox");
@@ -55,7 +34,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const savedTaxon = localStorage.getItem("inatTaxonId");
   const savedLimit = localStorage.getItem("inatLimit");
   const savedProject = localStorage.getItem("inatProject");
-  const savedProjectId = localStorage.getItem("inatProjectId");
 
   // URL parameter handling
   const urlParams = new URLSearchParams(window.location.search);
@@ -215,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
     taxonSearchTimeout = setTimeout(async () => {
       try {
         const response = await fetch(
-          `https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(query)}&per_page=10`
+          `${API_BASE}/taxa/autocomplete?q=${encodeURIComponent(query)}&per_page=10`
         );
         const data = await response.json();
 
@@ -223,9 +201,9 @@ document.addEventListener("DOMContentLoaded", function () {
           taxonAutocomplete.innerHTML = data.results
             .map(
               (taxon) => `
-              <div class="taxon-suggestion" data-id="${taxon.id}" data-name="${taxon.preferred_common_name || taxon.name}">
-                <div class="taxon-name">${taxon.preferred_common_name || taxon.name}</div>
-                <div class="taxon-rank">${taxon.name} · ${taxon.rank}</div>
+              <div class="taxon-suggestion" data-id="${taxon.id}" data-name="${escapeHtml(taxon.preferred_common_name || taxon.name)}">
+                <div class="taxon-name">${escapeHtml(taxon.preferred_common_name || taxon.name)}</div>
+                <div class="taxon-rank">${escapeHtml(taxon.name)} · ${escapeHtml(taxon.rank)}</div>
               </div>
             `
             )
@@ -282,7 +260,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-
   // Allow Enter key to trigger search on username input
   usernameInput.addEventListener("keypress", function (e) {
     if (e.key === "Enter") {
@@ -291,7 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   async function searchEspecies() {
-    placeId = placeIdInput.value.trim();
+    let placeId = placeIdInput.value.trim();
     const username = usernameInput.value.trim();
     let taxonId = taxonIdHidden.value || "all";
 
@@ -322,12 +299,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateStatus(0, 0); // Reset status
 
       // First, get the user's observations
-      const userObservations = await getUserObservations(
-        username,
-        placeId,
-        taxonId,
-        mapBounds
-      );
+      const userObservations = await getUserObservations(username, placeId, taxonId, mapBounds);
 
       // Then get the top species for the place
       const topSpecies = await getTopSpecies(placeId, taxonId, mapBounds);
@@ -357,24 +329,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function getUserObservations(username, placeId, taxonId, mapBounds) {
     const taxonParam = taxonId === "all" ? "" : `&taxon_id=${taxonId}`;
-    const captiveParam =
-      wildCheckbox && wildCheckbox.checked ? "&captive=false" : "";
+    const captiveParam = wildCheckbox && wildCheckbox.checked ? "&captive=false" : "";
     const researchGrade =
-      researchGradeCheckbox && researchGradeCheckbox.checked
-        ? "&quality_grade=research"
-        : "";
-    const threatened =
-      threatenedCheckbox && threatenedCheckbox.checked
-        ? "&threatened=true"
-        : "";
-    const endemic =
-      endemicCheckbox && endemicCheckbox.checked
-        ? "&endemic=true"
-        : "";
-    const verifiable =
-      verifiableCheckbox && verifiableCheckbox.checked
-        ? "&verifiable=true"
-        : "";
+      researchGradeCheckbox && researchGradeCheckbox.checked ? "&quality_grade=research" : "";
+    const threatened = threatenedCheckbox && threatenedCheckbox.checked ? "&threatened=true" : "";
+    const endemic = endemicCheckbox && endemicCheckbox.checked ? "&endemic=true" : "";
+    const verifiable = verifiableCheckbox && verifiableCheckbox.checked ? "&verifiable=true" : "";
 
     // Note: the month filter is intentionally NOT applied to the user's own
     // observations — it should only narrow the place's top species. A species
@@ -402,7 +362,7 @@ document.addEventListener("DOMContentLoaded", function () {
       allPlacesParam = `&place_id=${placeId}`;
     }
 
-    const url = `https://api.inaturalist.org/v1/observations/taxonomy?user_login=${username}${allPlacesParam}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}`;
+    const url = `${API_BASE}/observations/taxonomy?user_login=${username}${allPlacesParam}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}`;
     const response = await fetch(url);
     const data = await response.json();
 
@@ -413,36 +373,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function getTopSpecies(placeId, taxonId, mapBounds) {
     const taxonParam = taxonId === "all" ? "" : `&taxon_id=${taxonId}`;
-    const captiveParam =
-      wildCheckbox && wildCheckbox.checked ? "&captive=false" : "";
+    const captiveParam = wildCheckbox && wildCheckbox.checked ? "&captive=false" : "";
     const researchGrade =
-      researchGradeCheckbox && researchGradeCheckbox.checked
-        ? "&quality_grade=research"
-        : "";
-    const threatened =
-      threatenedCheckbox && threatenedCheckbox.checked
-        ? "&threatened=true"
-        : "";
-    const endemic =
-      endemicCheckbox && endemicCheckbox.checked
-        ? "&endemic=true"
-        : "";
-    const verifiable =
-      verifiableCheckbox && verifiableCheckbox.checked
-        ? "&verifiable=true"
-        : "";
+      researchGradeCheckbox && researchGradeCheckbox.checked ? "&quality_grade=research" : "";
+    const threatened = threatenedCheckbox && threatenedCheckbox.checked ? "&threatened=true" : "";
+    const endemic = endemicCheckbox && endemicCheckbox.checked ? "&endemic=true" : "";
+    const verifiable = verifiableCheckbox && verifiableCheckbox.checked ? "&verifiable=true" : "";
     const limit = document.getElementById("limitSelect").value;
     const selectedLanguage = languageSelect ? languageSelect.value : "en";
-    const languageParam =
-      selectedLanguage !== "en" ? `&locale=${selectedLanguage}` : "";
+    const languageParam = selectedLanguage !== "en" ? `&locale=${selectedLanguage}` : "";
 
     // Get selected months
-    const monthCheckboxes = document.querySelectorAll(
-      ".month-checkbox:checked"
-    );
+    const monthCheckboxes = document.querySelectorAll(".month-checkbox:checked");
     const selectedMonths = Array.from(monthCheckboxes).map((cb) => cb.value);
-    const monthParam =
-      selectedMonths.length > 0 ? `&month=${selectedMonths.join(",")}` : "";
+    const monthParam = selectedMonths.length > 0 ? `&month=${selectedMonths.join(",")}` : "";
 
     // Check if we have a project selected instead of a place
     const projectId = localStorage.getItem("inatProjectId");
@@ -464,7 +408,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Build base URL with location param if present
-    const baseUrl = `https://api.inaturalist.org/v1/observations/species_counts?${locationParam}`;
+    const baseUrl = `${API_BASE}/observations/species_counts?${locationParam}`;
 
     if (limit === "5000") {
       const getSpeciesCounts = (page = 1) =>
@@ -543,12 +487,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Create the iNaturalist URL for this species in the current place
     // Get selected months to include in URL
-    const monthCheckboxes = document.querySelectorAll(
-      ".month-checkbox:checked"
-    );
+    const monthCheckboxes = document.querySelectorAll(".month-checkbox:checked");
     const selectedMonths = Array.from(monthCheckboxes).map((cb) => cb.value);
-    const monthParam =
-      selectedMonths.length > 0 ? `&month=${selectedMonths.join(",")}` : "";
+    const monthParam = selectedMonths.length > 0 ? `&month=${selectedMonths.join(",")}` : "";
 
     const inatUrl = `https://www.inaturalist.org/observations?place_id=${placeIdInput.value}&taxon_id=${specimen.taxon.id}${monthParam}`;
 
@@ -589,13 +530,11 @@ document.addEventListener("DOMContentLoaded", function () {
       "https://via.placeholder.com/300x200?text=No+Image";
 
     card.innerHTML = `
-      <a href="${inatUrl}" target="_blank" class="species-link">
-        <img src="${imageUrl}" alt="${specimen.taxon.name}" />
+      <a href="${escapeHtml(inatUrl)}" target="_blank" class="species-link">
+        <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(specimen.taxon.name)}" />
         <div class="species-info">
-          <h3>${
-            specimen.taxon.preferred_common_name || specimen.taxon.name
-          }</h3>
-        <p class="scientific-name">${specimen.taxon.name}</p>
+          <h3>${escapeHtml(specimen.taxon.preferred_common_name || specimen.taxon.name)}</h3>
+        <p class="scientific-name">${escapeHtml(specimen.taxon.name)}</p>
         <p class="observations">Observations: ${specimen.count}</p>
         </div>
       </a>
@@ -634,4 +573,7 @@ document.addEventListener("DOMContentLoaded", function () {
       locationName.textContent = "The whole world";
     }
   }
+  // search.js (loaded after this file) calls this from its place-suggestion
+  // click handler via a typeof guard; expose it so that call actually runs.
+  window.updateLocationName = updateLocationName;
 });

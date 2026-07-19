@@ -128,6 +128,8 @@
         <div id="achievementsContainer"></div>
       </main>
     </div>
+    <script src="constants.js"></script>
+    <script src="shared-utils.js"></script>
     <script>
       const usernameInput = document.getElementById("usernameInput");
       const usernameAutocomplete = document.getElementById(
@@ -138,13 +140,13 @@
       const achievementsContainer = document.getElementById(
         "achievementsContainer"
       );
-      const errorMessage = document.getElementById("errorMessage");
       const achievementsProgress = document.getElementById(
         "achievementsProgress"
       );
 
       let searchTimeout = null;
       let currentUsername = "";
+      // eslint-disable-next-line no-unused-vars -- read by calendar-modal.js
       let calendarObservedDays = new Set();
 
       // All iconic taxons in iNaturalist with emojis
@@ -210,13 +212,13 @@
         for (let year = lastKnownYear + 1; year <= currentYear; year++) {
           try {
             const res = await fetch(
-              `https://api.inaturalist.org/v1/projects/city-nature-challenge-${year}`
+              `${API_BASE}/projects/city-nature-challenge-${year}`
             );
             const data = await res.json();
             if (data.results && data.results[0] && data.results[0].id) {
               found.push({ id: data.results[0].id, year });
             }
-          } catch (e) {
+          } catch {
             // project for that year doesn't exist (yet) - skip it
           }
         }
@@ -235,12 +237,6 @@
         usernameInput.value = savedUsername;
       }
 
-      function updateUrlWithUsername(username) {
-        const url = new URL(window.location);
-        url.searchParams.set("user", username);
-        window.history.replaceState({}, "", url);
-      }
-
       // Username autocomplete
       usernameInput.addEventListener("input", (e) => {
         clearTimeout(searchTimeout);
@@ -255,7 +251,7 @@
         searchTimeout = setTimeout(async () => {
           try {
             const response = await fetch(
-              `https://api.inaturalist.org/v1/users/autocomplete?q=${encodeURIComponent(
+              `${API_BASE}/users/autocomplete?q=${encodeURIComponent(
                 query
               )}`
             );
@@ -267,8 +263,8 @@
                 .map((user) => {
                   const obsCount = user.observations_count || 0;
                   return `
-                    <div class="username-suggestion" data-login="${user.login}">
-                      <div class="username-name">${user.login}</div>
+                    <div class="username-suggestion" data-login="${escapeHtml(user.login)}">
+                      <div class="username-name">${escapeHtml(user.login)}</div>
                       <div class="username-info">${obsCount.toLocaleString()} observations</div>
                     </div>
                   `;
@@ -324,11 +320,11 @@
         const username = usernameInput.value.trim();
 
         if (!username) {
-          showError("Please enter a username");
+          showError("errorMessage", "Please enter a username");
           return;
         }
 
-        hideError();
+        hideError("errorMessage");
         loading.style.display = "block";
         achievementsContainer.innerHTML = "";
         achievementsProgress.classList.remove("show");
@@ -337,7 +333,7 @@
         try {
           // Get user info
           const userResponse = await fetch(
-            `https://api.inaturalist.org/v1/users/autocomplete?q=${encodeURIComponent(
+            `${API_BASE}/users/autocomplete?q=${encodeURIComponent(
               username
             )}`
           );
@@ -345,7 +341,7 @@
 
           if (!userData.results || userData.results.length === 0) {
             loading.style.display = "none";
-            showError("User not found");
+            showError("errorMessage", "User not found");
             return;
           }
 
@@ -590,8 +586,8 @@
 
           // Batch 0: ID categories and species (2 parallel)
           const [idCategoriesData, idSpeciesData] = await Promise.all([
-            fetch(`https://api.inaturalist.org/v1/identifications/categories?own_observation=false&current=true&current_taxon=true&user_id=${userId}`).then((res) => res.json()),
-            fetch(`https://api.inaturalist.org/v1/identifications/species_counts?own_observation=false&current=true&current_taxon=true&user_id=${userId}&per_page=1`).then((res) => res.json()),
+            fetch(`${API_BASE}/identifications/categories?own_observation=false&current=true&current_taxon=true&user_id=${userId}`).then((res) => res.json()),
+            fetch(`${API_BASE}/identifications/species_counts?own_observation=false&current=true&current_taxon=true&user_id=${userId}&per_page=1`).then((res) => res.json()),
           ]);
 
           if (idCategoriesData.results) {
@@ -611,7 +607,7 @@
 
           // Batch 1: Research grade, histogram, favorite observations (3 parallel)
           const [researchGradeData, histogramData, favoriteObservations] = await Promise.all([
-            fetch(`https://api.inaturalist.org/v1/observations/quality_grades?user_id=${userId}&captive=false&verifiable=true`)
+            fetch(`${API_BASE}/observations/quality_grades?user_id=${userId}&captive=false&verifiable=true`)
               .then((res) => res.json())
               .then((data) => { updateProgress(); return data; }),
             fetch(`https://api.inaturalist.org/v2/observations/histogram?interval=day&d1=1900-01-01&user_id=${userId}&captive=false&verifiable=true`)
@@ -645,10 +641,10 @@
           // Batch 3: Endemic, sounds, sound+photo (3 parallel)
           const [endemicSpeciesCounts, soundObservationsData, soundPhotoObservationsData] = await Promise.all([
             loadEndemicSpeciesCounts(userId, updateProgress),
-            fetch(`https://api.inaturalist.org/v1/observations?user_id=${userId}&sounds=true&per_page=1&captive=false&verifiable=true`)
+            fetch(`${API_BASE}/observations?user_id=${userId}&sounds=true&per_page=1&captive=false&verifiable=true`)
               .then((res) => res.json())
               .then((data) => { updateProgress(); return data; }),
-            fetch(`https://api.inaturalist.org/v1/observations?user_id=${userId}&sounds=true&photos=true&per_page=1&captive=false&verifiable=true`)
+            fetch(`${API_BASE}/observations?user_id=${userId}&sounds=true&photos=true&per_page=1&captive=false&verifiable=true`)
               .then((res) => res.json())
               .then((data) => { updateProgress(); return data; }),
           ]);
@@ -660,7 +656,7 @@
 
           // Batch 4: Projects, early bird, night owl (3 parallel)
           const [projectsData, earlyBirdData, nightOwlData] = await Promise.all([
-            fetch(`https://api.inaturalist.org/v1/projects?member_id=${userId}&per_page=1`)
+            fetch(`${API_BASE}/projects?member_id=${userId}&per_page=1`)
               .then((res) => res.json())
               .then((data) => { updateProgress(); return data; }),
             fetch(`https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&hour=5,6,7`)
@@ -687,7 +683,7 @@
             fetch(`https://api.inaturalist.org/v2/observations?user_id=${userId}&per_page=0&verifiable=true&captive=false&quality_grade=research&d2=2008-03-01`)
               .then((res) => res.json())
               .then((data) => { updateProgress(); return data; }),
-            fetch(`https://api.inaturalist.org/v1/grid/0/0/0.grid.json?user_id=${userId}`)
+            fetch(`${API_BASE}/grid/0/0/0.grid.json?user_id=${userId}`)
               .then(res => res.json())
               .then((data) => { updateProgress(); return data; })
               .catch(() => { updateProgress(); return null; }),
@@ -701,7 +697,7 @@
           // Fetch City Nature Challenge participation (3 parallel batches)
           const allCncProjects = CNC_PROJECTS.concat(await loadNewerCncProjects());
           const cncTasks = allCncProjects.map(project => () =>
-            fetch(`https://api.inaturalist.org/v1/observations?user_id=${userId}&project_id=${project.id}&per_page=1`)
+            fetch(`${API_BASE}/observations?user_id=${userId}&project_id=${project.id}&per_page=1`)
               .then((res) => res.json())
               .then((data) => { updateProgress(); return data; })
           );
@@ -746,7 +742,7 @@
         } catch (error) {
           console.error("Error fetching user data:", error);
           loading.style.display = "none";
-          showError("Error fetching data. Please try again.");
+          showError("errorMessage", "Error fetching data. Please try again.");
         }
       }
 
@@ -757,7 +753,7 @@
         let hasMore = true;
 
         while (hasMore) {
-          const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}&captive=false&verifiable=true`;
+          const url = `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}&captive=false&verifiable=true`;
           const response = await fetch(url);
           const data = await response.json();
           if (onProgress) onProgress();
@@ -785,7 +781,7 @@
         let hasMore = true;
 
         while (hasMore) {
-          const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}&captive=false&verifiable=true&threatened=true`;
+          const url = `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}&captive=false&verifiable=true&threatened=true`;
           const response = await fetch(url);
           const data = await response.json();
           if (onProgress) onProgress();
@@ -807,7 +803,7 @@
       }
 
       async function loadIntroducedSpeciesCounts(userId, onProgress) {
-        const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=0&captive=false&verifiable=true&introduced=true`;
+        const url = `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=0&captive=false&verifiable=true&introduced=true`;
         const response = await fetch(url);
         const data = await response.json();
         if (onProgress) onProgress();
@@ -815,7 +811,7 @@
       }
 
       async function loadEndemicSpeciesCounts(userId, onProgress) {
-        const url = `https://api.inaturalist.org/v1/observations/species_counts?user_id=${userId}&per_page=0&captive=false&verifiable=true&endemic=true`;
+        const url = `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=0&captive=false&verifiable=true&endemic=true`;
         const response = await fetch(url);
         const data = await response.json();
         if (onProgress) onProgress();
@@ -829,15 +825,6 @@
         const data = await response.json();
         if (onProgress) onProgress();
         return data.results || [];
-      }
-
-      function showError(message) {
-        errorMessage.textContent = message;
-        errorMessage.classList.add("show");
-      }
-
-      function hideError() {
-        errorMessage.classList.remove("show");
       }
 
       function calculateStatusSpeciesAchievementFromSpeciesCounts(
@@ -1605,10 +1592,6 @@
         const rareSpecies10_50 = rarityAchievements.rareSpecies10_50;
         const rareSpecies100_100 = rarityAchievements.rareSpecies100_100;
 
-        // Species in a day achievements - WIP: requires all observations
-        const speciesDay10 = { current: 0, total: 10, completed: false };
-        const speciesDay100 = { current: 0, total: 100, completed: false };
-
         // Observations in a day achievements - use histogram data
         const obsDay10 = histogramAchievements.obsDay10;
         const obsDay100 = histogramAchievements.obsDay100;
@@ -1861,7 +1844,7 @@
             100
           );
           const linkStart = link
-            ? `<a href="${link}" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 14px; flex: 1;">`
+            ? `<a href="${escapeHtml(link)}" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 14px; flex: 1;">`
             : "";
           const linkEnd = link ? "</a>" : "";
           const loadingClass = isLoading ? "loading" : "";
@@ -2635,7 +2618,7 @@
                 "🔍",
                 "Species Specialist",
                 `Identify a species 100 times${
-                  maxSpeciesName ? ` (${maxSpeciesName})` : ""
+                  maxSpeciesName ? ` (${escapeHtml(maxSpeciesName)})` : ""
                 }`
               )}
               ${renderAchievementCard(
@@ -2643,7 +2626,7 @@
                 "🔍",
                 "Species Expert",
                 `Identify a species 1,000 times${
-                  maxSpeciesName ? ` (${maxSpeciesName})` : ""
+                  maxSpeciesName ? ` (${escapeHtml(maxSpeciesName)})` : ""
                 }`
               )}
               ${renderAchievementCard(
@@ -2924,9 +2907,7 @@
       $crisp.push(["on", "chat:closed", function () { $crisp.push(["do", "chat:hide"]); }]);
     </script> -->
     <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-      }
+      registerServiceWorker();
     </script>
   </body>
 </html>

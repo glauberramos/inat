@@ -40,3 +40,14 @@ function getConservationStatus(status) {
 function getIconicTaxonIcon(taxonName) {
   return ICONIC_TAXON_ICONS[taxonName] || "🔍";
 }
+
+// Allow unit tests (Node) to import the helpers; no-op in the browser.
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    API_BASE,
+    ICONIC_TAXON_ICONS,
+    CONSERVATION_STATUS,
+    getConservationStatus,
+    getIconicTaxonIcon,
+  };
+}

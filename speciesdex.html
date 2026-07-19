@@ -817,7 +817,6 @@
         let isDragging = false;
         let isResizing = false;
         let resizeHandle = null;
-        let defaultRadius = 50000; // 50km default
         let dragStartLatLng = null;
         let dragStartBounds = null;
         let circleHandles = [];
@@ -852,7 +851,6 @@
                 const center = currentSelection.getLatLng();
                 const newRadius = center.distanceTo(e.latlng);
                 currentSelection.setRadius(Math.max(100, newRadius)); // Min 100m
-                defaultRadius = currentSelection.getRadius();
                 updateCircleHandles();
               } else if (resizeHandle !== null) {
                 const bounds = currentSelection.getBounds();
@@ -1149,7 +1147,6 @@
               fillOpacity: 0.2,
               weight: 2
             }).addTo(areaMap);
-            defaultRadius = sel.radius;
             setupCircleDrag(currentSelection);
             addCircleResizeHandles(currentSelection);
           } else {
@@ -1176,7 +1173,7 @@
           const boundsInput = document.getElementById('mapBoundsInput');
           const raw = (boundsInput && boundsInput.value) || localStorage.getItem('inatMapArea');
           let saved = null;
-          try { saved = raw ? JSON.parse(raw) : null; } catch (e) { saved = null; }
+          try { saved = raw ? JSON.parse(raw) : null; } catch { saved = null; }
           if (saved && saved.type) restoreSelection(saved);
         }
 
@@ -1414,36 +1411,11 @@
     ></script>
     <button class="feedback-button" id="feedbackBtn">Send feedback</button>
     <script type="text/javascript">
-      window.$crisp = [];
-      window.CRISP_WEBSITE_ID = "69e5f089-9f10-41ef-a438-5d254be7b317";
-      (function () {
-        d = document;
-        s = d.createElement("script");
-        s.src = "https://client.crisp.chat/l.js";
-        s.async = 1;
-        d.getElementsByTagName("head")[0].appendChild(s);
-      })();
-      // Hide Crisp's default launcher; the "Send feedback" button opens the chat.
-      $crisp.push(["do", "chat:hide"]);
-      $crisp.push(["on", "chat:closed", function () { $crisp.push(["do", "chat:hide"]); }]);
-
-      // Feedback button toggle
-      let feedbackOpen = false;
-      document.getElementById("feedbackBtn").addEventListener("click", () => {
-        if (feedbackOpen) {
-          $crisp.push(["do", "chat:close"]); $crisp.push(["do", "chat:hide"]);
-          feedbackOpen = false;
-        } else {
-          $crisp.push(["do", "chat:show"]); $crisp.push(["do", "chat:open"]);
-          feedbackOpen = true;
-        }
-      });
+      initFeedbackButton();
     </script>
     <script src="dark-mode.js"></script>
     <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-      }
+      registerServiceWorker();
     </script>
   </body>
 </html>
