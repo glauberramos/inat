@@ -131,9 +131,43 @@ function initFeedbackButton(buttonId = "feedbackBtn") {
     },
   ]);
 
+  // Crisp boots asynchronously; clicks made before it's ready sit in the
+  // command queue for a few seconds, so show a spinner on the button until
+  // the session is loaded and the queued chat:open actually fires.
+  let crispReady = false;
+  const spinnerStyle = document.createElement("style");
+  spinnerStyle.textContent =
+    ".feedback-spinner{display:inline-block;width:12px;height:12px;" +
+    "border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;" +
+    "border-radius:50%;margin-right:6px;vertical-align:-2px;" +
+    "animation:feedback-spin 0.7s linear infinite}" +
+    "@keyframes feedback-spin{to{transform:rotate(360deg)}}";
+  document.head.appendChild(spinnerStyle);
+
+  function removeSpinner() {
+    const spin = btn.querySelector(".feedback-spinner");
+    if (spin) spin.remove();
+  }
+
+  $crisp.push([
+    "on",
+    "session:loaded",
+    function () {
+      crispReady = true;
+      removeSpinner();
+    },
+  ]);
+
   btn.addEventListener("click", () => {
     $crisp.push(["do", "chat:show"]);
     $crisp.push(["do", "chat:open"]);
+    if (!crispReady && !btn.querySelector(".feedback-spinner")) {
+      const spin = document.createElement("span");
+      spin.className = "feedback-spinner";
+      btn.prepend(spin);
+      // If Crisp never loads (offline, blocked), don't spin forever
+      setTimeout(removeSpinner, 10000);
+    }
   });
 }
 
