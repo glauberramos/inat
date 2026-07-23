@@ -110,7 +110,7 @@ function updateProgress(percent, text, currentCheck) {
 const CRISP_WEBSITE_ID = "69e5f089-9f10-41ef-a438-5d254be7b317";
 
 // Loads Crisp, hides its default launcher, and wires the "Send feedback"
-// button to toggle the chat. Replaces the per-page inline boilerplate.
+// button to open the chat. Replaces the per-page inline boilerplate.
 function initFeedbackButton(buttonId = "feedbackBtn") {
   const btn = document.getElementById(buttonId);
   if (!btn) return;
@@ -131,17 +131,9 @@ function initFeedbackButton(buttonId = "feedbackBtn") {
     },
   ]);
 
-  let feedbackOpen = false;
   btn.addEventListener("click", () => {
-    if (feedbackOpen) {
-      $crisp.push(["do", "chat:close"]);
-      $crisp.push(["do", "chat:hide"]);
-      feedbackOpen = false;
-    } else {
-      $crisp.push(["do", "chat:show"]);
-      $crisp.push(["do", "chat:open"]);
-      feedbackOpen = true;
-    }
+    $crisp.push(["do", "chat:show"]);
+    $crisp.push(["do", "chat:open"]);
   });
 }
 
