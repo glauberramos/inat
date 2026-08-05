@@ -263,6 +263,26 @@
         min-width: 40px;
         text-align: right;
       }
+      .rg-badge {
+        font-size: 10px;
+        font-weight: bold;
+        color: white;
+        background: #74ac00;
+        border-radius: 4px;
+        padding: 2px 4px;
+        line-height: 1;
+      }
+      .rg-badge.rg-hidden {
+        visibility: hidden;
+      }
+      .species-card .card-rg {
+        background: rgba(116, 172, 0, 0.9);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+      }
       .species-icon {
         font-size: 18px;
         min-width: 24px;
@@ -430,10 +450,16 @@
         padding: 8px;
       }
 
-      .species-card .card-number {
+      .species-card .card-badges {
         position: absolute;
         top: 8px;
         left: 8px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .species-card .card-number {
         background: rgba(116, 172, 0, 0.9);
         color: white;
         padding: 2px 8px;
@@ -848,8 +874,15 @@
           ? `<div class="card-observer">by <a href="https://www.inaturalist.org/people/${escapeHtml(sp.observerLogin)}" target="_blank" onclick="event.stopPropagation();">${escapeHtml(sp.observerName || sp.observerLogin)}</a></div>`
           : '';
 
+        const rgBadge = sp.qualityGrade === "research"
+          ? `<span class="card-rg" title="Research Grade">RG</span>`
+          : "";
+
         a.innerHTML = `
-          <div class="card-number">#${number}</div>
+          <div class="card-badges">
+            <div class="card-number">#${number}</div>
+            ${rgBadge}
+          </div>
           ${imageHtml}
           <div class="card-content">
             <div class="card-common-name">${escapeHtml(displayName)}</div>
@@ -1387,6 +1420,7 @@
                     defaultPhotoUrl: taxon.default_photo?.square_url || obsTaxon.default_photo?.square_url,
                     observerLogin: observer.login,
                     observerName: observer.name,
+                    qualityGrade: obs.quality_grade,
                   };
                   results.set(matchedTaxonId, result);
                   remainingInBatch.delete(matchedTaxonId);
@@ -1466,8 +1500,13 @@
           ? `<span class="species-observer">by <a href="https://www.inaturalist.org/people/${escapeHtml(sp.observerLogin)}" target="_blank" onclick="event.stopPropagation();">${escapeHtml(sp.observerName || sp.observerLogin)}</a></span>`
           : '';
 
+        const rgBadge = sp.qualityGrade === "research"
+          ? `<span class="rg-badge" title="Research Grade">RG</span>`
+          : `<span class="rg-badge rg-hidden">RG</span>`;
+
         a.innerHTML = `
         <div class="species-number">#${number}</div>
+        ${rgBadge}
         <span class="species-icon">${iconicIcon}</span>
         <img class="species-image" src="${escapeHtml(imgSrc)}" alt="${escapeHtml(sp.commonName || sp.taxonName)}" loading="lazy"${photoOnError(fallback, primary)}>
         <div class="species-info">
@@ -1614,6 +1653,7 @@
                 defaultPhotoUrl: result.defaultPhotoUrl,
                 observerLogin: result.observerLogin,
                 observerName: result.observerName,
+                qualityGrade: result.qualityGrade,
                 showObserver: !username,
               };
               addResultItem(itemData, foundCount, true);
@@ -1662,6 +1702,7 @@
               defaultPhotoUrl: item.defaultPhotoUrl,
               observerLogin: item.observerLogin,
               observerName: item.observerName,
+              qualityGrade: item.qualityGrade,
               showObserver: !username,
             };
             lifelistData.push(itemData);

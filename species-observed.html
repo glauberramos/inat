@@ -864,6 +864,13 @@
         usernameInput.value = savedUsername;
       }
 
+      // URL parameter handling for sort order
+      const urlSort = urlParams.get("sort");
+      const validSortValues = ["user", "user-asc", "global", "global-asc"];
+      if (urlSort && validSortValues.includes(urlSort)) {
+        sortSelect.value = urlSort;
+      }
+
       // Initialize location autocomplete
       initLocationAutocomplete(
         locationInput,
@@ -1040,6 +1047,13 @@
 
       // Sort handler
       sortSelect.addEventListener("change", () => {
+        const url = new URL(window.location);
+        if (sortSelect.value === "user") {
+          url.searchParams.delete("sort");
+        } else {
+          url.searchParams.set("sort", sortSelect.value);
+        }
+        window.history.replaceState({}, "", url);
         displaySpecies();
       });
 
