@@ -513,6 +513,8 @@
               rareSpecies100_100: calculateRareSpeciesAchievementFromSpeciesCounts(state.allSpeciesCounts, 100, 100),
             };
 
+            const taxonPhotoAchievement = calculateTaxonPhotoAchievementFromSpeciesCounts(state.allSpeciesCounts, user.name, user.login);
+
             let result = renderAchievements(
               observationsTotalResults,
               speciesCount,
@@ -542,6 +544,7 @@
               conservationStatusAchievements,
               favoriteAchievements,
               rarityAchievements,
+              taxonPhotoAchievement,
               state.soundObservationsCount,
               state.soundPhotoObservationsCount,
               annotatedObservationsCount,
@@ -991,6 +994,38 @@
         };
       }
 
+      function calculateTaxonPhotoAchievementFromSpeciesCounts(
+        speciesCounts,
+        userName,
+        userLogin
+      ) {
+        // The default_photo only exposes the photographer's display name
+        // (attribution_name), so match against the user's name or login
+        const userNames = [userName, userLogin]
+          .filter(Boolean)
+          .map((n) => n.toLowerCase().trim());
+        const taxonPhotoTaxonIds = [];
+
+        speciesCounts.forEach((species) => {
+          const attributionName =
+            species.taxon?.default_photo?.attribution_name;
+          if (
+            species.taxon?.id &&
+            attributionName &&
+            userNames.includes(attributionName.toLowerCase().trim())
+          ) {
+            taxonPhotoTaxonIds.push(species.taxon.id);
+          }
+        });
+
+        return {
+          current: taxonPhotoTaxonIds.length,
+          total: 1,
+          completed: taxonPhotoTaxonIds.length >= 1,
+          taxonIds: taxonPhotoTaxonIds,
+        };
+      }
+
       function calculateIconicTaxonAchievementFromCounts(
         iconicTaxonSpeciesCounts
       ) {
@@ -1310,6 +1345,7 @@
         conservationStatusAchievements,
         favoriteAchievements,
         rarityAchievements,
+        taxonPhotoAchievement,
         soundObservationsCount,
         soundPhotoObservationsCount,
         annotatedObservationsCount,
@@ -1937,7 +1973,8 @@
         ];
 
         const communityAchievements = [
-          favorited10, mostFavorited10, annotatedObservation50, annotatedObservation100, projectParticipant,
+          favorited10, mostFavorited10, taxonPhotoAchievement,
+          annotatedObservation50, annotatedObservation100, projectParticipant,
           cityNatureChallenge1, cityNatureChallenge3
         ];
 
@@ -2505,6 +2542,18 @@
                   ? `https://www.inaturalist.org/observations?id=${mostFavorited10.obsIds.join(
                       ","
                     )}`
+                  : null,
+                false
+              )}
+              ${renderAchievementCard(
+                taxonPhotoAchievement,
+                "📸",
+                "Cover Shot",
+                "Have your photo featured as a species' default photo",
+                taxonPhotoAchievement.taxonIds.length > 0
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_ids=${taxonPhotoAchievement.taxonIds.join(
+                      ","
+                    )}&view=species`
                   : null,
                 false
               )}
