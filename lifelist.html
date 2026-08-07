@@ -1149,6 +1149,14 @@
       const speciesPhotoCheckbox = document.getElementById("speciesPhotoCheckbox");
       let taxonSearchTimeout = null;
 
+      // Load taxon from URL parameter
+      const urlTaxonId = urlParams.get("taxon_id");
+      const urlTaxonName = urlParams.get("taxon");
+      if (urlTaxonId && urlTaxonName) {
+        taxonIdInput.value = urlTaxonId;
+        taxonInput.value = urlTaxonName;
+      }
+
       // Load checkbox states from localStorage
       if (localStorage.getItem("inatSpeciesPhoto") === "true") {
         speciesPhotoCheckbox.checked = true;
@@ -1227,9 +1235,10 @@
         if (query.length < 2) {
           taxonAutocompleteEl.innerHTML = "";
           taxonAutocompleteEl.classList.remove("active");
-          // Clear taxon ID if input is cleared
+          // Clear taxon ID and URL if input is cleared
           if (query.length === 0) {
             taxonIdInput.value = "";
+            updateUrlWithTaxon(null, null);
           }
           return;
         }
@@ -1262,6 +1271,7 @@
                 item.addEventListener("click", () => {
                   taxonInput.value = item.dataset.name;
                   taxonIdInput.value = item.dataset.id;
+                  updateUrlWithTaxon(item.dataset.id, item.dataset.name);
                   taxonAutocompleteEl.classList.remove("active");
                 });
               });

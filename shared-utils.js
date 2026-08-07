@@ -24,12 +24,26 @@ function updateUrlWithPlace(placeId, placeName) {
   window.history.replaceState({}, "", url);
 }
 
+function updateUrlWithTaxon(taxonId, taxonName) {
+  const url = new URL(window.location);
+  if (taxonId && taxonName) {
+    url.searchParams.set("taxon_id", taxonId);
+    url.searchParams.set("taxon", taxonName);
+  } else {
+    url.searchParams.delete("taxon_id");
+    url.searchParams.delete("taxon");
+  }
+  window.history.replaceState({}, "", url);
+}
+
 function getUrlParams() {
   const urlParams = new URLSearchParams(window.location.search);
   return {
     username: urlParams.get("user"),
     placeId: urlParams.get("place_id"),
     placeName: urlParams.get("place"),
+    taxonId: urlParams.get("taxon_id"),
+    taxonName: urlParams.get("taxon"),
   };
 }
 
