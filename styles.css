@@ -133,6 +133,17 @@ h1 {
   font-weight: 500;
 }
 
+/* Secondary half of the summary line: the complement of the observed count */
+.status-missing {
+  color: #7f8c8d;
+  white-space: nowrap;
+}
+
+.status-missing::before {
+  content: "·";
+  margin: 0 6px;
+}
+
 .progress-bar {
   width: 100%;
   height: 10px;
@@ -386,6 +397,16 @@ button:hover {
 
   .status-text {
     font-size: 1rem;
+  }
+
+  /* Not enough room for both halves on one line; drop the missing count
+     onto its own line and lose the inline separator */
+  .status-missing {
+    display: block;
+  }
+
+  .status-missing::before {
+    content: none;
   }
 
   .checkbox-container {

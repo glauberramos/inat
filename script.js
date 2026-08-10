@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const observedCount = document.getElementById("observedCount");
   const totalCount = document.getElementById("totalCount");
   const percentObserved = document.getElementById("percentObserved");
+  const missingCount = document.getElementById("missingCount");
   const progressBar = document.getElementById("progressBar");
   const filterToggleButtons = document.querySelectorAll(".filter-toggle-btn");
   let speciesFilter = "all";
@@ -525,10 +526,12 @@ document.addEventListener("DOMContentLoaded", function () {
   function updateStatus(observed, total) {
     observedCount.textContent = observed;
     totalCount.textContent = total;
+    if (missingCount) {
+      missingCount.textContent = total - observed;
+    }
     const percent = total > 0 ? Math.round((observed / total) * 100) : 0;
     percentObserved.textContent = percent;
     progressBar.style.width = `${percent}%`;
-    percentObserved.textContent = percent;
   }
 
   function displaySpecies(species, userObservations) {

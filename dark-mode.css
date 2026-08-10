@@ -254,6 +254,10 @@ body.dark-mode .status-text {
   color: #e0e0e0;
 }
 
+body.dark-mode .status-missing {
+  color: #aaa;
+}
+
 body.dark-mode .progress-bar {
   background: #444;
 }
