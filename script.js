@@ -26,6 +26,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const downloadButton = document.getElementById("downloadButton");
   const locationName = document.getElementById("locationName");
   const mapBoundsInput = document.getElementById("mapBoundsInput");
+  const dateRangePresets = document.getElementById("dateRangePresets");
+  const dateRangeCustom = document.getElementById("dateRangeCustom");
+  const dateFromInput = document.getElementById("dateFromInput");
+  const dateToInput = document.getElementById("dateToInput");
+  let dateRangePreset = "all";
 
   // Load saved username, place ID, taxon, and limit preference from localStorage
   const savedUsername = localStorage.getItem("inatUsername");
@@ -235,6 +240,61 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Date range filter: presets (last 30 days / 3 months / 12 months) plus a
+  // custom from/to range. Only the custom range shows the date inputs.
+  function setDateRangePreset(preset) {
+    dateRangePreset = isDateRangePreset(preset) ? preset : "all";
+
+    if (dateRangePresets) {
+      dateRangePresets.querySelectorAll(".date-preset-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.range === dateRangePreset);
+      });
+    }
+
+    if (dateRangeCustom) {
+      dateRangeCustom.style.display = dateRangePreset === "custom" ? "flex" : "none";
+    }
+  }
+
+  function getSelectedDateRange() {
+    return resolveDateRange(
+      dateRangePreset,
+      dateFromInput ? dateFromInput.value : "",
+      dateToInput ? dateToInput.value : ""
+    );
+  }
+
+  if (dateFromInput) {
+    dateFromInput.value = localStorage.getItem("inatDateFrom") || "";
+  }
+  if (dateToInput) {
+    dateToInput.value = localStorage.getItem("inatDateTo") || "";
+  }
+  setDateRangePreset(localStorage.getItem("inatDateRange") || "all");
+
+  if (dateRangePresets) {
+    dateRangePresets.querySelectorAll(".date-preset-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setDateRangePreset(btn.dataset.range);
+        localStorage.setItem("inatDateRange", dateRangePreset);
+      });
+    });
+  }
+
+  [
+    { input: dateFromInput, key: "inatDateFrom" },
+    { input: dateToInput, key: "inatDateTo" },
+  ].forEach(({ input, key }) => {
+    if (!input) return;
+    input.addEventListener("change", () => {
+      if (input.value) {
+        localStorage.setItem(key, input.value);
+      } else {
+        localStorage.removeItem(key);
+      }
+    });
+  });
+
   // Filter toggle: All / Missing / Observed
   function setSpeciesFilter(filter) {
     speciesFilter = filter;
@@ -289,6 +349,13 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    // ISO dates compare correctly as strings
+    const dateRange = getSelectedDateRange();
+    if (dateRange.d1 && dateRange.d2 && dateRange.d1 > dateRange.d2) {
+      alert("The start date must be on or before the end date");
+      return;
+    }
+
     if (!placeId && !mapBounds) {
       placeId = "any";
     }
@@ -336,9 +403,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const endemic = endemicCheckbox && endemicCheckbox.checked ? "&endemic=true" : "";
     const verifiable = verifiableCheckbox && verifiableCheckbox.checked ? "&verifiable=true" : "";
 
-    // Note: the month filter is intentionally NOT applied to the user's own
-    // observations — it should only narrow the place's top species. A species
-    // counts as "observed" if the user has ever seen it, regardless of month.
+    // Note: the month and date range filters are intentionally NOT applied to
+    // the user's own observations — they should only narrow the place's top
+    // species. A species counts as "observed" if the user has ever seen it,
+    // regardless of when.
 
     // Check if we have a project selected instead of a place
     const projectId = localStorage.getItem("inatProjectId");
@@ -388,6 +456,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectedMonths = Array.from(monthCheckboxes).map((cb) => cb.value);
     const monthParam = selectedMonths.length > 0 ? `&month=${selectedMonths.join(",")}` : "";
 
+    // Selected date range (preset or custom)
+    const dateParam = buildDateRangeParams(getSelectedDateRange());
+
     // Check if we have a project selected instead of a place
     const projectId = localStorage.getItem("inatProjectId");
     let locationParam = "";
@@ -413,7 +484,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (limit === "5000") {
       const getSpeciesCounts = (page = 1) =>
         fetch(
-          `${baseUrl}&per_page=500&page=${page}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`
+          `${baseUrl}&per_page=500&page=${page}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}${dateParam}`
         )
           .then((response) => response.json())
           .then((data) => data.results);
@@ -429,13 +500,13 @@ document.addEventListener("DOMContentLoaded", function () {
       const results = [];
 
       // First call: get first 500 species
-      const url1 = `${baseUrl}&per_page=500${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`;
+      const url1 = `${baseUrl}&per_page=500${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}${dateParam}`;
       const response1 = await fetch(url1);
       const data1 = await response1.json();
       results.push(...data1.results);
 
       // Second call: get next 500 species (page 2)
-      const url2 = `${baseUrl}&per_page=500&page=2${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`;
+      const url2 = `${baseUrl}&per_page=500&page=2${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}${dateParam}`;
       const response2 = await fetch(url2);
       const data2 = await response2.json();
       results.push(...data2.results);
@@ -443,7 +514,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return results;
     } else {
       // Regular single API call for other limits
-      const url = `${baseUrl}&per_page=${limit}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}`;
+      const url = `${baseUrl}&per_page=${limit}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${languageParam}${monthParam}${dateParam}`;
       const response = await fetch(url);
       const data = await response.json();
 
@@ -490,8 +561,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const monthCheckboxes = document.querySelectorAll(".month-checkbox:checked");
     const selectedMonths = Array.from(monthCheckboxes).map((cb) => cb.value);
     const monthParam = selectedMonths.length > 0 ? `&month=${selectedMonths.join(",")}` : "";
+    const dateParam = buildDateRangeParams(getSelectedDateRange());
 
-    const inatUrl = `https://www.inaturalist.org/observations?place_id=${placeIdInput.value}&taxon_id=${specimen.taxon.id}${monthParam}`;
+    const inatUrl = `https://www.inaturalist.org/observations?place_id=${placeIdInput.value}&taxon_id=${specimen.taxon.id}${monthParam}${dateParam}`;
 
     // Create status labels container
     const statusContainer = document.createElement("div");

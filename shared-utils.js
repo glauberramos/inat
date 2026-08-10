@@ -226,6 +226,71 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// ===== Date Range Helpers =====
+
+// Presets offered by the date range filter. The offset is subtracted from
+// today to get the start of the range; "all" applies no date filter and
+// "custom" is driven by the two date inputs instead.
+const DATE_RANGE_PRESETS = {
+  all: {},
+  "30d": { days: 30 },
+  "3m": { months: 3 },
+  "12m": { months: 12 },
+  custom: {},
+};
+
+function isDateRangePreset(preset) {
+  return Object.prototype.hasOwnProperty.call(DATE_RANGE_PRESETS, preset);
+}
+
+// Format a Date as the YYYY-MM-DD string the iNaturalist API expects for
+// d1/d2. Uses local calendar fields — toISOString() would report the
+// previous day for anyone behind UTC.
+function formatDateParam(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+// Subtract whole months, clamping the day to the end of the target month so
+// that 3 months before May 31 is Feb 28 rather than spilling into March.
+function subtractMonths(date, months) {
+  const result = new Date(date.getFullYear(), date.getMonth(), 1);
+  result.setMonth(result.getMonth() - months);
+  const lastDayOfMonth = new Date(result.getFullYear(), result.getMonth() + 1, 0).getDate();
+  result.setDate(Math.min(date.getDate(), lastDayOfMonth));
+  return result;
+}
+
+// Resolve the selected preset (or the custom from/to values) into the
+// iNaturalist d1/d2 params. Either side may be null, meaning "unbounded".
+function resolveDateRange(preset, customFrom, customTo, today = new Date()) {
+  if (preset === "custom") {
+    return { d1: customFrom || null, d2: customTo || null };
+  }
+
+  const offset = isDateRangePreset(preset) ? DATE_RANGE_PRESETS[preset] : null;
+  if (!offset || (!offset.days && !offset.months)) {
+    return { d1: null, d2: null };
+  }
+
+  const start = offset.days
+    ? new Date(today.getFullYear(), today.getMonth(), today.getDate() - offset.days)
+    : subtractMonths(today, offset.months);
+
+  return { d1: formatDateParam(start), d2: formatDateParam(today) };
+}
+
+// Build the &d1=...&d2=... query fragment for a resolved range.
+function buildDateRangeParams(range) {
+  if (!range) return "";
+  let params = "";
+  if (range.d1) params += `&d1=${encodeURIComponent(range.d1)}`;
+  if (range.d2) params += `&d2=${encodeURIComponent(range.d2)}`;
+  return params;
+}
+
 // ===== Init helpers =====
 
 // Initialize username from URL or localStorage
@@ -278,5 +343,14 @@ function initLanguage(selectElement) {
 
 // Allow unit tests (Node) to import the pure helpers; no-op in the browser.
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { escapeHtml, sleep };
+  module.exports = {
+    escapeHtml,
+    sleep,
+    DATE_RANGE_PRESETS,
+    isDateRangePreset,
+    formatDateParam,
+    subtractMonths,
+    resolveDateRange,
+    buildDateRangeParams,
+  };
 }

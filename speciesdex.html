@@ -734,6 +734,41 @@
               </span>
             </div>
           </div>
+          <div class="date-range-container">
+            <label class="date-range-label">Filter by date observed:</label>
+            <div
+              class="date-range-presets"
+              id="dateRangePresets"
+              role="group"
+              aria-label="Date range"
+            >
+              <button type="button" class="date-preset-btn active" data-range="all">
+                All time
+              </button>
+              <button type="button" class="date-preset-btn" data-range="30d">
+                Last 30 days
+              </button>
+              <button type="button" class="date-preset-btn" data-range="3m">
+                Last 3 months
+              </button>
+              <button type="button" class="date-preset-btn" data-range="12m">
+                Last 12 months
+              </button>
+              <button type="button" class="date-preset-btn" data-range="custom">
+                Custom
+              </button>
+            </div>
+            <div class="date-range-custom" id="dateRangeCustom" style="display: none">
+              <span class="date-range-field">
+                <label for="dateFromInput">From</label>
+                <input type="date" id="dateFromInput" class="date-input" />
+              </span>
+              <span class="date-range-field">
+                <label for="dateToInput">To</label>
+                <input type="date" id="dateToInput" class="date-input" />
+              </span>
+            </div>
+          </div>
           <div class="advanced-actions">
             <button id="searchButtonAdvanced" class="search-button-advanced">
               Search
