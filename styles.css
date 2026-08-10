@@ -133,6 +133,17 @@ h1 {
   font-weight: 500;
 }
 
+/* Secondary half of the summary line: the complement of the observed count */
+.status-missing {
+  color: #7f8c8d;
+  white-space: nowrap;
+}
+
+.status-missing::before {
+  content: "·";
+  margin: 0 6px;
+}
+
 .progress-bar {
   width: 100%;
   height: 10px;
@@ -386,6 +397,16 @@ button:hover {
 
   .status-text {
     font-size: 1rem;
+  }
+
+  /* Not enough room for both halves on one line; drop the missing count
+     onto its own line and lose the inline separator */
+  .status-missing {
+    display: block;
+  }
+
+  .status-missing::before {
+    content: none;
   }
 
   .checkbox-container {
@@ -790,6 +811,84 @@ input[type="checkbox"] {
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
+/* Date range filter (SpeciesDex advanced options) */
+.date-range-container {
+  margin-top: 12px;
+}
+
+.date-range-label {
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.date-range-presets {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.date-preset-btn {
+  background: transparent;
+  color: #555;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.date-preset-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #333;
+}
+
+.date-preset-btn.active,
+.date-preset-btn.active:hover {
+  background: #74ac00;
+  color: white;
+}
+
+.date-range-custom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.date-range-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.date-range-field label {
+  margin-left: 0;
+  top: 0;
+}
+
+.date-input {
+  padding: 8px 10px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  background-color: white;
+  color: #333;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
 .advanced-actions {
   display: flex;
   gap: 10px;
@@ -923,5 +1022,45 @@ input[type="checkbox"] {
   .advanced-options-section label {
     margin-left: 0;
     top: 0;
+  }
+
+  .date-range-container {
+    width: 100%;
+  }
+
+  .date-range-label {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  /* Two presets per row, with "Custom" on its own full-width row */
+  .date-range-presets {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+  }
+
+  .date-preset-btn {
+    width: auto;
+    padding: 8px 10px;
+  }
+
+  .date-preset-btn[data-range="custom"] {
+    grid-column: 1 / -1;
+  }
+
+  .date-range-custom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .date-range-field {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .date-input {
+    width: auto;
+    flex: 1;
   }
 }
