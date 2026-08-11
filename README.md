@@ -32,6 +32,11 @@ The application uses the following iNaturalist API endpoints:
 - `/observations` - To fetch user observations
 - `/observations/species_counts` - To fetch top observed species
 
+## Docs
+
+- [Third-party iNaturalist tools](docs/third-party-tools.md) — survey of what the community has already built, and how our tools compare
+- [Ideas backlog](docs/ideas.md) — parked ideas for new tools and improvements
+
 ## Note
 
 Make sure you have an active internet connection to use the application, as it needs to communicate with the iNaturalist API.
