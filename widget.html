@@ -811,6 +811,22 @@
               <option value="zh-TW">Chinese (Traditional)</option>
             </select>
           </div>
+
+          <div class="option-row">
+            <div class="option-label">Extra API params (advanced)</div>
+            <input
+              type="text"
+              class="search-input"
+              id="extraParamsInput"
+              placeholder="e.g. photos=true&threatened=true"
+              style="padding-left: 12px"
+            />
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px">
+              Any filter from the
+              <a href="https://api.inaturalist.org/v1/docs/#!/Observations/get_observations" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">iNaturalist API</a>,
+              as key=value pairs joined by &amp;. Use commas for multiple values, e.g. user_id=alice,bob
+            </div>
+          </div>
         </div>
 
         <!-- Theme -->
@@ -917,6 +933,7 @@
         borderRadius: 12,
         padding: 16,
         lang: "",
+        extraParams: "",
       };
 
       let searchTimeout = null;
@@ -1148,6 +1165,19 @@
         renderPreview();
       });
       headerTextInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") renderPreview();
+      });
+
+      // Extra API params (re-render on blur/Enter to avoid refetching per keystroke)
+      const extraParamsInput = document.getElementById("extraParamsInput");
+      extraParamsInput.addEventListener("input", () => {
+        state.extraParams = extraParamsInput.value.trim().replace(/^[?&]+/, "");
+        updateEmbedCode();
+      });
+      extraParamsInput.addEventListener("change", () => {
+        renderPreview();
+      });
+      extraParamsInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter") renderPreview();
       });
 
@@ -1414,6 +1444,7 @@
             if (state.dateFrom) attrs.push(`data-inat-date-from="${escapeAttr(state.dateFrom)}"`);
             if (state.dateTo) attrs.push(`data-inat-date-to="${escapeAttr(state.dateTo)}"`);
           }
+          if (state.extraParams) attrs.push(`data-inat-params="${escapeAttr(state.extraParams)}"`);
         }
 
         if (!state.showTitle) attrs.push(`data-inat-show-title="false"`);
@@ -1471,6 +1502,7 @@
               if (state.dateFrom) params.set("date_from", state.dateFrom);
               if (state.dateTo) params.set("date_to", state.dateTo);
             }
+            if (state.extraParams) params.set("params", state.extraParams);
           }
           if (!state.showTitle) params.set("show_title", "false");
           if (state.headerText) params.set("header_text", state.headerText);

@@ -40,6 +40,7 @@
         container.dataset.inatPadding !== undefined ? parseInt(container.dataset.inatPadding) : 16;
       this.compact = container.dataset.inatCompact === "true";
       this.lang = container.dataset.inatLang || "";
+      this.extraParams = container.dataset.inatParams || "";
       this.pagination = container.dataset.inatPagination === "true";
       this.searchEnabled = container.dataset.inatSearch === "true";
       this.showNames = container.dataset.inatShowNames === "true";
@@ -963,6 +964,16 @@
         } else {
           if (this.dateFrom) params.set("d1", this.dateFrom);
           if (this.dateTo) params.set("d2", this.dateTo);
+        }
+
+        // Raw API params passthrough — any /observations filter the widget has no
+        // attribute for (e.g. "photos=true&threatened=true" or "user_id=alice,bob").
+        // Overrides other attributes on conflict; the in-widget taxa search still wins.
+        if (this.extraParams) {
+          new URLSearchParams(this.extraParams).forEach((value, key) => {
+            params.set(key, value);
+          });
+          if (this.searchTaxon) params.set("taxon_id", this.searchTaxon);
         }
 
         const endpoint = isSpecies ? "observations/species_counts" : "observations";
