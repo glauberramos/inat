@@ -532,17 +532,31 @@ document.addEventListener("DOMContentLoaded", function () {
     const percent = total > 0 ? Math.round((observed / total) * 100) : 0;
     percentObserved.textContent = percent;
     progressBar.style.width = `${percent}%`;
+
+    // Gold "collection complete" state on the banner
+    const statusBar = document.getElementById("statusBar");
+    if (statusBar) {
+      statusBar.classList.toggle("complete", total > 0 && observed === total);
+    }
+
+    // Counts on the All / Missing / Observed filter buttons
+    const countAll = document.getElementById("filterCountAll");
+    const countMissing = document.getElementById("filterCountMissing");
+    const countObserved = document.getElementById("filterCountObserved");
+    if (countAll) countAll.textContent = total > 0 ? total : "";
+    if (countMissing) countMissing.textContent = total > 0 ? total - observed : "";
+    if (countObserved) countObserved.textContent = total > 0 ? observed : "";
   }
 
   function displaySpecies(species, userObservations) {
     let observed = 0;
     const total = species.length;
 
-    species.forEach((specimen) => {
+    species.forEach((specimen, index) => {
       const isObserved = userObservations.has(specimen.taxon.id);
       if (isObserved) observed++;
 
-      const card = createSpeciesCard(specimen, isObserved);
+      const card = createSpeciesCard(specimen, isObserved, index);
       speciesGrid.appendChild(card);
     });
 
@@ -555,9 +569,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function createSpeciesCard(specimen, isObserved) {
+  function createSpeciesCard(specimen, isObserved, index) {
     const card = document.createElement("div");
     card.className = `species-card ${isObserved ? "observed" : ""}`;
+    // Entrance stagger, capped so late cards in big result sets don't lag
+    card.style.setProperty("--stagger", Math.min(index || 0, 20));
 
     // Create the iNaturalist URL for this species in the current place
     // Get selected months to include in URL
@@ -604,9 +620,14 @@ document.addEventListener("DOMContentLoaded", function () {
       specimen.taxon.default_photo?.medium_url ||
       "https://via.placeholder.com/300x200?text=No+Image";
 
+    const entryNumber = `#${String((index || 0) + 1).padStart(3, "0")}`;
+
     card.innerHTML = `
       <a href="${escapeHtml(inatUrl)}" target="_blank" class="species-link">
-        <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(specimen.taxon.name)}" />
+        <div class="species-photo">
+          <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(specimen.taxon.name)}" loading="lazy" />
+          <span class="entry-number">${entryNumber}</span>
+        </div>
         <div class="species-info">
           <h3>${escapeHtml(specimen.taxon.preferred_common_name || specimen.taxon.name)}</h3>
         <p class="scientific-name">${escapeHtml(specimen.taxon.name)}</p>
@@ -615,8 +636,13 @@ document.addEventListener("DOMContentLoaded", function () {
       </a>
     `;
 
-    // Insert status labels at the beginning of the card
-    card.insertBefore(statusContainer, card.firstChild);
+    // Status pills overlay the photo's bottom edge
+    const photoWrapper = card.querySelector(".species-photo");
+    if (photoWrapper) {
+      photoWrapper.appendChild(statusContainer);
+    } else {
+      card.insertBefore(statusContainer, card.firstChild);
+    }
 
     return card;
   }

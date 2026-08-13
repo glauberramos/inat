@@ -466,9 +466,16 @@
         }
       }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="speciesdex.css?v=1" />
       <script src="analytics.js"></script>
   </head>
-  <body>
+  <body class="speciesdex-page">
     <a
       href="/inat"
       class="back-button"
@@ -557,21 +564,21 @@
           class="advanced-options-section"
           style="display: none"
         >
-          <span class="language-select-container">
-            <select id="languageSelect" class="language-select">
-              <option value="en" selected>English</option>
-              <option value="es">Spanish</option>
-              <option value="fr">French</option>
-              <option value="de">German</option>
-              <option value="pt">Portuguese</option>
-              <option value="it">Italian</option>
-              <option value="nl">Dutch</option>
-              <option value="ru">Russian</option>
-              <option value="ja">Japanese</option>
-              <option value="zh">Chinese</option>
-            </select>
-          </span>
           <div class="advanced-options-toggles">
+            <span class="language-select-container">
+              <select id="languageSelect" class="language-select">
+                <option value="en" selected>English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="pt">Portuguese</option>
+                <option value="it">Italian</option>
+                <option value="nl">Dutch</option>
+                <option value="ru">Russian</option>
+                <option value="ja">Japanese</option>
+                <option value="zh">Chinese</option>
+              </select>
+            </span>
             <span class="advanced-options-checkbox">
               <input type="checkbox" id="wildCheckbox" class="wild-checkbox" />
               <label for="wildCheckbox">Wild</label>
@@ -779,30 +786,32 @@
           </div>
         </div>
         <div class="status-bar" id="statusBar">
-          <div class="status-text">
-            Observed: <span id="observedCount">0</span> /
-            <span id="totalCount">0</span> species (<span id="percentObserved"
-              >0</span
-            >%)
-            <span class="status-missing"
-              ><span id="missingCount">0</span> still missing</span
-            >
+          <div class="status-percent">
+            <span id="percentObserved">0</span><span class="percent-sign">%</span>
           </div>
-
-          <div class="progress-bar">
-            <div class="progress" id="progressBar"></div>
+          <div class="status-details">
+            <div class="status-text">
+              Observed <span id="observedCount">0</span> /
+              <span id="totalCount">0</span> species
+              <span class="status-missing"
+                ><span id="missingCount">0</span> still missing</span
+              >
+            </div>
+            <div class="progress-bar">
+              <div class="progress" id="progressBar"></div>
+            </div>
           </div>
         </div>
       </header>
 
       <main>
-        <div class="loading" id="loading">Loading...</div>
+        <div class="loading" id="loading"><span class="loading-leaf">🐦</span>Loading species…</div>
         <div class="checkbox-container" style="display: none;">
           <span id="locationName" class="location-name"></span>
           <div class="filter-toggle" role="group" aria-label="Filter species">
-            <button type="button" class="filter-toggle-btn active" data-filter="all">All</button>
-            <button type="button" class="filter-toggle-btn" data-filter="missing">Missing</button>
-            <button type="button" class="filter-toggle-btn" data-filter="observed">Observed</button>
+            <button type="button" class="filter-toggle-btn active" data-filter="all">All<span class="filter-count" id="filterCountAll"></span></button>
+            <button type="button" class="filter-toggle-btn" data-filter="missing">Missing<span class="filter-count" id="filterCountMissing"></span></button>
+            <button type="button" class="filter-toggle-btn" data-filter="observed">Observed<span class="filter-count" id="filterCountObserved"></span></button>
           </div>
         </div>
         <div class="species-grid" id="speciesGrid"></div>
