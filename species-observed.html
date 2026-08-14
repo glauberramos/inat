@@ -92,8 +92,23 @@
 
       .summary-search {
         display: flex;
+        flex-wrap: wrap;
         gap: 10px;
         align-items: center;
+        /* Fill the card's content box; without this the row sizes to its own
+           max-content and overflows the card background on both sides. */
+        width: 100%;
+        min-width: 0;
+      }
+
+      /* Text inputs, date inputs, the language select, and the Search button
+         all compute slightly different natural heights — pin them so the row
+         reads as one control strip. */
+      .summary-search input,
+      .summary-search select,
+      .summary-search button {
+        height: 42px;
+        box-sizing: border-box;
       }
 
       .controls {
@@ -307,35 +322,69 @@
       }
 
       .summary-stat {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: 5px;
         white-space: nowrap;
+        padding: 4px 12px;
+        border: none;
+        border-radius: 999px;
+        font: inherit;
+        font-size: 13px;
+        color: #555;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+      }
+
+      .summary-stat:hover {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
       }
 
       .summary-stat .stat-value {
         font-weight: 600;
       }
 
-      .summary-stat.research .stat-value {
-        color: #74ac00;
-      }
+      .summary-stat.research { background: rgba(116, 172, 0, 0.13); }
+      .summary-stat.research .stat-value { color: #5d8a00; }
+      .summary-stat.needs-id { background: rgba(243, 156, 18, 0.13); }
+      .summary-stat.needs-id .stat-value { color: #d68910; }
+      .summary-stat.threatened { background: rgba(209, 47, 25, 0.11); }
+      .summary-stat.threatened .stat-value { color: #d12f19; }
+      .summary-stat.endemic { background: rgba(142, 68, 173, 0.12); }
+      .summary-stat.endemic .stat-value { color: #8e44ad; }
+      .summary-stat.introduced { background: rgba(230, 126, 34, 0.13); }
+      .summary-stat.introduced .stat-value { color: #ca6b1a; }
 
-      .summary-stat.needs-id .stat-value {
-        color: #f39c12;
+      .summary-stat.active,
+      .summary-stat.active .stat-value {
+        color: white;
       }
+      .summary-stat.research.active { background: #74ac00; }
+      .summary-stat.needs-id.active { background: #f39c12; }
+      .summary-stat.threatened.active { background: #d12f19; }
+      .summary-stat.endemic.active { background: #8e44ad; }
+      .summary-stat.introduced.active { background: #e67e22; }
 
-      .summary-stat.threatened .stat-value {
-        color: #d12f19;
+      html.dark-mode body .summary-stat { color: #ccc; }
+      html.dark-mode body .summary-stat.research { background: rgba(116, 172, 0, 0.25); }
+      html.dark-mode body .summary-stat.research .stat-value { color: #a8d34f; }
+      html.dark-mode body .summary-stat.needs-id { background: rgba(243, 156, 18, 0.22); }
+      html.dark-mode body .summary-stat.needs-id .stat-value { color: #f5b041; }
+      html.dark-mode body .summary-stat.threatened { background: rgba(209, 47, 25, 0.25); }
+      html.dark-mode body .summary-stat.threatened .stat-value { color: #f1948a; }
+      html.dark-mode body .summary-stat.endemic { background: rgba(142, 68, 173, 0.28); }
+      html.dark-mode body .summary-stat.endemic .stat-value { color: #c39bd3; }
+      html.dark-mode body .summary-stat.introduced { background: rgba(230, 126, 34, 0.24); }
+      html.dark-mode body .summary-stat.introduced .stat-value { color: #f0b27a; }
+      html.dark-mode body .summary-stat.active,
+      html.dark-mode body .summary-stat.active .stat-value {
+        color: white;
       }
-
-      .summary-stat.endemic .stat-value {
-        color: #8e44ad;
-      }
-
-      .summary-stat.introduced .stat-value {
-        color: #e67e22;
-      }
+      html.dark-mode body .summary-stat.research.active { background: #74ac00; }
+      html.dark-mode body .summary-stat.needs-id.active { background: #f39c12; }
+      html.dark-mode body .summary-stat.threatened.active { background: #d12f19; }
+      html.dark-mode body .summary-stat.endemic.active { background: #8e44ad; }
+      html.dark-mode body .summary-stat.introduced.active { background: #e67e22; }
 
       .summary-separator {
         color: #ddd;
@@ -343,26 +392,17 @@
 
       .view-buttons {
         display: flex;
-        gap: 0;
-        border-radius: 6px;
-        overflow: hidden;
-        border: 2px solid #ddd;
+        gap: 8px;
       }
 
       .view-btn {
-        padding: 10px 20px;
-        border: none;
-        background: white;
-        color: #2c3e50;
-        cursor: pointer;
+        padding: 8px 16px;
         font-size: 14px;
-        font-weight: 500;
-        transition: all 0.3s;
-        border-right: 1px solid #ddd;
-      }
-
-      .view-btn:last-child {
-        border-right: none;
+        border: 2px solid #ddd;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        color: #666;
       }
 
       .view-btn:hover:not(.active) {
@@ -370,7 +410,8 @@
       }
 
       .view-btn.active {
-        background: #3498db;
+        background: #74ac00;
+        border-color: #74ac00;
         color: white;
       }
 
@@ -716,6 +757,23 @@
                 style="padding: 8px 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; cursor: pointer; flex: 1; min-width: 0;"
               />
             </div>
+            <select
+              id="languageSelect"
+              class="language-select"
+              title="Language for common names"
+              style="padding: 8px 12px; font-size: 14px;"
+            >
+              <option value="en" selected>English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="pt">Portuguese</option>
+              <option value="it">Italian</option>
+              <option value="nl">Dutch</option>
+              <option value="ru">Russian</option>
+              <option value="ja">Japanese</option>
+              <option value="zh">Chinese</option>
+            </select>
             <button id="searchButton">Search</button>
           </div>
         </div>
@@ -768,6 +826,8 @@
             <option value="introduced">Introduced</option>
             <option value="threatened">Threatened</option>
             <option value="endemic">Endemic</option>
+            <option value="research">Research Grade</option>
+            <option value="needs-id">Needs ID</option>
           </select>
           <label for="sortSelect" style="margin-left: 20px">Sort by:</label>
           <select id="sortSelect">
@@ -800,16 +860,11 @@
           </div>
           <div id="resultsCount" style="color: #666; font-size: 14px"></div>
           <div class="results-summary" id="resultsSummary" style="display: none">
-            <span class="summary-separator">|</span>
-            <span class="summary-stat research"><span class="stat-value" id="summaryResearch">0</span> research</span>
-            <span class="summary-separator">|</span>
-            <span class="summary-stat needs-id"><span class="stat-value" id="summaryNeedsId">0</span> needs ID</span>
-            <span class="summary-separator">|</span>
-            <span class="summary-stat threatened"><span class="stat-value" id="summaryThreatened">0</span> threatened</span>
-            <span class="summary-separator">|</span>
-            <span class="summary-stat endemic"><span class="stat-value" id="summaryEndemic">0</span> endemic</span>
-            <span class="summary-separator">|</span>
-            <span class="summary-stat introduced"><span class="stat-value" id="summaryIntroduced">0</span> introduced</span>
+            <button type="button" class="summary-stat research" id="statResearch" title="Filter to research-grade species"><span class="stat-value" id="summaryResearch">0</span> research</button>
+            <button type="button" class="summary-stat needs-id" id="statNeedsId" title="Filter to species needing ID"><span class="stat-value" id="summaryNeedsId">0</span> needs ID</button>
+            <button type="button" class="summary-stat threatened" id="statThreatened" title="Filter to threatened species"><span class="stat-value" id="summaryThreatened">0</span> threatened</button>
+            <button type="button" class="summary-stat endemic" id="statEndemic" title="Filter to endemic species"><span class="stat-value" id="summaryEndemic">0</span> endemic</button>
+            <button type="button" class="summary-stat introduced" id="statIntroduced" title="Filter to introduced species"><span class="stat-value" id="summaryIntroduced">0</span> introduced</button>
           </div>
         </div>
 
@@ -853,6 +908,8 @@
       let endemicTaxonIds = new Set();
       let introducedTaxonIds = new Set();
       let nativeTaxonIds = new Set();
+      let researchTaxonIds = new Set();
+      let needsIdTaxonIds = new Set();
       let researchGradeCount = 0;
       let needsIdCount = 0;
       let currentUserId = null;
@@ -870,6 +927,8 @@
       } else if (savedUsername) {
         usernameInput.value = savedUsername;
       }
+
+      initLanguage(document.getElementById("languageSelect"));
 
       // URL parameter handling for sort order
       const urlSort = urlParams.get("sort");
@@ -1047,10 +1106,66 @@
         displaySpecies();
       });
 
-      // Species status filter handler (native/introduced/threatened/endemic)
+      // Species status filter handler (native/introduced/threatened/endemic/quality grade)
       statusFilterSelect.addEventListener("change", () => {
+        updateStatChips();
         displaySpecies();
       });
+
+      // Summary chips toggle the same status filter as the select
+      const STAT_CHIP_FILTERS = {
+        statResearch: "research",
+        statNeedsId: "needs-id",
+        statThreatened: "threatened",
+        statEndemic: "endemic",
+        statIntroduced: "introduced",
+      };
+
+      function updateStatChips() {
+        const active = statusFilterSelect.value;
+        Object.entries(STAT_CHIP_FILTERS).forEach(([id, value]) => {
+          document.getElementById(id).classList.toggle("active", value === active);
+        });
+      }
+
+      Object.entries(STAT_CHIP_FILTERS).forEach(([id, value]) => {
+        document.getElementById(id).addEventListener("click", () => {
+          statusFilterSelect.value = statusFilterSelect.value === value ? "" : value;
+          updateStatChips();
+          displaySpecies();
+        });
+      });
+
+      // Fetches every page of a species_counts query and returns the taxon
+      // ids as a Set plus the total, so summary chips can filter the grid.
+      async function fetchTaxonIdSet(baseParams) {
+        const perPage = 500;
+        const ids = new Set();
+        const collect = (results) => {
+          (results || []).forEach((item) => {
+            if (item.taxon && item.taxon.id) ids.add(item.taxon.id);
+          });
+        };
+        const first = await fetch(
+          `${API_BASE}/observations/species_counts?${baseParams}&per_page=${perPage}&page=1`
+        ).then((r) => r.json());
+        collect(first.results);
+        const totalPages = Math.ceil((first.total_results || 0) / perPage);
+        if (totalPages > 1) {
+          const pagePromises = [];
+          for (let page = 2; page <= totalPages; page++) {
+            pagePromises.push(
+              fetch(
+                `${API_BASE}/observations/species_counts?${baseParams}&per_page=${perPage}&page=${page}`
+              )
+                .then((r) => r.json())
+                .then((data) => collect(data.results))
+            );
+          }
+          await Promise.all(pagePromises);
+        }
+        return { ids, total: first.total_results || 0 };
+      }
 
       // Sort handler
       sortSelect.addEventListener("change", () => {
@@ -1110,7 +1225,11 @@
         }
         const dateParam = d1 && d2 ? `&d1=${d1}&d2=${d2}` : "";
 
+        const selectedLanguage = document.getElementById("languageSelect").value;
+        const languageParam = selectedLanguage !== "en" ? `&locale=${selectedLanguage}` : "";
+
         hideError("errorMessage");
+        loading.textContent = "Loading...";
         loading.style.display = "block";
         speciesContainer.innerHTML = "";
         controls.style.display = "none";
@@ -1143,7 +1262,7 @@
           // Fetch species count data - first page to get total_results
           const perPage = 500;
           const firstResponse = await fetch(
-            `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=1${placeParam}${taxonParam}${dateParam}`
+            `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${perPage}&page=1${placeParam}${taxonParam}${dateParam}${languageParam}`
           );
           const firstData = await firstResponse.json();
 
@@ -1169,7 +1288,7 @@
             for (let page = 2; page <= totalPages; page++) {
               additionalPromises.push(
                 fetch(
-                  `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=${perPage}&page=${page}${placeParam}${taxonParam}${dateParam}`
+                  `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${perPage}&page=${page}${placeParam}${taxonParam}${dateParam}${languageParam}`
                 )
                   .then((response) => response.json())
                   .then((data) => data.results)
@@ -1183,7 +1302,7 @@
             });
           }
 
-          loading.style.display = "none";
+          loading.textContent = "Loading species stats...";
 
           speciesData = allResults;
 
@@ -1191,7 +1310,7 @@
           threatenedTaxonIds = new Set();
           const threatenedPerPage = 500;
           const firstThreatenedResponse = await fetch(
-            `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=${threatenedPerPage}&page=1&threatened=true${placeParam}${taxonParam}${dateParam}`
+            `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${threatenedPerPage}&page=1&threatened=true${placeParam}${taxonParam}${dateParam}`
           );
           const firstThreatenedData = await firstThreatenedResponse.json();
           let threatenedTotalResults = firstThreatenedData.total_results || 0;
@@ -1214,7 +1333,7 @@
             for (let page = 2; page <= threatenedTotalPages; page++) {
               threatenedPromises.push(
                 fetch(
-                  `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=${threatenedPerPage}&page=${page}&threatened=true${placeParam}${taxonParam}${dateParam}`
+                  `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${threatenedPerPage}&page=${page}&threatened=true${placeParam}${taxonParam}${dateParam}`
                 )
                   .then((response) => response.json())
                   .then((data) => data.results || [])
@@ -1236,7 +1355,7 @@
           endemicTaxonIds = new Set();
           const endemicPerPage = 500;
           const firstEndemicResponse = await fetch(
-            `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=${endemicPerPage}&page=1&endemic=true${placeParam}${taxonParam}${dateParam}`
+            `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${endemicPerPage}&page=1&endemic=true${placeParam}${taxonParam}${dateParam}`
           );
           const firstEndemicData = await firstEndemicResponse.json();
           let endemicTotalResults = firstEndemicData.total_results || 0;
@@ -1255,7 +1374,7 @@
             for (let page = 2; page <= endemicTotalPages; page++) {
               endemicPromises.push(
                 fetch(
-                  `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=${endemicPerPage}&page=${page}&endemic=true${placeParam}${taxonParam}${dateParam}`
+                  `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${endemicPerPage}&page=${page}&endemic=true${placeParam}${taxonParam}${dateParam}`
                 )
                   .then((response) => response.json())
                   .then((data) => data.results || [])
@@ -1275,7 +1394,7 @@
           introducedTaxonIds = new Set();
           const introducedPerPage = 500;
           const firstIntroducedResponse = await fetch(
-            `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=${introducedPerPage}&page=1&introduced=true${placeParam}${taxonParam}${dateParam}`
+            `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${introducedPerPage}&page=1&introduced=true${placeParam}${taxonParam}${dateParam}`
           );
           const firstIntroducedData = await firstIntroducedResponse.json();
           let introducedTotalResults = firstIntroducedData.total_results || 0;
@@ -1294,7 +1413,7 @@
             for (let page = 2; page <= introducedTotalPages; page++) {
               introducedPromises.push(
                 fetch(
-                  `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=${introducedPerPage}&page=${page}&introduced=true${placeParam}${taxonParam}${dateParam}`
+                  `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${introducedPerPage}&page=${page}&introduced=true${placeParam}${taxonParam}${dateParam}`
                 )
                   .then((response) => response.json())
                   .then((data) => data.results || [])
@@ -1314,7 +1433,7 @@
           nativeTaxonIds = new Set();
           const nativePerPage = 500;
           const firstNativeResponse = await fetch(
-            `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=${nativePerPage}&page=1&native=true${placeParam}${taxonParam}${dateParam}`
+            `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${nativePerPage}&page=1&native=true${placeParam}${taxonParam}${dateParam}`
           );
           const firstNativeData = await firstNativeResponse.json();
           const nativeTotalResults = firstNativeData.total_results || 0;
@@ -1333,7 +1452,7 @@
             for (let page = 2; page <= nativeTotalPages; page++) {
               nativePromises.push(
                 fetch(
-                  `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=${nativePerPage}&page=${page}&native=true${placeParam}${taxonParam}${dateParam}`
+                  `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${nativePerPage}&page=${page}&native=true${placeParam}${taxonParam}${dateParam}`
                 )
                   .then((response) => response.json())
                   .then((data) => data.results || [])
@@ -1349,19 +1468,17 @@
             });
           }
 
-          // Fetch research grade and needs ID species counts
-          const [researchResponse, needsIdResponse] = await Promise.all([
-            fetch(
-              `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=1&quality_grade=research${placeParam}${taxonParam}${dateParam}`
-            ),
-            fetch(
-              `${API_BASE}/observations/species_counts?user_id=${userId}&per_page=1&quality_grade=needs_id${placeParam}${taxonParam}${dateParam}`
-            ),
+          // Fetch research grade and needs ID species (full ID sets so the
+          // summary chips can filter the grid, not just show counts)
+          const qualityBase = `user_id=${userId}&verifiable=true${placeParam}${taxonParam}${dateParam}`;
+          const [researchSet, needsIdSet] = await Promise.all([
+            fetchTaxonIdSet(`${qualityBase}&quality_grade=research`),
+            fetchTaxonIdSet(`${qualityBase}&quality_grade=needs_id`),
           ]);
-          const researchData = await researchResponse.json();
-          const needsIdData = await needsIdResponse.json();
-          researchGradeCount = researchData.total_results || 0;
-          needsIdCount = needsIdData.total_results || 0;
+          researchTaxonIds = researchSet.ids;
+          needsIdTaxonIds = needsIdSet.ids;
+          researchGradeCount = researchSet.total;
+          needsIdCount = needsIdSet.total;
 
           // Update summary
           document.getElementById("summaryResearch").textContent = researchGradeCount.toLocaleString();
@@ -1369,12 +1486,14 @@
           document.getElementById("summaryThreatened").textContent = threatenedTotalResults.toLocaleString();
           document.getElementById("summaryEndemic").textContent = endemicTotalResults.toLocaleString();
           document.getElementById("summaryIntroduced").textContent = introducedTotalResults.toLocaleString();
+          updateStatChips();
           document.getElementById("resultsSummary").style.display = "flex";
 
           controls.style.display = "flex";
           viewControls.style.display = "flex";
 
           displaySpecies();
+          loading.style.display = "none";
         } catch (error) {
           console.error("Error fetching user data:", error);
           loading.style.display = "none";
@@ -1403,6 +1522,8 @@
             introduced: introducedTaxonIds,
             threatened: threatenedTaxonIds,
             endemic: endemicTaxonIds,
+            research: researchTaxonIds,
+            "needs-id": needsIdTaxonIds,
           };
           const statusSet = statusSets[statusFilter];
           if (statusSet) {
