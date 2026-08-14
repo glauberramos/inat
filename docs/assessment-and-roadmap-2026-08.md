@@ -40,7 +40,7 @@ This is the most serious finding in the audit, and it's invisible in normal use.
 
 - **First Observer / First Identifier silently drop species from the results.** A failed batch returns an empty list that's indistinguishable from "you weren't first." The tool's entire output is a claim of fact, and under load it degrades to a confident wrong answer.
 - **Profile renders confident zeros.** A 429 flows into `.json()` and comes out as "0 threatened species observed" instead of an error.
-- **Ten pages resolve usernames by fuzzy search** (`/users/autocomplete`, take first result) — type a name that's a prefix of a more popular one and you get someone else's data. Four pages already have the exact-match fix; it just wasn't propagated.
+- **Ten pages resolve usernames by fuzzy search** (`/users/autocomplete`, take first result) — type a name that's a prefix of a more popular one and you get someone else's data. Four pages already have the exact-match fix; it just wasn't propagated. *(✅ Fixed 2026-08-14 — propagated everywhere; see Tier 0.)*
 
 This is also the chance to beat the incumbent on its known weakness: Wild Achievements' reputation is capped by exactly this — stalling at the API's 10,000-result window. Handling that window gracefully (`id_above` pagination) plus polite backoff is a genuine differentiator, not plumbing.
 
@@ -71,8 +71,8 @@ Meanwhile SpeciesDex — whose Missing filter plus month checkboxes plus place s
 
 - **Keyboard users can't select a username on 14 of 15 tools** — the autocompletes are click-only divs. (SpeciesDex's map search has full arrow-key support, so the pattern exists in the codebase.)
 - **Contrast failures on meaningful UI**: white-on-brand-green measures 2.75:1 (needs 4.5), and the conservation-status badges — which encode threat level — bottom out at 1.66:1.
-- **New users with zero observations get a red error box** instead of a welcome. The only real empty state in the suite is on the widget builder.
-- **Dark mode flashes white on every page load** (the toggle script loads at the end of body), the widget builder has no dark mode at all, and the 404 page uses a different dark-mode mechanism entirely.
+- **New users with zero observations get a red error box** instead of a welcome. The only real empty state in the suite is on the widget builder. *(✅ Fixed 2026-08-14 on the five user-search pages; see Tier 1.)*
+- **Dark mode flashes white on every page load** (the toggle script loads at the end of body) *(✅ fixed 2026-08-14 — pre-paint bootstrap in `<head>`)*, the widget builder has no dark mode at all, and the 404 page uses a different dark-mode mechanism entirely.
 - **The PWA doesn't deliver**: the service worker precaches 8 of ~40 files, returns a raw network error for uncached pages offline, and the manifest lacks the icon sizes Chrome requires for install — plus it locks orientation to portrait, hostile to the state maps.
 - **No response caching**: navigating Profile → Achievements → Lifelist re-resolves the same username three times and refetches everything; Profile's ~8-second load (23 requests padded with hard-coded 500ms sleeps) repeats in full on every visit.
 
@@ -85,8 +85,8 @@ Five tools show species grids, and the homepage copy hides what distinguishes th
 | Merge species-observed + species-identified behind an Observed \| Identified toggle | Near-clones; the identified variant is strictly poorer (no date range, no summary strip, no export) |
 | Merge us-states + brazil-states into one "Regions" tool with a country picker | Literal clones; hardcoding one extra country invites "where's my country?" from everyone else |
 | Fold "My Rarest Species" into species-observed as a labeled view | It's a sort order with a homepage card |
-| Rename "Taxonomy Completion" → something quest-like ("Tree of Life") | Current name sounds like data-quality tooling; it's the second-best engagement mechanic |
-| Re-copy the SpeciesDex card around "find what you're missing nearby" | The differentiated idea, currently described generically |
+| ✅ *Done 2026-08-14* — Renamed "Taxonomy Completion" → "Tree of Life" (card, page title, meta, JSON-LD; URL unchanged) | Current name sounds like data-quality tooling; it's the second-best engagement mechanic |
+| ✅ *Done 2026-08-14* — SpeciesDex card now reads "Find the species you're missing nearby" | The differentiated idea, previously described generically |
 | Decide draft.html's identity: separate product or flagship tool | 4,870 lines, OAuth, a photo editor — a different mental model wearing a tool card. Note: it keeps OAuth tokens in localStorage with 158 `innerHTML` sinks on the same origin; worth hardening regardless |
 
 ## Part III — The roadmap
@@ -99,7 +99,7 @@ Ordered so that every tier makes the next one more valuable: correctness makes t
 
 - One shared fetch layer in `shared-utils.js`: `response.ok` checks, 429/`Retry-After` backoff, a concurrency limiter (token bucket, ≤60 req/min). Route all 106 fetches through it; replace Profile's guesswork sleeps.
 - Make batch failures loud: First Observer / First Identifier must surface "3 batches failed — results incomplete, retry?" instead of silently shrinking the list.
-- Exact username resolution everywhere (`GET /users/{login}` or exact-match filter — the fix already exists on four pages).
+- ✅ *Done 2026-08-14* — Exact username resolution everywhere: the exact-match filter was propagated to the five remaining search-time call sites (species-observed, species-identified, achievements, taxonomy-completion, species-compare). Lifelist and first-observer were confirmed safe (they pass `user_login=` directly); draft's `/users/me` and achievements' project-slug lookups are exact by design.
 - Unify the `inatProject` / `inatProjectName` localStorage keys with a migration.
 - Handle the 10,000-result window with `id_above` pagination — the exact cliff the best-known competitor falls off.
 - Add a short-TTL `sessionStorage` cache keyed on request URL — removes the majority of API traffic and makes tool-to-tool navigation feel instant.
@@ -113,7 +113,7 @@ Ordered so that every tier makes the next one more valuable: correctness makes t
 - **A contextual footer**: 2–3 next steps per tool ("You've seen 412 species → which were you first to find?" / "Missing 31 orders → find one near you"). Cross-tool synergy and an engagement nudge in one component.
 - **`tokens.css` design system**: one green (resolve the blue-button contradiction), an elevation scale, a radius scale, 3–4 breakpoints. Fold index, lifelist, first-observer/identifier, and widget onto the shared stylesheet. Fix the failing contrast pairs while defining the tokens (conservation badges first).
 - **Actually use the shared modules**: one real autocomplete component (keyboard-accessible — arrows, Enter, Escape, proper combobox semantics) replacing 13 hand-rolled copies; `initUsername`/`initPlace`/`initLanguage` called from every page; delete the dead files.
-- **States that respect the user**: welcoming empty states instead of red errors, skeletons or progress with a time hint on long loads, a retry button, dark-mode bootstrap in `<head>` to kill the white flash, dark mode on the widget builder.
+- **States that respect the user**: welcoming empty states instead of red errors *(✅ done 2026-08-14 — `showWelcome()` in shared-utils, wired into lifelist, first-observer, first-identifier, species-observed, species-identified for the zero-observations case)*, skeletons or progress with a time hint on long loads, a retry button, dark-mode bootstrap in `<head>` to kill the white flash *(✅ done 2026-08-14 — pre-paint script on all 17 dark-mode pages; the `.dark-mode` class now lives on `<html>` with `<body>` kept in sync)*, dark mode on the widget builder.
 - **Homepage re-shape**: apply the Part II consolidations, rescue brazil-states, rewrite card copy around the question each tool answers.
 
 ### Tier 2 — The "go outside" layer
@@ -142,7 +142,18 @@ Ordered so that every tier makes the next one more valuable: correctness makes t
 - **Post each meaningful release** in the forum's new "Third-party Tools and Apps using iNat API" category (created July 2026) — these threads already perform well, and fast author response is the strongest predictor of sustained tool love in the research.
 - **Hold the taste line**: personal progress, diversity, quality, coverage — never public quantity leaderboards or head-to-head competition. Users-compare is fine (mutual, opt-in); a ranked leaderboard would not be.
 - **Respect the data culture**: visible attribution, license awareness, no bulk scraping — the community is sensitive post-Google-grant, and signaling care here is part of the craft.
-- **Housekeeping as you go**: README describes only SpeciesDex (stale by 15 tools); tests cover two functions; Prettier ignores all HTML — where 90% of the code lives. Bring these along with Tier 1's restructuring rather than as a separate project.
+- **Housekeeping as you go**: README describes only SpeciesDex (stale by 15 tools) *(✅ done 2026-08-14 — rewritten to cover the full suite)*; tests cover two functions; Prettier ignores all HTML — where 90% of the code lives. Bring these along with Tier 1's restructuring rather than as a separate project.
+
+---
+
+## Progress log
+
+**2026-08-14**
+- **Species counts now match iNaturalist's Explore pages.** All `species_counts` calls on Profile and Field Card pass `verifiable=true`, so the threatened/endemic/introduced/native/total counts agree with the pages their stat cards link to (previously e.g. 110 vs 104 threatened for the same user). The taxon chart already used it; the suite is now internally consistent. Known remainder: Profile's total-observations card still shows `user.observations_count`, which includes casual records.
+- **Exact username resolution propagated** to the five remaining fuzzy call sites (see Tier 0 above).
+- **Dark-mode white flash fixed** via a pre-paint `<head>` bootstrap on all 17 pages; ~350 `body.dark-mode` selectors across six CSS files became `html.dark-mode body`. Cache-busting versions bumped on `shared-utils.js`, `dark-mode.js`, `dark-mode.css`.
+- **Welcome empty states** replace the red error box for zero-observation users on five pages (`showWelcome()` in shared-utils, light + dark variants). Filtered searches keep the informative error.
+- **Tree of Life rename**, **SpeciesDex card re-copy**, and **README rewrite** — see annotations above.
 
 ---
 

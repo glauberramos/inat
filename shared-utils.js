@@ -94,6 +94,7 @@ function showError(elementOrId, message) {
   if (element) {
     element.textContent = message;
     element.style.display = "block";
+    element.classList.remove("welcome-message");
     element.classList.add("show");
   }
 }
@@ -103,8 +104,38 @@ function hideError(elementOrId) {
     typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
   if (element) {
     element.style.display = "none";
-    element.classList.remove("show");
+    element.classList.remove("show", "welcome-message");
   }
+}
+
+// Reuses the page's error element for friendly empty states (e.g. brand-new
+// users with zero observations), so they get a welcome instead of a red box.
+// Styles are injected here because pages define their error boxes in per-page
+// CSS; !important is needed to beat the ID selectors some pages use.
+function showWelcome(elementOrId, message) {
+  const element =
+    typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
+  if (!element) return;
+  if (!document.getElementById("welcomeMessageStyles")) {
+    const style = document.createElement("style");
+    style.id = "welcomeMessageStyles";
+    style.textContent = `
+      .welcome-message.show {
+        background: #f1f8e9 !important;
+        color: #33691e !important;
+        border: 1px solid #c5e1a5 !important;
+      }
+      html.dark-mode .welcome-message.show {
+        background: #26331f !important;
+        color: #c5e1a5 !important;
+        border-color: #4a5d3a !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  element.textContent = message;
+  element.style.display = "block";
+  element.classList.add("show", "welcome-message");
 }
 
 // ===== Progress Updates =====

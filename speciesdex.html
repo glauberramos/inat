@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
     <title>
       SpeciesDex - Track Top 100 Species in Any Location | iNaturalist Tool
     </title>
@@ -68,7 +75,7 @@
     }
     </script>
     <link rel="stylesheet" href="styles.css?v=4" />
-    <link rel="stylesheet" href="dark-mode.css?v=5" />
+    <link rel="stylesheet" href="dark-mode.css?v=6" />
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
@@ -818,7 +825,7 @@
       </main>
     </div>
     <script src="constants.js"></script>
-    <script src="shared-utils.js"></script>
+    <script src="shared-utils.js?v=2"></script>
     <script src="script.js"></script>
     <script src="search.js"></script>
     <script src="download.js"></script>
@@ -1460,7 +1467,7 @@
     <script type="text/javascript">
       initFeedbackButton();
     </script>
-    <script src="dark-mode.js"></script>
+    <script src="dark-mode.js?v=2"></script>
     <script>
       registerServiceWorker();
     </script>

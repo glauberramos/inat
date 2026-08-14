@@ -33,1194 +33,1196 @@
 }
 
 /* Dark mode base styles */
-body.dark-mode {
+html.dark-mode body {
   background-color: #1a1a1a;
   color: #e0e0e0;
 }
 
-body.dark-mode .container {
+html.dark-mode body .container {
   background-color: #1a1a1a;
 }
 
-body.dark-mode h1,
-body.dark-mode h2,
-body.dark-mode h3 {
+html.dark-mode body h1,
+html.dark-mode body h2,
+html.dark-mode body h3 {
   color: #e0e0e0;
 }
 
-body.dark-mode .description,
-body.dark-mode .subtitle {
+html.dark-mode body .description,
+html.dark-mode body .subtitle {
   color: #aaa;
 }
 
-body.dark-mode input,
-body.dark-mode select {
+html.dark-mode body input,
+html.dark-mode body select {
   background: #3d3d3d;
   border-color: #555;
   color: #e0e0e0;
 }
 
-body.dark-mode input::placeholder {
+html.dark-mode body input::placeholder {
   color: #888;
 }
 
-body.dark-mode button {
+html.dark-mode body button {
   background: #74ac00;
 }
 
-body.dark-mode button:hover {
+html.dark-mode body button:hover {
   background: #5d8a00;
 }
 
-body.dark-mode .dark-mode-toggle,
-body.dark-mode .dark-mode-toggle:hover {
+html.dark-mode body .dark-mode-toggle,
+html.dark-mode body .dark-mode-toggle:hover {
   background: transparent;
 }
 
-body.dark-mode button:disabled {
+html.dark-mode body button:disabled {
   background: #555;
   color: #888;
 }
 
 /* Merge toolbar buttons - keep visible on green background */
-body.dark-mode .merge-btn {
+html.dark-mode body .merge-btn {
   background: white;
   color: #74ac00;
 }
 
-body.dark-mode .merge-btn:hover {
+html.dark-mode body .merge-btn:hover {
   background: #f0f0f0;
 }
 
-body.dark-mode .merge-btn:disabled {
+html.dark-mode body .merge-btn:disabled {
   background: #ccc;
   color: #888;
 }
 
-body.dark-mode .cancel-merge-btn {
+html.dark-mode body .cancel-merge-btn {
   background: transparent;
   color: white;
   border-color: white;
 }
 
-body.dark-mode .cancel-merge-btn:hover {
+html.dark-mode body .cancel-merge-btn:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
 /* Card styles */
-body.dark-mode .summary-card,
-body.dark-mode .stats-card,
-body.dark-mode .tool-card {
+html.dark-mode body .summary-card,
+html.dark-mode body .stats-card,
+html.dark-mode body .tool-card {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .tool-card:hover {
+html.dark-mode body .tool-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-body.dark-mode .tool-card h2 {
+html.dark-mode body .tool-card h2 {
   color: #e0e0e0;
 }
 
-body.dark-mode .tool-card p {
+html.dark-mode body .tool-card p {
   color: #aaa;
 }
 
 /* Species cards and grids */
-body.dark-mode .species-card,
-body.dark-mode .project-card {
+html.dark-mode body .species-card,
+html.dark-mode body .project-card {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .species-card.observed {
+html.dark-mode body .species-card.observed {
   border-color: #27ae60;
 }
 
-body.dark-mode .species-card h3,
-body.dark-mode .project-card h3 {
+html.dark-mode body .species-card h3,
+html.dark-mode body .project-card h3 {
   color: #e0e0e0;
 }
 
-body.dark-mode .species-card p,
-body.dark-mode .project-card p {
+html.dark-mode body .species-card p,
+html.dark-mode body .project-card p {
   color: #aaa;
 }
 
-body.dark-mode .scientific-name {
+html.dark-mode body .scientific-name {
   color: #999;
 }
 
-body.dark-mode .observations {
+html.dark-mode body .observations {
   color: #888;
 }
 
 /* Species list items */
-body.dark-mode .species-item {
+html.dark-mode body .species-item {
   border-bottom-color: #444;
 }
 
-body.dark-mode .species-item:hover {
+html.dark-mode body .species-item:hover {
   background: #333;
 }
 
-body.dark-mode .species-name {
+html.dark-mode body .species-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .species-scientific {
+html.dark-mode body .species-scientific {
   color: #999;
 }
 
-body.dark-mode .species-date {
+html.dark-mode body .species-date {
   color: #777;
 }
 
 /* Results containers */
-body.dark-mode .results-container {
+html.dark-mode body .results-container {
   background: #2d2d2d;
 }
 
-body.dark-mode .results-header {
+html.dark-mode body .results-header {
   border-color: #444;
 }
 
 /* Progress bars */
-body.dark-mode .progress-container {
+html.dark-mode body .progress-container {
   background: #2d2d2d;
 }
 
-body.dark-mode .progress-bar-bg {
+html.dark-mode body .progress-bar-bg {
   background: #444;
 }
 
-body.dark-mode .progress-text {
+html.dark-mode body .progress-text {
   color: #aaa;
 }
 
-body.dark-mode .current-check {
+html.dark-mode body .current-check {
   color: #777;
 }
 
 /* Year separator */
-body.dark-mode .year-separator {
+html.dark-mode body .year-separator {
   background: #5d8a00;
 }
 
 /* Autocomplete */
-body.dark-mode .autocomplete,
-body.dark-mode .place-autocomplete,
-body.dark-mode .username-autocomplete,
-body.dark-mode .taxon-autocomplete {
+html.dark-mode body .autocomplete,
+html.dark-mode body .place-autocomplete,
+html.dark-mode body .username-autocomplete,
+html.dark-mode body .taxon-autocomplete {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .autocomplete-item,
-body.dark-mode .place-suggestion,
-body.dark-mode .username-suggestion,
-body.dark-mode .taxon-suggestion {
+html.dark-mode body .autocomplete-item,
+html.dark-mode body .place-suggestion,
+html.dark-mode body .username-suggestion,
+html.dark-mode body .taxon-suggestion {
   border-bottom-color: #444;
 }
 
-body.dark-mode .autocomplete-item:hover,
-body.dark-mode .place-suggestion:hover,
-body.dark-mode .username-suggestion:hover,
-body.dark-mode .taxon-suggestion:hover {
+html.dark-mode body .autocomplete-item:hover,
+html.dark-mode body .place-suggestion:hover,
+html.dark-mode body .username-suggestion:hover,
+html.dark-mode body .taxon-suggestion:hover {
   background: #3d3d3d;
 }
 
-body.dark-mode .autocomplete-name,
-body.dark-mode .place-name,
-body.dark-mode .username-name,
-body.dark-mode .taxon-name {
+html.dark-mode body .autocomplete-name,
+html.dark-mode body .place-name,
+html.dark-mode body .username-name,
+html.dark-mode body .taxon-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .autocomplete-login,
-body.dark-mode .place-details,
-body.dark-mode .username-info,
-body.dark-mode .taxon-rank {
+html.dark-mode body .autocomplete-login,
+html.dark-mode body .place-details,
+html.dark-mode body .username-info,
+html.dark-mode body .taxon-rank {
   color: #aaa;
 }
 
 /* Status bar */
-body.dark-mode .status-bar {
+html.dark-mode body .status-bar {
   background: #2d2d2d;
 }
 
-body.dark-mode .status-text {
+html.dark-mode body .status-text {
   color: #e0e0e0;
 }
 
-body.dark-mode .status-missing {
+html.dark-mode body .status-missing {
   color: #aaa;
 }
 
-body.dark-mode .progress-bar {
+html.dark-mode body .progress-bar {
   background: #444;
 }
 
 /* Checkbox containers */
-body.dark-mode .checkbox-container {
+html.dark-mode body .checkbox-container {
   background: #2d2d2d;
 }
 
-body.dark-mode .location-name {
+html.dark-mode body .location-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .filter-toggle {
+html.dark-mode body .filter-toggle {
   background: #242424;
   border-color: #444;
 }
 
-body.dark-mode .filter-toggle-btn {
+html.dark-mode body .filter-toggle-btn {
   background: transparent;
   color: #bbb;
 }
 
-body.dark-mode .filter-toggle-btn:hover {
+html.dark-mode body .filter-toggle-btn:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #e0e0e0;
 }
 
-body.dark-mode .filter-toggle-btn.active,
-body.dark-mode .filter-toggle-btn.active:hover {
+html.dark-mode body .filter-toggle-btn.active,
+html.dark-mode body .filter-toggle-btn.active:hover {
   background: #74ac00;
   color: white;
 }
 
 /* Date range filter */
-body.dark-mode .date-range-presets {
+html.dark-mode body .date-range-presets {
   background: #242424;
   border-color: #444;
 }
 
-body.dark-mode .date-preset-btn {
+html.dark-mode body .date-preset-btn {
   background: transparent;
   color: #bbb;
 }
 
-body.dark-mode .date-preset-btn:hover {
+html.dark-mode body .date-preset-btn:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #e0e0e0;
 }
 
-body.dark-mode .date-preset-btn.active,
-body.dark-mode .date-preset-btn.active:hover {
+html.dark-mode body .date-preset-btn.active,
+html.dark-mode body .date-preset-btn.active:hover {
   background: #74ac00;
   color: white;
 }
 
-body.dark-mode .date-input {
+html.dark-mode body .date-input {
   background: #3d3d3d;
   border-color: #555;
   color: #e0e0e0;
   color-scheme: dark;
 }
 
-body.dark-mode label {
+html.dark-mode body label {
   color: #ccc;
 }
 
 /* Location info */
-body.dark-mode .location-info {
+html.dark-mode body .location-info {
   background: #2d2d2d;
   color: #e0e0e0;
 }
 
 /* Error messages */
-body.dark-mode .error,
-body.dark-mode .error-message {
+html.dark-mode body .error,
+html.dark-mode body .error-message {
   background: #3d2020;
   color: #ff8080;
 }
 
 /* Pagination */
-body.dark-mode .pagination .page-info {
+html.dark-mode body .pagination .page-info {
   color: #aaa;
 }
 
 /* Links */
-body.dark-mode a {
+html.dark-mode body a {
   color: #8bc34a;
 }
 
-body.dark-mode a:hover {
+html.dark-mode body a:hover {
   color: #9acd32;
 }
 
 /* Badges */
-body.dark-mode .only-observer-badge,
-body.dark-mode .umbrella-badge {
+html.dark-mode body .only-observer-badge,
+html.dark-mode body .umbrella-badge {
   background: #3498db;
 }
 
-body.dark-mode .threatened-badge {
+html.dark-mode body .threatened-badge {
   background: #c0392b;
 }
 
 /* View controls */
-body.dark-mode .view-btn {
+html.dark-mode body .view-btn {
   background: #3d3d3d;
   border-color: #555;
   color: #e0e0e0;
 }
 
-body.dark-mode .view-btn.active {
+html.dark-mode body .view-btn.active {
   background: #74ac00;
   border-color: #74ac00;
   color: white;
 }
 
 /* Table view */
-body.dark-mode .species-table {
+html.dark-mode body .species-table {
   background: #2d2d2d;
 }
 
-body.dark-mode .species-table th {
+html.dark-mode body .species-table th {
   background: #3d3d3d;
   color: #e0e0e0;
   border-color: #555;
 }
 
-body.dark-mode .species-table td {
+html.dark-mode body .species-table td {
   border-color: #444;
   color: #e0e0e0;
 }
 
-body.dark-mode .species-table tr:hover td {
+html.dark-mode body .species-table tr:hover td {
   background: #333;
 }
 
 /* Taxon chart */
-body.dark-mode .taxon-chart {
+html.dark-mode body .taxon-chart {
   background: #2d2d2d;
 }
 
-body.dark-mode .taxon-bar-value {
+html.dark-mode body .taxon-bar-value {
   color: #aaa;
 }
 
 /* User info */
-body.dark-mode .user-info-top {
+html.dark-mode body .user-info-top {
   background: #2d2d2d;
 }
 
-body.dark-mode .user-name {
+html.dark-mode body .user-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .user-login {
+html.dark-mode body .user-login {
   color: #aaa;
 }
 
-body.dark-mode .user-stat-value {
+html.dark-mode body .user-stat-value {
   color: #74ac00;
 }
 
-body.dark-mode .user-stat-label {
+html.dark-mode body .user-stat-label {
   color: #888;
 }
 
 /* Controls */
-body.dark-mode .controls label {
+html.dark-mode body .controls label {
   color: #ccc;
 }
 
 /* User info card (species-observed) */
-body.dark-mode .user-info-card {
+html.dark-mode body .user-info-card {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .user-meta {
+html.dark-mode body .user-meta {
   color: #aaa;
 }
 
-body.dark-mode .user-meta-item {
+html.dark-mode body .user-meta-item {
   color: #aaa;
 }
 
-body.dark-mode .user-avatar-placeholder {
+html.dark-mode body .user-avatar-placeholder {
   background: #3d3d3d;
   border-color: #555;
 }
 
 /* Taxon chart bar containers */
-body.dark-mode .taxon-bar-container {
+html.dark-mode body .taxon-bar-container {
   background: #3d3d3d;
 }
 
 /* View buttons container */
-body.dark-mode .view-buttons {
+html.dark-mode body .view-buttons {
   border-color: #555;
 }
 
-body.dark-mode .view-btn:not(.active):hover {
+html.dark-mode body .view-btn:not(.active):hover {
   background: #4d4d4d;
 }
 
 /* Species card content (species-observed) */
-body.dark-mode .species-common-name {
+html.dark-mode body .species-common-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .species-sci-name {
+html.dark-mode body .species-sci-name {
   color: #999;
 }
 
-body.dark-mode .species-stats {
+html.dark-mode body .species-stats {
   color: #aaa;
 }
 
-body.dark-mode .species-image-placeholder {
+html.dark-mode body .species-image-placeholder {
   background: #3d3d3d;
   color: #888;
 }
 
 /* Table view placeholder */
-body.dark-mode .table-image-placeholder {
+html.dark-mode body .table-image-placeholder {
   background: #3d3d3d;
   color: #888;
 }
 
-body.dark-mode .table-common-name {
+html.dark-mode body .table-common-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .table-sci-name {
+html.dark-mode body .table-sci-name {
   color: #999;
 }
 
 /* Results count text */
-body.dark-mode #resultsCount {
+html.dark-mode body #resultsCount {
   color: #aaa;
 }
 
 /* Results summary */
-body.dark-mode .results-summary {
+html.dark-mode body .results-summary {
   color: #aaa;
 }
 
-body.dark-mode .summary-separator {
+html.dark-mode body .summary-separator {
   color: #555;
 }
 
 /* Loading text */
-body.dark-mode .loading {
+html.dark-mode body .loading {
   color: #aaa;
 }
 
 /* Profile page styles */
-body.dark-mode .profile-header {
+html.dark-mode body .profile-header {
   background: linear-gradient(135deg, #5d8a00 0%, #4a7000 100%);
 }
 
-body.dark-mode .profile-link {
+html.dark-mode body .profile-link {
   color: white;
 }
 
-body.dark-mode .profile-link:hover {
+html.dark-mode body .profile-link:hover {
   color: white;
 }
 
-body.dark-mode .search-card,
-body.dark-mode .chart-card,
-body.dark-mode .stat-card {
+html.dark-mode body .search-card,
+html.dark-mode body .chart-card,
+html.dark-mode body .stat-card {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .stat-label {
+html.dark-mode body .stat-label {
   color: #aaa;
 }
 
-body.dark-mode .chart-title {
+html.dark-mode body .chart-title {
   color: #e0e0e0;
 }
 
-body.dark-mode .legend-label {
+html.dark-mode body .legend-label {
   color: #aaa;
 }
 
-body.dark-mode .legend-value {
+html.dark-mode body .legend-value {
   color: #e0e0e0;
 }
 
-body.dark-mode .taxon-bar-wrapper {
+html.dark-mode body .taxon-bar-wrapper {
   background: #3d3d3d;
 }
 
-body.dark-mode .taxon-bar-name {
+html.dark-mode body .taxon-bar-name {
   color: #888;
 }
 
-body.dark-mode .empty-state {
+html.dark-mode body .empty-state {
   color: #888;
 }
 
-body.dark-mode .empty-state-text {
+html.dark-mode body .empty-state-text {
   color: #aaa;
 }
 
-body.dark-mode .map-subtitle {
+html.dark-mode body .map-subtitle {
   color: #aaa;
 }
 
 /* Countries section */
-body.dark-mode .countries-subtitle {
+html.dark-mode body .countries-subtitle {
   color: #aaa;
 }
 
-body.dark-mode .country-item {
+html.dark-mode body .country-item {
   background: #3d3d3d;
 }
 
-body.dark-mode .country-item:hover {
+html.dark-mode body .country-item:hover {
   background: #4d4d4d;
 }
 
-body.dark-mode .country-name {
+html.dark-mode body .country-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .country-count {
+html.dark-mode body .country-count {
   color: #aaa;
 }
 
-body.dark-mode .countries-loading {
+html.dark-mode body .countries-loading {
   color: #aaa;
 }
 
-body.dark-mode .countries-progress {
+html.dark-mode body .countries-progress {
   color: #888;
 }
 
 /* Projects section */
-body.dark-mode .projects-subtitle {
+html.dark-mode body .projects-subtitle {
   color: #aaa;
 }
 
-body.dark-mode .project-item {
+html.dark-mode body .project-item {
   background: #3d3d3d;
   color: #e0e0e0;
 }
 
-body.dark-mode .project-item:hover {
+html.dark-mode body .project-item:hover {
   background: #4d4d4d;
 }
 
-body.dark-mode .project-name {
+html.dark-mode body .project-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .projects-loading,
-body.dark-mode .no-projects,
-body.dark-mode .projects-error {
+html.dark-mode body .projects-loading,
+html.dark-mode body .no-projects,
+html.dark-mode body .projects-error {
   color: #aaa;
 }
 
-body.dark-mode .projects-category-title {
+html.dark-mode body .projects-category-title {
   color: #888;
 }
 
 /* Language select */
-body.dark-mode .language-select {
+html.dark-mode body .language-select {
   background-color: #3d3d3d;
   border-color: #555 !important;
   color: #e0e0e0;
 }
 
-body.dark-mode .language-select option {
+html.dark-mode body .language-select option {
   background-color: #3d3d3d;
   color: #e0e0e0;
 }
 
 /* Calendar dark mode */
-body.dark-mode .calendar-card {
+html.dark-mode body .calendar-card {
   background: #2d2d2d;
 }
 
-body.dark-mode .calendar-year-select {
+html.dark-mode body .calendar-year-select {
   background-color: #3d3d3d;
   border-color: #555;
   color: #e0e0e0;
 }
 
-body.dark-mode .calendar-year-select option {
+html.dark-mode body .calendar-year-select option {
   background-color: #3d3d3d;
   color: #e0e0e0;
 }
 
-body.dark-mode .calendar-streak-info {
+html.dark-mode body .calendar-streak-info {
   color: #b0b0b0;
 }
 
-body.dark-mode .calendar-streak-info strong {
+html.dark-mode body .calendar-streak-info strong {
   color: #7cc643;
 }
 
-body.dark-mode .calendar-weekdays,
-body.dark-mode .calendar-months {
+html.dark-mode body .calendar-weekdays,
+html.dark-mode body .calendar-months {
   color: #8b949e;
 }
 
-body.dark-mode .calendar-day {
+html.dark-mode body .calendar-day {
   background: #161b22;
   border: 1px solid rgba(27, 31, 35, 0.06);
 }
 
-body.dark-mode .calendar-day[data-level="1"] { background: #1a4d2e; }
-body.dark-mode .calendar-day[data-level="2"] { background: #2d7a4a; }
-body.dark-mode .calendar-day[data-level="3"] { background: #3da35d; }
-body.dark-mode .calendar-day[data-level="4"] { background: #52d17c; }
+html.dark-mode body .calendar-day[data-level="1"] { background: #1a4d2e; }
+html.dark-mode body .calendar-day[data-level="2"] { background: #2d7a4a; }
+html.dark-mode body .calendar-day[data-level="3"] { background: #3da35d; }
+html.dark-mode body .calendar-day[data-level="4"] { background: #52d17c; }
 
-body.dark-mode .calendar-day:hover {
+html.dark-mode body .calendar-day:hover {
   outline: 2px solid rgba(255, 255, 255, 0.5);
   outline-offset: -1px;
 }
 
-body.dark-mode .calendar-day.today {
+html.dark-mode body .calendar-day.today {
   outline: 2px solid #7cc643;
   outline-offset: -1px;
 }
 
 /* Lifelist grid view */
-body.dark-mode .species-card {
+html.dark-mode body .species-card {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .species-card:hover {
+html.dark-mode body .species-card:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-body.dark-mode .species-card .card-image-placeholder {
+html.dark-mode body .species-card .card-image-placeholder {
   background: #3d3d3d;
   color: #888;
 }
 
-body.dark-mode .species-card .card-common-name {
+html.dark-mode body .species-card .card-common-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .species-card .card-sci-name {
+html.dark-mode body .species-card .card-sci-name {
   color: #999;
 }
 
-body.dark-mode .species-card .card-date {
+html.dark-mode body .species-card .card-date {
   color: #777;
 }
 
-body.dark-mode .grid-year-separator {
+html.dark-mode body .grid-year-separator {
   background: #5d8a00;
 }
 
-body.dark-mode .view-toggle .view-btn {
+html.dark-mode body .view-toggle .view-btn {
   background: #3d3d3d;
   border-color: #555;
   color: #e0e0e0;
 }
 
-body.dark-mode .view-toggle .view-btn:hover {
+html.dark-mode body .view-toggle .view-btn:hover {
   background: #4d4d4d;
 }
 
-body.dark-mode .view-toggle .view-btn.active {
+html.dark-mode body .view-toggle .view-btn.active {
   background: #74ac00;
   border-color: #74ac00;
   color: white;
 }
 
 /* Species-observed controls */
-body.dark-mode #iconicTaxonSelect,
-body.dark-mode #sortSelect,
-body.dark-mode #statusFilterSelect {
+html.dark-mode body #iconicTaxonSelect,
+html.dark-mode body #sortSelect,
+html.dark-mode body #statusFilterSelect {
   background: #3d3d3d !important;
   border-color: #555 !important;
   color: #e0e0e0;
 }
 
-body.dark-mode #iconicTaxonSelect option,
-body.dark-mode #sortSelect option,
-body.dark-mode #statusFilterSelect option {
+html.dark-mode body #iconicTaxonSelect option,
+html.dark-mode body #sortSelect option,
+html.dark-mode body #statusFilterSelect option {
   background: #3d3d3d;
   color: #e0e0e0;
 }
 
-body.dark-mode #filterInput {
+html.dark-mode body #filterInput {
   background: #3d3d3d;
   border-color: #555 !important;
   color: #e0e0e0;
 }
 
-body.dark-mode #filterInput::placeholder {
+html.dark-mode body #filterInput::placeholder {
   color: #888;
 }
 
 /* Date filter inputs */
-body.dark-mode #dateFrom,
-body.dark-mode #dateTo {
+html.dark-mode body #dateFrom,
+html.dark-mode body #dateTo {
   background: #3d3d3d !important;
   border-color: #555 !important;
   color: #e0e0e0;
   color-scheme: dark;
 }
 
-body.dark-mode .date-separator {
+html.dark-mode body .date-separator {
   color: #aaa !important;
 }
 
 /* US States map page */
-body.dark-mode .map-container {
+html.dark-mode body .map-container {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode #us-map path {
+html.dark-mode body #us-map path,
+html.dark-mode body .country-map path {
   fill: #3d3d3d;
   stroke: #555;
 }
 
-body.dark-mode #us-map path.observed {
+html.dark-mode body #us-map path.observed,
+html.dark-mode body .country-map path.observed {
   fill: #74ac00;
 }
 
-body.dark-mode .stats-display {
+html.dark-mode body .stats-display {
   color: #e0e0e0;
 }
 
-body.dark-mode .map-open-btn,
-body.dark-mode .map-open-btn:hover {
+html.dark-mode body .map-open-btn,
+html.dark-mode body .map-open-btn:hover {
   background: none;
   border: none;
 }
 
 /* Area select map modal */
-body.dark-mode .map-modal-content {
+html.dark-mode body .map-modal-content {
   background: #1f1f1f;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
 }
 
-body.dark-mode .map-modal-header,
-body.dark-mode .map-modal-footer {
+html.dark-mode body .map-modal-header,
+html.dark-mode body .map-modal-footer {
   background: #262626;
   border-color: #383838;
 }
 
-body.dark-mode .map-modal-header h3 {
+html.dark-mode body .map-modal-header h3 {
   color: #e0e0e0;
 }
 
-body.dark-mode .map-modal-close {
+html.dark-mode body .map-modal-close {
   background: none;
   color: #999;
 }
 
-body.dark-mode .map-modal-close:hover {
+html.dark-mode body .map-modal-close:hover {
   background: #383838;
   color: #e0e0e0;
 }
 
-body.dark-mode .map-info {
+html.dark-mode body .map-info {
   color: #999;
 }
 
-body.dark-mode .map-toolbar {
+html.dark-mode body .map-toolbar {
   background: #2d2d2d;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
 
-body.dark-mode .map-tool-btn {
+html.dark-mode body .map-tool-btn {
   background: transparent;
   color: #ccc;
 }
 
-body.dark-mode .map-tool-btn:hover {
+html.dark-mode body .map-tool-btn:hover {
   background: #3a3a3a;
 }
 
-body.dark-mode .map-tool-btn.active {
+html.dark-mode body .map-tool-btn.active {
   background: #74ac00;
   color: white;
 }
 
-body.dark-mode .map-cancel-btn {
+html.dark-mode body .map-cancel-btn {
   background: #2d2d2d;
   border-color: #4a4a4a;
   color: #d0d0d0;
 }
 
-body.dark-mode .map-cancel-btn:hover {
+html.dark-mode body .map-cancel-btn:hover {
   background: #383838;
   border-color: #5a5a5a;
 }
 
 /* Area map location search */
-body.dark-mode .map-search input {
+html.dark-mode body .map-search input {
   background: #2d2d2d;
   color: #e0e0e0;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
 
-body.dark-mode .map-search input:focus {
+html.dark-mode body .map-search input:focus {
   box-shadow: 0 2px 12px rgba(116, 172, 0, 0.5);
 }
 
-body.dark-mode .map-search-clear {
+html.dark-mode body .map-search-clear {
   background: none;
   color: #999;
 }
 
-body.dark-mode .map-search-clear:hover {
+html.dark-mode body .map-search-clear:hover {
   background: none;
   color: #e0e0e0;
 }
 
-body.dark-mode .map-search-results {
+html.dark-mode body .map-search-results {
   background: #2d2d2d;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
 
-body.dark-mode .map-search-result {
+html.dark-mode body .map-search-result {
   color: #d0d0d0;
   border-bottom-color: #3d3d3d;
 }
 
-body.dark-mode .map-search-result:hover,
-body.dark-mode .map-search-result.active {
+html.dark-mode body .map-search-result:hover,
+html.dark-mode body .map-search-result.active {
   background: #3a4525;
 }
 
-body.dark-mode .map-search-empty {
+html.dark-mode body .map-search-empty {
   color: #888;
 }
 
-body.dark-mode .stats-display .count {
+html.dark-mode body .stats-display .count {
   color: #74ac00;
 }
 
-body.dark-mode .loading-text {
+html.dark-mode body .loading-text {
   color: #aaa;
 }
 
-body.dark-mode #statesList {
+html.dark-mode body #statesList {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode #observedStatesList {
+html.dark-mode body #observedStatesList {
   color: #aaa;
 }
 
-body.dark-mode #observedStatesList a {
+html.dark-mode body #observedStatesList a {
   color: #8bc34a;
 }
 
 /* Checkbox label */
-body.dark-mode .checkbox-label {
+html.dark-mode body .checkbox-label {
   color: #aaa;
 }
 
 /* Species Compare page */
-body.dark-mode .results-column {
+html.dark-mode body .results-column {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .column-header {
+html.dark-mode body .column-header {
   border-bottom-color: #444;
 }
 
-body.dark-mode .column-header.place-a {
+html.dark-mode body .column-header.place-a {
   background: #1a3d1a;
   color: #6fbf6f;
 }
 
-body.dark-mode .column-header.shared {
+html.dark-mode body .column-header.shared {
   background: #3d2a1a;
   color: #e6a060;
 }
 
-body.dark-mode .column-header.place-b {
+html.dark-mode body .column-header.place-b {
   background: #1a2a3d;
   color: #6fa0d0;
 }
 
-body.dark-mode .species-list {
+html.dark-mode body .species-list {
   background: #2d2d2d;
 }
 
-body.dark-mode .species-item:hover {
+html.dark-mode body .species-item:hover {
   background: #3d3d3d;
 }
 
-body.dark-mode .species-common {
+html.dark-mode body .species-common {
   color: #e0e0e0;
 }
 
-body.dark-mode .species-count {
+html.dark-mode body .species-count {
   color: #aaa;
 }
 
-body.dark-mode .stat-box {
+html.dark-mode body .stat-box {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .stat-box .stat-number {
+html.dark-mode body .stat-box .stat-number {
   color: #e0e0e0;
 }
 
-body.dark-mode .stat-box.place-a .stat-number {
+html.dark-mode body .stat-box.place-a .stat-number {
   color: #6fbf6f;
 }
 
-body.dark-mode .stat-box.shared .stat-number {
+html.dark-mode body .stat-box.shared .stat-number {
   color: #e6a060;
 }
 
-body.dark-mode .stat-box.place-b .stat-number {
+html.dark-mode body .stat-box.place-b .stat-number {
   color: #6fa0d0;
 }
 
-body.dark-mode .stat-box .stat-label {
+html.dark-mode body .stat-box .stat-label {
   color: #aaa;
 }
 
-body.dark-mode .vs-divider {
+html.dark-mode body .vs-divider {
   color: #74ac00;
 }
 
-body.dark-mode .species-item .placeholder {
+html.dark-mode body .species-item .placeholder {
   background: #3d3d3d;
   color: #888;
 }
 
-body.dark-mode .limit-select {
+html.dark-mode body .limit-select {
   background: #3d3d3d !important;
   border-color: #555 !important;
   color: #e0e0e0;
 }
 
-body.dark-mode .limit-select option {
+html.dark-mode body .limit-select option {
   background: #3d3d3d;
   color: #e0e0e0;
 }
 
-body.dark-mode .taxon-input {
+html.dark-mode body .taxon-input {
   background: #3d3d3d;
   border-color: #555;
   color: #e0e0e0;
 }
 
-body.dark-mode .species-item.user-observed {
+html.dark-mode body .species-item.user-observed {
   background: rgba(116, 172, 0, 0.15);
   border-left-color: #74ac00;
 }
 
-body.dark-mode .species-item.user-observed:hover {
+html.dark-mode body .species-item.user-observed:hover {
   background: rgba(116, 172, 0, 0.25);
 }
 
-body.dark-mode .observed-check {
+html.dark-mode body .observed-check {
   color: #8bc34a;
 }
 
 /* Family Completion page */
-body.dark-mode .family-card {
+html.dark-mode body .family-card {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .family-card.observed {
+html.dark-mode body .family-card.observed {
   border-left-color: #27ae60;
 }
 
-body.dark-mode .family-card.not-observed {
+html.dark-mode body .family-card.not-observed {
   opacity: 0.7;
 }
 
-body.dark-mode .family-card.not-observed:hover {
+html.dark-mode body .family-card.not-observed:hover {
   opacity: 1;
 }
 
-body.dark-mode .family-name {
+html.dark-mode body .family-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .family-name a {
+html.dark-mode body .family-name a {
   color: #e0e0e0;
 }
 
-body.dark-mode .family-common-name {
+html.dark-mode body .family-common-name {
   color: #aaa;
 }
 
-body.dark-mode .family-stats {
+html.dark-mode body .family-stats {
   color: #aaa;
 }
 
-body.dark-mode .family-photo-placeholder {
+html.dark-mode body .family-photo-placeholder {
   background: #3d3d3d;
   color: #888;
 }
 
-body.dark-mode .iconic-btn {
+html.dark-mode body .iconic-btn {
   background: #3d3d3d;
   border-color: #555;
   color: #e0e0e0;
 }
 
-body.dark-mode .iconic-btn:hover {
+html.dark-mode body .iconic-btn:hover {
   background: #74ac00;
   color: white;
   border-color: #74ac00;
 }
 
-body.dark-mode .iconic-btn.active {
+html.dark-mode body .iconic-btn.active {
   background: #74ac00;
   color: white;
   border-color: #74ac00;
 }
 
 /* Order Completion page */
-body.dark-mode .order-card {
+html.dark-mode body .order-card {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .order-card.observed {
+html.dark-mode body .order-card.observed {
   border-left-color: #27ae60;
 }
 
-body.dark-mode .order-card.not-observed {
+html.dark-mode body .order-card.not-observed {
   opacity: 0.7;
 }
 
-body.dark-mode .order-card.not-observed:hover {
+html.dark-mode body .order-card.not-observed:hover {
   opacity: 1;
 }
 
-body.dark-mode .order-name {
+html.dark-mode body .order-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .order-common-name {
+html.dark-mode body .order-common-name {
   color: #aaa;
 }
 
-body.dark-mode .order-stats {
+html.dark-mode body .order-stats {
   color: #aaa;
 }
 
-body.dark-mode .order-photo-placeholder {
+html.dark-mode body .order-photo-placeholder {
   background: #3d3d3d;
   color: #888;
 }
 
 /* Taxonomy Completion page */
-body.dark-mode .taxon-card {
+html.dark-mode body .taxon-card {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .taxon-card.observed {
+html.dark-mode body .taxon-card.observed {
   border-left-color: #27ae60;
 }
 
-body.dark-mode .taxon-card.not-observed {
+html.dark-mode body .taxon-card.not-observed {
   opacity: 0.7;
 }
 
-body.dark-mode .taxon-card.not-observed:hover {
+html.dark-mode body .taxon-card.not-observed:hover {
   opacity: 1;
 }
 
-body.dark-mode .taxon-name {
+html.dark-mode body .taxon-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .taxon-common-name {
+html.dark-mode body .taxon-common-name {
   color: #aaa;
 }
 
-body.dark-mode .taxon-stats {
+html.dark-mode body .taxon-stats {
   color: #aaa;
 }
 
-body.dark-mode .taxon-photo-placeholder {
+html.dark-mode body .taxon-photo-placeholder {
   background: #3d3d3d;
   color: #888;
 }
 
-body.dark-mode .rank-select {
+html.dark-mode body .rank-select {
   background: #3d3d3d;
   border-color: #555;
   color: #e0e0e0;
 }
 
-body.dark-mode #iconicFilterSelect {
+html.dark-mode body #iconicFilterSelect {
   background: #3d3d3d;
   border-color: #555;
   color: #e0e0e0;
 }
 
-body.dark-mode .progress-banner {
+html.dark-mode body .progress-banner {
   background: #2d2d2d;
 }
 
-body.dark-mode .progress-bar-large {
+html.dark-mode body .progress-bar-large {
   background: #444;
 }
 
-body.dark-mode .progress-text {
+html.dark-mode body .progress-text {
   color: #e0e0e0;
 }
 
-body.dark-mode .progress-subtext {
+html.dark-mode body .progress-subtext {
   color: #aaa;
 }
 
-body.dark-mode .progress-bar-container {
+html.dark-mode body .progress-bar-container {
   background: #444;
 }
 
-body.dark-mode .stat-value {
+html.dark-mode body .stat-value {
   color: #e0e0e0;
 }
 
-body.dark-mode .stat-label {
+html.dark-mode body .stat-label {
   color: #aaa;
 }
 
-body.dark-mode .not-observed-badge {
+html.dark-mode body .not-observed-badge {
   background: #444;
   color: #aaa;
 }
 
-body.dark-mode .loading-container {
+html.dark-mode body .loading-container {
   color: #aaa;
 }
 
-body.dark-mode .loading-subtext {
+html.dark-mode body .loading-subtext {
   color: #777;
 }
 
-body.dark-mode #searchFilter {
+html.dark-mode body #searchFilter {
   background: #3d3d3d;
   border-color: #555 !important;
   color: #e0e0e0;
 }
 
-body.dark-mode #searchFilter::placeholder {
+html.dark-mode body #searchFilter::placeholder {
   color: #888;
 }
 
-body.dark-mode #filterSelect {
+html.dark-mode body #filterSelect {
   background: #3d3d3d !important;
   border-color: #555 !important;
   color: #e0e0e0;

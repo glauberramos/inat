@@ -2,7 +2,7 @@
    Profile — page-scoped redesign ("Naturalist's Dossier")
    Same field-notebook family as speciesdex.css: loaded after styles.css and
    dark-mode.css; every rule is prefixed with body.profile-page so nothing
-   leaks to other pages and ties against body.dark-mode rules resolve in
+   leaks to other pages and ties against html.dark-mode body rules resolve in
    this file's favor (later in cascade).
    ========================================================================== */
 

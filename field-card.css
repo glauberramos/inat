@@ -2,7 +2,7 @@
    Field Card — page-scoped styles ("field notebook" family, same tokens as
    speciesdex.css / profile.css). Loaded after styles.css and dark-mode.css;
    every rule is prefixed with body.fieldcard-page so nothing leaks and ties
-   against body.dark-mode rules resolve in this file's favor.
+   against html.dark-mode body rules resolve in this file's favor.
    ========================================================================== */
 
 body.fieldcard-page {

@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
     <title>
       Species Observed - View Your iNaturalist Species List & Statistics
     </title>
@@ -68,7 +75,7 @@
     }
     </script>
     <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="dark-mode.css?v=5" />
+    <link rel="stylesheet" href="dark-mode.css?v=6" />
     <style>
       .summary-card {
         background: white;
@@ -811,7 +818,7 @@
       </main>
     </div>
     <script src="constants.js"></script>
-    <script src="shared-utils.js"></script>
+    <script src="shared-utils.js?v=2"></script>
     <script src="location-autocomplete.js"></script>
     <script>
       const usernameInput = document.getElementById("usernameInput");
@@ -1123,7 +1130,9 @@
             return;
           }
 
-          const user = userData.results[0];
+          const user = userData.results.find(
+            (u) => u.login.toLowerCase() === username.toLowerCase()
+          ) || userData.results[0];
           const userId = user.id;
           currentUserId = userId;
 
@@ -1141,7 +1150,11 @@
           if (!firstData.results || firstData.results.length === 0) {
             loading.style.display = "none";
             const locationMsg = locationName ? ` in ${locationName}` : "";
-            showError("errorMessage", `No species found for this user${locationMsg}`);
+            if (!locationMsg && !taxonParam && !dateParam) {
+              showWelcome("errorMessage", "🌱 No observations yet! Record your first sighting on iNaturalist and your species will show up here.");
+            } else {
+              showError("errorMessage", `No species found for this user${locationMsg}`);
+            }
             return;
           }
 
@@ -1702,7 +1715,7 @@
     <script type="text/javascript">
       initFeedbackButton();
     </script>
-    <script src="dark-mode.js"></script>
+    <script src="dark-mode.js?v=2"></script>
     <script>
       registerServiceWorker();
     </script>

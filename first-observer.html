@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
     <title>First Observer Checker - Find Species You Discovered First on iNaturalist</title>
     <link rel="icon" href="favicon.ico" />
     <link rel="manifest" href="manifest.json" />
@@ -53,7 +60,7 @@
       ]
     }
     </script>
-    <link rel="stylesheet" href="dark-mode.css?v=5" />
+    <link rel="stylesheet" href="dark-mode.css?v=6" />
     <style>
       * {
         box-sizing: border-box;
@@ -474,7 +481,7 @@
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js"></script>
+    <script src="shared-utils.js?v=2"></script>
     <script>
       let isSearching = false;
       let searchTimeout = null;
@@ -923,7 +930,7 @@
           const allTaxa = await getUserSpeciesCounts(username);
 
           if (allTaxa.length === 0) {
-            showError("error", "No observations found for this user");
+            showWelcome("error", "🌱 No observations yet! Once this user starts recording sightings on iNaturalist, any species they were first to observe will show up here.");
             document.getElementById("progress").style.display = "none";
             isSearching = false;
             document.getElementById("searchBtn").disabled = false;
@@ -1006,7 +1013,7 @@
     <script type="text/javascript">
       initFeedbackButton();
     </script>
-    <script src="dark-mode.js"></script>
+    <script src="dark-mode.js?v=2"></script>
     <script>
       registerServiceWorker();
     </script>

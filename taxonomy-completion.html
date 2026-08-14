@@ -3,7 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Taxonomy Completion - Track Your Taxonomic Progress on iNaturalist</title>
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
+    <title>Tree of Life - How Much of the Tree of Life Have You Seen on iNaturalist?</title>
     <link rel="icon" href="favicon.ico" />
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#74ac00" />
@@ -15,7 +22,7 @@
     />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="Glauber Ramos" />
-    <meta property="og:title" content="Taxonomy Completion - Track Your Taxonomic Progress" />
+    <meta property="og:title" content="Tree of Life - Track Your Taxonomic Progress" />
     <meta property="og:description" content="Track your taxonomic progress on iNaturalist. See how many species you've observed in each taxonomic group." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://glauberramos.github.io/inat/taxonomy-completion" />
@@ -23,14 +30,14 @@
     <meta property="og:locale" content="en_US" />
     <meta property="og:image" content="https://glauberramos.github.io/inat/logo.png" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Taxonomy Completion - Track Your Taxonomic Progress" />
+    <meta name="twitter:title" content="Tree of Life - Track Your Taxonomic Progress" />
     <meta name="twitter:description" content="Track your taxonomic progress on iNaturalist. See how many species you've observed in each taxonomic group." />
     <meta name="twitter:image" content="https://glauberramos.github.io/inat/logo.png" />
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "iNaturalist Taxonomy Completion",
+      "name": "iNaturalist Tree of Life",
       "description": "Track your taxonomic progress on iNaturalist. See how many species you've observed in each taxonomic group and explore your completion across the tree of life.",
       "url": "https://glauberramos.github.io/inat/taxonomy-completion",
       "applicationCategory": "UtilitiesApplication",
@@ -47,12 +54,12 @@
       "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "iNaturalist Tools", "item": "https://glauberramos.github.io/inat/" },
-        { "@type": "ListItem", "position": 2, "name": "Taxonomy Completion", "item": "https://glauberramos.github.io/inat/taxonomy-completion" }
+        { "@type": "ListItem", "position": 2, "name": "Tree of Life", "item": "https://glauberramos.github.io/inat/taxonomy-completion" }
       ]
     }
     </script>
     <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="dark-mode.css?v=5" />
+    <link rel="stylesheet" href="dark-mode.css?v=6" />
     <style>
       .summary-card {
         background: white;
@@ -426,7 +433,7 @@
         <div class="header-content">
           <div class="title-container">
             <img src="logo.png" alt="iNaturalist Logo" class="logo" />
-            <h1>Taxonomy Completion</h1>
+            <h1>Tree of Life</h1>
           </div>
           <p class="description">
             Track your observation progress across any taxonomic rank
@@ -532,7 +539,7 @@
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js"></script>
+    <script src="shared-utils.js?v=2"></script>
     <script src="autocomplete.js"></script>
     <script>
       const usernameInput = document.getElementById("usernameInput");
@@ -809,7 +816,10 @@
             throw new Error("User not found");
           }
 
-          const userId = userData.results[0].id;
+          const matchedUser = userData.results.find(
+            (u) => u.login.toLowerCase() === username.toLowerCase()
+          ) || userData.results[0];
+          const userId = matchedUser.id;
           localStorage.setItem("inatUsername", username);
 
           // Fetch all taxa of the selected rank within the parent taxon
@@ -1055,6 +1065,6 @@
       data-domain="glauberramos.github.io/inat"
       src="https://plausible.io/js/script.js"
     ></script>
-    <script src="dark-mode.js"></script>
+    <script src="dark-mode.js?v=2"></script>
   </body>
 </html>

@@ -59,23 +59,23 @@
 }
 
 /* Dark mode styles */
-body.dark-mode .location-autocomplete {
+html.dark-mode body .location-autocomplete {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .location-suggestion {
+html.dark-mode body .location-suggestion {
   border-bottom-color: #444;
 }
 
-body.dark-mode .location-suggestion:hover {
+html.dark-mode body .location-suggestion:hover {
   background: #3d3d3d;
 }
 
-body.dark-mode .location-suggestion .location-name {
+html.dark-mode body .location-suggestion .location-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .location-suggestion .location-type {
+html.dark-mode body .location-suggestion .location-type {
   color: #aaa;
 }

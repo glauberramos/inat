@@ -2,7 +2,7 @@
    SpeciesDex — page-scoped redesign ("Collector's Pokédex")
    Loaded after styles.css and dark-mode.css; every rule is prefixed with
    body.speciesdex-page so nothing leaks to other pages and ties against
-   body.dark-mode rules resolve in this file's favor (later in cascade).
+   html.dark-mode body rules resolve in this file's favor (later in cascade).
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
