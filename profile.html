@@ -55,10 +55,16 @@
     </script>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="dark-mode.css?v=5" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="profile.css" />
       <script src="analytics.js"></script>
   </head>
-  <body>
+  <body class="profile-page">
     <a
       href="/inat"
       class="back-button"
@@ -117,6 +123,7 @@
             <div class="profile-left">
               <div id="avatarContainer"></div>
               <div class="profile-info">
+                <div class="profile-eyebrow">Field Profile &middot; iNaturalist</div>
                 <div class="profile-name" id="profileName"></div>
                 <div class="profile-login" id="profileLogin"></div>
                 <div class="profile-meta">
@@ -191,6 +198,11 @@
             </a>
           </div>
 
+          <div class="chart-card top-species-card" id="topSpeciesCard" style="margin-bottom: 20px; display: none;">
+            <div class="chart-title">Most Observed Species</div>
+            <div class="top-species-strip" id="topSpeciesStrip"></div>
+          </div>
+
           <div class="chart-card" style="margin-bottom: 20px;">
             <div class="chart-title">Species by Category</div>
             <div class="taxon-chart-container" id="taxonChart"></div>
@@ -216,11 +228,29 @@
           <div class="chart-card calendar-card">
             <div class="calendar-header">
               <div class="chart-title">Activity Calendar</div>
-              <div class="calendar-streak-info">
-                <span>Current streak: <strong id="currentStreak">0</strong> days</span>
-                <span>Longest streak: <strong id="longestStreak">0</strong> days</span>
-              </div>
               <select id="calendarYearSelect" class="calendar-year-select"></select>
+            </div>
+            <div class="calendar-insights">
+              <div class="calendar-insight">
+                <span class="insight-value" id="currentStreak">0</span>
+                <span class="insight-label">Current streak</span>
+              </div>
+              <div class="calendar-insight gold">
+                <span class="insight-value" id="longestStreak">0</span>
+                <span class="insight-label" id="longestStreakLabel">Longest streak</span>
+              </div>
+              <div class="calendar-insight">
+                <span class="insight-value" id="activeDaysCount">&ndash;</span>
+                <span class="insight-label">Days observing</span>
+              </div>
+              <div class="calendar-insight gold">
+                <span class="insight-value" id="bestDayCount">&ndash;</span>
+                <span class="insight-label" id="bestDayLabel">Best day</span>
+              </div>
+              <div class="calendar-insight">
+                <span class="insight-value" id="avgPerDay">&ndash;</span>
+                <span class="insight-label">Avg obs / active day</span>
+              </div>
             </div>
             <div class="calendar-container">
               <div class="calendar-weekdays">
@@ -484,7 +514,9 @@
 
           // Group 3: /observations/species_counts endpoint
           const speciesCountsGroup = async () => {
-            const speciesResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&per_page=0`);
+            // per_page=6 instead of 0: same single request also returns the
+            // user's most-observed taxa for the "Most Observed Species" strip
+            const speciesResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&per_page=6`);
             const speciesData = await speciesResponse.json();
             incrementLoadingProgress();
             await sleep(500);
@@ -514,6 +546,7 @@
 
             return {
               species: speciesData.total_results || 0,
+              topSpecies: speciesData.results || [],
               threatened: threatenedData.total_results || 0,
               endemic: endemicData.total_results || 0,
               introduced: introducedData.total_results || 0,
@@ -542,6 +575,8 @@
 
           const ratio = observationsCount > 0 ? (speciesCount / observationsCount) * 100 : 0;
           document.getElementById('speciesRatio').textContent = ratio.toFixed(1) + '%';
+
+          renderTopSpecies(speciesCountsData.topSpecies, user.login);
 
           document.getElementById('threatenedCount').textContent = speciesCountsData.threatened.toLocaleString();
           document.getElementById('endemicCount').textContent = speciesCountsData.endemic.toLocaleString();
@@ -586,6 +621,11 @@
         }
       }
 
+      function pfToken(name, fallback) {
+        const v = getComputedStyle(document.body).getPropertyValue(name).trim();
+        return v || fallback;
+      }
+
       function drawPieChart(data) {
         const canvas = document.getElementById('pieChart');
         const ctx = canvas.getContext('2d');
@@ -593,7 +633,7 @@
 
         if (total === 0) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.fillStyle = '#ccc';
+          ctx.fillStyle = pfToken('--pf-muted', '#ccc');
           ctx.font = '14px sans-serif';
           ctx.textAlign = 'center';
           ctx.fillText('No data', canvas.width / 2, canvas.height / 2);
@@ -638,17 +678,17 @@
         // Draw center circle for donut effect
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius * 0.65, 0, 2 * Math.PI);
-        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#2d2d2d' : 'white';
+        ctx.fillStyle = pfToken('--pf-surface', 'white');
         ctx.fill();
 
         // Draw total in center
-        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333';
-        ctx.font = 'bold 18px sans-serif';
+        ctx.fillStyle = pfToken('--pf-ink', '#333');
+        ctx.font = 'bold 17px "Space Mono", monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(total.toLocaleString(), centerX, centerY - 8);
-        ctx.font = '11px sans-serif';
-        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#aaa' : '#666';
+        ctx.font = '10px "Space Mono", monospace';
+        ctx.fillStyle = pfToken('--pf-muted', '#666');
         ctx.fillText('total', centerX, centerY + 12);
 
         // Update legend
@@ -721,17 +761,17 @@
         // Draw center circle for donut effect
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius * 0.65, 0, 2 * Math.PI);
-        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#2d2d2d' : 'white';
+        ctx.fillStyle = pfToken('--pf-surface', 'white');
         ctx.fill();
 
         // Draw total in center
-        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333';
-        ctx.font = 'bold 18px sans-serif';
+        ctx.fillStyle = pfToken('--pf-ink', '#333');
+        ctx.font = 'bold 17px "Space Mono", monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(total.toLocaleString(), centerX, centerY - 8);
-        ctx.font = '11px sans-serif';
-        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#aaa' : '#666';
+        ctx.font = '10px "Space Mono", monospace';
+        ctx.fillStyle = pfToken('--pf-muted', '#666');
         ctx.fillText('total', centerX, centerY + 12);
 
         // Update legend
@@ -746,6 +786,43 @@
             </div>
           `;
         }).join('');
+      }
+
+      function renderTopSpecies(results, username) {
+        const card = document.getElementById('topSpeciesCard');
+        const strip = document.getElementById('topSpeciesStrip');
+
+        if (!results || results.length === 0) {
+          card.style.display = 'none';
+          return;
+        }
+
+        strip.innerHTML = results.map((result, i) => {
+          const taxon = result.taxon || {};
+          const commonName = taxon.preferred_common_name || taxon.name || 'Unknown';
+          const sciName = taxon.name || '';
+          const photo = taxon.default_photo;
+          const photoUrl = photo ? (photo.medium_url || photo.square_url) : null;
+          const inatUrl = `https://www.inaturalist.org/observations?user_id=${username}&taxon_id=${taxon.id}`;
+          const photoHtml = photoUrl
+            ? `<img src="${escapeHtml(photoUrl)}" alt="${escapeHtml(commonName)}" loading="lazy">`
+            : '<div class="top-species-photo-placeholder">🌿</div>';
+          return `
+            <a href="${escapeHtml(inatUrl)}" target="_blank" class="top-species-item" title="${escapeHtml(commonName)}: ${result.count.toLocaleString()} observations">
+              <div class="top-species-photo">
+                ${photoHtml}
+                <span class="top-species-rank">#${String(i + 1).padStart(2, '0')}</span>
+                <span class="top-species-count">&times; ${result.count.toLocaleString()}</span>
+              </div>
+              <div class="top-species-info">
+                <div class="top-species-name">${escapeHtml(commonName)}</div>
+                <div class="top-species-sciname">${escapeHtml(sciName)}</div>
+              </div>
+            </a>
+          `;
+        }).join('');
+
+        card.style.display = 'block';
       }
 
       async function renderTaxonChart(userId, username) {
@@ -796,7 +873,8 @@
         const maxHeight = 100;
 
         taxonChart.innerHTML = sortedTaxons.map(([key, data]) => {
-          const barHeight = Math.max(6, (data.count / maxCount) * maxHeight);
+          // sqrt scale: keeps small groups visible next to a dominant one
+          const barHeight = Math.max(6, (Math.sqrt(data.count) / Math.sqrt(maxCount)) * maxHeight);
           const inatUrl = `https://www.inaturalist.org/observations?user_id=${username}&iconic_taxa=${key}&verifiable=true&view=species`;
           return `
             <a href="${escapeHtml(inatUrl)}" target="_blank" class="taxon-bar-col" title="${data.name}: ${data.count.toLocaleString()} species">
@@ -1500,8 +1578,26 @@
         if (dates.length === 0) {
           currentStreakEl.textContent = '0';
           longestStreakEl.textContent = '0';
+          document.getElementById('activeDaysCount').textContent = '0';
+          document.getElementById('bestDayCount').textContent = '0';
+          document.getElementById('avgPerDay').textContent = '0';
           return;
         }
+
+        // Activity insights — free, computed from the histogram already fetched
+        const totalObsOnActiveDays = dates.reduce((sum, d) => sum + allDays[d], 0);
+        let bestDayDate = dates[0];
+        dates.forEach(d => {
+          if (allDays[d] > allDays[bestDayDate]) bestDayDate = d;
+        });
+
+        document.getElementById('activeDaysCount').textContent = dates.length.toLocaleString();
+        document.getElementById('bestDayCount').textContent = allDays[bestDayDate].toLocaleString();
+        document.getElementById('avgPerDay').textContent = (totalObsOnActiveDays / dates.length).toFixed(1);
+
+        const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const [bdYear, bdMonth, bdDay] = bestDayDate.split('-').map(Number);
+        document.getElementById('bestDayLabel').textContent = `Best day · ${shortMonths[bdMonth - 1]} ${bdDay}, ${bdYear}`;
 
         // Helper to parse date string as local date
         function parseLocalDate(dateStr) {
@@ -1568,16 +1664,16 @@
           }
         }
 
-        currentStreakEl.textContent = currentStreak.toString();
+        currentStreakEl.textContent = `${currentStreak.toLocaleString()} ${currentStreak === 1 ? 'day' : 'days'}`;
+        longestStreakEl.textContent = `${longestStreak.toLocaleString()} ${longestStreak === 1 ? 'day' : 'days'}`;
 
-        // Format longest streak with date range
+        // Put the longest streak's date range in its label
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        if (longestStreakStart && longestStreakEnd && longestStreak > 0) {
-          const startStr = `${monthNames[longestStreakStart.getMonth()]} ${longestStreakStart.getDate()}, ${longestStreakStart.getFullYear()}`;
+        if (longestStreakStart && longestStreakEnd && longestStreak > 1) {
+          const sameYear = longestStreakStart.getFullYear() === longestStreakEnd.getFullYear();
+          const startStr = `${monthNames[longestStreakStart.getMonth()]} ${longestStreakStart.getDate()}${sameYear ? '' : `, ${longestStreakStart.getFullYear()}`}`;
           const endStr = `${monthNames[longestStreakEnd.getMonth()]} ${longestStreakEnd.getDate()}, ${longestStreakEnd.getFullYear()}`;
-          longestStreakEl.innerHTML = `${longestStreak} <span style="font-weight: normal; color: #aaa;">(${startStr} - ${endStr})</span>`;
-        } else {
-          longestStreakEl.textContent = longestStreak.toString();
+          document.getElementById('longestStreakLabel').textContent = `Longest streak · ${startStr} – ${endStr}`;
         }
       }
 
