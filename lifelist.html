@@ -789,14 +789,14 @@
             Species photo
           </label>
           <div class="view-toggle">
-            <button class="view-btn active" id="listViewBtn" onclick="setView('list')">List</button>
-            <button class="view-btn" id="gridViewBtn" onclick="setView('grid')">Grid</button>
+            <button class="view-btn" id="listViewBtn" onclick="setView('list')">List</button>
+            <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')">Grid</button>
           </div>
           <button id="downloadBtn" onclick="downloadCSV()" style="display:none; padding: 8px 16px; font-size: 14px;">Download CSV</button>
         </div>
       </div>
-      <ul class="species-list active" id="speciesList"></ul>
-      <div class="species-grid" id="speciesGrid"></div>
+      <ul class="species-list" id="speciesList"></ul>
+      <div class="species-grid active" id="speciesGrid"></div>
     </div>
 
     <script src="constants.js"></script>
