@@ -12,7 +12,7 @@ A suite of companion tools for [iNaturalist](https://www.inaturalist.org) — ex
 - **Achievements** — milestones and badges earned from your observations
 - **Lifelist Timeline** — your species sorted by first observation date
 - **Tree of Life** — how much of the tree of life have you seen? Progress across any taxonomic rank
-- **US States** / **Brazil States** — track observations across every state
+- **Country States** — track observations across the states of the US, Brazil, Canada, Australia, and France on interactive maps
 - **Field Card** — turn your stats into a shareable card you can download
 
 ### Explore your species

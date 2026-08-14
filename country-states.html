@@ -861,7 +861,7 @@
 
             try {
               const response = await fetch(
-                `${API_BASE}/observations?user_id=${currentUsername}&place_id=${stateInfo.placeId}&per_page=1`
+                `${API_BASE}/observations?user_id=${currentUsername}&place_id=${stateInfo.placeId}&verifiable=true&per_page=1`
               );
               const data = await response.json();
               if (seq !== fetchSeq) return;
