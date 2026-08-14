@@ -455,7 +455,7 @@
 
     // per_page=6: one call returns both the species total and the top taxa
     const speciesResponse = await fetch(
-      `${API_BASE}/observations/species_counts?user_id=${user.id}&per_page=6`
+      `${API_BASE}/observations/species_counts?user_id=${user.id}&verifiable=true&per_page=6`
     );
     const speciesData = await speciesResponse.json();
     tick();
@@ -464,7 +464,7 @@
     const counts = {};
     for (const key of ['threatened', 'endemic', 'native', 'introduced']) {
       const response = await fetch(
-        `${API_BASE}/observations/species_counts?user_id=${user.id}&${key}=true&per_page=0`
+        `${API_BASE}/observations/species_counts?user_id=${user.id}&${key}=true&verifiable=true&per_page=0`
       );
       const data = await response.json();
       counts[key] = data.total_results || 0;
