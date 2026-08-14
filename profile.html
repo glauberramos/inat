@@ -516,27 +516,27 @@
           const speciesCountsGroup = async () => {
             // per_page=6 instead of 0: same single request also returns the
             // user's most-observed taxa for the "Most Observed Species" strip
-            const speciesResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&per_page=6`);
+            const speciesResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&verifiable=true&per_page=6`);
             const speciesData = await speciesResponse.json();
             incrementLoadingProgress();
             await sleep(500);
 
-            const threatenedResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&threatened=true&per_page=0`);
+            const threatenedResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&threatened=true&verifiable=true&per_page=0`);
             const threatenedData = await threatenedResponse.json();
             incrementLoadingProgress();
             await sleep(500);
 
-            const endemicResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&endemic=true&per_page=0`);
+            const endemicResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&endemic=true&verifiable=true&per_page=0`);
             const endemicData = await endemicResponse.json();
             incrementLoadingProgress();
             await sleep(500);
 
-            const introducedResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&introduced=true&per_page=0`);
+            const introducedResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&introduced=true&verifiable=true&per_page=0`);
             const introducedData = await introducedResponse.json();
             incrementLoadingProgress();
             await sleep(500);
 
-            const nativeResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&native=true&per_page=0`);
+            const nativeResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&native=true&verifiable=true&per_page=0`);
             const nativeData = await nativeResponse.json();
             incrementLoadingProgress();
             await sleep(500);
