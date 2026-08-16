@@ -62,13 +62,7 @@
     </script>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="dark-mode.css?v=6" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Space+Mono:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="profile.css" />
+    <link rel="stylesheet" href="profile.css?v=2" />
       <script src="analytics.js"></script>
   </head>
   <body class="profile-page">
@@ -633,10 +627,32 @@
         return v || fallback;
       }
 
-      function drawPieChart(data) {
-        const canvas = document.getElementById('pieChart');
+      // Shared floating tooltip (calendar, donut charts, taxon bars)
+      const pfTooltip = document.createElement('div');
+      pfTooltip.className = 'pf-tooltip';
+      document.body.appendChild(pfTooltip);
+
+      function showPfTooltip(text, x, y) {
+        pfTooltip.textContent = text;
+        pfTooltip.style.display = 'block';
+        const rect = pfTooltip.getBoundingClientRect();
+        let left = x + 12;
+        let top = y - rect.height - 10;
+        if (left + rect.width > window.innerWidth - 8) left = x - rect.width - 12;
+        if (top < 8) top = y + 14;
+        pfTooltip.style.left = left + 'px';
+        pfTooltip.style.top = top + 'px';
+      }
+
+      function hidePfTooltip() {
+        pfTooltip.style.display = 'none';
+      }
+
+      function renderDonutChart(canvasId, legendId, data, colors, labels) {
+        const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
-        const total = data.research + data.needsId + data.casual;
+        const entries = Object.entries(data).filter(([, v]) => v > 0);
+        const total = Object.values(data).reduce((a, b) => a + (b || 0), 0);
 
         if (total === 0) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -647,61 +663,85 @@
           return;
         }
 
-        const colors = {
-          research: '#27ae60',
-          needsId: '#f39c12',
-          casual: '#95a5a6'
-        };
-
-        const labels = {
-          research: 'Research Grade',
-          needsId: 'Needs ID',
-          casual: 'Casual'
-        };
-
-        // Draw pie chart
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
         const radius = 80;
 
-        let startAngle = -Math.PI / 2;
+        // Precompute slice angles (12 o'clock start, clockwise)
+        const slices = [];
+        let angle = -Math.PI / 2;
+        for (const [key, value] of entries) {
+          const sliceAngle = (value / total) * 2 * Math.PI;
+          slices.push({ key, value, start: angle, end: angle + sliceAngle });
+          angle += sliceAngle;
+        }
 
-        Object.entries(data).forEach(([key, value]) => {
-          if (value > 0) {
-            const sliceAngle = (value / total) * 2 * Math.PI;
-
+        function draw(hoverKey) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          for (const s of slices) {
             ctx.beginPath();
             ctx.moveTo(centerX, centerY);
-            ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+            ctx.arc(centerX, centerY, s.key === hoverKey ? radius + 5 : radius, s.start, s.end);
             ctx.closePath();
-            ctx.fillStyle = colors[key];
+            ctx.fillStyle = colors[s.key];
+            ctx.globalAlpha = hoverKey && s.key !== hoverKey ? 0.55 : 1;
             ctx.fill();
-
-            startAngle += sliceAngle;
           }
-        });
+          ctx.globalAlpha = 1;
 
-        // Draw center circle for donut effect
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius * 0.65, 0, 2 * Math.PI);
-        ctx.fillStyle = pfToken('--pf-surface', 'white');
-        ctx.fill();
+          // Center circle for donut effect
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius * 0.65, 0, 2 * Math.PI);
+          ctx.fillStyle = pfToken('--pf-surface', 'white');
+          ctx.fill();
 
-        // Draw total in center
-        ctx.fillStyle = pfToken('--pf-ink', '#333');
-        ctx.font = 'bold 17px "Space Mono", monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(total.toLocaleString(), centerX, centerY - 8);
-        ctx.font = '10px "Space Mono", monospace';
-        ctx.fillStyle = pfToken('--pf-muted', '#666');
-        ctx.fillText('total', centerX, centerY + 12);
+          // Center text: hovered slice value, or the total
+          const hovered = slices.find((s) => s.key === hoverKey);
+          ctx.fillStyle = pfToken('--pf-ink', '#333');
+          ctx.font = 'bold 17px system-ui, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText((hovered ? hovered.value : total).toLocaleString(), centerX, centerY - 8);
+          ctx.font = '10px system-ui, sans-serif';
+          ctx.fillStyle = pfToken('--pf-muted', '#666');
+          ctx.fillText(hovered ? labels[hovered.key] : 'total', centerX, centerY + 12);
+        }
+
+        draw(null);
+
+        let hoverKey = null;
+        canvas.onmousemove = (e) => {
+          const rect = canvas.getBoundingClientRect();
+          const x = (e.clientX - rect.left) * (canvas.width / rect.width) - centerX;
+          const y = (e.clientY - rect.top) * (canvas.height / rect.height) - centerY;
+          const dist = Math.sqrt(x * x + y * y);
+          let found = null;
+          if (dist >= radius * 0.65 && dist <= radius + 5) {
+            let a = Math.atan2(y, x);
+            if (a < -Math.PI / 2) a += 2 * Math.PI;
+            found = slices.find((s) => a >= s.start && a < s.end) || null;
+          }
+          const newKey = found ? found.key : null;
+          if (newKey !== hoverKey) {
+            hoverKey = newKey;
+            draw(hoverKey);
+          }
+          if (found) {
+            const pct = Math.round((found.value / total) * 100);
+            showPfTooltip(`${labels[found.key]}: ${found.value.toLocaleString()} (${pct}%)`, e.clientX, e.clientY);
+          } else {
+            hidePfTooltip();
+          }
+        };
+        canvas.onmouseleave = () => {
+          hoverKey = null;
+          draw(null);
+          hidePfTooltip();
+        };
 
         // Update legend
-        const legend = document.getElementById('pieLegend');
-        legend.innerHTML = Object.entries(data).map(([key, value]) => {
-          const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+        document.getElementById(legendId).innerHTML = entries.map(([key, value]) => {
+          const percentage = Math.round((value / total) * 100);
           return `
             <div class="legend-item">
               <div class="legend-color" style="background: ${colors[key]};"></div>
@@ -712,87 +752,32 @@
         }).join('');
       }
 
+      function drawPieChart(data) {
+        renderDonutChart('pieChart', 'pieLegend', data, {
+          research: '#27ae60',
+          needsId: '#f39c12',
+          casual: '#95a5a6'
+        }, {
+          research: 'Research Grade',
+          needsId: 'Needs ID',
+          casual: 'Casual'
+        });
+      }
+
       function drawIdPieChart(data) {
-        const canvas = document.getElementById('idPieChart');
-        const ctx = canvas.getContext('2d');
-        const total = data.improving + data.supporting + data.leading + data.maverick + (data.other || 0);
-
-        if (total === 0) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#888' : '#ccc';
-          ctx.font = '14px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText('No data', canvas.width / 2, canvas.height / 2);
-          return;
-        }
-
-        const colors = {
+        renderDonutChart('idPieChart', 'idPieLegend', data, {
           improving: '#27ae60',
           supporting: '#3498db',
           leading: '#9b59b6',
           maverick: '#e74c3c',
           other: '#95a5a6'
-        };
-
-        const labels = {
+        }, {
           improving: 'Improving',
           supporting: 'Supporting',
           leading: 'Leading',
           maverick: 'Maverick',
           other: 'Other'
-        };
-
-        // Draw pie chart
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = 80;
-
-        let startAngle = -Math.PI / 2;
-
-        Object.entries(data).forEach(([key, value]) => {
-          if (value > 0) {
-            const sliceAngle = (value / total) * 2 * Math.PI;
-
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
-            ctx.closePath();
-            ctx.fillStyle = colors[key];
-            ctx.fill();
-
-            startAngle += sliceAngle;
-          }
         });
-
-        // Draw center circle for donut effect
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius * 0.65, 0, 2 * Math.PI);
-        ctx.fillStyle = pfToken('--pf-surface', 'white');
-        ctx.fill();
-
-        // Draw total in center
-        ctx.fillStyle = pfToken('--pf-ink', '#333');
-        ctx.font = 'bold 17px "Space Mono", monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(total.toLocaleString(), centerX, centerY - 8);
-        ctx.font = '10px "Space Mono", monospace';
-        ctx.fillStyle = pfToken('--pf-muted', '#666');
-        ctx.fillText('total', centerX, centerY + 12);
-
-        // Update legend
-        const legend = document.getElementById('idPieLegend');
-        legend.innerHTML = Object.entries(data).map(([key, value]) => {
-          const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-          return `
-            <div class="legend-item">
-              <div class="legend-color" style="background: ${colors[key]};"></div>
-              <span class="legend-label">${labels[key]}</span>
-              <span class="legend-value">${value.toLocaleString()} (${percentage}%)</span>
-            </div>
-          `;
-        }).join('');
       }
 
       function renderTopSpecies(results, username) {
@@ -884,7 +869,7 @@
           const barHeight = Math.max(6, (Math.sqrt(data.count) / Math.sqrt(maxCount)) * maxHeight);
           const inatUrl = `https://www.inaturalist.org/observations?user_id=${username}&iconic_taxa=${key}&verifiable=true&view=species`;
           return `
-            <a href="${escapeHtml(inatUrl)}" target="_blank" class="taxon-bar-col" title="${data.name}: ${data.count.toLocaleString()} species">
+            <a href="${escapeHtml(inatUrl)}" target="_blank" class="taxon-bar-col" data-title="${data.name}: ${data.count.toLocaleString()} species">
               <span class="taxon-bar-value">${data.count}</span>
               <div class="taxon-bar-wrapper" style="height: ${maxHeight}px;">
                 <div class="taxon-bar" style="height: ${barHeight}px; background: ${data.color};"></div>
@@ -894,6 +879,40 @@
           `;
         }).join('');
       }
+
+      // Hover tooltips: calendar days (click opens that day on iNaturalist)
+      // and species-by-category bars. Delegated once; both containers are
+      // static DOM.
+      const calendarGridEl = document.getElementById('calendarGrid');
+      calendarGridEl.addEventListener('mousemove', (e) => {
+        const day = e.target.closest('.calendar-day');
+        if (day && day.dataset.title) {
+          showPfTooltip(day.dataset.title, e.clientX, e.clientY);
+        } else {
+          hidePfTooltip();
+        }
+      });
+      calendarGridEl.addEventListener('mouseleave', hidePfTooltip);
+      calendarGridEl.addEventListener('click', (e) => {
+        const day = e.target.closest('.calendar-day.has-obs');
+        if (day && currentUserId) {
+          window.open(
+            `https://www.inaturalist.org/observations?user_id=${currentUserId}&on=${day.dataset.date}`,
+            '_blank'
+          );
+        }
+      });
+
+      const taxonChartEl = document.getElementById('taxonChart');
+      taxonChartEl.addEventListener('mousemove', (e) => {
+        const col = e.target.closest('.taxon-bar-col');
+        if (col && col.dataset.title) {
+          showPfTooltip(col.dataset.title, e.clientX, e.clientY);
+        } else {
+          hidePfTooltip();
+        }
+      });
+      taxonChartEl.addEventListener('mouseleave', hidePfTooltip);
 
       async function loadWorldGridMap(userId) {
         const mapContainer = document.getElementById('worldGridMap');
@@ -1513,6 +1532,7 @@
             weekDays.push({
               dateStr,
               level: !isFuture ? level : 0,
+              count: !isFuture ? count : 0,
               opacity: isFuture ? 'opacity: 0.3;' : '',
               title,
               isInYear,
@@ -1528,7 +1548,7 @@
           for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
             const day = weeks[week][dayOfWeek];
             const todayClass = day.isToday ? ' today' : '';
-            html += `<div class="calendar-day${todayClass}" data-level="${day.level}" style="${day.opacity}" title="${day.title}"></div>`;
+            html += `<div class="calendar-day${todayClass}${day.count > 0 ? ' has-obs' : ''}" data-level="${day.level}" style="${day.opacity}" data-title="${day.title}" data-date="${day.dateStr}"></div>`;
           }
         }
         calendarGrid.innerHTML = html;

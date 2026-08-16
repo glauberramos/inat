@@ -29,9 +29,10 @@ body.profile-page {
     0 10px 26px -14px rgba(28, 36, 21, 0.22);
   --pf-shadow-lift: 0 2px 4px rgba(28, 36, 21, 0.08),
     0 18px 38px -16px rgba(28, 36, 21, 0.3);
-  --pf-display: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
-  --pf-mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --pf-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, sans-serif;
+  --pf-mono: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
 }
 
 body.profile-page.dark-mode {
@@ -111,8 +112,10 @@ body.profile-page .search-card {
 }
 
 body.profile-page input[type="text"] {
+  box-sizing: border-box;
+  height: 44px;
   border: 1.5px solid var(--pf-line);
-  border-radius: 10px;
+  border-radius: 8px;
   background-color: var(--pf-surface);
   color: var(--pf-ink);
   padding: 10px 14px;
@@ -135,8 +138,10 @@ body.profile-page input[type="text"]:focus {
 }
 
 body.profile-page #searchButton {
+  box-sizing: border-box;
+  height: 44px;
   background-color: var(--pf-green);
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 600;
   font-size: 0.95rem;
   padding: 10px 22px;
@@ -157,7 +162,7 @@ body.profile-page .username-autocomplete {
   background: var(--pf-surface);
   border: 1.5px solid var(--pf-line);
   border-top: none;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 8px 8px;
   box-shadow: var(--pf-shadow);
 }
 
@@ -595,8 +600,12 @@ body.profile-page .taxon-bar-col {
   transition: opacity 0.2s;
 }
 
-body.profile-page .taxon-bar-col:hover {
-  opacity: 0.8;
+body.profile-page .taxon-bar-col:hover .taxon-bar {
+  filter: brightness(1.15);
+}
+
+body.profile-page .taxon-bar-col:hover .taxon-bar-value {
+  color: var(--pf-ink);
 }
 
 body.profile-page .taxon-bar-wrapper {
@@ -690,7 +699,7 @@ body.profile-page .calendar-year-select {
   font-weight: 700;
   padding: 6px 12px;
   border: 1.5px solid var(--pf-line);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--pf-surface);
   color: var(--pf-ink);
   cursor: pointer;
@@ -811,6 +820,26 @@ body.profile-page.dark-mode .calendar-day[data-level="4"] { background: #8fc61e;
 
 body.profile-page .calendar-day:hover {
   outline: 1px solid var(--pf-muted);
+}
+
+body.profile-page .calendar-day.has-obs {
+  cursor: pointer;
+}
+
+/* Floating tooltip shared by the calendar, donut charts, and taxon bars */
+body.profile-page .pf-tooltip {
+  position: fixed;
+  display: none;
+  z-index: 3000;
+  pointer-events: none;
+  background: rgba(20, 26, 12, 0.9);
+  color: #fff;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  padding: 6px 10px;
+  border-radius: 8px;
+  box-shadow: var(--pf-shadow-lift);
+  white-space: nowrap;
 }
 
 body.profile-page .calendar-day.today {
@@ -1080,6 +1109,26 @@ body.profile-page .feedback-button:hover {
 
 body.profile-page.dark-mode .feedback-button {
   color: #101505;
+}
+
+/* dark-mode.css paints the header with a legacy green gradient and forces
+   the pill links white — restore the token-based dossier card */
+body.profile-page.dark-mode .profile-header {
+  background: var(--pf-surface);
+  border-color: var(--pf-line);
+}
+
+body.profile-page.dark-mode .profile-link {
+  color: var(--pf-muted);
+}
+
+body.profile-page.dark-mode .profile-link:hover {
+  color: var(--pf-ink);
+}
+
+/* dark-mode.css also paints the search card gray — keep it transparent */
+body.profile-page.dark-mode .search-card {
+  background: transparent;
 }
 
 /* --------------------------------------------------------------------------
