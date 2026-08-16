@@ -26,9 +26,10 @@ body.speciesdex-page {
     0 10px 26px -14px rgba(28, 36, 21, 0.22);
   --dex-shadow-lift: 0 2px 4px rgba(28, 36, 21, 0.08),
     0 18px 38px -16px rgba(28, 36, 21, 0.3);
-  --dex-display: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
-  --dex-mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --dex-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, sans-serif;
+  --dex-mono: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
 }
 
 body.speciesdex-page.dark-mode {
@@ -470,19 +471,6 @@ body.speciesdex-page .species-card img {
 
 body.speciesdex-page .species-card:hover img {
   transform: scale(1.04);
-}
-
-/* Undiscovered entries: grayscale until you hover — a preview of what you
-   could collect */
-body.speciesdex-page .species-card:not(.observed) img {
-  filter: grayscale(1) brightness(0.82);
-  opacity: 0.92;
-}
-
-body.speciesdex-page .species-card:not(.observed):hover img,
-body.speciesdex-page .species-card:not(.observed):focus-within img {
-  filter: none;
-  opacity: 1;
 }
 
 /* Entry number chip */

@@ -53,7 +53,7 @@ The shared modules exist but are dead: `initUsername()`, `initPlace()`, `getSave
 And structurally, the suite has no connective tissue:
 
 - **15 of 16 tools are dead ends** — the only cross-tool links in the entire suite are three on the profile page. Going from Profile to Achievements (two tools about the same user) means going back to a 16-card grid.
-- **Deep links are dead on arrival** — 12 tools read `?user=` and prefill the box, but not one auto-runs the query. Sharing your achievements link hands your friend a blank page with a button to find. This is a one-line fix per page and the single highest-leverage change in the codebase.
+- **Deep links prefill but don't run** — 12 tools read `?user=` and prefill the box; the visitor still clicks Search. *(Decision 2026-08-14: keeping it this way on purpose — auto-running would fire a burst of API calls for every page open, wanted or not. Deep links stay prefill-only.)*
 - **No share affordance anywhere**, despite output that is inherently braggable.
 - **brazil-states.html is orphaned** — fully built, in the sitemap, not on the homepage.
 
@@ -108,7 +108,7 @@ Ordered so that every tier makes the next one more valuable: correctness makes t
 
 *The craft-and-cohesion core. Everything here is structural leverage: build once, every page improves.*
 
-- **Auto-run deep links + a Share button.** When `?user=` is present, run the query. Add copy-link / `navigator.share` on every result. One line per page unlocks the entire social loop — do this first, even before the rest of this tier.
+- **A Share button on every result.** Copy-link / `navigator.share` once a search has run. *(Auto-running `?user=` deep links was considered and rejected 2026-08-14: too many unwanted API calls when someone opens a page without meaning to search. Links prefill only; the visitor clicks Search.)*
 - **A shared header on every page**: logo → home, a tool switcher that carries `?user=` (and place) forward, dark-mode toggle and back link in fixed positions. Kills the 15 pasted back-button blocks and ends the cul-de-sacs.
 - **A contextual footer**: 2–3 next steps per tool ("You've seen 412 species → which were you first to find?" / "Missing 31 orders → find one near you"). Cross-tool synergy and an engagement nudge in one component.
 - **`tokens.css` design system**: one green (resolve the blue-button contradiction), an elevation scale, a radius scale, 3–4 breakpoints. Fold index, lifelist, first-observer/identifier, and widget onto the shared stylesheet. Fix the failing contrast pairs while defining the tokens (conservation badges first).
