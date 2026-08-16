@@ -105,8 +105,10 @@ body.speciesdex-page input[type="text"],
 body.speciesdex-page .limit-select,
 body.speciesdex-page .language-select,
 body.speciesdex-page .date-input {
+  box-sizing: border-box;
+  height: 44px;
   border: 1.5px solid var(--dex-line);
-  border-radius: 10px;
+  border-radius: 8px;
   background-color: var(--dex-surface);
   color: var(--dex-ink);
   padding: 10px 14px;
@@ -137,8 +139,10 @@ body.speciesdex-page .date-input:focus {
 
 body.speciesdex-page #searchButton,
 body.speciesdex-page .search-button-advanced {
+  box-sizing: border-box;
+  height: 44px;
   background-color: var(--dex-green);
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 600;
   font-size: 0.95rem;
   padding: 10px 22px;
@@ -158,9 +162,11 @@ body.speciesdex-page .search-button-advanced:hover {
 }
 
 body.speciesdex-page #advancedOptionsButton {
+  box-sizing: border-box;
+  height: 44px;
   background-color: transparent;
   border: 1.5px solid var(--dex-line);
-  border-radius: 10px;
+  border-radius: 8px;
   color: var(--dex-muted);
   font-size: 0.95rem;
   padding: 9px 16px;
@@ -174,7 +180,7 @@ body.speciesdex-page #advancedOptionsButton:hover {
 }
 
 body.speciesdex-page .map-open-btn {
-  border-radius: 10px;
+  border-radius: 8px;
   transition: opacity 0.2s, transform 0.15s;
 }
 
@@ -189,7 +195,7 @@ body.speciesdex-page .username-autocomplete {
   background: var(--dex-surface);
   border: 1.5px solid var(--dex-line);
   border-top: none;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 8px 8px;
   box-shadow: var(--dex-shadow);
 }
 
@@ -719,7 +725,7 @@ body.speciesdex-page.dark-mode
 body.speciesdex-page .download-button {
   background-color: transparent;
   border: 1.5px solid var(--dex-line);
-  border-radius: 10px;
+  border-radius: 8px;
   color: var(--dex-muted);
   opacity: 1;
   transition: border-color 0.2s, color 0.2s, background-color 0.2s;
@@ -782,7 +788,7 @@ body.speciesdex-page .map-modal-header h3 {
 }
 
 body.speciesdex-page .map-apply-btn {
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--dex-green);
 }
 
@@ -791,7 +797,7 @@ body.speciesdex-page .map-apply-btn:hover {
 }
 
 body.speciesdex-page .map-cancel-btn {
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--dex-surface);
   border-color: var(--dex-line);
   color: var(--dex-muted);
