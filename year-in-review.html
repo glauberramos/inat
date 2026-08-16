@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
+    <title>Year in Review - iNaturalist Stats for Any Year, User or Project</title>
+    <link rel="icon" href="favicon.ico" />
+    <meta
+      name="description"
+      content="A live Year in Review for any iNaturalist user or project, for any year or all time. Observations, species, new-to-you finds, rarest find, and monthly rhythm - computed fresh from the API."
+    />
+    <meta name="robots" content="noindex" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="dark-mode.css?v=6" />
+    <style>
+      /* ==================================================================
+         Year in Review (draft) — "the almanac cover"
+         Family tokens shared with profile.css / speciesdex.css.
+         ================================================================== */
+      body.yir-page {
+        --yr-bg: #f3f5ec;
+        --yr-dot: rgba(28, 36, 21, 0.05);
+        --yr-surface: #ffffff;
+        --yr-surface-2: #fbfcf7;
+        --yr-ink: #1c2415;
+        --yr-muted: #66705c;
+        --yr-line: #dfe4d2;
+        --yr-green: #74ac00;
+        --yr-green-strong: #587f00;
+        --yr-green-tint: #eef4dc;
+        --yr-gold: #c9971c;
+        --yr-gold-tint: #faf3df;
+        --yr-shadow: 0 1px 2px rgba(28, 36, 21, 0.06),
+          0 10px 26px -14px rgba(28, 36, 21, 0.22);
+        background-color: var(--yr-bg);
+        background-image: radial-gradient(var(--yr-dot) 1px, transparent 1px);
+        background-size: 22px 22px;
+        color: var(--yr-ink);
+      }
+
+      html.dark-mode body.yir-page {
+        --yr-bg: #11150c;
+        --yr-dot: rgba(233, 237, 221, 0.045);
+        --yr-surface: #1a2113;
+        --yr-surface-2: #161c10;
+        --yr-ink: #e9eddd;
+        --yr-muted: #9aa48a;
+        --yr-line: #2b3520;
+        --yr-green: #8fc61e;
+        --yr-green-strong: #a5d63a;
+        --yr-green-tint: #232d15;
+        --yr-gold: #e0b23f;
+        --yr-gold-tint: #2a2411;
+        --yr-shadow: 0 1px 2px rgba(0, 0, 0, 0.4),
+          0 10px 26px -14px rgba(0, 0, 0, 0.6);
+      }
+
+      html.dark-mode body.yir-page .container {
+        background-color: transparent;
+      }
+
+      body.yir-page .container {
+        max-width: 980px;
+      }
+
+      body.yir-page h1 {
+        color: var(--yr-ink);
+        margin-bottom: 4px;
+      }
+
+      body.yir-page .subtitle {
+        color: var(--yr-muted);
+        margin-bottom: 24px;
+      }
+
+      /* ---- Search controls: 44px family, radius 8 ---- */
+      body.yir-page .yr-form {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 26px;
+      }
+
+      body.yir-page .yr-mode {
+        display: flex;
+        background: var(--yr-surface);
+        border: 1px solid var(--yr-line);
+        border-radius: 999px;
+        padding: 3px;
+      }
+
+      body.yir-page .yr-mode button {
+        box-sizing: border-box;
+        height: 36px;
+        background: transparent;
+        border: none;
+        border-radius: 999px;
+        color: var(--yr-muted);
+        font-size: 0.9rem;
+        padding: 0 16px;
+        width: auto;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
+      }
+
+      body.yir-page .yr-mode button.active {
+        background: var(--yr-green);
+        color: #fff;
+      }
+
+      html.dark-mode body.yir-page .yr-mode button {
+        background: transparent;
+      }
+
+      html.dark-mode body.yir-page .yr-mode button.active {
+        background: var(--yr-green);
+        color: #101505;
+      }
+
+      body.yir-page .yr-input-wrap {
+        position: relative;
+        width: 280px;
+      }
+
+      body.yir-page input[type="text"],
+      body.yir-page select {
+        box-sizing: border-box;
+        height: 44px;
+        border: 1.5px solid var(--yr-line);
+        border-radius: 8px;
+        background-color: var(--yr-surface);
+        color: var(--yr-ink);
+        padding: 10px 14px;
+        font-size: 0.95rem;
+        width: auto;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      body.yir-page .yr-input-wrap input {
+        width: 100%;
+      }
+
+      body.yir-page input[type="text"]:hover,
+      body.yir-page select:hover {
+        border-color: var(--yr-green);
+      }
+
+      body.yir-page input[type="text"]:focus,
+      body.yir-page select:focus {
+        outline: none;
+        border-color: var(--yr-green);
+        box-shadow: 0 0 0 3px
+          color-mix(in srgb, var(--yr-green) 25%, transparent);
+      }
+
+      body.yir-page #generateBtn {
+        box-sizing: border-box;
+        height: 44px;
+        background-color: var(--yr-green);
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 10px 22px;
+        width: auto;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      body.yir-page #generateBtn:hover:not(:disabled) {
+        background-color: var(--yr-green-strong);
+      }
+
+      body.yir-page #generateBtn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      html.dark-mode body.yir-page #generateBtn {
+        color: #101505;
+      }
+
+      /* Autocomplete dropdown */
+      body.yir-page .yr-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--yr-surface);
+        border: 1.5px solid var(--yr-line);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        box-shadow: var(--yr-shadow);
+        z-index: 200;
+        display: none;
+        max-height: 300px;
+        overflow-y: auto;
+        text-align: left;
+      }
+
+      body.yir-page .yr-suggestions.open {
+        display: block;
+      }
+
+      body.yir-page .yr-suggestion {
+        padding: 9px 13px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--yr-line);
+        font-size: 0.9rem;
+      }
+
+      body.yir-page .yr-suggestion:last-child {
+        border-bottom: none;
+      }
+
+      body.yir-page .yr-suggestion:hover,
+      body.yir-page .yr-suggestion.selected {
+        background: var(--yr-green-tint);
+      }
+
+      body.yir-page .yr-suggestion small {
+        color: var(--yr-muted);
+      }
+
+      /* ---- Status / notes ---- */
+      body.yir-page #yrStatus {
+        color: var(--yr-muted);
+        margin: 18px 0;
+        display: none;
+      }
+
+      body.yir-page .yr-note {
+        color: var(--yr-muted);
+        font-size: 0.8rem;
+        margin-top: 6px;
+      }
+
+      /* ---- Hero: the almanac cover ---- */
+      body.yir-page #yrResults {
+        display: none;
+        text-align: left;
+      }
+
+      body.yir-page .yr-hero {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--yr-line);
+        box-shadow: var(--yr-shadow);
+        margin-bottom: 22px;
+        background: var(--yr-surface);
+      }
+
+      body.yir-page .yr-mosaic {
+        display: grid;
+        grid-template-columns: repeat(14, 1fr);
+        gap: 2px;
+        min-height: 150px;
+      }
+
+      body.yir-page .yr-mosaic img {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        display: block;
+        border-radius: 0;
+      }
+
+      body.yir-page .yr-hero-band {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 6px 18px;
+        padding: 18px 24px;
+        border-top: 6px solid var(--yr-green);
+      }
+
+      body.yir-page .yr-hero-year {
+        font-size: 3.2rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        color: var(--yr-green);
+      }
+
+      body.yir-page .yr-hero-who {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--yr-ink);
+      }
+
+      body.yir-page .yr-hero-sub {
+        flex: 1;
+        text-align: right;
+        color: var(--yr-muted);
+        font-size: 0.85rem;
+        min-width: 140px;
+      }
+
+      body.yir-page #shareBtn {
+        background: transparent;
+        border: 1.5px solid var(--yr-line);
+        border-radius: 8px;
+        color: var(--yr-muted);
+        font-size: 0.85rem;
+        padding: 6px 14px;
+        width: auto;
+        cursor: pointer;
+        transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+      }
+
+      body.yir-page #shareBtn:hover {
+        background: var(--yr-green-tint);
+        border-color: var(--yr-green);
+        color: var(--yr-ink);
+      }
+
+      /* ---- Stat tiles ---- */
+      body.yir-page .yr-tiles {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+        margin-bottom: 22px;
+      }
+
+      body.yir-page .yr-tile {
+        background: var(--yr-surface);
+        border: 1px solid var(--yr-line);
+        border-radius: 12px;
+        box-shadow: var(--yr-shadow);
+        padding: 16px 12px;
+        text-align: center;
+      }
+
+      body.yir-page .yr-tile a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      body.yir-page .yr-tile-value {
+        font-size: 1.55rem;
+        font-weight: 700;
+        color: var(--yr-green);
+        line-height: 1.2;
+      }
+
+      body.yir-page .yr-tile-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--yr-muted);
+        margin-top: 4px;
+      }
+
+      body.yir-page .yr-tile-hint {
+        font-size: 0.72rem;
+        color: var(--yr-muted);
+        margin-top: 3px;
+      }
+
+      /* ---- Cards ---- */
+      body.yir-page .yr-card {
+        background: var(--yr-surface);
+        border: 1px solid var(--yr-line);
+        border-radius: 16px;
+        box-shadow: var(--yr-shadow);
+        padding: 20px 24px;
+        margin-bottom: 22px;
+      }
+
+      body.yir-page .yr-card h2 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--yr-ink);
+        margin: 0 0 4px;
+      }
+
+      body.yir-page .yr-card .yr-card-sub {
+        color: var(--yr-muted);
+        font-size: 0.8rem;
+        margin-bottom: 16px;
+      }
+
+      /* ---- Month rhythm chart ---- */
+      body.yir-page .yr-chart {
+        display: flex;
+        align-items: flex-end;
+        gap: 6px;
+        height: 160px;
+        margin-top: 8px;
+      }
+
+      body.yir-page .yr-chart-col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 4px;
+        min-width: 0;
+        height: 100%;
+      }
+
+      body.yir-page .yr-chart-bars {
+        position: relative;
+        width: 100%;
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+      }
+
+      body.yir-page .yr-bar {
+        width: 55%;
+        background: var(--yr-green);
+        border-radius: 4px 4px 0 0;
+        min-height: 2px;
+        position: relative;
+        z-index: 1;
+      }
+
+      body.yir-page .yr-bar.peak {
+        background: var(--yr-gold);
+      }
+
+      body.yir-page .yr-bar-ghost {
+        position: absolute;
+        bottom: 0;
+        width: 85%;
+        border: 1.5px dashed var(--yr-line);
+        border-bottom: none;
+        border-radius: 4px 4px 0 0;
+        background: transparent;
+      }
+
+      body.yir-page .yr-chart-label {
+        font-size: 0.68rem;
+        color: var(--yr-muted);
+        white-space: nowrap;
+      }
+
+      body.yir-page .yr-legend {
+        display: flex;
+        gap: 16px;
+        margin-top: 12px;
+        font-size: 0.75rem;
+        color: var(--yr-muted);
+        flex-wrap: wrap;
+      }
+
+      body.yir-page .yr-legend span::before {
+        content: "";
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        margin-right: 5px;
+        vertical-align: -1px;
+        background: var(--yr-green);
+      }
+
+      body.yir-page .yr-legend .lg-ghost::before {
+        background: transparent;
+        border: 1.5px dashed var(--yr-muted);
+      }
+
+      body.yir-page .yr-legend .lg-peak::before {
+        background: var(--yr-gold);
+      }
+
+      /* ---- Iconic taxa bars ---- */
+      body.yir-page .yr-taxa-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      body.yir-page .yr-taxa-name {
+        width: 130px;
+        flex-shrink: 0;
+        font-size: 0.85rem;
+        color: var(--yr-ink);
+        text-align: right;
+      }
+
+      body.yir-page .yr-taxa-track {
+        flex: 1;
+        height: 14px;
+        background: var(--yr-bg);
+        border: 1px solid var(--yr-line);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      body.yir-page .yr-taxa-fill {
+        height: 100%;
+        background: var(--yr-green);
+        border-radius: 999px;
+      }
+
+      body.yir-page .yr-taxa-count {
+        width: 90px;
+        flex-shrink: 0;
+        font-size: 0.78rem;
+        color: var(--yr-muted);
+      }
+
+      /* ---- Rarest find spotlight ---- */
+      body.yir-page .yr-rarest {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        border-color: var(--yr-gold);
+        background: linear-gradient(
+          0deg,
+          var(--yr-gold-tint),
+          var(--yr-surface) 75%
+        );
+      }
+
+      body.yir-page .yr-rarest img {
+        width: 110px;
+        height: 110px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 2px solid var(--yr-gold);
+        flex-shrink: 0;
+      }
+
+      body.yir-page .yr-rarest-eyebrow {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--yr-gold);
+        margin-bottom: 4px;
+      }
+
+      body.yir-page .yr-rarest-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--yr-ink);
+      }
+
+      body.yir-page .yr-rarest-name a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      body.yir-page .yr-rarest-name a:hover {
+        color: var(--yr-green-strong);
+      }
+
+      body.yir-page .yr-rarest-sci {
+        font-style: italic;
+        color: var(--yr-muted);
+        font-size: 0.9rem;
+      }
+
+      body.yir-page .yr-rarest-fact {
+        margin-top: 6px;
+        color: var(--yr-ink);
+        font-size: 0.9rem;
+      }
+
+      /* ---- Species grids ---- */
+      body.yir-page .yr-species-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+      }
+
+      body.yir-page .yr-sp {
+        background: var(--yr-surface-2);
+        border: 1px solid var(--yr-line);
+        border-radius: 10px;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      body.yir-page .yr-sp:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--yr-shadow);
+      }
+
+      body.yir-page .yr-sp img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        display: block;
+        border-radius: 0;
+      }
+
+      body.yir-page .yr-sp-body {
+        padding: 8px 10px 10px;
+      }
+
+      body.yir-page .yr-sp-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--yr-ink);
+        line-height: 1.25;
+      }
+
+      body.yir-page .yr-sp-meta {
+        font-size: 0.72rem;
+        color: var(--yr-muted);
+        margin-top: 2px;
+      }
+
+      /* ---- Observers (project mode) ---- */
+      body.yir-page .yr-observers {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      body.yir-page .yr-observer {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--yr-surface-2);
+        border: 1px solid var(--yr-line);
+        border-radius: 999px;
+        padding: 6px 14px 6px 6px;
+        text-decoration: none;
+        color: var(--yr-ink);
+        font-size: 0.85rem;
+      }
+
+      body.yir-page .yr-observer:hover {
+        border-color: var(--yr-green);
+        background: var(--yr-green-tint);
+      }
+
+      body.yir-page .yr-observer img {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      body.yir-page .yr-observer small {
+        color: var(--yr-muted);
+      }
+
+      body.yir-page .yr-footnote {
+        text-align: center;
+        color: var(--yr-muted);
+        font-size: 0.78rem;
+        margin: 8px 0 30px;
+      }
+
+      /* Back button (suite convention) */
+      .back-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: #2d2d2d;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.85rem;
+        z-index: 1000;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: background 0.2s;
+      }
+
+      .back-button:hover {
+        background: #3d3d3d;
+      }
+
+      @media (max-width: 640px) {
+        body.yir-page .yr-form {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        body.yir-page .yr-input-wrap,
+        body.yir-page select,
+        body.yir-page #generateBtn {
+          width: 100%;
+        }
+
+        body.yir-page .yr-mode {
+          align-self: center;
+        }
+
+        body.yir-page .yr-mosaic {
+          grid-template-columns: repeat(7, 1fr);
+        }
+
+        body.yir-page .yr-hero-year {
+          font-size: 2.3rem;
+        }
+
+        body.yir-page .yr-hero-sub {
+          text-align: left;
+        }
+
+        body.yir-page .yr-taxa-name {
+          width: 90px;
+          font-size: 0.75rem;
+        }
+
+        body.yir-page .yr-rarest {
+          flex-direction: column;
+          text-align: center;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        body.yir-page .yr-sp {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body class="yir-page">
+    <a href="index.html" class="back-button">
+      <span style="font-size: 1rem">←</span> More tools
+    </a>
+
+    <div class="container">
+      <header>
+        <h1>Year in Review</h1>
+        <p class="subtitle">
+          A live review for any user or project, any year or all time —
+          computed fresh from the iNaturalist API, never cached.
+        </p>
+      </header>
+
+      <div class="yr-form">
+        <div class="yr-mode" role="tablist" aria-label="Review subject">
+          <button type="button" id="modeUser" class="active">User</button>
+          <button type="button" id="modeProject">Project</button>
+        </div>
+        <div class="yr-input-wrap">
+          <input
+            type="text"
+            id="subjectInput"
+            placeholder="Enter iNaturalist username"
+            autocomplete="off"
+            data-1p-ignore
+          />
+          <div class="yr-suggestions" id="subjectSuggestions"></div>
+        </div>
+        <select id="yearSelect" title="Which period to review"></select>
+        <button type="button" id="generateBtn">Generate</button>
+      </div>
+
+      <div class="error" id="yrError"></div>
+      <div id="yrStatus"></div>
+
+      <div id="yrResults">
+        <div class="yr-hero">
+          <div class="yr-mosaic" id="yrMosaic"></div>
+          <div class="yr-hero-band">
+            <div class="yr-hero-year" id="yrHeroYear"></div>
+            <div class="yr-hero-who" id="yrHeroWho"></div>
+            <div class="yr-hero-sub">
+              <button type="button" id="shareBtn">Copy link</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="yr-tiles" id="yrTiles"></div>
+
+        <div class="yr-card">
+          <h2 id="rhythmTitle">The rhythm of the year</h2>
+          <div class="yr-card-sub" id="rhythmSub">
+            Verifiable observations per month, by date observed.
+          </div>
+          <div class="yr-chart" id="yrChart"></div>
+          <div class="yr-legend" id="yrLegend"></div>
+        </div>
+
+        <div class="yr-card" id="rarestCardWrap" style="display: none"></div>
+
+        <div class="yr-card" id="taxaCard" style="display: none">
+          <h2>Species by category</h2>
+          <div class="yr-card-sub" id="taxaSub"></div>
+          <div id="yrTaxaBars"></div>
+        </div>
+
+        <div class="yr-card" id="topSpeciesCard" style="display: none">
+          <h2>Most observed species</h2>
+          <div class="yr-card-sub" id="topSpeciesSub"></div>
+          <div class="yr-species-grid" id="yrTopSpecies"></div>
+        </div>
+
+        <div class="yr-card" id="newSpeciesCard" style="display: none">
+          <h2 id="newSpeciesTitle">New to you</h2>
+          <div class="yr-card-sub" id="newSpeciesSub"></div>
+          <div class="yr-species-grid" id="yrNewSpecies"></div>
+        </div>
+
+        <div class="yr-card" id="observersCard" style="display: none">
+          <h2>Top observers</h2>
+          <div class="yr-card-sub" id="observersSub"></div>
+          <div class="yr-observers" id="yrObservers"></div>
+        </div>
+
+        <div class="yr-footnote" id="yrFootnote"></div>
+      </div>
+    </div>
+
+    <script src="constants.js"></script>
+    <script src="shared-utils.js?v=2"></script>
+    <script>
+      const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const SPECIES_PAGE_CAP = 4; // 4 × 500 = up to 2000 species per list
+      const FIRST_INAT_YEAR = 2008;
+
+      let mode = 'user';
+      let selectedSubject = null; // {id, label, login/slug}
+      let suggestIndex = -1;
+      let suggestTimer = null;
+      let isRunning = false;
+
+      const subjectInput = document.getElementById('subjectInput');
+      const suggestionsEl = document.getElementById('subjectSuggestions');
+      const yearSelect = document.getElementById('yearSelect');
+      const generateBtn = document.getElementById('generateBtn');
+      const statusEl = document.getElementById('yrStatus');
+      const resultsEl = document.getElementById('yrResults');
+
+      // ---- Year options: current year down to 2008, plus All time ----
+      (function buildYears() {
+        const nowYear = new Date().getFullYear();
+        const opts = ['<option value="all">All time</option>'];
+        for (let y = nowYear; y >= FIRST_INAT_YEAR; y--) {
+          opts.push(`<option value="${y}"${y === nowYear ? ' selected' : ''}>${y}</option>`);
+        }
+        yearSelect.innerHTML = opts.join('');
+      })();
+
+      // ---- Mode toggle ----
+      function setMode(next) {
+        mode = next;
+        document.getElementById('modeUser').classList.toggle('active', mode === 'user');
+        document.getElementById('modeProject').classList.toggle('active', mode === 'project');
+        subjectInput.placeholder = mode === 'user' ? 'Enter iNaturalist username' : 'Enter project name';
+        selectedSubject = null;
+        closeSuggestions();
+      }
+      document.getElementById('modeUser').addEventListener('click', () => setMode('user'));
+      document.getElementById('modeProject').addEventListener('click', () => setMode('project'));
+
+      // ---- Autocomplete (keyboard-accessible) ----
+      function closeSuggestions() {
+        suggestionsEl.classList.remove('open');
+        suggestionsEl.innerHTML = '';
+        suggestIndex = -1;
+      }
+
+      async function fetchSuggestions(q) {
+        try {
+          const endpoint = mode === 'user' ? 'users' : 'projects';
+          const data = await fetchJSON(`${API_BASE}/${endpoint}/autocomplete?q=${encodeURIComponent(q)}`);
+          const results = (data.results || []).slice(0, 8);
+          if (!results.length) return closeSuggestions();
+          suggestionsEl.innerHTML = results.map((r, i) => {
+            const label = mode === 'user' ? r.login : r.title;
+            const sub = mode === 'user'
+              ? `${(r.observations_count || 0).toLocaleString()} obs`
+              : (r.slug || '');
+            return `<div class="yr-suggestion" data-i="${i}">${escapeHtml(label)} <small>· ${escapeHtml(String(sub))}</small></div>`;
+          }).join('');
+          suggestionsEl.classList.add('open');
+          suggestIndex = -1;
+          suggestionsEl.querySelectorAll('.yr-suggestion').forEach((el) => {
+            el.addEventListener('mousedown', (e) => {
+              e.preventDefault();
+              pickSuggestion(results[parseInt(el.dataset.i, 10)]);
+            });
+          });
+          suggestionsEl._results = results;
+        } catch (err) {
+          closeSuggestions();
+        }
+      }
+
+      function pickSuggestion(r) {
+        if (mode === 'user') {
+          selectedSubject = { id: r.id, label: r.login, login: r.login };
+          subjectInput.value = r.login;
+        } else {
+          selectedSubject = { id: r.id, label: r.title, slug: r.slug };
+          subjectInput.value = r.title;
+        }
+        closeSuggestions();
+      }
+
+      subjectInput.addEventListener('input', () => {
+        selectedSubject = null;
+        clearTimeout(suggestTimer);
+        const q = subjectInput.value.trim();
+        if (q.length < 2) return closeSuggestions();
+        suggestTimer = setTimeout(() => fetchSuggestions(q), 300);
+      });
+
+      subjectInput.addEventListener('keydown', (e) => {
+        const items = suggestionsEl.querySelectorAll('.yr-suggestion');
+        if (e.key === 'Enter') {
+          if (suggestIndex >= 0 && items[suggestIndex]) {
+            e.preventDefault();
+            pickSuggestion(suggestionsEl._results[suggestIndex]);
+          } else {
+            closeSuggestions();
+            generate();
+          }
+          return;
+        }
+        if (!items.length) return;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          suggestIndex = e.key === 'ArrowDown'
+            ? (suggestIndex + 1) % items.length
+            : (suggestIndex - 1 + items.length) % items.length;
+          items.forEach((el, i) => el.classList.toggle('selected', i === suggestIndex));
+        } else if (e.key === 'Escape') {
+          closeSuggestions();
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.yr-input-wrap')) closeSuggestions();
+      });
+
+      // ---- Subject resolution (exact-match first, suite convention) ----
+      async function resolveSubject(query) {
+        if (selectedSubject) return selectedSubject;
+        const endpoint = mode === 'user' ? 'users' : 'projects';
+        const data = await fetchJSON(`${API_BASE}/${endpoint}/autocomplete?q=${encodeURIComponent(query)}`);
+        const results = data.results || [];
+        if (!results.length) return null;
+        if (mode === 'user') {
+          const u = results.find((r) => r.login.toLowerCase() === query.toLowerCase()) || results[0];
+          return { id: u.id, label: u.login, login: u.login };
+        }
+        const p = results.find((r) => r.title.toLowerCase() === query.toLowerCase() || r.slug === query) || results[0];
+        return { id: p.id, label: p.title, slug: p.slug };
+      }
+
+      // ---- Generate ----
+      function setStatus(msg) {
+        statusEl.style.display = msg ? 'block' : 'none';
+        statusEl.textContent = msg || '';
+      }
+
+      generateBtn.addEventListener('click', generate);
+
+      async function generate() {
+        if (isRunning) return;
+        const query = subjectInput.value.trim();
+        hideError('yrError');
+        if (!query) {
+          showError('yrError', mode === 'user' ? 'Enter a username to review.' : 'Enter a project to review.');
+          return;
+        }
+
+        isRunning = true;
+        generateBtn.disabled = true;
+        resultsEl.style.display = 'none';
+
+        try {
+          setStatus('Looking up ' + (mode === 'user' ? 'user' : 'project') + '...');
+          const subject = await resolveSubject(query);
+          if (!subject) {
+            showError('yrError', (mode === 'user' ? 'User' : 'Project') + ' not found.');
+            return;
+          }
+
+          const yearVal = yearSelect.value;
+          const isAllTime = yearVal === 'all';
+          const year = isAllTime ? null : parseInt(yearVal, 10);
+          const today = new Date();
+          const d1 = isAllTime ? `${FIRST_INAT_YEAR}-01-01` : `${year}-01-01`;
+          const d2 = isAllTime || year === today.getFullYear()
+            ? formatDateParam(today)
+            : `${year}-12-31`;
+          const subjParam = mode === 'user' ? `user_id=${subject.id}` : `project_id=${subject.id}`;
+          const base = `${API_BASE}/observations`;
+
+          if (mode === 'user') {
+            localStorage.setItem('inatUsername', subject.login);
+          }
+          updateUrl(subject, yearVal);
+
+          // 1. Total verifiable observations in range
+          setStatus('Counting observations...');
+          const obsData = await fetchJSON(`${base}?${subjParam}&verifiable=true&d1=${d1}&d2=${d2}&per_page=0`);
+          const totalObs = obsData.total_results || 0;
+          if (totalObs === 0) {
+            showError('yrError', 'No verifiable observations found for this period.');
+            return;
+          }
+          await sleep(400);
+
+          // 2. Daily histogram — feeds the chart, best day, and days active
+          setStatus('Charting the year...');
+          const hist = await fetchJSON(`${base}/histogram?${subjParam}&verifiable=true&d1=${d1}&d2=${d2}&date_field=observed&interval=day`);
+          const dayData = hist.results?.day || {};
+          await sleep(400);
+
+          // 3. Previous-year daily histogram (single-year mode) for the ghost bars
+          let prevDayData = null;
+          if (!isAllTime && year > FIRST_INAT_YEAR) {
+            setStatus('Fetching last year for comparison...');
+            const prevHist = await fetchJSON(`${base}/histogram?${subjParam}&verifiable=true&d1=${year - 1}-01-01&d2=${year - 1}-12-31&date_field=observed&interval=day`);
+            prevDayData = prevHist.results?.day || {};
+            await sleep(400);
+          }
+
+          // 4. Species in range (capped, loudly)
+          setStatus('Listing species...');
+          const speciesInfo = await fetchSpeciesPages(`${base}/species_counts?${subjParam}&verifiable=true&d1=${d1}&d2=${d2}&per_page=500`);
+
+          // 5. Species before the range → "new to you" (single-year mode)
+          let newSpecies = null;
+          let beforeTruncated = false;
+          if (!isAllTime && year > FIRST_INAT_YEAR) {
+            setStatus('Finding first-time species...');
+            const before = await fetchSpeciesPages(`${base}/species_counts?${subjParam}&verifiable=true&d2=${year - 1}-12-31&per_page=500`);
+            const beforeIds = new Set(before.list.map((s) => s.taxon.id));
+            beforeTruncated = before.truncated;
+            newSpecies = speciesInfo.list.filter((s) => !beforeIds.has(s.taxon.id));
+          }
+
+          // 6. Mode-specific extras
+          let idsForOthers = null;
+          let observers = null;
+          if (mode === 'user') {
+            setStatus('Counting identifications...');
+            try {
+              const idData = await fetchJSON(`${API_BASE}/identifications?user_id=${subject.id}&current=true&own_observation=false&d1=${d1}&d2=${d2}&per_page=0`);
+              idsForOthers = idData.total_results || 0;
+            } catch (err) {
+              idsForOthers = null; // non-essential; skip quietly but don't show a wrong number
+            }
+          } else {
+            setStatus('Counting observers...');
+            const obsvData = await fetchJSON(`${base}/observers?${subjParam}&d1=${d1}&d2=${d2}&per_page=5`);
+            observers = {
+              total: obsvData.total_results || 0,
+              top: obsvData.results || [],
+            };
+          }
+
+          render({
+            subject, mode, year, isAllTime, d1, d2,
+            totalObs, dayData, prevDayData,
+            species: speciesInfo, newSpecies, beforeTruncated,
+            idsForOthers, observers,
+          });
+        } catch (error) {
+          console.error('Year in Review error:', error);
+          showError('yrError', 'Something went wrong (' + error.message + '). The API may be rate-limiting — wait a minute and try again.');
+        } finally {
+          setStatus('');
+          isRunning = false;
+          generateBtn.disabled = false;
+        }
+      }
+
+      async function fetchSpeciesPages(baseUrl) {
+        let list = [];
+        let total = 0;
+        for (let page = 1; page <= SPECIES_PAGE_CAP; page++) {
+          const data = await fetchJSON(`${baseUrl}&page=${page}`);
+          total = data.total_results || 0;
+          list = list.concat(data.results || []);
+          await sleep(350);
+          if (list.length >= total) break;
+        }
+        return { list, total, truncated: total > list.length };
+      }
+
+      function updateUrl(subject, yearVal) {
+        const params = new URLSearchParams();
+        if (mode === 'user') params.set('user', subject.login);
+        else params.set('project', subject.slug || subject.id);
+        params.set('year', yearVal);
+        history.replaceState({}, '', `${location.pathname}?${params}`);
+      }
+
+      // ---- Render ----
+      function render(r) {
+        const periodLabel = r.isAllTime ? 'All time' : String(r.year);
+
+        // Hero
+        document.getElementById('yrHeroYear').textContent = periodLabel;
+        document.getElementById('yrHeroWho').textContent = r.subject.label;
+        const mosaicPhotos = r.species.list
+          .filter((s) => s.taxon.default_photo?.square_url)
+          .slice(0, 28);
+        document.getElementById('yrMosaic').innerHTML = mosaicPhotos
+          .map((s) => `<img src="${escapeHtml(s.taxon.default_photo.square_url)}" alt="" loading="lazy" />`)
+          .join('');
+
+        // Day-derived stats
+        const days = Object.entries(r.dayData).filter(([, c]) => c > 0);
+        const daysActive = days.length;
+        let bestDay = null;
+        for (const [date, count] of days) {
+          if (!bestDay || count > bestDay.count) bestDay = { date, count };
+        }
+
+        // Tiles — every number says what it counts
+        const tiles = [];
+        tiles.push(tile(r.totalObs, 'Observations', 'verifiable, by date observed'));
+        tiles.push(tile(r.species.total, 'Species', 'distinct taxa observed'));
+        if (r.newSpecies) {
+          tiles.push(tile(r.newSpecies.length + (r.species.truncated || r.beforeTruncated ? '+' : ''), 'New species', 'first time ever for ' + (r.mode === 'user' ? 'you' : 'this project')));
+        }
+        if (bestDay) {
+          const link = bestDayLink(r, bestDay.date);
+          tiles.push(tile(bestDay.count, 'Best day', formatDay(bestDay.date), link));
+        }
+        tiles.push(tile(daysActive, r.isAllTime ? 'Days observing' : 'Days observing', 'days with at least one observation'));
+        if (r.mode === 'user' && r.idsForOthers !== null) {
+          tiles.push(tile(r.idsForOthers, 'IDs for others', 'identifications on other people’s observations'));
+        }
+        if (r.mode === 'project' && r.observers) {
+          tiles.push(tile(r.observers.total, 'Observers', 'people who contributed'));
+        }
+        document.getElementById('yrTiles').innerHTML = tiles.join('');
+
+        renderChart(r);
+        renderRarest(r);
+        renderTaxa(r);
+        renderTopSpecies(r);
+        renderNewSpecies(r);
+        renderObservers(r);
+
+        document.getElementById('yrFootnote').textContent =
+          'Computed live from the iNaturalist API just now — nothing cached, nothing to regenerate. Counts use verifiable observations by date observed.';
+
+        resultsEl.style.display = 'block';
+      }
+
+      function tile(value, label, hint, link) {
+        const v = typeof value === 'number' ? value.toLocaleString() : value;
+        const inner = `
+          <div class="yr-tile-value">${v}</div>
+          <div class="yr-tile-label">${label}</div>
+          ${hint ? `<div class="yr-tile-hint">${hint}</div>` : ''}
+        `;
+        return `<div class="yr-tile">${link ? `<a href="${escapeHtml(link)}" target="_blank">${inner}</a>` : inner}</div>`;
+      }
+
+      function bestDayLink(r, date) {
+        const subj = r.mode === 'user' ? `user_id=${r.subject.id}` : `project_id=${r.subject.id}`;
+        return `https://www.inaturalist.org/observations?${subj}&on=${date}`;
+      }
+
+      function formatDay(dateStr) {
+        const [y, m, d] = dateStr.split('-').map(Number);
+        return `${MONTHS[m - 1]} ${d}, ${y}`;
+      }
+
+      function renderChart(r) {
+        const chart = document.getElementById('yrChart');
+        const legend = document.getElementById('yrLegend');
+
+        let buckets, prevBuckets = null, labels;
+        if (r.isAllTime) {
+          const byYear = {};
+          for (const [date, count] of Object.entries(r.dayData)) {
+            const y = date.slice(0, 4);
+            byYear[y] = (byYear[y] || 0) + count;
+          }
+          labels = Object.keys(byYear).sort();
+          buckets = labels.map((y) => byYear[y]);
+          document.getElementById('rhythmTitle').textContent = 'Observations per year';
+          document.getElementById('rhythmSub').textContent = 'Verifiable observations, by date observed.';
+        } else {
+          buckets = new Array(12).fill(0);
+          for (const [date, count] of Object.entries(r.dayData)) {
+            buckets[parseInt(date.slice(5, 7), 10) - 1] += count;
+          }
+          if (r.prevDayData) {
+            prevBuckets = new Array(12).fill(0);
+            for (const [date, count] of Object.entries(r.prevDayData)) {
+              prevBuckets[parseInt(date.slice(5, 7), 10) - 1] += count;
+            }
+          }
+          labels = MONTHS;
+          document.getElementById('rhythmTitle').textContent = 'The rhythm of the year';
+          document.getElementById('rhythmSub').textContent = 'Verifiable observations per month, by date observed.';
+        }
+
+        const max = Math.max(1, ...buckets, ...(prevBuckets || []));
+        const peak = buckets.indexOf(Math.max(...buckets));
+
+        chart.innerHTML = buckets.map((count, i) => {
+          const h = Math.round((count / max) * 100);
+          const ghost = prevBuckets
+            ? `<div class="yr-bar-ghost" style="height: ${Math.round((prevBuckets[i] / max) * 100)}%" title="${labels[i]} ${r.year - 1}: ${prevBuckets[i].toLocaleString()} observations"></div>`
+            : '';
+          return `
+            <div class="yr-chart-col">
+              <div class="yr-chart-bars" title="${labels[i]}${r.isAllTime ? '' : ' ' + r.year}: ${count.toLocaleString()} observations">
+                ${ghost}
+                <div class="yr-bar${i === peak && count > 0 ? ' peak' : ''}" style="height: ${h}%"></div>
+              </div>
+              <div class="yr-chart-label">${labels[i]}</div>
+            </div>
+          `;
+        }).join('');
+
+        legend.innerHTML = [
+          `<span>${r.isAllTime ? 'Observations that year' : 'Observations that month'}</span>`,
+          `<span class="lg-peak">Busiest ${r.isAllTime ? 'year' : 'month'}</span>`,
+          prevBuckets ? `<span class="lg-ghost">${r.year - 1}, same month</span>` : '',
+        ].join('');
+      }
+
+      function renderRarest(r) {
+        const wrap = document.getElementById('rarestCardWrap');
+        const candidates = r.species.list.filter((s) => (s.taxon.observations_count || 0) > 0 && s.taxon.rank === 'species');
+        if (!candidates.length) {
+          wrap.style.display = 'none';
+          return;
+        }
+        const rare = candidates.reduce((a, b) => (a.taxon.observations_count <= b.taxon.observations_count ? a : b));
+        const t = rare.taxon;
+        const photo = t.default_photo?.medium_url;
+        wrap.className = 'yr-card yr-rarest';
+        wrap.style.display = 'flex';
+        const obsCount = t.observations_count;
+        wrap.innerHTML = `
+          ${photo ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(t.name)}" loading="lazy" />` : ''}
+          <div>
+            <div class="yr-rarest-eyebrow">Rarest find</div>
+            <div class="yr-rarest-name"><a href="https://www.inaturalist.org/taxa/${t.id}" target="_blank">${escapeHtml(t.preferred_common_name || t.name)}</a></div>
+            ${t.preferred_common_name ? `<div class="yr-rarest-sci">${escapeHtml(t.name)}</div>` : ''}
+            <div class="yr-rarest-fact">Only ${obsCount.toLocaleString()} observation${obsCount !== 1 ? 's' : ''} worldwide on iNaturalist — the least-observed species ${r.isAllTime ? 'in this list' : 'of the year'}.</div>
+          </div>
+        `;
+      }
+
+      function renderTaxa(r) {
+        const card = document.getElementById('taxaCard');
+        const counts = {};
+        for (const s of r.species.list) {
+          const name = s.taxon.iconic_taxon_name || 'Other';
+          counts[name] = (counts[name] || 0) + 1;
+        }
+        const rows = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        if (!rows.length) {
+          card.style.display = 'none';
+          return;
+        }
+        const max = rows[0][1];
+        const NICE = {
+          Plantae: 'Plants', Insecta: 'Insects', Aves: 'Birds', Fungi: 'Fungi',
+          Mammalia: 'Mammals', Reptilia: 'Reptiles', Amphibia: 'Amphibians',
+          Actinopterygii: 'Fish', Mollusca: 'Mollusks', Arachnida: 'Arachnids',
+          Animalia: 'Other animals', Protozoa: 'Protozoa', Chromista: 'Chromista', Other: 'Other',
+        };
+        document.getElementById('taxaSub').textContent =
+          `How the ${r.species.list.length.toLocaleString()} species${r.species.truncated ? ' fetched (of ' + r.species.total.toLocaleString() + ')' : ''} split across groups. Counts are species, not observations.`;
+        document.getElementById('yrTaxaBars').innerHTML = rows.map(([name, count]) => `
+          <div class="yr-taxa-row">
+            <div class="yr-taxa-name">${escapeHtml(NICE[name] || name)}</div>
+            <div class="yr-taxa-track"><div class="yr-taxa-fill" style="width: ${Math.max(2, Math.round((count / max) * 100))}%"></div></div>
+            <div class="yr-taxa-count">${count.toLocaleString()} species</div>
+          </div>
+        `).join('');
+        card.style.display = 'block';
+      }
+
+      function speciesCard(s, metaText) {
+        const t = s.taxon;
+        const photo = t.default_photo?.medium_url;
+        return `
+          <a class="yr-sp" href="https://www.inaturalist.org/taxa/${t.id}" target="_blank">
+            ${photo ? `<img src="${escapeHtml(photo)}" alt="" loading="lazy" />` : ''}
+            <div class="yr-sp-body">
+              <div class="yr-sp-name">${escapeHtml(t.preferred_common_name || t.name)}</div>
+              <div class="yr-sp-meta">${metaText}</div>
+            </div>
+          </a>
+        `;
+      }
+
+      function renderTopSpecies(r) {
+        const card = document.getElementById('topSpeciesCard');
+        const top = r.species.list.slice(0, 8);
+        if (!top.length) {
+          card.style.display = 'none';
+          return;
+        }
+        document.getElementById('topSpeciesSub').textContent =
+          r.isAllTime ? 'Your most observed species of all time.' : 'The species observed most often this year.';
+        document.getElementById('yrTopSpecies').innerHTML =
+          top.map((s) => speciesCard(s, `${s.count.toLocaleString()} observation${s.count !== 1 ? 's' : ''}`)).join('');
+        card.style.display = 'block';
+      }
+
+      function renderNewSpecies(r) {
+        const card = document.getElementById('newSpeciesCard');
+        if (!r.newSpecies || !r.newSpecies.length) {
+          card.style.display = 'none';
+          return;
+        }
+        const shown = r.newSpecies.slice(0, 12);
+        document.getElementById('newSpeciesTitle').textContent =
+          r.mode === 'user' ? 'New to you' : 'New to the project';
+        let sub = `${r.newSpecies.length.toLocaleString()} species observed for the first time in ${r.year}. Showing the ${shown.length} most observed.`;
+        if (r.species.truncated || r.beforeTruncated) {
+          sub += ` Based on the first ${(SPECIES_PAGE_CAP * 500).toLocaleString()} species per list — large accounts may show approximate results.`;
+        }
+        document.getElementById('newSpeciesSub').textContent = sub;
+        document.getElementById('yrNewSpecies').innerHTML =
+          shown.map((s) => speciesCard(s, `${s.count.toLocaleString()} obs in ${r.year}`)).join('');
+        card.style.display = 'block';
+      }
+
+      function renderObservers(r) {
+        const card = document.getElementById('observersCard');
+        if (r.mode !== 'project' || !r.observers || !r.observers.top.length) {
+          card.style.display = 'none';
+          return;
+        }
+        document.getElementById('observersSub').textContent =
+          `${r.observers.total.toLocaleString()} people contributed observations in this period.`;
+        document.getElementById('yrObservers').innerHTML = r.observers.top.map((o) => `
+          <a class="yr-observer" href="https://www.inaturalist.org/people/${escapeHtml(o.user.login)}" target="_blank">
+            ${o.user.icon_url ? `<img src="${escapeHtml(o.user.icon_url)}" alt="" />` : ''}
+            ${escapeHtml(o.user.login)}
+            <small>${(o.observation_count || 0).toLocaleString()} obs</small>
+          </a>
+        `).join('');
+        card.style.display = 'block';
+      }
+
+      // ---- Share ----
+      document.getElementById('shareBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('shareBtn');
+        try {
+          if (navigator.share) {
+            await navigator.share({ title: document.title, url: location.href });
+          } else {
+            await navigator.clipboard.writeText(location.href);
+            btn.textContent = 'Link copied';
+            setTimeout(() => { btn.textContent = 'Copy link'; }, 2000);
+          }
+        } catch (err) {
+          /* user cancelled the share sheet */
+        }
+      });
+
+      // ---- Deep-link prefill (never auto-runs) ----
+      (function prefill() {
+        const params = new URLSearchParams(location.search);
+        const user = params.get('user');
+        const project = params.get('project');
+        const year = params.get('year');
+        if (project) {
+          setMode('project');
+          subjectInput.value = project;
+        } else if (user) {
+          subjectInput.value = user;
+        } else {
+          const saved = localStorage.getItem('inatUsername');
+          if (saved) subjectInput.value = saved;
+        }
+        if (year && (year === 'all' || /^\d{4}$/.test(year))) {
+          yearSelect.value = year;
+          if (!yearSelect.value) yearSelect.value = String(new Date().getFullYear());
+        }
+      })();
+    </script>
+    <script src="dark-mode.js?v=2"></script>
+  </body>
+</html>
