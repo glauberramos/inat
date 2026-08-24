@@ -303,6 +303,187 @@
         display: none !important;
       }
 
+      /* Newsletter signup (Kit form, styled to match the site) */
+      .newsletter-section {
+        max-width: 560px;
+        margin: 50px auto 20px;
+      }
+
+      .newsletter-section .formkit-form {
+        background: white;
+        border: 1px solid #e8e8e8;
+        border-left: 3px solid #74ac00;
+        border-radius: 12px;
+        padding: 24px 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      .newsletter-section .formkit-header h2 {
+        font-size: 1.3rem;
+        color: #2c3e50;
+        margin: 0 0 6px;
+        text-align: center;
+      }
+
+      .newsletter-section .formkit-subheader {
+        color: #666;
+        font-size: 0.95rem;
+        text-align: center;
+        margin-bottom: 16px;
+      }
+
+      .newsletter-section .formkit-fields {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .newsletter-section .formkit-field {
+        flex: 1 1 220px;
+        margin: 0;
+      }
+
+      .newsletter-section .formkit-input {
+        width: 100%;
+        padding: 12px;
+        font-size: 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background: white;
+        color: #333;
+      }
+
+      .newsletter-section .formkit-input:focus {
+        outline: none;
+        border-color: #74ac00;
+      }
+
+      .newsletter-section .formkit-submit {
+        flex: 0 0 auto;
+        padding: 12px 24px;
+        font-size: 15px;
+        font-weight: 500;
+        background: #74ac00;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .newsletter-section .formkit-submit:hover {
+        background: #5d8a00;
+      }
+
+      .newsletter-section .formkit-spinner {
+        display: flex;
+        height: 0;
+        width: 0;
+        margin: 0 auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        overflow: hidden;
+        text-align: center;
+        transition: all 300ms ease-in-out;
+      }
+
+      .newsletter-section .formkit-spinner > div {
+        margin: auto;
+        width: 10px;
+        height: 10px;
+        background-color: #fff;
+        opacity: 0.3;
+        border-radius: 100%;
+        display: inline-block;
+        animation: newsletter-bounce 1.4s infinite ease-in-out both;
+      }
+
+      .newsletter-section .formkit-spinner > div:nth-child(1) {
+        animation-delay: -0.32s;
+      }
+
+      .newsletter-section .formkit-spinner > div:nth-child(2) {
+        animation-delay: -0.16s;
+      }
+
+      .newsletter-section .formkit-submit[data-active] .formkit-spinner {
+        opacity: 1;
+        height: 100%;
+        width: 50px;
+      }
+
+      .newsletter-section .formkit-submit[data-active] .formkit-spinner ~ span {
+        opacity: 0;
+      }
+
+      @keyframes newsletter-bounce {
+        0%, 80%, 100% {
+          transform: scale(0);
+        }
+        40% {
+          transform: scale(1);
+        }
+      }
+
+      .newsletter-section .formkit-alert {
+        list-style: none;
+        border-radius: 8px;
+        margin: 0 0 15px;
+        padding: 12px;
+        text-align: center;
+      }
+
+      .newsletter-section .formkit-alert:empty {
+        display: none;
+      }
+
+      .newsletter-section .formkit-alert-error {
+        background: #fde8e2;
+        border: 1px solid #f2643b;
+        color: #ea4110;
+      }
+
+      .newsletter-section .formkit-alert-success {
+        background: #f1f8e9;
+        border: 1px solid #c5e1a5;
+        color: #33691e;
+      }
+
+      .newsletter-section .formkit-guarantee {
+        color: #999;
+        font-size: 13px;
+        text-align: center;
+        margin-top: 12px;
+      }
+
+      html.dark-mode .newsletter-section .formkit-form {
+        background: #2d2d2d;
+        border-color: #3d3d3d;
+        border-left-color: #74ac00;
+      }
+
+      html.dark-mode .newsletter-section .formkit-header h2 {
+        color: #e0e0e0;
+      }
+
+      html.dark-mode .newsletter-section .formkit-subheader {
+        color: #999;
+      }
+
+      html.dark-mode .newsletter-section .formkit-input {
+        background: #1f1f1f;
+        border-color: #3d3d3d;
+        color: #e0e0e0;
+      }
+
+      html.dark-mode .newsletter-section .formkit-alert-success {
+        background: #26331f;
+        border-color: #4a5d3a;
+        color: #c5e1a5;
+      }
+
       /* Custom feedback button */
       .feedback-button {
         position: fixed;
@@ -490,6 +671,49 @@
           </a>
         </div>
       </main>
+
+      <section class="newsletter-section" aria-label="Newsletter signup">
+        <script src="https://f.convertkit.com/ckjs/ck.5.js"></script>
+        <form
+          action="https://app.kit.com/forms/9840690/subscriptions"
+          class="seva-form formkit-form"
+          method="post"
+          data-sv-form="9840690"
+          data-uid="9c68a99875"
+          data-format="inline"
+          data-version="5"
+          data-options="{&quot;settings&quot;:{&quot;after_subscribe&quot;:{&quot;action&quot;:&quot;message&quot;,&quot;success_message&quot;:&quot;Success! Now check your email to confirm your subscription.&quot;,&quot;redirect_url&quot;:&quot;&quot;},&quot;analytics&quot;:{&quot;google&quot;:null,&quot;fathom&quot;:null,&quot;facebook&quot;:null,&quot;segment&quot;:null,&quot;pinterest&quot;:null,&quot;sparkloop&quot;:null,&quot;googletagmanager&quot;:null},&quot;modal&quot;:{&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15},&quot;powered_by&quot;:{&quot;show&quot;:true,&quot;url&quot;:&quot;https://kit.com/features/forms?utm_campaign=poweredby&amp;utm_content=form&amp;utm_medium=referral&amp;utm_source=dynamic&quot;},&quot;recaptcha&quot;:{&quot;enabled&quot;:false},&quot;return_visitor&quot;:{&quot;action&quot;:&quot;show&quot;,&quot;custom_content&quot;:&quot;&quot;},&quot;slide_in&quot;:{&quot;display_in&quot;:&quot;bottom_right&quot;,&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15},&quot;sticky_bar&quot;:{&quot;display_in&quot;:&quot;top&quot;,&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15}},&quot;version&quot;:&quot;5&quot;}"
+        >
+          <div data-style="minimal">
+            <div class="formkit-header" data-element="header">
+              <h2>Join the Newsletter</h2>
+            </div>
+            <div class="formkit-subheader" data-element="subheader">
+              Get an email when a new tool or feature is released.
+            </div>
+            <ul class="formkit-alert formkit-alert-error" data-element="errors" data-group="alert"></ul>
+            <div data-element="fields" data-stacked="false" class="seva-fields formkit-fields">
+              <div class="formkit-field">
+                <input
+                  class="formkit-input"
+                  name="email_address"
+                  aria-label="Email Address"
+                  placeholder="Email Address"
+                  required=""
+                  type="email"
+                />
+              </div>
+              <button data-element="submit" class="formkit-submit">
+                <div class="formkit-spinner"><div></div><div></div><div></div></div>
+                <span>Subscribe</span>
+              </button>
+            </div>
+            <div class="formkit-guarantee" data-element="guarantee">
+              We won't send you spam. Unsubscribe at any time.
+            </div>
+          </div>
+        </form>
+      </section>
 
     </div>
     <button class="feedback-button" id="feedbackBtn">Send feedback</button>
