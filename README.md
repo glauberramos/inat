@@ -27,6 +27,7 @@ A suite of companion tools for [iNaturalist](https://www.inaturalist.org) — ex
 - **Location Species Compare** — compare species between two places
 - **Users Species Compare** — compare species between two users
 - **Project Search** — find iNaturalist projects by name and location
+- **iNaturalist Observers** — top observers in any place or project, ranked by observations or species, with your own position highlighted
 
 ### Create & embed
 
