@@ -797,7 +797,7 @@
           }
           <div class="user-info">
             <div class="user-name">
-              <a href="https://www.inaturalist.org/observations?user_id=${encodeURIComponent(login)}&verifiable=true${buildScopeParams()}${metric === "species_count" ? "&view=species" : ""}" target="_blank" rel="noopener">${escapeHtml(displayName)}</a>
+              <a href="https://www.inaturalist.org/people/${encodeURIComponent(login)}" target="_blank" rel="noopener">${escapeHtml(displayName)}</a>
               ${isSearchedUser ? " ⭐" : ""}
             </div>
             <div class="user-login">@${escapeHtml(login)}</div>
