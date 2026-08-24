@@ -49,3 +49,5 @@ No server or build required. Clone the repo and open `index.html` in your browse
 
 - [Assessment & roadmap (Aug 2026)](docs/assessment-and-roadmap-2026-08.md) — where the suite stands and where it's headed
 - [SEO research (Aug 2026)](docs/seo-research-2026-08.md) — which pages to optimize, which to create, ranked by demand and beatability
+- [Third-party iNaturalist tools](docs/third-party-tools.md) — survey of what the community has already built, and how our tools compare
+- [Ideas backlog](docs/ideas.md) — parked ideas for new tools and improvements
