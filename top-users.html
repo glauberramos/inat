@@ -10,38 +10,38 @@
         document.documentElement.classList.add("dark-mode");
       }
     </script>
-    <title>iNaturalist Observers - Top Observers by Place or Project</title>
+    <title>iNaturalist Top Users - Top Observers and Identifiers by Place or Project</title>
     <link rel="icon" href="favicon.ico" />
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#74ac00" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="apple-touch-icon" href="logo.png" />
-    <link rel="canonical" href="https://glauberramos.github.io/inat/observers" />
+    <link rel="canonical" href="https://glauberramos.github.io/inat/top-users" />
     <meta
       name="description"
-      content="See the top iNaturalist observers in any place or project, ranked by observations or species, and find out where you stand."
+      content="See the top iNaturalist observers and identifiers in any place or project, ranked by observations, species, or identifications, and find out where you stand."
     />
-    <meta property="og:title" content="iNaturalist Observers - Top Observers by Place or Project" />
-    <meta property="og:description" content="See the top iNaturalist observers in any place or project, ranked by observations or species, and find your position." />
+    <meta property="og:title" content="iNaturalist Top Users - Top Observers and Identifiers" />
+    <meta property="og:description" content="See the top iNaturalist observers and identifiers in any place or project, and find your position." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://glauberramos.github.io/inat/observers" />
+    <meta property="og:url" content="https://glauberramos.github.io/inat/top-users" />
     <meta property="og:site_name" content="iNaturalist Tools" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:image" content="https://glauberramos.github.io/inat/logo.png" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:image" content="https://glauberramos.github.io/inat/logo.png" />
-    <meta name="twitter:title" content="iNaturalist Observers" />
-    <meta name="twitter:description" content="See the top iNaturalist observers in any place or project and find your position." />
+    <meta name="twitter:title" content="iNaturalist Top Users" />
+    <meta name="twitter:description" content="See the top iNaturalist observers and identifiers in any place or project and find your position." />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="Glauber Ramos" />
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "iNaturalist Observers",
-      "description": "See the top iNaturalist observers in any place or project, ranked by observations or species, and find out where you stand.",
-      "url": "https://glauberramos.github.io/inat/observers",
+      "name": "iNaturalist Top Users",
+      "description": "See the top iNaturalist observers and identifiers in any place or project, ranked by observations, species, or identifications, and find out where you stand.",
+      "url": "https://glauberramos.github.io/inat/top-users",
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Web",
       "author": {
@@ -56,7 +56,7 @@
       "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "iNaturalist Tools", "item": "https://glauberramos.github.io/inat/" },
-        { "@type": "ListItem", "position": 2, "name": "iNaturalist Observers", "item": "https://glauberramos.github.io/inat/observers" }
+        { "@type": "ListItem", "position": 2, "name": "iNaturalist Top Users", "item": "https://glauberramos.github.io/inat/top-users" }
       ]
     }
     </script>
@@ -456,10 +456,10 @@
       <span style="font-size: 1rem">←</span> More tools
     </a>
 
-    <h1>iNaturalist Observers</h1>
+    <h1>iNaturalist Top Users</h1>
     <p class="subtitle">
-      See the top observers in any place or project, ranked by observations or
-      species — and find out where you stand.
+      See the top observers or identifiers in any place or project, ranked by
+      observations, species, or identifications — and find out where you stand.
     </p>
 
     <div class="search-container">
@@ -499,6 +499,10 @@
         />
         <div class="autocomplete" id="taxonAutocomplete"></div>
       </div>
+      <select id="modeSelect" class="metric-select" title="Rank observers or identifiers">
+        <option value="observers" selected>Observers</option>
+        <option value="identifiers">Identifiers</option>
+      </select>
       <select id="rangeSelect" class="metric-select" title="Date range">
         <option value="all" selected>All time</option>
         <option value="30d">Last 30 days</option>
@@ -514,7 +518,7 @@
 
     <div class="error" id="error"></div>
 
-    <div class="progress-container" id="progress">Loading observers...</div>
+    <div class="progress-container" id="progress">Loading...</div>
 
     <div class="rank-banner" id="rankBanner"></div>
 
@@ -547,6 +551,7 @@
       let selectedTaxonId = null;
       let selectedTaxonName = null;
       let loadedObservers = [];
+      let loadedMode = "observers";
 
       const usernameInput = document.getElementById("username");
       const autocompleteEl = document.getElementById("autocomplete");
@@ -557,6 +562,7 @@
       const taxonInput = document.getElementById("taxonInput");
       const taxonAutocomplete = document.getElementById("taxonAutocomplete");
       const rangeSelect = document.getElementById("rangeSelect");
+      const modeSelect = document.getElementById("modeSelect");
 
       // Year options back to iNaturalist's launch, newest first
       for (let y = new Date().getFullYear(); y >= 2008; y--) {
@@ -615,6 +621,23 @@
       });
       rangeSelect.addEventListener("change", () => {
         updateUrlParam("range", rangeSelect.value !== "all" ? rangeSelect.value : null);
+      });
+
+      // Observers vs identifiers mode. Observers is always the default on
+      // page load; only an explicit ?mode= URL parameter overrides it.
+      // Identifiers have no species ranking, so the metric select hides there.
+      const urlMode = urlParams.get("mode");
+      if (urlMode === "observers" || urlMode === "identifiers") {
+        modeSelect.value = urlMode;
+      }
+      function syncMetricVisibility() {
+        metricSelect.style.display =
+          modeSelect.value === "identifiers" ? "none" : "";
+      }
+      syncMetricVisibility();
+      modeSelect.addEventListener("change", () => {
+        updateUrlParam("mode", modeSelect.value === "identifiers" ? modeSelect.value : null);
+        syncMetricVisibility();
       });
 
       // Set or remove a single query parameter without reloading
@@ -911,14 +934,18 @@
         const rankLabel = rank <= 3 ? medals[rank - 1] : `#${rank}`;
         const obsCount = (entry.observation_count || 0).toLocaleString();
         const speciesCount = (entry.species_count || 0).toLocaleString();
-        const primary =
-          metric === "species_count"
-            ? `${speciesCount} species`
-            : `${obsCount} observations`;
-        const secondary =
-          metric === "species_count"
-            ? `${obsCount} observations`
-            : `${speciesCount} species`;
+        let primary;
+        let secondary;
+        if (metric === "identifications") {
+          primary = `${(entry.count || 0).toLocaleString()} identifications`;
+          secondary = "";
+        } else if (metric === "species_count") {
+          primary = `${speciesCount} species`;
+          secondary = `${obsCount} observations`;
+        } else {
+          primary = `${obsCount} observations`;
+          secondary = `${speciesCount} species`;
+        }
         const avatar = user.icon_url || user.icon;
 
         const li = document.createElement("li");
@@ -976,9 +1003,11 @@
 
         saveUsername(username);
         updateUrlWithUsername(username);
+        updateUrlParam("mode", modeSelect.value === "identifiers" ? modeSelect.value : null);
         updateUrlParam(
           "metric",
-          document.getElementById("metricSelect").value === "species_count"
+          modeSelect.value !== "identifiers" &&
+            document.getElementById("metricSelect").value === "species_count"
             ? "species_count"
             : null
         );
@@ -991,18 +1020,25 @@
         taxonAutocomplete.classList.remove("active");
         isLoading = true;
         document.getElementById("loadBtn").disabled = true;
+        document.getElementById("progress").textContent =
+          `Loading ${modeSelect.value}...`;
         document.getElementById("progress").style.display = "block";
         document.getElementById("results").style.display = "none";
         document.getElementById("rankBanner").style.display = "none";
         document.getElementById("downloadBtn").style.display = "none";
         loadedObservers = [];
 
-        const metric = document.getElementById("metricSelect").value;
+        const isIdentifiers = modeSelect.value === "identifiers";
+        const metric = isIdentifiers
+          ? "identifications"
+          : document.getElementById("metricSelect").value;
+        const roleLabel = isIdentifiers ? "identifiers" : "observers";
         const listEl = document.getElementById("observersList");
         listEl.innerHTML = "";
 
         try {
           const scopeParams = buildScopeParams();
+          const endpoint = isIdentifiers ? "identifiers" : "observers";
           const orderParam =
             metric === "species_count" ? "&order_by=species_count" : "";
 
@@ -1011,7 +1047,7 @@
           // per_page=0 call in the default order.
           const requests = [
             fetchJSON(
-              `${API_BASE}/observations/observers?per_page=${MAX_OBSERVERS}&verifiable=true${orderParam}${scopeParams}`
+              `${API_BASE}/observations/${endpoint}?per_page=${MAX_OBSERVERS}&verifiable=true${orderParam}${scopeParams}`
             ),
           ];
           if (metric === "species_count") {
@@ -1029,7 +1065,7 @@
           if (observers.length === 0) {
             showWelcome(
               "error",
-              `🌱 No observers found in ${scopeDescription()} yet. Try a different place or project.`
+              `🌱 No ${roleLabel} found in ${scopeDescription()} yet. Try a different place or project.`
             );
             document.getElementById("progress").style.display = "none";
             isLoading = false;
@@ -1044,19 +1080,28 @@
           );
 
           const metricLabel =
-            metric === "species_count" ? "species" : "observations";
+            metric === "species_count" ? "species" : metric === "identifications" ? "identifications" : "observations";
 
           if (userIndex >= 0) {
             const entry = observers[userIndex];
-            const value =
-              metric === "species_count"
+            const value = isIdentifiers
+              ? entry.count
+              : metric === "species_count"
                 ? entry.species_count
                 : entry.observation_count;
             showRankBanner(
-              `🔭 <strong>${escapeHtml(entry.user?.login || username)}</strong> is <strong>#${(userIndex + 1).toLocaleString()}</strong> of ${totalObservers.toLocaleString()} observers in ${escapeHtml(scopeDescription())} with ${(value || 0).toLocaleString()} ${metricLabel}.` +
+              `🔭 <strong>${escapeHtml(entry.user?.login || username)}</strong> is <strong>#${(userIndex + 1).toLocaleString()}</strong> of ${totalObservers.toLocaleString()} ${roleLabel} in ${escapeHtml(scopeDescription())} with ${(value || 0).toLocaleString()} ${metricLabel}.` +
                 (userIndex > 0
                   ? `<button class="jump-btn" onclick="jumpToMyPosition()">Jump to my position</button>`
                   : "")
+            );
+          } else if (isIdentifiers) {
+            // The identifiers endpoint's user_id param filters by whose
+            // observations were identified, not who identified them, so
+            // there is no way to fetch one user's scoped identification
+            // count when they fall outside the loaded rankings.
+            showRankBanner(
+              `<strong>${escapeHtml(username)}</strong> is not in the top ${Math.min(observers.length, MAX_OBSERVERS)} of ${totalObservers.toLocaleString()} identifiers in ${escapeHtml(scopeDescription())}.`
             );
           } else {
             const own = await fetchUserScopedCounts(username);
@@ -1078,12 +1123,14 @@
           });
           listEl.appendChild(fragment);
           loadedObservers = observers;
+          loadedMode = modeSelect.value;
           document.getElementById("downloadBtn").style.display = "block";
 
-          document.getElementById("resultsCount").textContent =
-            `Top ${observers.length.toLocaleString()} observers by ${metricLabel}`;
+          document.getElementById("resultsCount").textContent = isIdentifiers
+            ? `Top ${observers.length.toLocaleString()} identifiers`
+            : `Top ${observers.length.toLocaleString()} observers by ${metricLabel}`;
           document.getElementById("resultsScope").textContent =
-            `${scopeDescription()} · ${totalObservers.toLocaleString()} observers total`;
+            `${scopeDescription()} · ${totalObservers.toLocaleString()} ${roleLabel} total`;
 
           document.getElementById("progress").style.display = "none";
           document.getElementById("results").style.display = "block";
@@ -1108,15 +1155,22 @@
       function downloadCSV() {
         if (loadedObservers.length === 0) return;
 
-        const headers = ["Rank", "Username", "Name", "Observations", "Species"];
+        const isIdentifiers = loadedMode === "identifiers";
+        const headers = isIdentifiers
+          ? ["Rank", "Username", "Name", "Identifications"]
+          : ["Rank", "Username", "Name", "Observations", "Species"];
         const csvQuote = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-        const rows = loadedObservers.map((entry, i) => [
-          i + 1,
-          csvQuote(entry.user?.login),
-          csvQuote(entry.user?.name),
-          entry.observation_count || 0,
-          entry.species_count || 0,
-        ]);
+        const rows = loadedObservers.map((entry, i) =>
+          isIdentifiers
+            ? [i + 1, csvQuote(entry.user?.login), csvQuote(entry.user?.name), entry.count || 0]
+            : [
+                i + 1,
+                csvQuote(entry.user?.login),
+                csvQuote(entry.user?.name),
+                entry.observation_count || 0,
+                entry.species_count || 0,
+              ]
+        );
 
         const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
         const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -1127,7 +1181,7 @@
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/^-|-$/g, "");
-        link.setAttribute("download", `observers-${scopeSlug}.csv`);
+        link.setAttribute("download", `${loadedMode}-${scopeSlug}.csv`);
         link.click();
         URL.revokeObjectURL(url);
       }
