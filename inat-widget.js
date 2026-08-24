@@ -46,7 +46,6 @@
       this.searchEnabled = container.dataset.inatSearch === "true";
       this.showNames = container.dataset.inatShowNames === "true";
       this.showCount = container.dataset.inatShowCount !== "false";
-      this.attribution = container.dataset.inatAttribution !== "false";
       this.searchTaxon = null;
       this.page = 1;
       this.totalResults = 0;
@@ -772,15 +771,9 @@
       // Footer
       const footer = document.createElement("div");
       footer.className = "inat-w-footer";
-      const footerLinks = [
-        `<a href="${this.getSourceUrl()}" target="_blank" rel="noopener">View more on iNaturalist &rarr;</a>`,
-      ];
-      if (this.attribution) {
-        footerLinks.push(
-          `<a class="inat-w-attribution" href="${WIDGET_HOME_URL}" target="_blank" rel="noopener">Powered by <strong>iNat Tools</strong></a>`
-        );
-      }
-      footer.innerHTML = footerLinks.join("");
+      footer.innerHTML =
+        `<a href="${this.getSourceUrl()}" target="_blank" rel="noopener">View more on iNaturalist &rarr;</a>` +
+        `<a class="inat-w-attribution" href="${WIDGET_HOME_URL}" target="_blank" rel="noopener">Powered by <strong>iNat Tools</strong></a>`;
       this.container.appendChild(footer);
     }
 
