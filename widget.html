@@ -871,6 +871,13 @@
           </div>
         </div>
 
+        <!-- Attribution -->
+        <div class="option-group">
+          <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" id="attributionCheck" checked /> "Powered by iNat Tools" link</label>
+          </div>
+        </div>
+
         <!-- Embed Code -->
         <div class="embed-section">
           <div class="embed-tabs">
@@ -929,6 +936,7 @@
         search: false,
         showNames: false,
         showCount: true,
+        attribution: true,
         headerText: "",
         borderRadius: 12,
         padding: 16,
@@ -1151,6 +1159,12 @@
 
       document.getElementById("showCount").addEventListener("change", (e) => {
         state.showCount = e.target.checked;
+        renderPreview();
+        updateEmbedCode();
+      });
+
+      document.getElementById("attributionCheck").addEventListener("change", (e) => {
+        state.attribution = e.target.checked;
         renderPreview();
         updateEmbedCode();
       });
@@ -1462,6 +1476,7 @@
         if (state.pagination && state.sourceType !== "observation") attrs.push(`data-inat-pagination="true"`);
         if (state.search && state.sourceType !== "observation") attrs.push(`data-inat-search="true"`);
         if (state.lang) attrs.push(`data-inat-lang="${escapeAttr(state.lang)}"`);
+        if (!state.attribution) attrs.push(`data-inat-attribution="false"`);
 
         return attrs;
       }
@@ -1519,6 +1534,7 @@
           if (state.pagination && state.sourceType !== "observation") params.set("pagination", "true");
           if (state.search && state.sourceType !== "observation") params.set("search", "true");
           if (state.lang) params.set("lang", state.lang);
+          if (!state.attribution) params.set("attribution", "false");
           const iframeUrl = `${WIDGET_EMBED_URL}?${params.toString()}`;
           const code = `<!-- iNaturalist Widget (iframe) -->\n<iframe\n  src="${iframeUrl}"\n  width="100%"\n  height="100%"\n  frameborder="0"\n  style="border:none;border-radius:12px"\n></iframe>`;
           embedCodeText.textContent = code;

@@ -7,6 +7,7 @@
   "use strict";
 
   const INAT_API = "https://api.inaturalist.org/v1";
+  const WIDGET_HOME_URL = "https://glauberramos.github.io/inat/widget?ref=widget-embed";
 
   function initWidgets() {
     const containers = document.querySelectorAll("[data-inat-widget]");
@@ -45,6 +46,7 @@
       this.searchEnabled = container.dataset.inatSearch === "true";
       this.showNames = container.dataset.inatShowNames === "true";
       this.showCount = container.dataset.inatShowCount !== "false";
+      this.attribution = container.dataset.inatAttribution !== "false";
       this.searchTaxon = null;
       this.page = 1;
       this.totalResults = 0;
@@ -501,12 +503,33 @@
         .inat-w-footer {
           display: flex;
           align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 4px 12px;
           margin-top: 14px;
+          padding-top: 10px;
+          border-top: 1px solid var(--inat-border);
         }
         .inat-w-footer a {
           font-size: 12px;
           font-weight: 500;
           color: var(--inat-text-secondary) !important;
+          transition: color 0.15s;
+        }
+        .inat-w-footer a:hover {
+          color: var(--inat-accent) !important;
+        }
+        .inat-w-attribution {
+          margin-left: auto;
+          font-size: 11px !important;
+          opacity: 0.7;
+          transition: opacity 0.15s, color 0.15s;
+        }
+        .inat-w-attribution:hover {
+          opacity: 1;
+        }
+        .inat-w-attribution strong {
+          font-weight: 600;
         }
 
         /* Species observation count badge */
@@ -749,7 +772,15 @@
       // Footer
       const footer = document.createElement("div");
       footer.className = "inat-w-footer";
-      footer.innerHTML = `<a href="${this.getSourceUrl()}" target="_blank" rel="noopener">View more on iNaturalist &rarr;</a>`;
+      const footerLinks = [
+        `<a href="${this.getSourceUrl()}" target="_blank" rel="noopener">View more on iNaturalist &rarr;</a>`,
+      ];
+      if (this.attribution) {
+        footerLinks.push(
+          `<a class="inat-w-attribution" href="${WIDGET_HOME_URL}" target="_blank" rel="noopener">Powered by <strong>iNat Tools</strong></a>`
+        );
+      }
+      footer.innerHTML = footerLinks.join("");
       this.container.appendChild(footer);
     }
 
