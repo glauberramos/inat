@@ -150,7 +150,8 @@
         font-weight: 600;
         color: #333;
       }
-      .autocomplete-login {
+      .autocomplete-login,
+      .autocomplete-rank {
         font-size: 13px;
         color: #666;
       }
@@ -216,6 +217,26 @@
       .results-scope {
         font-size: 13px;
         color: #666;
+        flex: 1;
+      }
+      .download-btn {
+        padding: 8px 16px;
+        background: #74ac00;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .download-btn:hover {
+        background: #5d8a00;
+      }
+      .jump-btn {
+        display: block;
+        padding: 6px 12px;
+        font-size: 13px;
+        border-radius: 6px;
+        margin-top: 10px;
       }
       .observers-list {
         list-style: none;
@@ -469,6 +490,21 @@
         />
         <div class="autocomplete" id="projectAutocomplete"></div>
       </div>
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="taxonInput"
+          placeholder="Filter by taxon (optional)"
+          autocomplete="off"
+        />
+        <div class="autocomplete" id="taxonAutocomplete"></div>
+      </div>
+      <select id="rangeSelect" class="metric-select" title="Date range">
+        <option value="all" selected>All time</option>
+        <option value="30d">Last 30 days</option>
+        <option value="3m">Last 3 months</option>
+        <option value="12m">Last 12 months</option>
+      </select>
       <select id="metricSelect" class="metric-select" title="Rank users by">
         <option value="observation_count" selected>Top by observations</option>
         <option value="species_count">Top by species</option>
@@ -486,12 +522,14 @@
       <div class="results-header">
         <span class="results-count" id="resultsCount"></span>
         <span class="results-scope" id="resultsScope"></span>
+        <button id="downloadBtn" class="download-btn" style="display: none" onclick="downloadCSV()">Download CSV</button>
       </div>
       <ul class="observers-list" id="observersList"></ul>
     </div>
 
     <script src="constants.js"></script>
     <script src="shared-utils.js?v=2"></script>
+    <script src="autocomplete.js"></script>
     <script>
       // The observers endpoint hard-caps results at the first 500 rows
       // (rows past 500 come back empty regardless of page/per_page), so the
@@ -506,6 +544,9 @@
       let selectedPlaceName = null;
       let selectedProjectId = null;
       let selectedProjectName = null;
+      let selectedTaxonId = null;
+      let selectedTaxonName = null;
+      let loadedObservers = [];
 
       const usernameInput = document.getElementById("username");
       const autocompleteEl = document.getElementById("autocomplete");
@@ -513,6 +554,17 @@
       const placeAutocomplete = document.getElementById("placeAutocomplete");
       const projectInput = document.getElementById("projectInput");
       const projectAutocomplete = document.getElementById("projectAutocomplete");
+      const taxonInput = document.getElementById("taxonInput");
+      const taxonAutocomplete = document.getElementById("taxonAutocomplete");
+      const rangeSelect = document.getElementById("rangeSelect");
+
+      // Year options back to iNaturalist's launch, newest first
+      for (let y = new Date().getFullYear(); y >= 2008; y--) {
+        const opt = document.createElement("option");
+        opt.value = `year:${y}`;
+        opt.textContent = String(y);
+        rangeSelect.appendChild(opt);
+      }
 
       // Prefill from URL parameters or localStorage — never auto-load.
       initUsername(usernameInput);
@@ -531,15 +583,50 @@
         projectInput.value = urlProjectName;
       }
 
-      // Remember the ranking metric across visits
+      const urlTaxonId = urlParams.get("taxon_id");
+      const urlTaxonName = urlParams.get("taxon");
+      if (urlTaxonId && urlTaxonName) {
+        selectedTaxonId = urlTaxonId;
+        selectedTaxonName = urlTaxonName;
+        taxonInput.value = urlTaxonName;
+      }
+
+      const urlRange = urlParams.get("range");
+      if (
+        urlRange &&
+        [...rangeSelect.options].some((o) => o.value === urlRange)
+      ) {
+        rangeSelect.value = urlRange;
+      }
+
+      // Remember the ranking metric across visits; the URL wins when present
       const metricSelect = document.getElementById("metricSelect");
       const savedMetric = localStorage.getItem("inatObserversMetric");
       if (savedMetric === "observation_count" || savedMetric === "species_count") {
         metricSelect.value = savedMetric;
       }
+      const urlMetric = urlParams.get("metric");
+      if (urlMetric === "observation_count" || urlMetric === "species_count") {
+        metricSelect.value = urlMetric;
+      }
       metricSelect.addEventListener("change", () => {
         localStorage.setItem("inatObserversMetric", metricSelect.value);
+        updateUrlParam("metric", metricSelect.value === "species_count" ? metricSelect.value : null);
       });
+      rangeSelect.addEventListener("change", () => {
+        updateUrlParam("range", rangeSelect.value !== "all" ? rangeSelect.value : null);
+      });
+
+      // Set or remove a single query parameter without reloading
+      function updateUrlParam(name, value) {
+        const url = new URL(window.location);
+        if (value) {
+          url.searchParams.set(name, value);
+        } else {
+          url.searchParams.delete(name);
+        }
+        window.history.replaceState({}, "", url);
+      }
 
       function updateUrlWithProject(projectId, projectName) {
         const url = new URL(window.location);
@@ -739,6 +826,33 @@
         }
       }
 
+      // ===== Taxon autocomplete =====
+
+      initTaxonAutocomplete(
+        taxonInput,
+        taxonAutocomplete,
+        (taxon) => {
+          if (taxon) {
+            selectedTaxonId = taxon.id;
+            selectedTaxonName = taxon.preferred_common_name || taxon.name;
+            taxonInput.value = selectedTaxonName;
+            updateUrlWithTaxon(selectedTaxonId, selectedTaxonName);
+          } else {
+            selectedTaxonId = null;
+            selectedTaxonName = null;
+            updateUrlWithTaxon(null, null);
+          }
+        },
+        null,
+        "kingdom,phylum,subphylum,class,subclass,order,suborder,family,subfamily,tribe,subtribe,genus,subgenus,species"
+      );
+
+      // Typing invalidates the previous taxon selection
+      taxonInput.addEventListener("input", () => {
+        selectedTaxonId = null;
+        selectedTaxonName = null;
+      });
+
       // Hide autocompletes when clicking outside
       document.addEventListener("click", (e) => {
         if (!usernameInput.contains(e.target) && !autocompleteEl.contains(e.target)) {
@@ -750,6 +864,9 @@
         if (!projectInput.contains(e.target) && !projectAutocomplete.contains(e.target)) {
           projectAutocomplete.classList.remove("active");
         }
+        if (!taxonInput.contains(e.target) && !taxonAutocomplete.contains(e.target)) {
+          taxonAutocomplete.classList.remove("active");
+        }
       });
 
       // ===== Observers =====
@@ -758,14 +875,32 @@
         let params = "";
         if (selectedPlaceId) params += `&place_id=${selectedPlaceId}`;
         if (selectedProjectId) params += `&project_id=${selectedProjectId}`;
+        if (selectedTaxonId) params += `&taxon_id=${selectedTaxonId}`;
+        const range = rangeSelect.value;
+        if (range.startsWith("year:")) {
+          params += `&year=${range.slice(5)}`;
+        } else if (range !== "all") {
+          params += buildDateRangeParams(resolveDateRange(range));
+        }
         return params;
+      }
+
+      function rangeDescription() {
+        const range = rangeSelect.value;
+        if (range === "all") return null;
+        if (range.startsWith("year:")) return range.slice(5);
+        return rangeSelect.options[rangeSelect.selectedIndex].textContent.toLowerCase();
       }
 
       function scopeDescription() {
         const parts = [];
+        if (selectedTaxonName) parts.push(selectedTaxonName);
         if (selectedProjectName) parts.push(selectedProjectName);
         if (selectedPlaceName) parts.push(selectedPlaceName);
-        return parts.length > 0 ? parts.join(" · ") : "all of iNaturalist";
+        let text = parts.length > 0 ? parts.join(" · ") : "all of iNaturalist";
+        const range = rangeDescription();
+        if (range) text += ` (${range})`;
+        return text;
       }
 
       function renderRow(entry, rank, metric, isSearchedUser) {
@@ -841,16 +976,26 @@
 
         saveUsername(username);
         updateUrlWithUsername(username);
+        updateUrlParam(
+          "metric",
+          document.getElementById("metricSelect").value === "species_count"
+            ? "species_count"
+            : null
+        );
+        updateUrlParam("range", rangeSelect.value !== "all" ? rangeSelect.value : null);
 
         hideError("error");
         autocompleteEl.classList.remove("active");
         placeAutocomplete.classList.remove("active");
         projectAutocomplete.classList.remove("active");
+        taxonAutocomplete.classList.remove("active");
         isLoading = true;
         document.getElementById("loadBtn").disabled = true;
         document.getElementById("progress").style.display = "block";
         document.getElementById("results").style.display = "none";
         document.getElementById("rankBanner").style.display = "none";
+        document.getElementById("downloadBtn").style.display = "none";
+        loadedObservers = [];
 
         const metric = document.getElementById("metricSelect").value;
         const listEl = document.getElementById("observersList");
@@ -908,7 +1053,10 @@
                 ? entry.species_count
                 : entry.observation_count;
             showRankBanner(
-              `🔭 <strong>${escapeHtml(entry.user?.login || username)}</strong> is <strong>#${(userIndex + 1).toLocaleString()}</strong> of ${totalObservers.toLocaleString()} observers in ${escapeHtml(scopeDescription())} with ${(value || 0).toLocaleString()} ${metricLabel}.`
+              `🔭 <strong>${escapeHtml(entry.user?.login || username)}</strong> is <strong>#${(userIndex + 1).toLocaleString()}</strong> of ${totalObservers.toLocaleString()} observers in ${escapeHtml(scopeDescription())} with ${(value || 0).toLocaleString()} ${metricLabel}.` +
+                (userIndex > 0
+                  ? `<button class="jump-btn" onclick="jumpToMyPosition()">Jump to my position</button>`
+                  : "")
             );
           } else {
             const own = await fetchUserScopedCounts(username);
@@ -929,6 +1077,8 @@
             fragment.appendChild(renderRow(entry, i + 1, metric, i === userIndex));
           });
           listEl.appendChild(fragment);
+          loadedObservers = observers;
+          document.getElementById("downloadBtn").style.display = "block";
 
           document.getElementById("resultsCount").textContent =
             `Top ${observers.length.toLocaleString()} observers by ${metricLabel}`;
@@ -944,6 +1094,42 @@
 
         isLoading = false;
         document.getElementById("loadBtn").disabled = false;
+      }
+
+      // eslint-disable-next-line no-unused-vars -- called from onclick attribute
+      function jumpToMyPosition() {
+        const row = document.querySelector(".highlight-user");
+        if (row) {
+          row.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+
+      // eslint-disable-next-line no-unused-vars -- called from onclick attribute
+      function downloadCSV() {
+        if (loadedObservers.length === 0) return;
+
+        const headers = ["Rank", "Username", "Name", "Observations", "Species"];
+        const csvQuote = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+        const rows = loadedObservers.map((entry, i) => [
+          i + 1,
+          csvQuote(entry.user?.login),
+          csvQuote(entry.user?.name),
+          entry.observation_count || 0,
+          entry.species_count || 0,
+        ]);
+
+        const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        const scopeSlug = scopeDescription()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "");
+        link.setAttribute("download", `observers-${scopeSlug}.csv`);
+        link.click();
+        URL.revokeObjectURL(url);
       }
 
       // Allow Enter key to trigger load
