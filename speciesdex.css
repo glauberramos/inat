@@ -1,0 +1,920 @@
+/* ==========================================================================
+   SpeciesDex — page-scoped redesign ("Collector's Pokédex")
+   Loaded after styles.css and dark-mode.css; every rule is prefixed with
+   body.speciesdex-page so nothing leaks to other pages and ties against
+   html.dark-mode body rules resolve in this file's favor (later in cascade).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Design tokens
+   -------------------------------------------------------------------------- */
+body.speciesdex-page {
+  --dex-bg: #f3f5ec;
+  --dex-dot: rgba(28, 36, 21, 0.05);
+  --dex-surface: #ffffff;
+  --dex-surface-2: #fbfcf7;
+  --dex-ink: #1c2415;
+  --dex-muted: #66705c;
+  --dex-line: #dfe4d2;
+  --dex-green: #74ac00;
+  --dex-green-strong: #587f00;
+  --dex-green-tint: #eef4dc;
+  --dex-gold: #c9971c;
+  --dex-gold-tint: #faf3df;
+  --dex-chip-bg: rgba(20, 26, 12, 0.78);
+  --dex-shadow: 0 1px 2px rgba(28, 36, 21, 0.06),
+    0 10px 26px -14px rgba(28, 36, 21, 0.22);
+  --dex-shadow-lift: 0 2px 4px rgba(28, 36, 21, 0.08),
+    0 18px 38px -16px rgba(28, 36, 21, 0.3);
+  --dex-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, sans-serif;
+  --dex-mono: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
+}
+
+body.speciesdex-page.dark-mode {
+  --dex-bg: #11150c;
+  --dex-dot: rgba(233, 237, 221, 0.045);
+  --dex-surface: #1a2113;
+  --dex-surface-2: #161c10;
+  --dex-ink: #e9eddd;
+  --dex-muted: #9aa48a;
+  --dex-line: #2b3520;
+  --dex-green: #8fc61e;
+  --dex-green-strong: #a5d63a;
+  --dex-green-tint: #232d15;
+  --dex-gold: #e0b23f;
+  --dex-gold-tint: #2a2411;
+  --dex-chip-bg: rgba(0, 0, 0, 0.66);
+  --dex-shadow: 0 1px 2px rgba(0, 0, 0, 0.4),
+    0 10px 26px -14px rgba(0, 0, 0, 0.6);
+  --dex-shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.45),
+    0 18px 38px -16px rgba(0, 0, 0, 0.75);
+}
+
+/* --------------------------------------------------------------------------
+   Page base — warm ground with a faint dot-grid, like graph paper in a
+   field notebook
+   -------------------------------------------------------------------------- */
+body.speciesdex-page {
+  background-color: var(--dex-bg);
+  background-image: radial-gradient(var(--dex-dot) 1px, transparent 1px);
+  background-size: 22px 22px;
+  color: var(--dex-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+body.speciesdex-page ::selection {
+  background: var(--dex-green);
+  color: #fff;
+}
+
+/* dark-mode.css paints .container #1a1a1a, which breaks the full-bleed
+   dex background (center strip vs page edges) — let the body show through */
+body.speciesdex-page.dark-mode .container {
+  background-color: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   Hero
+   -------------------------------------------------------------------------- */
+body.speciesdex-page h1 {
+  font-family: var(--dex-display);
+  font-weight: 700;
+  font-size: 2.6rem;
+  letter-spacing: -0.02em;
+  color: var(--dex-ink);
+  margin-bottom: 0;
+}
+
+body.speciesdex-page .title-container {
+  gap: 12px;
+  margin-top: 6px;
+}
+
+body.speciesdex-page .description {
+  color: var(--dex-muted);
+  font-size: 1rem;
+  margin: 4px auto 22px;
+}
+
+/* --------------------------------------------------------------------------
+   Search controls — one family: same height, same radius, green focus
+   -------------------------------------------------------------------------- */
+body.speciesdex-page input[type="text"],
+body.speciesdex-page .limit-select,
+body.speciesdex-page .language-select,
+body.speciesdex-page .date-input {
+  box-sizing: border-box;
+  height: 44px;
+  border: 1.5px solid var(--dex-line);
+  border-radius: 8px;
+  background-color: var(--dex-surface);
+  color: var(--dex-ink);
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+body.speciesdex-page input[type="text"]::placeholder {
+  color: var(--dex-muted);
+}
+
+body.speciesdex-page input[type="text"]:hover,
+body.speciesdex-page .limit-select:hover,
+body.speciesdex-page .language-select:hover,
+body.speciesdex-page .date-input:hover {
+  border-color: var(--dex-green);
+}
+
+body.speciesdex-page input[type="text"]:focus,
+body.speciesdex-page .limit-select:focus,
+body.speciesdex-page .language-select:focus,
+body.speciesdex-page .date-input:focus {
+  outline: none;
+  border-color: var(--dex-green);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--dex-green) 25%, transparent);
+}
+
+body.speciesdex-page #searchButton,
+body.speciesdex-page .search-button-advanced {
+  box-sizing: border-box;
+  height: 44px;
+  background-color: var(--dex-green);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 10px 22px;
+  transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+body.speciesdex-page.dark-mode #searchButton,
+body.speciesdex-page.dark-mode .search-button-advanced {
+  color: #101505;
+}
+
+body.speciesdex-page #searchButton:hover,
+body.speciesdex-page .search-button-advanced:hover {
+  background-color: var(--dex-green-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -8px var(--dex-green);
+}
+
+body.speciesdex-page #advancedOptionsButton {
+  box-sizing: border-box;
+  height: 44px;
+  background-color: transparent;
+  border: 1.5px solid var(--dex-line);
+  border-radius: 8px;
+  color: var(--dex-muted);
+  font-size: 0.95rem;
+  padding: 9px 16px;
+  transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+}
+
+body.speciesdex-page #advancedOptionsButton:hover {
+  background-color: var(--dex-green-tint);
+  border-color: var(--dex-green);
+  color: var(--dex-ink);
+}
+
+body.speciesdex-page .map-open-btn {
+  border-radius: 8px;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+body.speciesdex-page .map-open-btn:hover {
+  transform: scale(1.08);
+}
+
+/* Autocomplete dropdowns */
+body.speciesdex-page .taxon-autocomplete,
+body.speciesdex-page .place-autocomplete,
+body.speciesdex-page .username-autocomplete {
+  background: var(--dex-surface);
+  border: 1.5px solid var(--dex-line);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  box-shadow: var(--dex-shadow);
+}
+
+body.speciesdex-page .taxon-suggestion:hover,
+body.speciesdex-page .place-suggestion:hover,
+body.speciesdex-page .username-suggestion:hover {
+  background-color: var(--dex-green-tint);
+}
+
+body.speciesdex-page .place-suggestion,
+body.speciesdex-page .username-suggestion {
+  border-bottom: 1px solid var(--dex-line);
+}
+
+body.speciesdex-page .taxon-suggestion .taxon-name,
+body.speciesdex-page .place-suggestion .place-name,
+body.speciesdex-page .username-suggestion .username-name {
+  color: var(--dex-ink);
+}
+
+body.speciesdex-page .taxon-suggestion .taxon-rank,
+body.speciesdex-page .place-suggestion .place-details,
+body.speciesdex-page .username-suggestion .username-info {
+  color: var(--dex-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Collection banner — the page's scoreboard
+   -------------------------------------------------------------------------- */
+body.speciesdex-page .status-bar {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  max-width: 640px;
+  padding: 18px 24px;
+  background: var(--dex-surface);
+  border: 1px solid var(--dex-line);
+  border-radius: 16px;
+  box-shadow: var(--dex-shadow);
+  text-align: left;
+}
+
+body.speciesdex-page .status-percent {
+  font-family: var(--dex-mono);
+  font-weight: 700;
+  font-size: 2.7rem;
+  line-height: 1;
+  color: var(--dex-green);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+body.speciesdex-page .status-percent .percent-sign {
+  font-size: 1.3rem;
+  margin-left: 1px;
+}
+
+body.speciesdex-page .status-details {
+  flex: 1;
+  min-width: 0;
+}
+
+body.speciesdex-page .status-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--dex-ink);
+  margin-bottom: 8px;
+}
+
+body.speciesdex-page .status-text #observedCount,
+body.speciesdex-page .status-text #totalCount,
+body.speciesdex-page .status-text #missingCount {
+  font-family: var(--dex-mono);
+  font-weight: 700;
+}
+
+body.speciesdex-page .status-missing {
+  color: var(--dex-muted);
+}
+
+/* Progress track with a tick each 10% — reads like a collection meter */
+body.speciesdex-page .progress-bar {
+  position: relative;
+  height: 14px;
+  border-radius: 999px;
+  background-color: var(--dex-bg);
+  border: 1px solid var(--dex-line);
+  overflow: hidden;
+}
+
+body.speciesdex-page .progress-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent calc(10% - 1px),
+    var(--dex-line) calc(10% - 1px),
+    var(--dex-line) 10%
+  );
+  pointer-events: none;
+}
+
+body.speciesdex-page .progress {
+  background: linear-gradient(
+    90deg,
+    var(--dex-green),
+    color-mix(in srgb, var(--dex-green) 75%, #d9e800)
+  );
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+
+/* 100% — the collection flips to gold */
+body.speciesdex-page .status-bar.complete {
+  border-color: var(--dex-gold);
+  background: linear-gradient(
+    0deg,
+    var(--dex-gold-tint),
+    var(--dex-surface) 70%
+  );
+}
+
+body.speciesdex-page .status-bar.complete .status-percent {
+  color: var(--dex-gold);
+}
+
+body.speciesdex-page .status-bar.complete .progress {
+  background: linear-gradient(
+    90deg,
+    var(--dex-gold),
+    color-mix(in srgb, var(--dex-gold) 70%, #ffe28a)
+  );
+}
+
+body.speciesdex-page .status-bar.complete .status-details::after {
+  content: "Collection complete 🏆";
+  display: block;
+  margin-top: 7px;
+  font-family: var(--dex-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dex-gold);
+}
+
+/* --------------------------------------------------------------------------
+   Results toolbar: location name + All / Missing / Observed
+   -------------------------------------------------------------------------- */
+body.speciesdex-page .checkbox-container {
+  background: transparent;
+  box-shadow: none;
+  padding: 6px 0;
+}
+
+body.speciesdex-page .location-name {
+  font-family: var(--dex-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--dex-ink);
+}
+
+body.speciesdex-page .filter-toggle,
+body.speciesdex-page .date-range-presets {
+  background: var(--dex-surface);
+  border: 1px solid var(--dex-line);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+body.speciesdex-page .filter-toggle-btn,
+body.speciesdex-page .date-preset-btn {
+  background: transparent;
+  border-radius: 999px;
+  color: var(--dex-muted);
+  font-size: 0.9rem;
+  padding: 6px 15px;
+  transition: background-color 0.25s, color 0.25s;
+}
+
+body.speciesdex-page .filter-toggle-btn:hover,
+body.speciesdex-page .date-preset-btn:hover {
+  background: var(--dex-green-tint);
+  color: var(--dex-ink);
+}
+
+body.speciesdex-page .filter-toggle-btn.active,
+body.speciesdex-page .filter-toggle-btn.active:hover,
+body.speciesdex-page .date-preset-btn.active,
+body.speciesdex-page .date-preset-btn.active:hover {
+  background: var(--dex-green);
+  color: #fff;
+}
+
+body.speciesdex-page.dark-mode .filter-toggle-btn.active,
+body.speciesdex-page.dark-mode .filter-toggle-btn.active:hover,
+body.speciesdex-page.dark-mode .date-preset-btn.active,
+body.speciesdex-page.dark-mode .date-preset-btn.active:hover {
+  color: #101505;
+}
+
+body.speciesdex-page .filter-count {
+  font-family: var(--dex-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-left: 5px;
+  opacity: 0.75;
+}
+
+body.speciesdex-page .filter-count:empty {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Species cards — the dex entries (signature element)
+   -------------------------------------------------------------------------- */
+body.speciesdex-page .species-grid {
+  gap: 16px;
+}
+
+@keyframes dexCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+body.speciesdex-page .species-card {
+  background: var(--dex-surface);
+  border: 1px solid var(--dex-line);
+  border-radius: 14px;
+  box-shadow: var(--dex-shadow);
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.3, 0.8, 0.3, 1),
+    box-shadow 0.25s;
+  animation: dexCardIn 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  animation-delay: calc(var(--stagger, 0) * 28ms);
+}
+
+body.speciesdex-page .species-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--dex-shadow-lift);
+}
+
+body.speciesdex-page .species-card.observed {
+  border: 2px solid var(--dex-green);
+}
+
+/* kill the legacy border + floating check circle */
+body.speciesdex-page .observed::after {
+  content: none;
+}
+
+body.speciesdex-page .species-link {
+  padding: 0;
+}
+
+body.speciesdex-page .species-photo {
+  position: relative;
+  overflow: hidden;
+}
+
+body.speciesdex-page .species-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 0;
+  transition: transform 0.35s cubic-bezier(0.3, 0.8, 0.3, 1), filter 0.35s,
+    opacity 0.35s;
+}
+
+body.speciesdex-page .species-card:hover img {
+  transform: scale(1.04);
+}
+
+/* Entry number chip */
+body.speciesdex-page .entry-number {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-family: var(--dex-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #fff;
+  background: var(--dex-chip-bg);
+  padding: 3px 7px;
+  border-radius: 6px;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+/* Observed badge */
+body.speciesdex-page .species-card.observed .species-photo::after {
+  content: "✓ Observed";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: var(--dex-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--dex-green);
+  padding: 4px 8px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.4);
+}
+
+body.speciesdex-page.dark-mode
+  .species-card.observed
+  .species-photo::after {
+  color: #101505;
+}
+
+/* Status pills sit along the photo's bottom edge */
+body.speciesdex-page .species-status {
+  top: auto;
+  bottom: 8px;
+  left: 8px;
+  right: auto;
+  justify-content: flex-start;
+  z-index: 1;
+}
+
+body.speciesdex-page .status-label {
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+}
+
+/* Card body */
+body.speciesdex-page .species-info {
+  padding: 11px 14px 13px;
+}
+
+body.speciesdex-page .species-card h3 {
+  font-family: var(--dex-display);
+  font-weight: 600;
+  font-size: 1.02rem;
+  line-height: 1.3;
+  color: var(--dex-ink);
+  margin-bottom: 2px;
+}
+
+body.speciesdex-page .species-card .scientific-name {
+  color: var(--dex-muted);
+  font-size: 0.82rem;
+  margin-bottom: 6px;
+}
+
+body.speciesdex-page .species-card .observations {
+  font-family: var(--dex-mono);
+  font-size: 0.7rem;
+  color: var(--dex-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Advanced options — a proper panel instead of a checkbox cloud
+   -------------------------------------------------------------------------- */
+body.speciesdex-page .advanced-options-section {
+  max-width: 860px;
+  margin: 0 auto 24px;
+  padding: 20px 24px;
+  background: var(--dex-surface);
+  border: 1px solid var(--dex-line);
+  border-radius: 16px;
+  box-shadow: var(--dex-shadow);
+  text-align: center;
+}
+
+body.speciesdex-page .advanced-options-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 12px 0 4px;
+}
+
+/* Checkboxes become toggle chips. The real inputs stay in the DOM and
+   focusable; the label is the visible pill. */
+body.speciesdex-page .advanced-options-checkbox {
+  position: relative;
+  top: 0;
+  display: inline-block;
+  margin: 3px 2px;
+}
+
+body.speciesdex-page .advanced-options-checkbox input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+
+body.speciesdex-page .advanced-options-checkbox label {
+  display: inline-block;
+  margin: 0;
+  top: 0;
+  padding: 7px 14px;
+  border: 1.5px solid var(--dex-line);
+  border-radius: 999px;
+  background: var(--dex-surface-2);
+  color: var(--dex-muted);
+  font-size: 0.88rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+body.speciesdex-page .advanced-options-checkbox label:hover {
+  border-color: var(--dex-green);
+  color: var(--dex-ink);
+}
+
+body.speciesdex-page
+  .advanced-options-checkbox
+  input[type="checkbox"]:checked
+  + label {
+  background: var(--dex-green-tint);
+  border-color: var(--dex-green);
+  color: var(--dex-ink);
+  font-weight: 500;
+}
+
+body.speciesdex-page
+  .advanced-options-checkbox
+  input[type="checkbox"]:checked
+  + label::before {
+  content: "✓ ";
+  font-family: var(--dex-mono);
+  color: var(--dex-green);
+  font-weight: 700;
+}
+
+body.speciesdex-page
+  .advanced-options-checkbox
+  input[type="checkbox"]:focus-visible
+  + label {
+  outline: 2px solid var(--dex-green);
+  outline-offset: 2px;
+}
+
+/* Month chips: tighter row */
+body.speciesdex-page .month-filter-container {
+  margin-top: 14px;
+}
+
+body.speciesdex-page .month-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+body.speciesdex-page .month-checkboxes .advanced-options-checkbox label {
+  padding: 5px 11px;
+  font-size: 0.8rem;
+}
+
+body.speciesdex-page .month-filter-label,
+body.speciesdex-page .date-range-label {
+  display: block;
+  margin: 0 0 6px;
+  font-family: var(--dex-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dex-muted);
+}
+
+body.speciesdex-page .date-range-container {
+  margin-top: 16px;
+}
+
+body.speciesdex-page .language-select-container {
+  margin-top: 0;
+}
+
+/* Language select sits in the toggle-chip row — match the pill chips
+   (extra class in the selector so this outranks the dark-mode
+   .language-select override below) */
+body.speciesdex-page .advanced-options-toggles .language-select-container {
+  margin: 3px 2px;
+}
+
+body.speciesdex-page
+  .advanced-options-toggles
+  .language-select-container
+  .language-select {
+  padding: 7px 30px 7px 14px;
+  border-width: 1.5px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  background-color: var(--dex-surface-2);
+  background-position: right 12px center;
+  color: var(--dex-muted);
+  min-width: 0;
+}
+
+/* dark-mode.css paints selects with a `background:` shorthand, which wipes
+   the chevron image — restore it with a muted stroke for dark ground */
+body.speciesdex-page.dark-mode
+  .advanced-options-toggles
+  .language-select-container
+  .language-select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa48a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-size: 0.8em;
+}
+
+body.speciesdex-page .download-button {
+  background-color: transparent;
+  border: 1.5px solid var(--dex-line);
+  border-radius: 8px;
+  color: var(--dex-muted);
+  opacity: 1;
+  transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+}
+
+body.speciesdex-page .download-button:hover:not(:disabled) {
+  background-color: var(--dex-green-tint);
+  border-color: var(--dex-green);
+  color: var(--dex-ink);
+}
+
+body.speciesdex-page .download-button:disabled {
+  background-color: transparent;
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   Loading
+   -------------------------------------------------------------------------- */
+@keyframes dexLeafSway {
+  0%,
+  100% {
+    transform: rotate(-12deg);
+  }
+  50% {
+    transform: rotate(12deg) translateY(-3px);
+  }
+}
+
+body.speciesdex-page .loading {
+  color: var(--dex-muted);
+  font-family: var(--dex-mono);
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+
+body.speciesdex-page .loading .loading-leaf {
+  display: inline-block;
+  animation: dexLeafSway 1.1s ease-in-out infinite;
+  margin-right: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   Map modal + feedback button: match the family
+   -------------------------------------------------------------------------- */
+body.speciesdex-page .map-modal-content {
+  background: var(--dex-surface);
+}
+
+body.speciesdex-page .map-modal-header,
+body.speciesdex-page .map-modal-footer {
+  background: var(--dex-surface-2);
+  border-color: var(--dex-line);
+}
+
+body.speciesdex-page .map-modal-header h3 {
+  font-family: var(--dex-display);
+  color: var(--dex-ink);
+}
+
+body.speciesdex-page .map-apply-btn {
+  border-radius: 8px;
+  background: var(--dex-green);
+}
+
+body.speciesdex-page .map-apply-btn:hover {
+  background: var(--dex-green-strong);
+}
+
+body.speciesdex-page .map-cancel-btn {
+  border-radius: 8px;
+  background: var(--dex-surface);
+  border-color: var(--dex-line);
+  color: var(--dex-muted);
+}
+
+body.speciesdex-page .map-info {
+  color: var(--dex-muted);
+}
+
+body.speciesdex-page .feedback-button {
+  background: var(--dex-green);
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+body.speciesdex-page .feedback-button:hover {
+  background: var(--dex-green-strong);
+}
+
+body.speciesdex-page.dark-mode .feedback-button {
+  color: #101505;
+}
+
+/* --------------------------------------------------------------------------
+   Dark-mode fixes that need to outrank !important rules in dark-mode.css
+   -------------------------------------------------------------------------- */
+body.speciesdex-page.dark-mode .limit-select {
+  background: var(--dex-surface) !important;
+  border-color: var(--dex-line) !important;
+  color: var(--dex-ink);
+}
+
+body.speciesdex-page.dark-mode .language-select {
+  background-color: var(--dex-surface);
+  border-color: var(--dex-line) !important;
+  color: var(--dex-ink);
+}
+
+body.speciesdex-page.dark-mode .date-input {
+  color-scheme: dark;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  body.speciesdex-page .species-card {
+    animation: none;
+  }
+
+  body.speciesdex-page .species-card,
+  body.speciesdex-page .species-card img,
+  body.speciesdex-page .progress {
+    transition: none;
+  }
+
+  body.speciesdex-page .loading .loading-leaf {
+    animation: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  body.speciesdex-page h1 {
+    font-size: 1.7rem;
+  }
+
+  body.speciesdex-page .status-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    margin: 0 10px 20px;
+    padding: 16px 18px;
+    text-align: center;
+  }
+
+  body.speciesdex-page .status-percent {
+    font-size: 2.3rem;
+  }
+
+  body.speciesdex-page .status-text {
+    font-size: 0.9rem;
+  }
+
+  /* both halves fit fine at this size with the new layout */
+  body.speciesdex-page .status-missing {
+    display: inline;
+  }
+
+  body.speciesdex-page .status-missing::before {
+    content: "·";
+    margin: 0 6px;
+  }
+
+  body.speciesdex-page .species-card img {
+    height: auto;
+  }
+
+  body.speciesdex-page .species-card h3 {
+    font-size: 0.92rem;
+  }
+
+  body.speciesdex-page .advanced-options-section {
+    padding: 16px 14px;
+  }
+
+  body.speciesdex-page .advanced-options-checkbox {
+    width: auto;
+  }
+
+  body.speciesdex-page .filter-toggle {
+    border-radius: 999px;
+  }
+
+  body.speciesdex-page .month-checkboxes {
+    display: flex;
+  }
+}

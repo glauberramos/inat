@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
+    <title>iNaturalist Top Users - Top Observers and Identifiers by Place or Project</title>
+    <link rel="icon" href="favicon.ico" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#74ac00" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="logo.png" />
+    <link rel="canonical" href="https://glauberramos.github.io/inat/top-users" />
+    <meta
+      name="description"
+      content="See the top iNaturalist observers and identifiers in any place or project, ranked by observations, species, or identifications, and find out where you stand."
+    />
+    <meta property="og:title" content="iNaturalist Top Users - Top Observers and Identifiers" />
+    <meta property="og:description" content="See the top iNaturalist observers and identifiers in any place or project, and find your position." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://glauberramos.github.io/inat/top-users" />
+    <meta property="og:site_name" content="iNaturalist Tools" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content="https://glauberramos.github.io/inat/logo.png" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image" content="https://glauberramos.github.io/inat/logo.png" />
+    <meta name="twitter:title" content="iNaturalist Top Users" />
+    <meta name="twitter:description" content="See the top iNaturalist observers and identifiers in any place or project and find your position." />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Glauber Ramos" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "iNaturalist Top Users",
+      "description": "See the top iNaturalist observers and identifiers in any place or project, ranked by observations, species, or identifications, and find out where you stand.",
+      "url": "https://glauberramos.github.io/inat/top-users",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "author": {
+        "@type": "Person",
+        "name": "Glauber Ramos"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "iNaturalist Tools", "item": "https://glauberramos.github.io/inat/" },
+        { "@type": "ListItem", "position": 2, "name": "iNaturalist Top Users", "item": "https://glauberramos.github.io/inat/top-users" }
+      ]
+    }
+    </script>
+    <link rel="stylesheet" href="dark-mode.css?v=6" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        padding-top: 70px;
+        background: #f5f5f5;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .subtitle {
+        color: #666;
+        margin-bottom: 20px;
+      }
+      .search-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        position: relative;
+        flex-wrap: wrap;
+      }
+      .input-wrapper {
+        flex: 1;
+        min-width: 180px;
+        position: relative;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+      }
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #74ac00;
+      }
+      .metric-select {
+        padding: 12px;
+        font-size: 16px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background: white;
+        color: #333;
+        cursor: pointer;
+      }
+      .metric-select:focus {
+        outline: none;
+        border-color: #74ac00;
+      }
+      .autocomplete {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+        display: none;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .autocomplete.active {
+        display: block;
+      }
+      .autocomplete-item {
+        padding: 10px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+      }
+      .autocomplete-item:last-child {
+        border-bottom: none;
+      }
+      .autocomplete-item:hover {
+        background: #f5f5f5;
+      }
+      .autocomplete-name {
+        font-weight: 600;
+        color: #333;
+      }
+      .autocomplete-login,
+      .autocomplete-rank {
+        font-size: 13px;
+        color: #666;
+      }
+      button {
+        padding: 12px 24px;
+        font-size: 16px;
+        background: #74ac00;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #5a8a00;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      .progress-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+        color: #666;
+        font-size: 14px;
+      }
+      .rank-banner {
+        background: #f1f8e9;
+        border: 1px solid #c5e1a5;
+        color: #33691e;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 15px;
+        display: none;
+      }
+      html.dark-mode body .rank-banner {
+        background: #26331f;
+        border-color: #4a5d3a;
+        color: #c5e1a5;
+      }
+      .results-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        display: none;
+      }
+      .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .results-count {
+        font-size: 18px;
+        font-weight: bold;
+        color: #74ac00;
+      }
+      .results-scope {
+        font-size: 13px;
+        color: #666;
+        flex: 1;
+      }
+      .download-btn {
+        padding: 8px 16px;
+        background: #74ac00;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .download-btn:hover {
+        background: #5d8a00;
+      }
+      .jump-btn {
+        display: block;
+        padding: 6px 12px;
+        font-size: 13px;
+        border-radius: 6px;
+        margin-top: 10px;
+      }
+      .observers-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .species-item {
+        padding: 10px 12px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .species-item:last-child {
+        border-bottom: none;
+      }
+      .species-item.highlight-user {
+        background: #f1f8e9;
+        border-radius: 8px;
+      }
+      html.dark-mode body .species-item.highlight-user {
+        background: #26331f;
+      }
+      .rank-number {
+        width: 44px;
+        text-align: center;
+        font-weight: bold;
+        color: #999;
+        font-size: 15px;
+        flex-shrink: 0;
+      }
+      .rank-number.top-three {
+        font-size: 20px;
+      }
+      .user-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #eee;
+        flex-shrink: 0;
+      }
+      .user-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .user-name {
+        font-weight: 600;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .user-name a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .user-name a:hover {
+        color: #74ac00;
+      }
+      .user-login {
+        font-size: 13px;
+        color: #666;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      html.dark-mode body .user-name {
+        color: #e0e0e0;
+      }
+      html.dark-mode body .user-login {
+        color: #999;
+      }
+      .user-counts {
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .count-primary {
+        font-weight: bold;
+        color: #74ac00;
+        font-size: 16px;
+      }
+      .count-secondary {
+        font-size: 13px;
+        color: #999;
+      }
+      .no-results {
+        text-align: center;
+        color: #666;
+        padding: 40px;
+      }
+      .error {
+        background: #fee;
+        color: #c00;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .search-container {
+          flex-direction: column;
+        }
+        .input-wrapper {
+          width: 100%;
+        }
+        .metric-select {
+          width: 100%;
+        }
+        button {
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 15px;
+          padding-top: 60px;
+        }
+        .back-button {
+          font-size: 0.8rem !important;
+          padding: 8px 12px !important;
+          top: 10px !important;
+          left: 10px !important;
+        }
+        h1 {
+          font-size: 1.4rem;
+        }
+        .subtitle {
+          font-size: 0.9rem;
+        }
+        .rank-number {
+          width: 32px;
+          font-size: 13px;
+        }
+        .rank-number.top-three {
+          font-size: 17px;
+        }
+        .user-avatar {
+          width: 36px;
+          height: 36px;
+        }
+        .user-name {
+          font-size: 14px;
+        }
+        .user-login {
+          font-size: 12px;
+        }
+        .count-primary {
+          font-size: 14px;
+        }
+        .count-secondary {
+          font-size: 11px;
+        }
+        .results-count {
+          font-size: 16px;
+        }
+      }
+
+      /* Hide default pipeback widget */
+      #pipeback-widget-container,
+      .pipeback-launcher-frame {
+        display: none !important;
+      }
+
+      /* Custom feedback button */
+      .feedback-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #74ac00;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: 999;
+        transition: all 0.3s;
+      }
+
+      .feedback-button:hover {
+        background: #5d8a00;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      }
+    </style>
+    <script src="analytics.js"></script>
+  </head>
+  <body>
+    <a
+      href="/inat"
+      class="back-button"
+      style="
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        background: #2d2d2d;
+        color: #ccc;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 4px 10px;
+        border-radius: 6px;
+        z-index: 1000;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: background 0.2s;
+      "
+      onmouseover="this.style.background='#3d3d3d'"
+      onmouseout="this.style.background='#2d2d2d'"
+    >
+      <span style="font-size: 1rem">←</span> More tools
+    </a>
+
+    <h1>iNaturalist Top Users</h1>
+    <p class="subtitle">
+      See the top observers or identifiers in any place or project, ranked by
+      observations, species, or identifications — and find out where you stand.
+    </p>
+
+    <div class="search-container">
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="username"
+          placeholder="Your iNaturalist username"
+          autocomplete="off"
+        />
+        <div class="autocomplete" id="autocomplete"></div>
+      </div>
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="placeInput"
+          placeholder="Filter by place (optional)"
+          autocomplete="off"
+        />
+        <div class="autocomplete" id="placeAutocomplete"></div>
+      </div>
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="projectInput"
+          placeholder="Filter by project (optional)"
+          autocomplete="off"
+        />
+        <div class="autocomplete" id="projectAutocomplete"></div>
+      </div>
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="taxonInput"
+          placeholder="Filter by taxon (optional)"
+          autocomplete="off"
+        />
+        <div class="autocomplete" id="taxonAutocomplete"></div>
+      </div>
+      <select id="modeSelect" class="metric-select" title="Rank observers or identifiers">
+        <option value="observers" selected>Observers</option>
+        <option value="identifiers">Identifiers</option>
+      </select>
+      <select id="rangeSelect" class="metric-select" title="Date range">
+        <option value="all" selected>All time</option>
+        <option value="30d">Last 30 days</option>
+        <option value="3m">Last 3 months</option>
+        <option value="12m">Last 12 months</option>
+      </select>
+      <select id="metricSelect" class="metric-select" title="Rank users by">
+        <option value="observation_count" selected>Top by observations</option>
+        <option value="species_count">Top by species</option>
+      </select>
+      <button id="loadBtn" onclick="loadObservers()">Load</button>
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <div class="progress-container" id="progress">Loading...</div>
+
+    <div class="rank-banner" id="rankBanner"></div>
+
+    <div class="results-container" id="results">
+      <div class="results-header">
+        <span class="results-count" id="resultsCount"></span>
+        <span class="results-scope" id="resultsScope"></span>
+        <button id="downloadBtn" class="download-btn" style="display: none" onclick="downloadCSV()">Download CSV</button>
+      </div>
+      <ul class="observers-list" id="observersList"></ul>
+    </div>
+
+    <script src="constants.js"></script>
+    <script src="shared-utils.js?v=2"></script>
+    <script src="autocomplete.js"></script>
+    <script>
+      // The observers endpoint hard-caps results at the first 500 rows
+      // (rows past 500 come back empty regardless of page/per_page), so the
+      // list is the top 500 fetched in one request.
+      const MAX_OBSERVERS = 500;
+
+      let isLoading = false;
+      let userSearchTimeout = null;
+      let placeSearchTimeout = null;
+      let projectSearchTimeout = null;
+      let selectedPlaceId = null;
+      let selectedPlaceName = null;
+      let selectedProjectId = null;
+      let selectedProjectName = null;
+      let selectedTaxonId = null;
+      let selectedTaxonName = null;
+      let loadedObservers = [];
+      let loadedMode = "observers";
+
+      const usernameInput = document.getElementById("username");
+      const autocompleteEl = document.getElementById("autocomplete");
+      const placeInput = document.getElementById("placeInput");
+      const placeAutocomplete = document.getElementById("placeAutocomplete");
+      const projectInput = document.getElementById("projectInput");
+      const projectAutocomplete = document.getElementById("projectAutocomplete");
+      const taxonInput = document.getElementById("taxonInput");
+      const taxonAutocomplete = document.getElementById("taxonAutocomplete");
+      const rangeSelect = document.getElementById("rangeSelect");
+      const modeSelect = document.getElementById("modeSelect");
+
+      // Year options back to iNaturalist's launch, newest first
+      for (let y = new Date().getFullYear(); y >= 2008; y--) {
+        const opt = document.createElement("option");
+        opt.value = `year:${y}`;
+        opt.textContent = String(y);
+        rangeSelect.appendChild(opt);
+      }
+
+      // Prefill from URL parameters or localStorage — never auto-load.
+      initUsername(usernameInput);
+      const initialPlace = initPlace(placeInput);
+      if (initialPlace) {
+        selectedPlaceId = initialPlace.id;
+        selectedPlaceName = initialPlace.name;
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlProjectId = urlParams.get("project_id");
+      const urlProjectName = urlParams.get("project");
+      if (urlProjectId && urlProjectName) {
+        selectedProjectId = urlProjectId;
+        selectedProjectName = urlProjectName;
+        projectInput.value = urlProjectName;
+      }
+
+      const urlTaxonId = urlParams.get("taxon_id");
+      const urlTaxonName = urlParams.get("taxon");
+      if (urlTaxonId && urlTaxonName) {
+        selectedTaxonId = urlTaxonId;
+        selectedTaxonName = urlTaxonName;
+        taxonInput.value = urlTaxonName;
+      }
+
+      const urlRange = urlParams.get("range");
+      if (
+        urlRange &&
+        [...rangeSelect.options].some((o) => o.value === urlRange)
+      ) {
+        rangeSelect.value = urlRange;
+      }
+
+      // Remember the ranking metric across visits; the URL wins when present
+      const metricSelect = document.getElementById("metricSelect");
+      const savedMetric = localStorage.getItem("inatObserversMetric");
+      if (savedMetric === "observation_count" || savedMetric === "species_count") {
+        metricSelect.value = savedMetric;
+      }
+      const urlMetric = urlParams.get("metric");
+      if (urlMetric === "observation_count" || urlMetric === "species_count") {
+        metricSelect.value = urlMetric;
+      }
+      metricSelect.addEventListener("change", () => {
+        localStorage.setItem("inatObserversMetric", metricSelect.value);
+        updateUrlParam("metric", metricSelect.value === "species_count" ? metricSelect.value : null);
+      });
+      rangeSelect.addEventListener("change", () => {
+        updateUrlParam("range", rangeSelect.value !== "all" ? rangeSelect.value : null);
+      });
+
+      // Observers vs identifiers mode. Observers is always the default on
+      // page load; only an explicit ?mode= URL parameter overrides it.
+      // Identifiers have no species ranking, so the metric select hides there.
+      const urlMode = urlParams.get("mode");
+      if (urlMode === "observers" || urlMode === "identifiers") {
+        modeSelect.value = urlMode;
+      }
+      function syncMetricVisibility() {
+        metricSelect.style.display =
+          modeSelect.value === "identifiers" ? "none" : "";
+      }
+      syncMetricVisibility();
+      modeSelect.addEventListener("change", () => {
+        updateUrlParam("mode", modeSelect.value === "identifiers" ? modeSelect.value : null);
+        syncMetricVisibility();
+      });
+
+      // Set or remove a single query parameter without reloading
+      function updateUrlParam(name, value) {
+        const url = new URL(window.location);
+        if (value) {
+          url.searchParams.set(name, value);
+        } else {
+          url.searchParams.delete(name);
+        }
+        window.history.replaceState({}, "", url);
+      }
+
+      function updateUrlWithProject(projectId, projectName) {
+        const url = new URL(window.location);
+        if (projectId && projectName) {
+          url.searchParams.set("project_id", projectId);
+          url.searchParams.set("project", projectName);
+        } else {
+          url.searchParams.delete("project_id");
+          url.searchParams.delete("project");
+        }
+        window.history.replaceState({}, "", url);
+      }
+
+      // ===== Username autocomplete =====
+
+      usernameInput.addEventListener("input", (e) => {
+        clearTimeout(userSearchTimeout);
+        const query = e.target.value.trim();
+
+        if (query.length < 2) {
+          autocompleteEl.innerHTML = "";
+          autocompleteEl.classList.remove("active");
+          return;
+        }
+
+        userSearchTimeout = setTimeout(() => searchUsers(query), 300);
+      });
+
+      async function searchUsers(query) {
+        try {
+          const data = await fetchJSON(
+            `${API_BASE}/users/autocomplete?q=${encodeURIComponent(query)}&per_page=10`
+          );
+
+          if (data.results && data.results.length > 0) {
+            autocompleteEl.innerHTML = data.results
+              .map(
+                (user) => `
+            <div class="autocomplete-item" data-login="${escapeHtml(user.login)}">
+              <div class="autocomplete-name">${escapeHtml(user.login)}</div>
+              <div class="autocomplete-login">${escapeHtml(user.name || "")} · ${(
+                  user.observations_count || 0
+                ).toLocaleString()} observations</div>
+            </div>
+          `
+              )
+              .join("");
+
+            autocompleteEl
+              .querySelectorAll(".autocomplete-item")
+              .forEach((item) => {
+                item.addEventListener("click", () => {
+                  usernameInput.value = item.dataset.login;
+                  saveUsername(item.dataset.login);
+                  updateUrlWithUsername(item.dataset.login);
+                  autocompleteEl.classList.remove("active");
+                });
+              });
+
+            autocompleteEl.classList.add("active");
+          } else {
+            autocompleteEl.innerHTML = "";
+            autocompleteEl.classList.remove("active");
+          }
+        } catch (error) {
+          console.error("Error searching users:", error);
+        }
+      }
+
+      // ===== Place autocomplete =====
+
+      placeInput.addEventListener("input", (e) => {
+        clearTimeout(placeSearchTimeout);
+        const query = e.target.value.trim();
+
+        selectedPlaceId = null;
+        selectedPlaceName = null;
+
+        if (query.length === 0) {
+          savePlace(null, null);
+          updateUrlWithPlace(null, null);
+        }
+
+        if (query.length < 2) {
+          placeAutocomplete.innerHTML = "";
+          placeAutocomplete.classList.remove("active");
+          return;
+        }
+
+        placeSearchTimeout = setTimeout(() => searchPlaces(query), 300);
+      });
+
+      async function searchPlaces(query) {
+        try {
+          const data = await fetchJSON(
+            `${API_BASE}/places/autocomplete?q=${encodeURIComponent(query)}&per_page=10`
+          );
+
+          if (data.results && data.results.length > 0) {
+            placeAutocomplete.innerHTML = data.results
+              .map(
+                (place) => `
+              <div class="autocomplete-item" data-id="${place.id}" data-name="${escapeHtml(place.display_name)}">
+                <div class="autocomplete-name">${escapeHtml(place.display_name)}</div>
+                <div class="autocomplete-login">${escapeHtml(place.place_type_name || "")}</div>
+              </div>
+            `
+              )
+              .join("");
+
+            placeAutocomplete
+              .querySelectorAll(".autocomplete-item")
+              .forEach((item) => {
+                item.addEventListener("click", () => {
+                  selectedPlaceId = item.dataset.id;
+                  selectedPlaceName = item.dataset.name;
+                  placeInput.value = selectedPlaceName;
+                  savePlace(selectedPlaceId, selectedPlaceName);
+                  updateUrlWithPlace(selectedPlaceId, selectedPlaceName);
+                  placeAutocomplete.classList.remove("active");
+                });
+              });
+
+            placeAutocomplete.classList.add("active");
+          } else {
+            placeAutocomplete.innerHTML = "";
+            placeAutocomplete.classList.remove("active");
+          }
+        } catch (error) {
+          console.error("Error searching places:", error);
+        }
+      }
+
+      // ===== Project autocomplete =====
+
+      projectInput.addEventListener("input", (e) => {
+        clearTimeout(projectSearchTimeout);
+        const query = e.target.value.trim();
+
+        selectedProjectId = null;
+        selectedProjectName = null;
+
+        if (query.length === 0) {
+          updateUrlWithProject(null, null);
+        }
+
+        if (query.length < 2) {
+          projectAutocomplete.innerHTML = "";
+          projectAutocomplete.classList.remove("active");
+          return;
+        }
+
+        projectSearchTimeout = setTimeout(() => searchProjects(query), 300);
+      });
+
+      async function searchProjects(query) {
+        try {
+          const data = await fetchJSON(
+            `${API_BASE}/projects/autocomplete?q=${encodeURIComponent(query)}&per_page=10`
+          );
+
+          if (data.results && data.results.length > 0) {
+            projectAutocomplete.innerHTML = data.results
+              .map(
+                (project) => `
+              <div class="autocomplete-item" data-id="${project.id}" data-name="${escapeHtml(project.title)}">
+                <div class="autocomplete-name">${escapeHtml(project.title)}</div>
+                ${
+                  typeof project.observations_count === "number"
+                    ? `<div class="autocomplete-login">${project.observations_count.toLocaleString()} observations</div>`
+                    : ""
+                }
+              </div>
+            `
+              )
+              .join("");
+
+            projectAutocomplete
+              .querySelectorAll(".autocomplete-item")
+              .forEach((item) => {
+                item.addEventListener("click", () => {
+                  selectedProjectId = item.dataset.id;
+                  selectedProjectName = item.dataset.name;
+                  projectInput.value = selectedProjectName;
+                  updateUrlWithProject(selectedProjectId, selectedProjectName);
+                  projectAutocomplete.classList.remove("active");
+                });
+              });
+
+            projectAutocomplete.classList.add("active");
+          } else {
+            projectAutocomplete.innerHTML = "";
+            projectAutocomplete.classList.remove("active");
+          }
+        } catch (error) {
+          console.error("Error searching projects:", error);
+        }
+      }
+
+      // ===== Taxon autocomplete =====
+
+      initTaxonAutocomplete(
+        taxonInput,
+        taxonAutocomplete,
+        (taxon) => {
+          if (taxon) {
+            selectedTaxonId = taxon.id;
+            selectedTaxonName = taxon.preferred_common_name || taxon.name;
+            taxonInput.value = selectedTaxonName;
+            updateUrlWithTaxon(selectedTaxonId, selectedTaxonName);
+          } else {
+            selectedTaxonId = null;
+            selectedTaxonName = null;
+            updateUrlWithTaxon(null, null);
+          }
+        },
+        null,
+        "kingdom,phylum,subphylum,class,subclass,order,suborder,family,subfamily,tribe,subtribe,genus,subgenus,species"
+      );
+
+      // Typing invalidates the previous taxon selection
+      taxonInput.addEventListener("input", () => {
+        selectedTaxonId = null;
+        selectedTaxonName = null;
+      });
+
+      // Hide autocompletes when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!usernameInput.contains(e.target) && !autocompleteEl.contains(e.target)) {
+          autocompleteEl.classList.remove("active");
+        }
+        if (!placeInput.contains(e.target) && !placeAutocomplete.contains(e.target)) {
+          placeAutocomplete.classList.remove("active");
+        }
+        if (!projectInput.contains(e.target) && !projectAutocomplete.contains(e.target)) {
+          projectAutocomplete.classList.remove("active");
+        }
+        if (!taxonInput.contains(e.target) && !taxonAutocomplete.contains(e.target)) {
+          taxonAutocomplete.classList.remove("active");
+        }
+      });
+
+      // ===== Observers =====
+
+      function buildScopeParams() {
+        let params = "";
+        if (selectedPlaceId) params += `&place_id=${selectedPlaceId}`;
+        if (selectedProjectId) params += `&project_id=${selectedProjectId}`;
+        if (selectedTaxonId) params += `&taxon_id=${selectedTaxonId}`;
+        const range = rangeSelect.value;
+        if (range.startsWith("year:")) {
+          params += `&year=${range.slice(5)}`;
+        } else if (range !== "all") {
+          params += buildDateRangeParams(resolveDateRange(range));
+        }
+        return params;
+      }
+
+      function rangeDescription() {
+        const range = rangeSelect.value;
+        if (range === "all") return null;
+        if (range.startsWith("year:")) return range.slice(5);
+        return rangeSelect.options[rangeSelect.selectedIndex].textContent.toLowerCase();
+      }
+
+      function scopeDescription() {
+        const parts = [];
+        if (selectedTaxonName) parts.push(selectedTaxonName);
+        if (selectedProjectName) parts.push(selectedProjectName);
+        if (selectedPlaceName) parts.push(selectedPlaceName);
+        let text = parts.length > 0 ? parts.join(" · ") : "all of iNaturalist";
+        const range = rangeDescription();
+        if (range) text += ` (${range})`;
+        return text;
+      }
+
+      function renderRow(entry, rank, metric, isSearchedUser) {
+        const user = entry.user || {};
+        const login = user.login || "";
+        const displayName = user.name || login;
+        const medals = ["🥇", "🥈", "🥉"];
+        const rankLabel = rank <= 3 ? medals[rank - 1] : `#${rank}`;
+        const obsCount = (entry.observation_count || 0).toLocaleString();
+        const speciesCount = (entry.species_count || 0).toLocaleString();
+        let primary;
+        let secondary;
+        if (metric === "identifications") {
+          primary = `${(entry.count || 0).toLocaleString()} identifications`;
+          secondary = "";
+        } else if (metric === "species_count") {
+          primary = `${speciesCount} species`;
+          secondary = `${obsCount} observations`;
+        } else {
+          primary = `${obsCount} observations`;
+          secondary = `${speciesCount} species`;
+        }
+        const avatar = user.icon_url || user.icon;
+
+        const li = document.createElement("li");
+        li.className = "species-item" + (isSearchedUser ? " highlight-user" : "");
+        li.innerHTML = `
+          <div class="rank-number${rank <= 3 ? " top-three" : ""}">${rankLabel}</div>
+          ${
+            avatar
+              ? `<img class="user-avatar" src="${escapeHtml(avatar)}" alt="" loading="lazy" />`
+              : `<div class="user-avatar"></div>`
+          }
+          <div class="user-info">
+            <div class="user-name">
+              <a href="https://www.inaturalist.org/people/${encodeURIComponent(login)}" target="_blank" rel="noopener">${escapeHtml(displayName)}</a>
+              ${isSearchedUser ? " ⭐" : ""}
+            </div>
+            <div class="user-login">@${escapeHtml(login)}</div>
+          </div>
+          <div class="user-counts">
+            <div class="count-primary">${primary}</div>
+            <div class="count-secondary">${secondary}</div>
+          </div>
+        `;
+        return li;
+      }
+
+      function showRankBanner(html) {
+        const banner = document.getElementById("rankBanner");
+        banner.innerHTML = html;
+        banner.style.display = "block";
+      }
+
+      async function fetchUserScopedCounts(username) {
+        // The observers endpoint accepts user_id (login works) and returns
+        // that user's counts within the same place/project scope. 422 means
+        // the username doesn't exist.
+        try {
+          const data = await fetchJSON(
+            `${API_BASE}/observations/observers?user_id=${encodeURIComponent(username)}&verifiable=true${buildScopeParams()}`
+          );
+          return data.results && data.results.length > 0 ? data.results[0] : null;
+        } catch {
+          return null;
+        }
+      }
+
+      async function loadObservers() {
+        if (isLoading) return;
+
+        const username = usernameInput.value.trim();
+        if (!username) {
+          showError("error", "Please enter your username");
+          return;
+        }
+
+        saveUsername(username);
+        updateUrlWithUsername(username);
+        updateUrlParam("mode", modeSelect.value === "identifiers" ? modeSelect.value : null);
+        updateUrlParam(
+          "metric",
+          modeSelect.value !== "identifiers" &&
+            document.getElementById("metricSelect").value === "species_count"
+            ? "species_count"
+            : null
+        );
+        updateUrlParam("range", rangeSelect.value !== "all" ? rangeSelect.value : null);
+
+        hideError("error");
+        autocompleteEl.classList.remove("active");
+        placeAutocomplete.classList.remove("active");
+        projectAutocomplete.classList.remove("active");
+        taxonAutocomplete.classList.remove("active");
+        isLoading = true;
+        document.getElementById("loadBtn").disabled = true;
+        document.getElementById("progress").textContent =
+          `Loading ${modeSelect.value}...`;
+        document.getElementById("progress").style.display = "block";
+        document.getElementById("results").style.display = "none";
+        document.getElementById("rankBanner").style.display = "none";
+        document.getElementById("downloadBtn").style.display = "none";
+        loadedObservers = [];
+
+        const isIdentifiers = modeSelect.value === "identifiers";
+        const metric = isIdentifiers
+          ? "identifications"
+          : document.getElementById("metricSelect").value;
+        const roleLabel = isIdentifiers ? "identifiers" : "observers";
+        const listEl = document.getElementById("observersList");
+        listEl.innerHTML = "";
+
+        try {
+          const scopeParams = buildScopeParams();
+          const endpoint = isIdentifiers ? "identifiers" : "observers";
+          const orderParam =
+            metric === "species_count" ? "&order_by=species_count" : "";
+
+          // With order_by=species_count the API clamps total_results to the
+          // returned rows, so the true observer total comes from a separate
+          // per_page=0 call in the default order.
+          const requests = [
+            fetchJSON(
+              `${API_BASE}/observations/${endpoint}?per_page=${MAX_OBSERVERS}&verifiable=true${orderParam}${scopeParams}`
+            ),
+          ];
+          if (metric === "species_count") {
+            requests.push(
+              fetchJSON(
+                `${API_BASE}/observations/observers?per_page=0&verifiable=true${scopeParams}`
+              )
+            );
+          }
+          const [data, totalsData] = await Promise.all(requests);
+
+          const observers = data.results || [];
+          const totalObservers = (totalsData || data).total_results || observers.length;
+
+          if (observers.length === 0) {
+            showWelcome(
+              "error",
+              `🌱 No ${roleLabel} found in ${scopeDescription()} yet. Try a different place or project.`
+            );
+            document.getElementById("progress").style.display = "none";
+            isLoading = false;
+            document.getElementById("loadBtn").disabled = false;
+            return;
+          }
+
+          // Find the searched user's position in the loaded rankings
+          const lowerUsername = username.toLowerCase();
+          const userIndex = observers.findIndex(
+            (o) => (o.user?.login || "").toLowerCase() === lowerUsername
+          );
+
+          const metricLabel =
+            metric === "species_count" ? "species" : metric === "identifications" ? "identifications" : "observations";
+
+          if (userIndex >= 0) {
+            const entry = observers[userIndex];
+            const value = isIdentifiers
+              ? entry.count
+              : metric === "species_count"
+                ? entry.species_count
+                : entry.observation_count;
+            showRankBanner(
+              `🔭 <strong>${escapeHtml(entry.user?.login || username)}</strong> is <strong>#${(userIndex + 1).toLocaleString()}</strong> of ${totalObservers.toLocaleString()} ${roleLabel} in ${escapeHtml(scopeDescription())} with ${(value || 0).toLocaleString()} ${metricLabel}.` +
+                (userIndex > 0
+                  ? `<button class="jump-btn" onclick="jumpToMyPosition()">Jump to my position</button>`
+                  : "")
+            );
+          } else if (isIdentifiers) {
+            // The identifiers endpoint's user_id param filters by whose
+            // observations were identified, not who identified them, so
+            // there is no way to fetch one user's scoped identification
+            // count when they fall outside the loaded rankings.
+            showRankBanner(
+              `<strong>${escapeHtml(username)}</strong> is not in the top ${Math.min(observers.length, MAX_OBSERVERS)} of ${totalObservers.toLocaleString()} identifiers in ${escapeHtml(scopeDescription())}.`
+            );
+          } else {
+            const own = await fetchUserScopedCounts(username);
+            if (own) {
+              showRankBanner(
+                `<strong>${escapeHtml(own.user?.login || username)}</strong> is not in the top ${Math.min(observers.length, MAX_OBSERVERS)} of ${totalObservers.toLocaleString()} observers in ${escapeHtml(scopeDescription())} — they have ${(own.observation_count || 0).toLocaleString()} observations and ${(own.species_count || 0).toLocaleString()} species here.`
+              );
+            } else {
+              showRankBanner(
+                `<strong>${escapeHtml(username)}</strong> has no observations in ${escapeHtml(scopeDescription())} yet.`
+              );
+            }
+          }
+
+          // Render the list
+          const fragment = document.createDocumentFragment();
+          observers.forEach((entry, i) => {
+            fragment.appendChild(renderRow(entry, i + 1, metric, i === userIndex));
+          });
+          listEl.appendChild(fragment);
+          loadedObservers = observers;
+          loadedMode = modeSelect.value;
+          document.getElementById("downloadBtn").style.display = "block";
+
+          document.getElementById("resultsCount").textContent = isIdentifiers
+            ? `Top ${observers.length.toLocaleString()} identifiers`
+            : `Top ${observers.length.toLocaleString()} observers by ${metricLabel}`;
+          document.getElementById("resultsScope").textContent =
+            `${scopeDescription()} · ${totalObservers.toLocaleString()} ${roleLabel} total`;
+
+          document.getElementById("progress").style.display = "none";
+          document.getElementById("results").style.display = "block";
+        } catch (error) {
+          showError("error", "Error: " + error.message);
+          document.getElementById("progress").style.display = "none";
+        }
+
+        isLoading = false;
+        document.getElementById("loadBtn").disabled = false;
+      }
+
+      // eslint-disable-next-line no-unused-vars -- called from onclick attribute
+      function jumpToMyPosition() {
+        const row = document.querySelector(".highlight-user");
+        if (row) {
+          row.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+
+      // eslint-disable-next-line no-unused-vars -- called from onclick attribute
+      function downloadCSV() {
+        if (loadedObservers.length === 0) return;
+
+        const isIdentifiers = loadedMode === "identifiers";
+        const headers = isIdentifiers
+          ? ["Rank", "Username", "Name", "Identifications"]
+          : ["Rank", "Username", "Name", "Observations", "Species"];
+        const csvQuote = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+        const rows = loadedObservers.map((entry, i) =>
+          isIdentifiers
+            ? [i + 1, csvQuote(entry.user?.login), csvQuote(entry.user?.name), entry.count || 0]
+            : [
+                i + 1,
+                csvQuote(entry.user?.login),
+                csvQuote(entry.user?.name),
+                entry.observation_count || 0,
+                entry.species_count || 0,
+              ]
+        );
+
+        const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        const scopeSlug = scopeDescription()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "");
+        link.setAttribute("download", `${loadedMode}-${scopeSlug}.csv`);
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+
+      // Allow Enter key to trigger load
+      usernameInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") loadObservers();
+      });
+    </script>
+    <button class="feedback-button" id="feedbackBtn">Send feedback</button>
+    <script
+      defer
+      data-domain="glauberramos.github.io/inat"
+      src="https://plausible.io/js/script.js"
+    ></script>
+    <script type="text/javascript">
+      initFeedbackButton();
+    </script>
+    <script src="dark-mode.js?v=2"></script>
+    <script>
+      registerServiceWorker();
+    </script>
+  </body>
+</html>

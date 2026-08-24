@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
     <title>Lifelist Timeline - View Your iNaturalist Species History by Date</title>
     <link rel="icon" href="favicon.ico" />
     <link rel="manifest" href="manifest.json" />
@@ -53,7 +60,7 @@
       ]
     }
     </script>
-    <link rel="stylesheet" href="dark-mode.css?v=5" />
+    <link rel="stylesheet" href="dark-mode.css?v=6" />
     <style>
       * {
         box-sizing: border-box;
@@ -782,18 +789,18 @@
             Species photo
           </label>
           <div class="view-toggle">
-            <button class="view-btn active" id="listViewBtn" onclick="setView('list')">List</button>
-            <button class="view-btn" id="gridViewBtn" onclick="setView('grid')">Grid</button>
+            <button class="view-btn" id="listViewBtn" onclick="setView('list')">List</button>
+            <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')">Grid</button>
           </div>
           <button id="downloadBtn" onclick="downloadCSV()" style="display:none; padding: 8px 16px; font-size: 14px;">Download CSV</button>
         </div>
       </div>
-      <ul class="species-list active" id="speciesList"></ul>
-      <div class="species-grid" id="speciesGrid"></div>
+      <ul class="species-list" id="speciesList"></ul>
+      <div class="species-grid active" id="speciesGrid"></div>
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js"></script>
+    <script src="shared-utils.js?v=2"></script>
     <script>
       let isSearching = false;
       let searchTimeout = null;
@@ -1613,7 +1620,11 @@
           const allSpecies = await getUserSpeciesCounts(username, placeId, projectId, taxonId);
 
           if (allSpecies.length === 0) {
-            showError("error", username ? "No species found for this user" : "No species found for this place/project");
+            if (username && !placeId && !projectId && !taxonId) {
+              showWelcome("error", "🌱 No observations yet! Record your first sighting on iNaturalist and your lifelist will start growing here.");
+            } else {
+              showError("error", username ? "No species found for this user" : "No species found for this place/project");
+            }
             document.getElementById("progress").style.display = "none";
             isSearching = false;
             document.getElementById("searchBtn").disabled = false;
@@ -1749,7 +1760,7 @@
     <script type="text/javascript">
       initFeedbackButton();
     </script>
-    <script src="dark-mode.js"></script>
+    <script src="dark-mode.js?v=2"></script>
     <script>
       registerServiceWorker();
     </script>

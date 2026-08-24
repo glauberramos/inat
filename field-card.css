@@ -1,0 +1,455 @@
+/* ==========================================================================
+   Field Card — page-scoped styles ("field notebook" family, same tokens as
+   speciesdex.css / profile.css). Loaded after styles.css and dark-mode.css;
+   every rule is prefixed with body.fieldcard-page so nothing leaks and ties
+   against html.dark-mode body rules resolve in this file's favor.
+   ========================================================================== */
+
+body.fieldcard-page {
+  --fc-bg: #f3f5ec;
+  --fc-dot: rgba(28, 36, 21, 0.05);
+  --fc-surface: #ffffff;
+  --fc-surface-2: #fbfcf7;
+  --fc-ink: #1c2415;
+  --fc-muted: #66705c;
+  --fc-line: #dfe4d2;
+  --fc-green: #74ac00;
+  --fc-green-strong: #587f00;
+  --fc-green-tint: #eef4dc;
+  --fc-shadow: 0 1px 2px rgba(28, 36, 21, 0.06),
+    0 10px 26px -14px rgba(28, 36, 21, 0.22);
+  --fc-shadow-lift: 0 2px 4px rgba(28, 36, 21, 0.08),
+    0 18px 38px -16px rgba(28, 36, 21, 0.3);
+  --fc-display: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --fc-mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+body.fieldcard-page.dark-mode {
+  --fc-bg: #11150c;
+  --fc-dot: rgba(233, 237, 221, 0.045);
+  --fc-surface: #1a2113;
+  --fc-surface-2: #161c10;
+  --fc-ink: #e9eddd;
+  --fc-muted: #9aa48a;
+  --fc-line: #2b3520;
+  --fc-green: #8fc61e;
+  --fc-green-strong: #a5d63a;
+  --fc-green-tint: #232d15;
+  --fc-shadow: 0 1px 2px rgba(0, 0, 0, 0.4),
+    0 10px 26px -14px rgba(0, 0, 0, 0.6);
+  --fc-shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.45),
+    0 18px 38px -16px rgba(0, 0, 0, 0.75);
+}
+
+/* --------------------------------------------------------------------------
+   Page base
+   -------------------------------------------------------------------------- */
+body.fieldcard-page {
+  background-color: var(--fc-bg);
+  background-image: radial-gradient(var(--fc-dot) 1px, transparent 1px);
+  background-size: 22px 22px;
+  color: var(--fc-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+body.fieldcard-page ::selection {
+  background: var(--fc-green);
+  color: #fff;
+}
+
+body.fieldcard-page.dark-mode .container {
+  background-color: transparent;
+}
+
+body.fieldcard-page h1 {
+  font-family: var(--fc-display);
+  font-weight: 700;
+  font-size: 2.6rem;
+  letter-spacing: -0.02em;
+  color: var(--fc-ink);
+  margin-bottom: 0;
+}
+
+body.fieldcard-page .title-container {
+  gap: 12px;
+  margin-top: 6px;
+}
+
+body.fieldcard-page .description {
+  color: var(--fc-muted);
+  font-size: 1rem;
+  margin: 4px auto 22px;
+}
+
+/* --------------------------------------------------------------------------
+   Search controls
+   -------------------------------------------------------------------------- */
+body.fieldcard-page .search-card {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 4px 0 6px;
+  margin-bottom: 22px;
+}
+
+body.fieldcard-page .search-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+body.fieldcard-page .search-row .input-wrapper {
+  position: relative;
+  width: 300px;
+}
+
+body.fieldcard-page .search-row .input-wrapper input {
+  width: 100%;
+}
+
+body.fieldcard-page input[type="text"] {
+  border: 1.5px solid var(--fc-line);
+  border-radius: 10px;
+  background-color: var(--fc-surface);
+  color: var(--fc-ink);
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+body.fieldcard-page input[type="text"]::placeholder {
+  color: var(--fc-muted);
+}
+
+body.fieldcard-page input[type="text"]:hover {
+  border-color: var(--fc-green);
+}
+
+body.fieldcard-page input[type="text"]:focus {
+  outline: none;
+  border-color: var(--fc-green);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fc-green) 25%, transparent);
+}
+
+body.fieldcard-page #searchButton {
+  background-color: var(--fc-green);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 10px 22px;
+  transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+body.fieldcard-page.dark-mode #searchButton {
+  color: #101505;
+}
+
+body.fieldcard-page #searchButton:hover {
+  background-color: var(--fc-green-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -8px var(--fc-green);
+}
+
+body.fieldcard-page .username-autocomplete {
+  background: var(--fc-surface);
+  border: 1.5px solid var(--fc-line);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  box-shadow: var(--fc-shadow);
+}
+
+body.fieldcard-page .username-suggestion {
+  border-bottom: 1px solid var(--fc-line);
+}
+
+body.fieldcard-page .username-suggestion:hover {
+  background-color: var(--fc-green-tint);
+}
+
+body.fieldcard-page .username-suggestion .username-name {
+  color: var(--fc-ink);
+}
+
+body.fieldcard-page .username-suggestion .username-info {
+  color: var(--fc-muted);
+  font-family: var(--fc-mono);
+  font-size: 0.72rem;
+}
+
+/* --------------------------------------------------------------------------
+   Result: toolbar, preview, hint
+   -------------------------------------------------------------------------- */
+body.fieldcard-page #cardResult {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+body.fieldcard-page .card-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+body.fieldcard-page .card-theme-toggle {
+  display: flex;
+  background: var(--fc-surface);
+  border: 1px solid var(--fc-line);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+body.fieldcard-page .card-theme-btn {
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  color: var(--fc-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 6px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+body.fieldcard-page .card-theme-btn:hover {
+  color: var(--fc-ink);
+  background: var(--fc-green-tint);
+}
+
+body.fieldcard-page .card-theme-btn.active,
+body.fieldcard-page .card-theme-btn.active:hover {
+  background: var(--fc-green);
+  color: #fff;
+}
+
+body.fieldcard-page.dark-mode .card-theme-btn.active,
+body.fieldcard-page.dark-mode .card-theme-btn.active:hover {
+  color: #101505;
+}
+
+body.fieldcard-page .card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+body.fieldcard-page .card-action {
+  background: transparent;
+  border: 1.5px solid var(--fc-line);
+  border-radius: 10px;
+  color: var(--fc-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+body.fieldcard-page .card-action:hover {
+  background: var(--fc-green-tint);
+  border-color: var(--fc-green);
+  color: var(--fc-ink);
+}
+
+body.fieldcard-page .card-action-primary,
+body.fieldcard-page .card-action-primary:hover {
+  background: var(--fc-green);
+  border-color: var(--fc-green);
+  color: #fff;
+}
+
+body.fieldcard-page .card-action-primary:hover {
+  background: var(--fc-green-strong);
+  border-color: var(--fc-green-strong);
+}
+
+body.fieldcard-page.dark-mode .card-action-primary,
+body.fieldcard-page.dark-mode .card-action-primary:hover {
+  color: #101505;
+}
+
+@keyframes fcCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+body.fieldcard-page .card-preview {
+  line-height: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--fc-line);
+  box-shadow: var(--fc-shadow-lift);
+  animation: fcCardIn 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+body.fieldcard-page #fieldCardCanvas {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+body.fieldcard-page .card-hint {
+  font-family: var(--fc-mono);
+  font-size: 0.72rem;
+  color: var(--fc-muted);
+  text-align: center;
+  margin-top: 12px;
+  min-height: 1em;
+}
+
+body.fieldcard-page .card-cross-links {
+  text-align: center;
+  margin: 14px 0 30px;
+}
+
+body.fieldcard-page .card-cross-link {
+  display: inline-block;
+  padding: 7px 16px;
+  border: 1.5px solid var(--fc-line);
+  border-radius: 999px;
+  color: var(--fc-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+body.fieldcard-page .card-cross-link:hover {
+  background: var(--fc-green-tint);
+  border-color: var(--fc-green);
+  color: var(--fc-ink);
+}
+
+/* --------------------------------------------------------------------------
+   Loading / error
+   -------------------------------------------------------------------------- */
+@keyframes fcLeafSway {
+  0%,
+  100% {
+    transform: rotate(-12deg);
+  }
+  50% {
+    transform: rotate(12deg) translateY(-3px);
+  }
+}
+
+body.fieldcard-page .loading {
+  color: var(--fc-muted);
+  font-family: var(--fc-mono);
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+
+body.fieldcard-page .loading::before {
+  content: "📸";
+  display: inline-block;
+  animation: fcLeafSway 1.1s ease-in-out infinite;
+  margin-right: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Feedback button
+   -------------------------------------------------------------------------- */
+#pipeback-widget-container,
+.pipeback-launcher-frame {
+  display: none !important;
+}
+
+body.fieldcard-page .feedback-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--fc-green);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  transition: all 0.3s;
+}
+
+body.fieldcard-page .feedback-button:hover {
+  background: var(--fc-green-strong);
+  transform: translateY(-2px);
+}
+
+body.fieldcard-page.dark-mode .feedback-button {
+  color: #101505;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  body.fieldcard-page .card-preview {
+    animation: none;
+  }
+
+  body.fieldcard-page .loading::before {
+    animation: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  body.fieldcard-page .search-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  body.fieldcard-page .search-row .input-wrapper {
+    width: 100%;
+  }
+
+  body.fieldcard-page .search-row button {
+    width: 100%;
+  }
+
+  body.fieldcard-page .card-toolbar {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  body.fieldcard-page {
+    padding-top: 60px;
+  }
+
+  body.fieldcard-page .back-button {
+    font-size: 0.8rem !important;
+    padding: 8px 12px !important;
+    top: 10px !important;
+    left: 10px !important;
+  }
+
+  body.fieldcard-page h1 {
+    font-size: 1.7rem;
+  }
+
+  body.fieldcard-page .card-actions {
+    width: 100%;
+  }
+
+  body.fieldcard-page .card-action {
+    flex: 1;
+  }
+}

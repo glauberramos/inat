@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
+    <title>Field Card - Shareable iNaturalist Profile Card</title>
+    <link rel="icon" href="favicon.ico" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#74ac00" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="logo.png" />
+    <link rel="canonical" href="https://glauberramos.github.io/inat/field-card" />
+    <meta
+      name="description"
+      content="Turn your iNaturalist stats into a beautiful shareable card. Preview your field card with observations, species counts, and most observed species, then download it as an image."
+    />
+    <meta property="og:title" content="Field Card - Shareable iNaturalist Profile Card" />
+    <meta property="og:description" content="Turn your iNaturalist stats into a beautiful shareable card and download it as an image." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://glauberramos.github.io/inat/field-card" />
+    <meta property="og:site_name" content="iNaturalist Tools" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content="https://glauberramos.github.io/inat/logo.png" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image" content="https://glauberramos.github.io/inat/logo.png" />
+    <meta name="twitter:title" content="Field Card - iNaturalist" />
+    <meta name="twitter:description" content="Turn your iNaturalist stats into a beautiful shareable card." />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Glauber Ramos" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Field Card",
+      "description": "Turn your iNaturalist stats into a beautiful shareable card and download it as an image.",
+      "url": "https://glauberramos.github.io/inat/field-card",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "author": {
+        "@type": "Person",
+        "name": "Glauber Ramos"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "iNaturalist Tools", "item": "https://glauberramos.github.io/inat/" },
+        { "@type": "ListItem", "position": 2, "name": "Field Card", "item": "https://glauberramos.github.io/inat/field-card" }
+      ]
+    }
+    </script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="dark-mode.css?v=6" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="field-card.css" />
+    <script src="analytics.js"></script>
+  </head>
+  <body class="fieldcard-page">
+    <a
+      href="/inat"
+      class="back-button"
+      style="
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        background: #2d2d2d;
+        color: #ccc;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 4px 10px;
+        border-radius: 6px;
+        z-index: 1000;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: background 0.2s;
+      "
+      onmouseover="this.style.background='#3d3d3d'"
+      onmouseout="this.style.background='#2d2d2d'"
+    >
+      <span style="font-size: 1rem">&larr;</span> More tools
+    </a>
+
+    <div class="container">
+      <header>
+        <div class="header-content">
+          <div class="title-container">
+            <img src="logo.png" alt="iNaturalist Logo" class="logo" />
+            <h1>Field Card</h1>
+          </div>
+          <p class="description">Turn your iNaturalist stats into a shareable card</p>
+        </div>
+      </header>
+
+      <main>
+        <div class="search-card">
+          <div class="search-row">
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="usernameInput"
+                placeholder="Enter iNaturalist username..."
+                autocomplete="off"
+              />
+              <div id="usernameAutocomplete" class="username-autocomplete"></div>
+            </div>
+            <button id="searchButton">Create Card</button>
+          </div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">Gathering field data…</div>
+        <div id="errorMessage" class="error-message"></div>
+
+        <div id="cardResult" style="display: none;">
+          <div class="card-toolbar">
+            <div class="card-theme-toggle">
+              <button class="card-theme-btn active" data-theme="paper">Paper</button>
+              <button class="card-theme-btn" data-theme="night">Night</button>
+            </div>
+            <div class="card-actions">
+              <button id="cardDownload" class="card-action card-action-primary">Download PNG</button>
+              <button id="cardCopy" class="card-action">Copy image</button>
+              <button id="cardShare" class="card-action">Share&hellip;</button>
+            </div>
+          </div>
+
+          <div class="card-preview">
+            <canvas id="fieldCardCanvas" width="1080" height="1350"></canvas>
+          </div>
+
+          <div class="card-hint" id="cardHint"></div>
+
+          <div class="card-cross-links">
+            <a href="/inat/profile" id="profileCrossLink" class="card-cross-link">
+              View the full profile &rarr;
+            </a>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="constants.js"></script>
+    <script src="shared-utils.js?v=2"></script>
+    <script src="field-card.js"></script>
+    <button class="feedback-button" id="feedbackBtn">Send feedback</button>
+    <script defer data-domain="glauberramos.github.io/inat" src="https://plausible.io/js/script.js"></script>
+    <script type="text/javascript">
+      initFeedbackButton();
+    </script>
+    <script src="dark-mode.js?v=2"></script>
+    <script>
+      registerServiceWorker();
+    </script>
+  </body>
+</html>

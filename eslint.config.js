@@ -24,6 +24,7 @@ const sharedGlobals = {
   getSavedLanguage: "readonly",
   showError: "readonly",
   hideError: "readonly",
+  showWelcome: "readonly",
   updateProgress: "readonly",
   initFeedbackButton: "readonly",
   registerServiceWorker: "readonly",

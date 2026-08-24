@@ -1,35 +1,35 @@
 /* Achievements-specific dark mode styles */
-body.dark-mode {
+html.dark-mode body {
   background-color: #1a1a1a;
   color: #e0e0e0;
 }
 
-body.dark-mode .container {
+html.dark-mode body .container {
   background-color: #1a1a1a;
 }
 
-body.dark-mode h1,
-body.dark-mode h2,
-body.dark-mode h3 {
+html.dark-mode body h1,
+html.dark-mode body h2,
+html.dark-mode body h3 {
   color: #e0e0e0;
 }
 
-body.dark-mode .description {
+html.dark-mode body .description {
   color: #aaa;
 }
 
-body.dark-mode .summary-card,
-body.dark-mode .stats-card {
+html.dark-mode body .summary-card,
+html.dark-mode body .stats-card {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .achievement-card {
+html.dark-mode body .achievement-card {
   background: linear-gradient(135deg, #2d2d2d 0%, #252525 100%);
   border-color: #444;
 }
 
-body.dark-mode .achievement-card.completed {
+html.dark-mode body .achievement-card.completed {
   border-color: #74ac00;
   background: linear-gradient(
     135deg,
@@ -41,30 +41,30 @@ body.dark-mode .achievement-card.completed {
     0 0 25px rgba(116, 172, 0, 0.1);
 }
 
-body.dark-mode .achievement-card.completed .achievement-name {
+html.dark-mode body .achievement-card.completed .achievement-name {
   color: #9acd32;
 }
 
-body.dark-mode input,
-body.dark-mode select {
+html.dark-mode body input,
+html.dark-mode body select {
   background: #3d3d3d;
   border-color: #555;
   color: #e0e0e0;
 }
 
-body.dark-mode input::placeholder {
+html.dark-mode body input::placeholder {
   color: #888;
 }
 
-body.dark-mode .achievement-name {
+html.dark-mode body .achievement-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .achievement-description {
+html.dark-mode body .achievement-description {
   color: #999;
 }
 
-body.dark-mode .category-title {
+html.dark-mode body .category-title {
   color: #ccc;
   background: linear-gradient(
     90deg,
@@ -74,54 +74,54 @@ body.dark-mode .category-title {
   border-left-color: #74ac00;
 }
 
-body.dark-mode .progress-bar {
+html.dark-mode body .progress-bar {
   background: linear-gradient(to bottom, #333, #3d3d3d);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-body.dark-mode .achievement-card:not(.completed) .achievement-icon {
+html.dark-mode body .achievement-card:not(.completed) .achievement-icon {
   filter: grayscale(60%) opacity(0.5);
 }
 
-body.dark-mode .taxon-icon {
+html.dark-mode body .taxon-icon {
   background: #3d3d3d;
 }
 
-body.dark-mode .taxon-icon.observed {
+html.dark-mode body .taxon-icon.observed {
   background: rgba(116, 172, 0, 0.2);
 }
 
-body.dark-mode .taxon-icon.month-icon {
+html.dark-mode body .taxon-icon.month-icon {
   color: #666;
 }
 
-body.dark-mode .taxon-icon.month-icon.observed {
+html.dark-mode body .taxon-icon.month-icon.observed {
   color: #74ac00;
 }
 
-body.dark-mode .username-autocomplete {
+html.dark-mode body .username-autocomplete {
   background: #2d2d2d;
   border-color: #444;
 }
 
-body.dark-mode .username-suggestion {
+html.dark-mode body .username-suggestion {
   border-bottom-color: #444;
 }
 
-body.dark-mode .username-suggestion:hover {
+html.dark-mode body .username-suggestion:hover {
   background: #3d3d3d;
 }
 
-body.dark-mode .username-name {
+html.dark-mode body .username-name {
   color: #e0e0e0;
 }
 
-body.dark-mode .username-info {
+html.dark-mode body .username-info {
   color: #aaa;
 }
 
-body.dark-mode .summary-stat-label,
-body.dark-mode .stat-label {
+html.dark-mode body .summary-stat-label,
+html.dark-mode body .stat-label {
   color: #aaa;
 }
 
@@ -180,7 +180,7 @@ body.dark-mode .stat-label {
   display: inline-block;
 }
 
-body.dark-mode .achievements-progress {
+html.dark-mode body .achievements-progress {
   background: rgba(116, 172, 0, 0.2);
   color: #9acd32;
 }
@@ -578,7 +578,7 @@ body.dark-mode .achievements-progress {
 }
 
 /* Dark mode platinum styles */
-body.dark-mode .category-title.platinum {
+html.dark-mode body .category-title.platinum {
   background: linear-gradient(
     90deg,
     rgba(116, 172, 0, 0.2) 0%,
@@ -590,16 +590,16 @@ body.dark-mode .category-title.platinum {
   box-shadow: 0 2px 12px rgba(116, 172, 0, 0.15), inset 0 0 20px rgba(116, 172, 0, 0.03);
 }
 
-body.dark-mode .category-title.platinum .category-title-text {
+html.dark-mode body .category-title.platinum .category-title-text {
   color: #9acd32;
 }
 
-body.dark-mode .category-title.platinum .category-count {
+html.dark-mode body .category-title.platinum .category-count {
   background: linear-gradient(135deg, #74ac00 0%, #5d8a00 100%);
   color: #fff;
 }
 
-body.dark-mode .category-count {
+html.dark-mode body .category-count {
   background: rgba(255, 255, 255, 0.1);
   color: #999;
 }
@@ -619,7 +619,7 @@ body.dark-mode .category-count {
   z-index: 10;
 }
 
-body.dark-mode .achievement-card.loading::after {
+html.dark-mode body .achievement-card.loading::after {
   background: rgba(45, 45, 45, 0.85);
 }
 
@@ -639,7 +639,7 @@ body.dark-mode .achievement-card.loading::after {
   animation: spinner-rotate 0.8s linear infinite;
 }
 
-body.dark-mode .achievement-card.loading::before {
+html.dark-mode body .achievement-card.loading::before {
   border-color: #444;
   border-top-color: #74ac00;
 }
@@ -935,67 +935,67 @@ body.dark-mode .achievement-card.loading::before {
   content: none;
 }
 
-body.dark-mode .calendar-link {
+html.dark-mode body .calendar-link {
   color: #9acd32;
 }
 
-body.dark-mode .calendar-link:hover {
+html.dark-mode body .calendar-link:hover {
   color: #74ac00;
 }
 
-body.dark-mode .calendar-day {
+html.dark-mode body .calendar-day {
   color: #888;
 }
 
-body.dark-mode .calendar-day.observed {
+html.dark-mode body .calendar-day.observed {
   color: white;
 }
 
-body.dark-mode .calendar-day.today {
+html.dark-mode body .calendar-day.today {
   background: #e74c3c;
   color: white;
   box-shadow: 0 0 0 2px #2d2d2d, 0 0 0 4px #e74c3c;
 }
 
-body.dark-mode .calendar-day.today.observed {
+html.dark-mode body .calendar-day.today.observed {
   background: #74ac00;
   box-shadow: 0 0 0 2px #2d2d2d, 0 0 0 4px #e74c3c;
 }
 
 /* Dark mode calendar */
-body.dark-mode .calendar-modal {
+html.dark-mode body .calendar-modal {
   background: #2d2d2d;
 }
 
-body.dark-mode .calendar-modal-header {
+html.dark-mode body .calendar-modal-header {
   border-bottom-color: #444;
 }
 
-body.dark-mode .calendar-modal-title {
+html.dark-mode body .calendar-modal-title {
   color: #e0e0e0;
 }
 
-body.dark-mode .calendar-modal-close {
+html.dark-mode body .calendar-modal-close {
   color: #888;
 }
 
-body.dark-mode .calendar-modal-close:hover {
+html.dark-mode body .calendar-modal-close:hover {
   color: #e0e0e0;
 }
 
-body.dark-mode .calendar-progress-label {
+html.dark-mode body .calendar-progress-label {
   color: #aaa;
 }
 
-body.dark-mode .calendar-month-name {
+html.dark-mode body .calendar-month-name {
   color: #888;
 }
 
-body.dark-mode .calendar-day {
+html.dark-mode body .calendar-day {
   background: #444;
 }
 
-body.dark-mode .calendar-day.observed {
+html.dark-mode body .calendar-day.observed {
   background: #74ac00;
 }
 

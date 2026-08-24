@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
     <title>Draft Observations - iNaturalist</title>
     <link rel="icon" href="favicon.ico" />
     <link rel="manifest" href="manifest.json" />
@@ -59,7 +66,7 @@
     }
     </script>
     <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="dark-mode.css?v=5" />
+    <link rel="stylesheet" href="dark-mode.css?v=6" />
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
@@ -2302,7 +2309,7 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="constants.js"></script>
-    <script src="shared-utils.js"></script>
+    <script src="shared-utils.js?v=2"></script>
     <script>
       // Location Picker Variables
       let locationMap = null;
@@ -4861,7 +4868,7 @@
     <script>
       registerServiceWorker();
     </script>
-    <script src="dark-mode.js"></script>
+    <script src="dark-mode.js?v=2"></script>
     <button class="feedback-button" id="feedbackBtn">Send feedback</button>
     <script type="text/javascript">
       initFeedbackButton();

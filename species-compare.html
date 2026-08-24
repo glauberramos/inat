@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
     <title>Location Species Compare - Compare Species Between Two Locations</title>
     <link rel="icon" href="favicon.ico" />
     <link rel="manifest" href="manifest.json" />
@@ -66,7 +73,7 @@
     }
     </script>
     <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="dark-mode.css?v=5" />
+    <link rel="stylesheet" href="dark-mode.css?v=6" />
     <style>
       .search-card {
         background: white;
@@ -508,7 +515,7 @@
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js"></script>
+    <script src="shared-utils.js?v=2"></script>
     <script src="location-autocomplete.js"></script>
     <script>
       const locationInputA = document.getElementById("locationInputA");
@@ -783,7 +790,10 @@
             return new Set();
           }
 
-          const userId = userData.results[0].id;
+          const matchedUser = userData.results.find(
+            (u) => u.login.toLowerCase() === username.toLowerCase()
+          ) || userData.results[0];
+          const userId = matchedUser.id;
 
           // Fetch first page
           const firstResponse = await fetch(
@@ -1086,7 +1096,7 @@
     <script type="text/javascript">
       initFeedbackButton();
     </script>
-    <script src="dark-mode.js"></script>
+    <script src="dark-mode.js?v=2"></script>
     <script>
       registerServiceWorker();
     </script>

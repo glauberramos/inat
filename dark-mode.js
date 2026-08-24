@@ -1,4 +1,7 @@
 // Dark mode functionality
+// The inline bootstrap in each page's <head> already put .dark-mode on <html>
+// before first paint; here we build the toggle and keep <html> and <body>
+// in sync (some scripts still check document.body for the class).
 (function () {
   // Create dark mode toggle button if it doesn't exist
   let darkModeToggle = document.getElementById("darkModeToggle");
@@ -13,15 +16,18 @@
   }
 
   // Load dark mode preference from localStorage
-  if (localStorage.getItem("darkMode") === "true") {
-    document.body.classList.add("dark-mode");
+  const isDark = localStorage.getItem("darkMode") === "true";
+  document.documentElement.classList.toggle("dark-mode", isDark);
+  document.body.classList.toggle("dark-mode", isDark);
+  if (isDark) {
     darkModeToggle.textContent = "☀️";
   }
 
   // Toggle dark mode
   darkModeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark-mode");
-    const isDarkMode = document.body.classList.contains("dark-mode");
+    const isDarkMode = !document.documentElement.classList.contains("dark-mode");
+    document.documentElement.classList.toggle("dark-mode", isDarkMode);
+    document.body.classList.toggle("dark-mode", isDarkMode);
     localStorage.setItem("darkMode", isDarkMode);
     darkModeToggle.textContent = isDarkMode ? "☀️" : "🌛";
   });

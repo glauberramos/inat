@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
     <title>
       iNaturalist Tools - Species Tracker, Lifelist, Achievements & More
     </title>
@@ -67,7 +74,7 @@
       "name": "iNaturalist Tools",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "iNaturalist Achievements", "url": "https://glauberramos.github.io/inat/achievements" },
-        { "@type": "ListItem", "position": 2, "name": "Brazilian States Observer", "url": "https://glauberramos.github.io/inat/brazil-states" },
+        { "@type": "ListItem", "position": 2, "name": "Country States Observer", "url": "https://glauberramos.github.io/inat/country-states" },
         { "@type": "ListItem", "position": 3, "name": "Draft Observations", "url": "https://glauberramos.github.io/inat/draft" },
         { "@type": "ListItem", "position": 4, "name": "First Identifier Checker", "url": "https://glauberramos.github.io/inat/first-identifier" },
         { "@type": "ListItem", "position": 5, "name": "First Observer Checker", "url": "https://glauberramos.github.io/inat/first-observer" },
@@ -78,14 +85,15 @@
         { "@type": "ListItem", "position": 10, "name": "Species Identified", "url": "https://glauberramos.github.io/inat/species-identified" },
         { "@type": "ListItem", "position": 11, "name": "Species Observed", "url": "https://glauberramos.github.io/inat/species-observed" },
         { "@type": "ListItem", "position": 12, "name": "SpeciesDex", "url": "https://glauberramos.github.io/inat/speciesdex" },
-        { "@type": "ListItem", "position": 13, "name": "Taxonomy Completion", "url": "https://glauberramos.github.io/inat/taxonomy-completion" },
-        { "@type": "ListItem", "position": 14, "name": "US States Observer", "url": "https://glauberramos.github.io/inat/us-states" },
-        { "@type": "ListItem", "position": 15, "name": "Users Species Compare", "url": "https://glauberramos.github.io/inat/users-compare" },
-        { "@type": "ListItem", "position": 16, "name": "iNaturalist Widget Builder", "url": "https://glauberramos.github.io/inat/widget" }
+        { "@type": "ListItem", "position": 13, "name": "Tree of Life", "url": "https://glauberramos.github.io/inat/taxonomy-completion" },
+        { "@type": "ListItem", "position": 14, "name": "Users Species Compare", "url": "https://glauberramos.github.io/inat/users-compare" },
+        { "@type": "ListItem", "position": 15, "name": "iNaturalist Widget Builder", "url": "https://glauberramos.github.io/inat/widget" },
+        { "@type": "ListItem", "position": 16, "name": "Field Card", "url": "https://glauberramos.github.io/inat/field-card" },
+        { "@type": "ListItem", "position": 17, "name": "iNaturalist Top Users", "url": "https://glauberramos.github.io/inat/top-users" }
       ]
     }
     </script>
-    <link rel="stylesheet" href="dark-mode.css?v=5" />
+    <link rel="stylesheet" href="dark-mode.css?v=6" />
     <style>
       * {
         margin: 0;
@@ -365,7 +373,7 @@
             <div class="tool-icon">📚</div>
             <div class="tool-content">
               <h2>SpeciesDex</h2>
-              <p>Build your personal field guide</p>
+              <p>Find the species you're missing nearby</p>
             </div>
           </a>
 
@@ -382,6 +390,14 @@
             <div class="tool-content">
               <h2>My Rarest Species</h2>
               <p>Your species with the fewest observations worldwide</p>
+            </div>
+          </a>
+
+          <a href="/inat/top-users" class="tool-card">
+            <div class="tool-icon">🔭</div>
+            <div class="tool-content">
+              <h2>iNaturalist Top Users</h2>
+              <p>Top observers and identifiers in any place or project — and where you stand</p>
             </div>
           </a>
 
@@ -417,11 +433,11 @@
             </div>
           </a>
 
-          <a href="/inat/us-states" class="tool-card">
+          <a href="/inat/country-states" class="tool-card">
             <div class="tool-icon">🗺️</div>
             <div class="tool-content">
-              <h2>US States</h2>
-              <p>Track observations across all 50 US states</p>
+              <h2>Country States</h2>
+              <p>Track observations across the states of the US, Brazil, Canada, Australia, and France</p>
             </div>
           </a>
 
@@ -452,8 +468,8 @@
           <a href="/inat/taxonomy-completion" class="tool-card">
             <div class="tool-icon">🧬</div>
             <div class="tool-content">
-              <h2>Taxonomy Completion</h2>
-              <p>Track progress across any taxonomic rank</p>
+              <h2>Tree of Life</h2>
+              <p>How much of the tree of life have you seen?</p>
             </div>
           </a>
 
@@ -462,6 +478,14 @@
             <div class="tool-content">
               <h2>Widget Builder</h2>
               <p>Create embeddable observation widgets for any website</p>
+            </div>
+          </a>
+
+          <a href="/inat/field-card" class="tool-card">
+            <div class="tool-icon">📸</div>
+            <div class="tool-content">
+              <h2>Field Card</h2>
+              <p>Turn your stats into a shareable card you can download</p>
             </div>
           </a>
         </div>
@@ -475,11 +499,11 @@
       src="https://plausible.io/js/script.js"
     ></script>
     <script src="constants.js"></script>
-    <script src="shared-utils.js"></script>
+    <script src="shared-utils.js?v=2"></script>
     <script type="text/javascript">
       initFeedbackButton();
     </script>
-    <script src="dark-mode.js"></script>
+    <script src="dark-mode.js?v=2"></script>
     <script>
       registerServiceWorker();
     </script>

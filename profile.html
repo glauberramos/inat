@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
     <title>User Profile - iNaturalist Stats & Analytics</title>
     <link rel="icon" href="favicon.ico" />
     <link rel="manifest" href="manifest.json" />
@@ -54,11 +61,11 @@
     }
     </script>
     <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="dark-mode.css?v=5" />
-    <link rel="stylesheet" href="profile.css" />
+    <link rel="stylesheet" href="dark-mode.css?v=6" />
+    <link rel="stylesheet" href="profile.css?v=2" />
       <script src="analytics.js"></script>
   </head>
-  <body>
+  <body class="profile-page">
     <a
       href="/inat"
       class="back-button"
@@ -117,6 +124,7 @@
             <div class="profile-left">
               <div id="avatarContainer"></div>
               <div class="profile-info">
+                <div class="profile-eyebrow">Field Profile &middot; iNaturalist</div>
                 <div class="profile-name" id="profileName"></div>
                 <div class="profile-login" id="profileLogin"></div>
                 <div class="profile-meta">
@@ -191,6 +199,11 @@
             </a>
           </div>
 
+          <div class="chart-card top-species-card" id="topSpeciesCard" style="margin-bottom: 20px; display: none;">
+            <div class="chart-title">Most Observed Species</div>
+            <div class="top-species-strip" id="topSpeciesStrip"></div>
+          </div>
+
           <div class="chart-card" style="margin-bottom: 20px;">
             <div class="chart-title">Species by Category</div>
             <div class="taxon-chart-container" id="taxonChart"></div>
@@ -216,11 +229,29 @@
           <div class="chart-card calendar-card">
             <div class="calendar-header">
               <div class="chart-title">Activity Calendar</div>
-              <div class="calendar-streak-info">
-                <span>Current streak: <strong id="currentStreak">0</strong> days</span>
-                <span>Longest streak: <strong id="longestStreak">0</strong> days</span>
-              </div>
               <select id="calendarYearSelect" class="calendar-year-select"></select>
+            </div>
+            <div class="calendar-insights">
+              <div class="calendar-insight">
+                <span class="insight-value" id="currentStreak">0</span>
+                <span class="insight-label">Current streak</span>
+              </div>
+              <div class="calendar-insight gold">
+                <span class="insight-value" id="longestStreak">0</span>
+                <span class="insight-label" id="longestStreakLabel">Longest streak</span>
+              </div>
+              <div class="calendar-insight">
+                <span class="insight-value" id="activeDaysCount">&ndash;</span>
+                <span class="insight-label">Days observing</span>
+              </div>
+              <div class="calendar-insight gold">
+                <span class="insight-value" id="bestDayCount">&ndash;</span>
+                <span class="insight-label" id="bestDayLabel">Best day</span>
+              </div>
+              <div class="calendar-insight">
+                <span class="insight-value" id="avgPerDay">&ndash;</span>
+                <span class="insight-label">Avg obs / active day</span>
+              </div>
             </div>
             <div class="calendar-container">
               <div class="calendar-weekdays">
@@ -267,7 +298,7 @@
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js"></script>
+    <script src="shared-utils.js?v=2"></script>
     <script>
       const usernameInput = document.getElementById('usernameInput');
       const usernameAutocomplete = document.getElementById('usernameAutocomplete');
@@ -484,27 +515,29 @@
 
           // Group 3: /observations/species_counts endpoint
           const speciesCountsGroup = async () => {
-            const speciesResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&per_page=0`);
+            // per_page=6 instead of 0: same single request also returns the
+            // user's most-observed taxa for the "Most Observed Species" strip
+            const speciesResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&verifiable=true&per_page=6`);
             const speciesData = await speciesResponse.json();
             incrementLoadingProgress();
             await sleep(500);
 
-            const threatenedResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&threatened=true&per_page=0`);
+            const threatenedResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&threatened=true&verifiable=true&per_page=0`);
             const threatenedData = await threatenedResponse.json();
             incrementLoadingProgress();
             await sleep(500);
 
-            const endemicResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&endemic=true&per_page=0`);
+            const endemicResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&endemic=true&verifiable=true&per_page=0`);
             const endemicData = await endemicResponse.json();
             incrementLoadingProgress();
             await sleep(500);
 
-            const introducedResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&introduced=true&per_page=0`);
+            const introducedResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&introduced=true&verifiable=true&per_page=0`);
             const introducedData = await introducedResponse.json();
             incrementLoadingProgress();
             await sleep(500);
 
-            const nativeResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&native=true&per_page=0`);
+            const nativeResponse = await fetch(`${API_BASE}/observations/species_counts?user_id=${user.id}&native=true&verifiable=true&per_page=0`);
             const nativeData = await nativeResponse.json();
             incrementLoadingProgress();
             await sleep(500);
@@ -514,6 +547,7 @@
 
             return {
               species: speciesData.total_results || 0,
+              topSpecies: speciesData.results || [],
               threatened: threatenedData.total_results || 0,
               endemic: endemicData.total_results || 0,
               introduced: introducedData.total_results || 0,
@@ -542,6 +576,8 @@
 
           const ratio = observationsCount > 0 ? (speciesCount / observationsCount) * 100 : 0;
           document.getElementById('speciesRatio').textContent = ratio.toFixed(1) + '%';
+
+          renderTopSpecies(speciesCountsData.topSpecies, user.login);
 
           document.getElementById('threatenedCount').textContent = speciesCountsData.threatened.toLocaleString();
           document.getElementById('endemicCount').textContent = speciesCountsData.endemic.toLocaleString();
@@ -586,75 +622,126 @@
         }
       }
 
-      function drawPieChart(data) {
-        const canvas = document.getElementById('pieChart');
+      function pfToken(name, fallback) {
+        const v = getComputedStyle(document.body).getPropertyValue(name).trim();
+        return v || fallback;
+      }
+
+      // Shared floating tooltip (calendar, donut charts, taxon bars)
+      const pfTooltip = document.createElement('div');
+      pfTooltip.className = 'pf-tooltip';
+      document.body.appendChild(pfTooltip);
+
+      function showPfTooltip(text, x, y) {
+        pfTooltip.textContent = text;
+        pfTooltip.style.display = 'block';
+        const rect = pfTooltip.getBoundingClientRect();
+        let left = x + 12;
+        let top = y - rect.height - 10;
+        if (left + rect.width > window.innerWidth - 8) left = x - rect.width - 12;
+        if (top < 8) top = y + 14;
+        pfTooltip.style.left = left + 'px';
+        pfTooltip.style.top = top + 'px';
+      }
+
+      function hidePfTooltip() {
+        pfTooltip.style.display = 'none';
+      }
+
+      function renderDonutChart(canvasId, legendId, data, colors, labels) {
+        const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
-        const total = data.research + data.needsId + data.casual;
+        const entries = Object.entries(data).filter(([, v]) => v > 0);
+        const total = Object.values(data).reduce((a, b) => a + (b || 0), 0);
 
         if (total === 0) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.fillStyle = '#ccc';
+          ctx.fillStyle = pfToken('--pf-muted', '#ccc');
           ctx.font = '14px sans-serif';
           ctx.textAlign = 'center';
           ctx.fillText('No data', canvas.width / 2, canvas.height / 2);
           return;
         }
 
-        const colors = {
-          research: '#27ae60',
-          needsId: '#f39c12',
-          casual: '#95a5a6'
-        };
-
-        const labels = {
-          research: 'Research Grade',
-          needsId: 'Needs ID',
-          casual: 'Casual'
-        };
-
-        // Draw pie chart
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
         const radius = 80;
 
-        let startAngle = -Math.PI / 2;
+        // Precompute slice angles (12 o'clock start, clockwise)
+        const slices = [];
+        let angle = -Math.PI / 2;
+        for (const [key, value] of entries) {
+          const sliceAngle = (value / total) * 2 * Math.PI;
+          slices.push({ key, value, start: angle, end: angle + sliceAngle });
+          angle += sliceAngle;
+        }
 
-        Object.entries(data).forEach(([key, value]) => {
-          if (value > 0) {
-            const sliceAngle = (value / total) * 2 * Math.PI;
-
+        function draw(hoverKey) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          for (const s of slices) {
             ctx.beginPath();
             ctx.moveTo(centerX, centerY);
-            ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+            ctx.arc(centerX, centerY, s.key === hoverKey ? radius + 5 : radius, s.start, s.end);
             ctx.closePath();
-            ctx.fillStyle = colors[key];
+            ctx.fillStyle = colors[s.key];
+            ctx.globalAlpha = hoverKey && s.key !== hoverKey ? 0.55 : 1;
             ctx.fill();
-
-            startAngle += sliceAngle;
           }
-        });
+          ctx.globalAlpha = 1;
 
-        // Draw center circle for donut effect
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius * 0.65, 0, 2 * Math.PI);
-        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#2d2d2d' : 'white';
-        ctx.fill();
+          // Center circle for donut effect
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius * 0.65, 0, 2 * Math.PI);
+          ctx.fillStyle = pfToken('--pf-surface', 'white');
+          ctx.fill();
 
-        // Draw total in center
-        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333';
-        ctx.font = 'bold 18px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(total.toLocaleString(), centerX, centerY - 8);
-        ctx.font = '11px sans-serif';
-        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#aaa' : '#666';
-        ctx.fillText('total', centerX, centerY + 12);
+          // Center text: hovered slice value, or the total
+          const hovered = slices.find((s) => s.key === hoverKey);
+          ctx.fillStyle = pfToken('--pf-ink', '#333');
+          ctx.font = 'bold 17px system-ui, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText((hovered ? hovered.value : total).toLocaleString(), centerX, centerY - 8);
+          ctx.font = '10px system-ui, sans-serif';
+          ctx.fillStyle = pfToken('--pf-muted', '#666');
+          ctx.fillText(hovered ? labels[hovered.key] : 'total', centerX, centerY + 12);
+        }
+
+        draw(null);
+
+        let hoverKey = null;
+        canvas.onmousemove = (e) => {
+          const rect = canvas.getBoundingClientRect();
+          const x = (e.clientX - rect.left) * (canvas.width / rect.width) - centerX;
+          const y = (e.clientY - rect.top) * (canvas.height / rect.height) - centerY;
+          const dist = Math.sqrt(x * x + y * y);
+          let found = null;
+          if (dist >= radius * 0.65 && dist <= radius + 5) {
+            let a = Math.atan2(y, x);
+            if (a < -Math.PI / 2) a += 2 * Math.PI;
+            found = slices.find((s) => a >= s.start && a < s.end) || null;
+          }
+          const newKey = found ? found.key : null;
+          if (newKey !== hoverKey) {
+            hoverKey = newKey;
+            draw(hoverKey);
+          }
+          if (found) {
+            const pct = Math.round((found.value / total) * 100);
+            showPfTooltip(`${labels[found.key]}: ${found.value.toLocaleString()} (${pct}%)`, e.clientX, e.clientY);
+          } else {
+            hidePfTooltip();
+          }
+        };
+        canvas.onmouseleave = () => {
+          hoverKey = null;
+          draw(null);
+          hidePfTooltip();
+        };
 
         // Update legend
-        const legend = document.getElementById('pieLegend');
-        legend.innerHTML = Object.entries(data).map(([key, value]) => {
-          const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+        document.getElementById(legendId).innerHTML = entries.map(([key, value]) => {
+          const percentage = Math.round((value / total) * 100);
           return `
             <div class="legend-item">
               <div class="legend-color" style="background: ${colors[key]};"></div>
@@ -665,87 +752,69 @@
         }).join('');
       }
 
+      function drawPieChart(data) {
+        renderDonutChart('pieChart', 'pieLegend', data, {
+          research: '#27ae60',
+          needsId: '#f39c12',
+          casual: '#95a5a6'
+        }, {
+          research: 'Research Grade',
+          needsId: 'Needs ID',
+          casual: 'Casual'
+        });
+      }
+
       function drawIdPieChart(data) {
-        const canvas = document.getElementById('idPieChart');
-        const ctx = canvas.getContext('2d');
-        const total = data.improving + data.supporting + data.leading + data.maverick + (data.other || 0);
-
-        if (total === 0) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#888' : '#ccc';
-          ctx.font = '14px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText('No data', canvas.width / 2, canvas.height / 2);
-          return;
-        }
-
-        const colors = {
+        renderDonutChart('idPieChart', 'idPieLegend', data, {
           improving: '#27ae60',
           supporting: '#3498db',
           leading: '#9b59b6',
           maverick: '#e74c3c',
           other: '#95a5a6'
-        };
-
-        const labels = {
+        }, {
           improving: 'Improving',
           supporting: 'Supporting',
           leading: 'Leading',
           maverick: 'Maverick',
           other: 'Other'
-        };
-
-        // Draw pie chart
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = 80;
-
-        let startAngle = -Math.PI / 2;
-
-        Object.entries(data).forEach(([key, value]) => {
-          if (value > 0) {
-            const sliceAngle = (value / total) * 2 * Math.PI;
-
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
-            ctx.closePath();
-            ctx.fillStyle = colors[key];
-            ctx.fill();
-
-            startAngle += sliceAngle;
-          }
         });
+      }
 
-        // Draw center circle for donut effect
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius * 0.65, 0, 2 * Math.PI);
-        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#2d2d2d' : 'white';
-        ctx.fill();
+      function renderTopSpecies(results, username) {
+        const card = document.getElementById('topSpeciesCard');
+        const strip = document.getElementById('topSpeciesStrip');
 
-        // Draw total in center
-        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333';
-        ctx.font = 'bold 18px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(total.toLocaleString(), centerX, centerY - 8);
-        ctx.font = '11px sans-serif';
-        ctx.fillStyle = document.body.classList.contains('dark-mode') ? '#aaa' : '#666';
-        ctx.fillText('total', centerX, centerY + 12);
+        if (!results || results.length === 0) {
+          card.style.display = 'none';
+          return;
+        }
 
-        // Update legend
-        const legend = document.getElementById('idPieLegend');
-        legend.innerHTML = Object.entries(data).map(([key, value]) => {
-          const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+        strip.innerHTML = results.map((result, i) => {
+          const taxon = result.taxon || {};
+          const commonName = taxon.preferred_common_name || taxon.name || 'Unknown';
+          const sciName = taxon.name || '';
+          const photo = taxon.default_photo;
+          const photoUrl = photo ? (photo.medium_url || photo.square_url) : null;
+          const inatUrl = `https://www.inaturalist.org/observations?user_id=${username}&taxon_id=${taxon.id}`;
+          const photoHtml = photoUrl
+            ? `<img src="${escapeHtml(photoUrl)}" alt="${escapeHtml(commonName)}" loading="lazy">`
+            : '<div class="top-species-photo-placeholder">🌿</div>';
           return `
-            <div class="legend-item">
-              <div class="legend-color" style="background: ${colors[key]};"></div>
-              <span class="legend-label">${labels[key]}</span>
-              <span class="legend-value">${value.toLocaleString()} (${percentage}%)</span>
-            </div>
+            <a href="${escapeHtml(inatUrl)}" target="_blank" class="top-species-item" title="${escapeHtml(commonName)}: ${result.count.toLocaleString()} observations">
+              <div class="top-species-photo">
+                ${photoHtml}
+                <span class="top-species-rank">#${String(i + 1).padStart(2, '0')}</span>
+                <span class="top-species-count">&times; ${result.count.toLocaleString()}</span>
+              </div>
+              <div class="top-species-info">
+                <div class="top-species-name">${escapeHtml(commonName)}</div>
+                <div class="top-species-sciname">${escapeHtml(sciName)}</div>
+              </div>
+            </a>
           `;
         }).join('');
+
+        card.style.display = 'block';
       }
 
       async function renderTaxonChart(userId, username) {
@@ -796,10 +865,11 @@
         const maxHeight = 100;
 
         taxonChart.innerHTML = sortedTaxons.map(([key, data]) => {
-          const barHeight = Math.max(6, (data.count / maxCount) * maxHeight);
+          // sqrt scale: keeps small groups visible next to a dominant one
+          const barHeight = Math.max(6, (Math.sqrt(data.count) / Math.sqrt(maxCount)) * maxHeight);
           const inatUrl = `https://www.inaturalist.org/observations?user_id=${username}&iconic_taxa=${key}&verifiable=true&view=species`;
           return `
-            <a href="${escapeHtml(inatUrl)}" target="_blank" class="taxon-bar-col" title="${data.name}: ${data.count.toLocaleString()} species">
+            <a href="${escapeHtml(inatUrl)}" target="_blank" class="taxon-bar-col" data-title="${data.name}: ${data.count.toLocaleString()} species">
               <span class="taxon-bar-value">${data.count}</span>
               <div class="taxon-bar-wrapper" style="height: ${maxHeight}px;">
                 <div class="taxon-bar" style="height: ${barHeight}px; background: ${data.color};"></div>
@@ -809,6 +879,40 @@
           `;
         }).join('');
       }
+
+      // Hover tooltips: calendar days (click opens that day on iNaturalist)
+      // and species-by-category bars. Delegated once; both containers are
+      // static DOM.
+      const calendarGridEl = document.getElementById('calendarGrid');
+      calendarGridEl.addEventListener('mousemove', (e) => {
+        const day = e.target.closest('.calendar-day');
+        if (day && day.dataset.title) {
+          showPfTooltip(day.dataset.title, e.clientX, e.clientY);
+        } else {
+          hidePfTooltip();
+        }
+      });
+      calendarGridEl.addEventListener('mouseleave', hidePfTooltip);
+      calendarGridEl.addEventListener('click', (e) => {
+        const day = e.target.closest('.calendar-day.has-obs');
+        if (day && currentUserId) {
+          window.open(
+            `https://www.inaturalist.org/observations?user_id=${currentUserId}&on=${day.dataset.date}`,
+            '_blank'
+          );
+        }
+      });
+
+      const taxonChartEl = document.getElementById('taxonChart');
+      taxonChartEl.addEventListener('mousemove', (e) => {
+        const col = e.target.closest('.taxon-bar-col');
+        if (col && col.dataset.title) {
+          showPfTooltip(col.dataset.title, e.clientX, e.clientY);
+        } else {
+          hidePfTooltip();
+        }
+      });
+      taxonChartEl.addEventListener('mouseleave', hidePfTooltip);
 
       async function loadWorldGridMap(userId) {
         const mapContainer = document.getElementById('worldGridMap');
@@ -1428,6 +1532,7 @@
             weekDays.push({
               dateStr,
               level: !isFuture ? level : 0,
+              count: !isFuture ? count : 0,
               opacity: isFuture ? 'opacity: 0.3;' : '',
               title,
               isInYear,
@@ -1443,7 +1548,7 @@
           for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
             const day = weeks[week][dayOfWeek];
             const todayClass = day.isToday ? ' today' : '';
-            html += `<div class="calendar-day${todayClass}" data-level="${day.level}" style="${day.opacity}" title="${day.title}"></div>`;
+            html += `<div class="calendar-day${todayClass}${day.count > 0 ? ' has-obs' : ''}" data-level="${day.level}" style="${day.opacity}" data-title="${day.title}" data-date="${day.dateStr}"></div>`;
           }
         }
         calendarGrid.innerHTML = html;
@@ -1500,8 +1605,26 @@
         if (dates.length === 0) {
           currentStreakEl.textContent = '0';
           longestStreakEl.textContent = '0';
+          document.getElementById('activeDaysCount').textContent = '0';
+          document.getElementById('bestDayCount').textContent = '0';
+          document.getElementById('avgPerDay').textContent = '0';
           return;
         }
+
+        // Activity insights — free, computed from the histogram already fetched
+        const totalObsOnActiveDays = dates.reduce((sum, d) => sum + allDays[d], 0);
+        let bestDayDate = dates[0];
+        dates.forEach(d => {
+          if (allDays[d] > allDays[bestDayDate]) bestDayDate = d;
+        });
+
+        document.getElementById('activeDaysCount').textContent = dates.length.toLocaleString();
+        document.getElementById('bestDayCount').textContent = allDays[bestDayDate].toLocaleString();
+        document.getElementById('avgPerDay').textContent = (totalObsOnActiveDays / dates.length).toFixed(1);
+
+        const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const [bdYear, bdMonth, bdDay] = bestDayDate.split('-').map(Number);
+        document.getElementById('bestDayLabel').textContent = `Best day · ${shortMonths[bdMonth - 1]} ${bdDay}, ${bdYear}`;
 
         // Helper to parse date string as local date
         function parseLocalDate(dateStr) {
@@ -1568,16 +1691,16 @@
           }
         }
 
-        currentStreakEl.textContent = currentStreak.toString();
+        currentStreakEl.textContent = `${currentStreak.toLocaleString()} ${currentStreak === 1 ? 'day' : 'days'}`;
+        longestStreakEl.textContent = `${longestStreak.toLocaleString()} ${longestStreak === 1 ? 'day' : 'days'}`;
 
-        // Format longest streak with date range
+        // Put the longest streak's date range in its label
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        if (longestStreakStart && longestStreakEnd && longestStreak > 0) {
-          const startStr = `${monthNames[longestStreakStart.getMonth()]} ${longestStreakStart.getDate()}, ${longestStreakStart.getFullYear()}`;
+        if (longestStreakStart && longestStreakEnd && longestStreak > 1) {
+          const sameYear = longestStreakStart.getFullYear() === longestStreakEnd.getFullYear();
+          const startStr = `${monthNames[longestStreakStart.getMonth()]} ${longestStreakStart.getDate()}${sameYear ? '' : `, ${longestStreakStart.getFullYear()}`}`;
           const endStr = `${monthNames[longestStreakEnd.getMonth()]} ${longestStreakEnd.getDate()}, ${longestStreakEnd.getFullYear()}`;
-          longestStreakEl.innerHTML = `${longestStreak} <span style="font-weight: normal; color: #aaa;">(${startStr} - ${endStr})</span>`;
-        } else {
-          longestStreakEl.textContent = longestStreak.toString();
+          document.getElementById('longestStreakLabel').textContent = `Longest streak · ${startStr} – ${endStr}`;
         }
       }
 
@@ -1608,7 +1731,7 @@
     <script type="text/javascript">
       initFeedbackButton();
     </script>
-    <script src="dark-mode.js"></script>
+    <script src="dark-mode.js?v=2"></script>
     <script>
       registerServiceWorker();
     </script>

@@ -1,42 +1,53 @@
-# SpeciesDex
+# iNaturalist Tools
 
-A simple web application that shows the top 100 most observed species in a specific city using the iNaturalist API. It also marks species that a specific user has already observed in that city, creating a real-life Pokédex experience.
+A suite of companion tools for [iNaturalist](https://www.inaturalist.org) — explore your observations, track your progress, and find what to go look for next. Built with vanilla HTML, CSS, and JavaScript, no build step, no external dependencies.
 
-## Features
+**Live site:** https://glauberramos.github.io/inat/
 
-- Search for species by city
-- View top 100 most observed species in the selected city
-- Mark species that you've already observed
-- Beautiful card-based interface
-- Responsive design
+## The tools
 
-## How to Use
+### Your stats & progress
 
-1. Open `index.html` in your web browser
-2. Enter a city name (e.g., "New York", "London", "Tokyo")
-3. Enter your iNaturalist username
-4. Click the "Search" button
-5. View the results! Species you've observed will be marked with a green border and checkmark
+- **User Profile** — detailed stats: observation quality grades, identification categories, threatened/endemic/introduced/native species, streaks, and a world coverage map
+- **Achievements** — milestones and badges earned from your observations
+- **Lifelist Timeline** — your species sorted by first observation date
+- **Tree of Life** — how much of the tree of life have you seen? Progress across any taxonomic rank
+- **Country States** — track observations across the states of the US, Brazil, Canada, Australia, and France on interactive maps
+- **Field Card** — turn your stats into a shareable card you can download
 
-## Technical Details
+### Explore your species
 
-- Built with vanilla HTML, CSS, and JavaScript
-- Uses the iNaturalist API to fetch bird data
-- No external dependencies required
-- Responsive design that works on all devices
+- **SpeciesDex** — find the species you're missing nearby, Pokédex-style: the most observed species in a place, marked with the ones you've already seen
+- **Species Observed** — browse and filter all species you've observed (includes a "My Rarest Species" view — your species with the fewest observations worldwide)
+- **Species Identified** — browse species you've identified for others
+- **First Observer** / **First Identifier** — species you were the first to record or identify on iNaturalist
 
-## API Usage
+### Compare & discover
 
-The application uses the following iNaturalist API endpoints:
+- **Location Species Compare** — compare species between two places
+- **Users Species Compare** — compare species between two users
+- **Project Search** — find iNaturalist projects by name and location
+- **iNaturalist Top Users** — top observers and identifiers in any place or project, ranked by observations, species, or identifications, with your own position highlighted
 
-- `/observations` - To fetch user observations
-- `/observations/species_counts` - To fetch top observed species
+### Create & embed
+
+- **Widget Builder** — create embeddable observation widgets for any website
+- **Draft Observations** — create drafts, edit images, and submit (beta)
+
+## Running locally
+
+No server or build required. Clone the repo and open `index.html` in your browser — the pages work over `file://`. An internet connection is needed, since everything is fetched live from the iNaturalist API.
+
+## Technical details
+
+- Vanilla HTML/CSS/JS, no external dependencies
+- Data comes from the [iNaturalist API](https://api.inaturalist.org/v1/docs/) (observations, species counts, identifications, users, places, projects)
+- Species counts use `verifiable=true` to match what iNaturalist's own Explore pages show
+- Responsive design with dark mode
 
 ## Docs
 
+- [Assessment & roadmap (Aug 2026)](docs/assessment-and-roadmap-2026-08.md) — where the suite stands and where it's headed
+- [SEO research (Aug 2026)](docs/seo-research-2026-08.md) — which pages to optimize, which to create, ranked by demand and beatability
 - [Third-party iNaturalist tools](docs/third-party-tools.md) — survey of what the community has already built, and how our tools compare
 - [Ideas backlog](docs/ideas.md) — parked ideas for new tools and improvements
-
-## Note
-
-Make sure you have an active internet connection to use the application, as it needs to communicate with the iNaturalist API.
