@@ -247,6 +247,9 @@
         font-size: 15px;
         flex-shrink: 0;
       }
+      .rank-number.top-three {
+        font-size: 20px;
+      }
       .user-avatar {
         width: 44px;
         height: 44px;
@@ -348,6 +351,9 @@
         .rank-number {
           width: 32px;
           font-size: 13px;
+        }
+        .rank-number.top-three {
+          font-size: 17px;
         }
         .user-avatar {
           width: 36px;
@@ -766,7 +772,8 @@
         const user = entry.user || {};
         const login = user.login || "";
         const displayName = user.name || login;
-        const rankLabel = `#${rank}`;
+        const medals = ["🥇", "🥈", "🥉"];
+        const rankLabel = rank <= 3 ? medals[rank - 1] : `#${rank}`;
         const obsCount = (entry.observation_count || 0).toLocaleString();
         const speciesCount = (entry.species_count || 0).toLocaleString();
         const primary =
@@ -782,7 +789,7 @@
         const li = document.createElement("li");
         li.className = "species-item" + (isSearchedUser ? " highlight-user" : "");
         li.innerHTML = `
-          <div class="rank-number">${rankLabel}</div>
+          <div class="rank-number${rank <= 3 ? " top-three" : ""}">${rankLabel}</div>
           ${
             avatar
               ? `<img class="user-avatar" src="${escapeHtml(avatar)}" alt="" loading="lazy" />`
