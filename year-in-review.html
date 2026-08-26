@@ -268,11 +268,24 @@
         min-height: 150px;
       }
 
+      body.yir-page .yr-mosaic a {
+        display: block;
+        overflow: hidden;
+        height: 100%;
+      }
+
+      body.yir-page .yr-mosaic a:hover img {
+        transform: scale(1.15);
+        filter: brightness(1.15);
+      }
+
       body.yir-page .yr-mosaic img {
         width: 100%;
+        height: 100%;
         aspect-ratio: 1;
         object-fit: cover;
         display: block;
+        transition: transform 0.25s, filter 0.25s;
         border-radius: 0;
       }
 
@@ -633,6 +646,94 @@
         color: var(--yr-green);
       }
 
+      /* ---- Chart granularity toggle ---- */
+      body.yir-page .yr-gran {
+        display: inline-flex;
+        gap: 4px;
+        margin-top: 10px;
+      }
+
+      body.yir-page .yr-gran button {
+        background: transparent;
+        border: 1px solid var(--yr-line);
+        border-radius: 999px;
+        color: var(--yr-muted);
+        font-size: 0.75rem;
+        padding: 4px 12px;
+        cursor: pointer;
+      }
+
+      body.yir-page .yr-gran button.active {
+        background: var(--yr-green);
+        border-color: var(--yr-green);
+        color: #fff;
+      }
+
+      /* ---- Observation map ---- */
+      body.yir-page .yr-map {
+        display: grid;
+        grid-template-columns: repeat(32, 1fr);
+        gap: 0;
+        border-radius: 10px;
+        border: 1px solid var(--yr-line);
+        background: #1a1a1a;
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        max-width: 480px;
+        margin: 0 auto;
+      }
+
+      body.yir-page .yr-map img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: fill;
+      }
+
+      /* ---- Identification community ---- */
+      body.yir-page .yr-idgraph {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+      }
+
+      body.yir-page .yr-idgraph h3 {
+        font-size: 0.95rem;
+        color: var(--yr-ink);
+        margin: 0 0 10px;
+      }
+
+      body.yir-page .yr-id-person {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 0;
+        text-decoration: none;
+        color: var(--yr-ink);
+      }
+
+      body.yir-page .yr-id-person:hover {
+        color: var(--yr-green);
+      }
+
+      body.yir-page .yr-id-person img,
+      body.yir-page .yr-id-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--yr-line);
+        flex-shrink: 0;
+      }
+
+      body.yir-page .yr-id-person small {
+        color: var(--yr-muted);
+        margin-left: auto;
+      }
+
       /* ---- Cumulative growth curve ---- */
       body.yir-page #yrGrowth svg {
         width: 100%;
@@ -640,25 +741,52 @@
         display: block;
       }
 
-      /* ---- Quality grade split (inside the Observations tile) ---- */
-      body.yir-page .yr-quality-bar {
-        height: 6px;
-        border-radius: 3px;
+      /* ---- Category breakdown rows (observations & identifications) ---- */
+      body.yir-page .yr-bd-row {
+        margin-bottom: 18px;
+      }
+
+      body.yir-page .yr-bd-row:last-child {
+        margin-bottom: 0;
+      }
+
+      body.yir-page .yr-bd-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--yr-ink);
+        margin-bottom: 8px;
+      }
+
+      body.yir-page .yr-bd-bar {
+        display: flex;
+        height: 12px;
+        border-radius: 6px;
         background: var(--yr-line);
         overflow: hidden;
-        margin-top: 8px;
       }
 
-      body.yir-page .yr-quality-bar span {
+      body.yir-page .yr-bd-bar span {
         display: block;
         height: 100%;
-        background: var(--yr-green);
       }
 
-      body.yir-page .yr-quality-legend {
-        font-size: 0.65rem;
+      body.yir-page .yr-bd-legend {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+        font-size: 0.78rem;
         color: var(--yr-muted);
-        margin-top: 4px;
+      }
+
+      body.yir-page .yr-bd-legend i {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        margin-right: 5px;
+        vertical-align: -1px;
+        font-style: normal;
       }
 
       /* ---- Iconic taxa bars ---- */
@@ -973,6 +1101,11 @@
 
         <div class="yr-tiles" id="yrTiles"></div>
 
+        <div class="yr-card" id="breakdownCard" style="display: none">
+          <h2>Behind the numbers</h2>
+          <div id="yrBreakdowns"></div>
+        </div>
+
         <div class="yr-card">
           <h2 id="rhythmTitle">The rhythm of the year</h2>
           <div class="yr-card-sub" id="rhythmSub">
@@ -980,6 +1113,11 @@
           </div>
           <div class="yr-chart" id="yrChart"></div>
           <div class="yr-legend" id="yrLegend"></div>
+          <div class="yr-gran" id="granToggle" style="display: none">
+            <button type="button" data-gran="month" class="active">Month</button>
+            <button type="button" data-gran="week">Week</button>
+            <button type="button" data-gran="day">Day</button>
+          </div>
         </div>
 
         <div class="yr-card" id="streaksCard" style="display: none">
@@ -993,6 +1131,12 @@
           <h2 id="growthTitle">The year, accumulating</h2>
           <div class="yr-card-sub" id="growthSub"></div>
           <div id="yrGrowth"></div>
+        </div>
+
+        <div class="yr-card" id="mapCard" style="display: none">
+          <h2>Where the year happened</h2>
+          <div class="yr-card-sub" id="mapSub"></div>
+          <div class="yr-map" id="yrMap"></div>
         </div>
 
         <div class="yr-card" id="rarestCardWrap" style="display: none"></div>
@@ -1019,6 +1163,12 @@
           <h2 id="newSpeciesTitle">New to you</h2>
           <div class="yr-card-sub" id="newSpeciesSub"></div>
           <div class="yr-species-grid" id="yrNewSpecies"></div>
+        </div>
+
+        <div class="yr-card" id="idGraphCard" style="display: none">
+          <h2>Identification community</h2>
+          <div class="yr-card-sub" id="idGraphSub"></div>
+          <div class="yr-idgraph" id="yrIdGraph"></div>
         </div>
 
         <div class="yr-card" id="observersCard" style="display: none">
@@ -1304,6 +1454,9 @@
           // 7. Mode-specific extras
           let idsForOthers = null;
           let observers = null;
+          let idCategories = null;
+          let helpedYou = null;
+          let youHelped = null;
           if (mode === 'user') {
             setStatus('Counting identifications...');
             try {
@@ -1312,20 +1465,64 @@
             } catch (err) {
               idsForOthers = null; // non-essential; skip quietly but don't show a wrong number
             }
+            await sleep(400);
+
+            // Breakdown of those IDs by category, and the people on both
+            // sides of them — all non-essential, so each fails quietly.
+            try {
+              const catData = await fetchJSON(`${API_BASE}/identifications/categories?user_id=${subject.id}&current=true&own_observation=false&d1=${d1}&d2=${d2}`);
+              idCategories = catData.results || null;
+            } catch {
+              idCategories = null;
+            }
+            await sleep(400);
+
+            setStatus('Mapping your identification community...');
+            try {
+              const helpedData = await fetchJSON(`${base}/identifiers?${subjParam}&d1=${d1}&d2=${d2}&per_page=4`);
+              helpedYou = {
+                total: helpedData.total_results || 0,
+                top: (helpedData.results || [])
+                  .filter((p) => p.user?.login?.toLowerCase() !== subject.login.toLowerCase())
+                  .slice(0, 3),
+              };
+            } catch {
+              helpedYou = null;
+            }
+            await sleep(400);
+            try {
+              const youData = await fetchJSON(`${API_BASE}/identifications/observers?user_id=${subject.id}&current=true&own_observation=false&d1=${d1}&d2=${d2}&per_page=3`);
+              youHelped = {
+                total: youData.total_results || 0,
+                top: youData.results || [],
+              };
+            } catch {
+              youHelped = null;
+            }
           } else {
             setStatus('Counting observers...');
-            const obsvData = await fetchJSON(`${base}/observers?${subjParam}&d1=${d1}&d2=${d2}&per_page=5`);
+            const obsvData = await fetchJSON(`${base}/observers?${subjParam}&d1=${d1}&d2=${d2}&per_page=10`);
             observers = {
               total: obsvData.total_results || 0,
               top: obsvData.results || [],
             };
+          }
+          await sleep(400);
+
+          // 8. World grid map (UTF grid at zoom 0, same technique as the profile page)
+          setStatus('Drawing the map...');
+          let mapGrid = null;
+          try {
+            mapGrid = await fetchJSON(`${API_BASE}/grid/0/0/0.grid.json?${subjParam}&verifiable=true&d1=${d1}&d2=${d2}`);
+          } catch {
+            mapGrid = null; // non-essential; the card just stays hidden
           }
 
           render({
             subject, mode, year, isAllTime, d1, d2,
             totalObs, researchCount, dayData, prevDayData,
             species: speciesInfo, newSpecies, beforeTruncated, mosaicObs,
-            idsForOthers, observers,
+            idsForOthers, idCategories, helpedYou, youHelped, observers, mapGrid,
           });
         } catch (error) {
           console.error('Year in Review error:', error);
@@ -1366,19 +1563,19 @@
         // Hero
         document.getElementById('yrHeroYear').textContent = periodLabel;
         document.getElementById('yrHeroWho').textContent = r.subject.label;
-        // Prefer the subject's own observation photos; fall back to taxon
-        // default photos (which may be other people's) if none came back.
-        let mosaicUrls = (r.mosaicObs || [])
-          .map((o) => o.photos?.[0]?.url)
-          .filter(Boolean);
-        if (!mosaicUrls.length) {
-          mosaicUrls = r.species.list
-            .map((s) => s.taxon.default_photo?.square_url)
-            .filter(Boolean);
+        // Prefer the subject's own observation photos (each linking to its
+        // observation); fall back to taxon default photos linking to the taxon.
+        let mosaicTiles = (r.mosaicObs || [])
+          .filter((o) => o.photos?.[0]?.url)
+          .map((o) => ({ url: o.photos[0].url, link: `https://www.inaturalist.org/observations/${o.id}` }));
+        if (!mosaicTiles.length) {
+          mosaicTiles = r.species.list
+            .filter((s) => s.taxon.default_photo?.square_url)
+            .map((s) => ({ url: s.taxon.default_photo.square_url, link: `https://www.inaturalist.org/taxa/${s.taxon.id}` }));
         }
-        document.getElementById('yrMosaic').innerHTML = mosaicUrls
+        document.getElementById('yrMosaic').innerHTML = mosaicTiles
           .slice(0, 28)
-          .map((url) => `<img src="${escapeHtml(url)}" alt="" loading="lazy" />`)
+          .map((t) => `<a href="${escapeHtml(t.link)}" target="_blank" rel="noopener"><img src="${escapeHtml(t.url)}" alt="" loading="lazy" /></a>`)
           .join('');
 
         // Day-derived stats
@@ -1391,16 +1588,7 @@
 
         // Tiles — every number says what it counts
         const tiles = [];
-        let qualityHtml = '';
-        if (r.researchCount !== null && r.totalObs > 0) {
-          const needsId = Math.max(0, r.totalObs - r.researchCount);
-          const pct = Math.round((r.researchCount / r.totalObs) * 100);
-          qualityHtml = `
-            <div class="yr-quality-bar"><span style="width: ${pct}%"></span></div>
-            <div class="yr-quality-legend">${r.researchCount.toLocaleString()} research grade · ${needsId.toLocaleString()} needs ID</div>
-          `;
-        }
-        tiles.push(tile(r.totalObs, 'Observations', 'verifiable, by date observed', null, qualityHtml));
+        tiles.push(tile(r.totalObs, 'Observations', 'verifiable, by date observed'));
         tiles.push(tile(r.species.total, 'Species', 'distinct taxa observed'));
         if (r.newSpecies) {
           tiles.push(tile(r.newSpecies.length + (r.species.truncated || r.beforeTruncated ? '+' : ''), 'New species', 'first time ever for ' + (r.mode === 'user' ? 'you' : r.mode === 'project' ? 'this project' : 'this place')));
@@ -1418,10 +1606,14 @@
         }
         document.getElementById('yrTiles').innerHTML = tiles.join('');
 
+        lastRenderData = r;
+        renderBreakdowns(r);
         renderChart(r);
         renderStreaks(r);
         renderGrowth(r);
+        renderMap(r);
         renderFaves(r);
+        renderIdGraph(r);
         renderRarest(r);
         renderTaxa(r);
         renderTopSpecies(r);
@@ -1468,12 +1660,15 @@
         return `${MONTHS[m - 1]} ${d}, ${y}`;
       }
 
-      function renderChart(r) {
+      function renderChart(r, granularity = 'month') {
         const chart = document.getElementById('yrChart');
         const legend = document.getElementById('yrLegend');
+        const granToggle = document.getElementById('granToggle');
 
         let buckets, prevBuckets = null, labels;
+        let showLabel = () => true;
         if (r.isAllTime) {
+          granToggle.style.display = 'none';
           const byYear = {};
           for (const [date, count] of Object.entries(r.dayData)) {
             const y = date.slice(0, 4);
@@ -1484,19 +1679,55 @@
           document.getElementById('rhythmTitle').textContent = 'Observations per year';
           document.getElementById('rhythmSub').textContent = 'Verifiable observations, by date observed.';
         } else {
-          buckets = new Array(12).fill(0);
-          for (const [date, count] of Object.entries(r.dayData)) {
-            buckets[parseInt(date.slice(5, 7), 10) - 1] += count;
-          }
-          if (r.prevDayData) {
-            prevBuckets = new Array(12).fill(0);
-            for (const [date, count] of Object.entries(r.prevDayData)) {
-              prevBuckets[parseInt(date.slice(5, 7), 10) - 1] += count;
-            }
-          }
-          labels = MONTHS;
+          granToggle.style.display = 'inline-flex';
+          granToggle.querySelectorAll('button').forEach((b) =>
+            b.classList.toggle('active', b.dataset.gran === granularity));
           document.getElementById('rhythmTitle').textContent = 'The rhythm of the year';
-          document.getElementById('rhythmSub').textContent = 'Verifiable observations per month, by date observed.';
+          document.getElementById('rhythmSub').textContent =
+            `Verifiable observations per ${granularity}, by date observed.`;
+
+          if (granularity === 'month') {
+            buckets = new Array(12).fill(0);
+            for (const [date, count] of Object.entries(r.dayData)) {
+              buckets[parseInt(date.slice(5, 7), 10) - 1] += count;
+            }
+            if (r.prevDayData) {
+              prevBuckets = new Array(12).fill(0);
+              for (const [date, count] of Object.entries(r.prevDayData)) {
+                prevBuckets[parseInt(date.slice(5, 7), 10) - 1] += count;
+              }
+            }
+            labels = MONTHS;
+          } else {
+            // Week and day buckets from the same daily histogram; the axis
+            // shows a label only where a new month begins.
+            const dayKeys = [];
+            const cursor = new Date(Date.UTC(r.year, 0, 1));
+            const end = new Date(Date.UTC(r.year, 11, 31));
+            while (cursor <= end) {
+              dayKeys.push(cursor.toISOString().slice(0, 10));
+              cursor.setUTCDate(cursor.getUTCDate() + 1);
+            }
+            const monthOf = (k) => MONTHS[parseInt(k.slice(5, 7), 10) - 1];
+            let bucketStarts;
+            if (granularity === 'day') {
+              buckets = dayKeys.map((k) => r.dayData[k] || 0);
+              bucketStarts = dayKeys;
+              labels = dayKeys.map((k) => `${monthOf(k)} ${parseInt(k.slice(8, 10), 10)}`);
+            } else {
+              buckets = [];
+              bucketStarts = [];
+              labels = [];
+              for (let i = 0; i < dayKeys.length; i += 7) {
+                const slice = dayKeys.slice(i, i + 7);
+                buckets.push(slice.reduce((sum, k) => sum + (r.dayData[k] || 0), 0));
+                bucketStarts.push(slice[0]);
+                labels.push(`Week of ${monthOf(slice[0])} ${parseInt(slice[0].slice(8, 10), 10)}`);
+              }
+            }
+            const monthKeys = bucketStarts.map((k) => k.slice(5, 7));
+            showLabel = (i) => i === 0 || monthKeys[i] !== monthKeys[i - 1];
+          }
         }
 
         // Round the scale up to a tidy value so the axis ticks are clean numbers
@@ -1516,6 +1747,7 @@
           </div>
         `;
 
+        chart.style.gap = granularity === 'day' ? '1px' : granularity === 'week' ? '2px' : '6px';
         chart.innerHTML = axis + buckets.map((count, i) => {
           const h = Math.round((count / max) * 100);
           const ghost = prevBuckets
@@ -1535,16 +1767,171 @@
                 ${ghost}
                 <div class="yr-bar${i === peak && count > 0 ? ' peak' : ''}" style="height: ${h}%"></div>
               </div>
-              <div class="yr-chart-label">${labels[i]}</div>
+              <div class="yr-chart-label">${showLabel(i) ? (granularity === 'month' || r.isAllTime ? labels[i] : labels[i].replace('Week of ', '').split(' ')[0]) : ''}</div>
             </div>
           `;
         }).join('');
 
+        const granLabel = r.isAllTime ? 'year' : granularity;
         legend.innerHTML = [
-          `<span>${r.isAllTime ? 'Observations that year' : 'Observations that month'}</span>`,
-          `<span class="lg-peak">Busiest ${r.isAllTime ? 'year' : 'month'}</span>`,
+          `<span>Observations that ${granLabel}</span>`,
+          `<span class="lg-peak">Busiest ${granLabel}</span>`,
           prevBuckets ? `<span class="lg-ghost">${r.year - 1}, same month</span>` : '',
         ].join('');
+      }
+
+      // ---- Category breakdown rows ----
+      function breakdownRow(title, segments) {
+        const total = segments.reduce((sum, s) => sum + s.count, 0);
+        if (!total) return '';
+        return `
+          <div class="yr-bd-row">
+            <div class="yr-bd-title">${title}</div>
+            <div class="yr-bd-bar">${segments.map((s) =>
+              `<span style="width: ${(s.count / total) * 100}%; background: ${s.color}" title="${s.label}: ${s.count.toLocaleString()}"></span>`
+            ).join('')}</div>
+            <div class="yr-bd-legend">${segments.map((s) =>
+              `<span><i style="background: ${s.color}"></i>${s.count.toLocaleString()} ${s.label}</span>`
+            ).join('')}</div>
+          </div>
+        `;
+      }
+
+      function renderBreakdowns(r) {
+        const card = document.getElementById('breakdownCard');
+        const rows = [];
+
+        if (r.researchCount !== null && r.totalObs > 0) {
+          const needsId = Math.max(0, r.totalObs - r.researchCount);
+          rows.push(breakdownRow(`${r.totalObs.toLocaleString()} observations by quality grade`, [
+            { label: 'research grade', count: r.researchCount, color: '#74ac00' },
+            { label: 'needs ID', count: needsId, color: '#f39c12' },
+          ]));
+        }
+
+        if (r.mode === 'user' && r.idCategories && r.idCategories.length) {
+          const ORDER = ['improving', 'leading', 'supporting', 'maverick'];
+          const COLORS = { improving: '#74ac00', leading: '#2980b9', supporting: '#f39c12', maverick: '#c0392b' };
+          const cats = [...r.idCategories].sort((a, b) => ORDER.indexOf(a.category) - ORDER.indexOf(b.category));
+          const catTotal = cats.reduce((sum, c) => sum + c.count, 0);
+          rows.push(breakdownRow(`${catTotal.toLocaleString()} identifications for others by category`, cats.map((c) => ({
+            label: c.category,
+            count: c.count,
+            color: COLORS[c.category] || '#999',
+          }))));
+        }
+
+        const html = rows.filter(Boolean).join('');
+        if (!html) {
+          card.style.display = 'none';
+          return;
+        }
+        document.getElementById('yrBreakdowns').innerHTML = html;
+        card.style.display = 'block';
+      }
+
+      let lastRenderData = null;
+      document.querySelectorAll('#granToggle button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (lastRenderData) renderChart(lastRenderData, btn.dataset.gran);
+        });
+      });
+
+      // ---- Observation map (UTF grid over a zoom-0 world tile) ----
+      function renderMap(r) {
+        const card = document.getElementById('mapCard');
+        const g = r.mapGrid;
+        if (!g || !g.grid || !g.keys || !g.data) {
+          card.style.display = 'none';
+          return;
+        }
+
+        // Decode the UTF grid: each cell's character maps to a key index;
+        // any resolved key means observations in that cell (same as profile).
+        const displayGridSize = 32;
+        const utfGridSize = g.grid.length;
+        const groupSize = utfGridSize / displayGridSize;
+        const observed = new Set();
+        for (const dataKey of Object.keys(g.data)) {
+          const keyIndex = g.keys.indexOf(dataKey);
+          if (keyIndex <= 0) continue;
+          for (let row = 0; row < utfGridSize; row++) {
+            const gridRow = g.grid[row];
+            if (!gridRow) continue;
+            for (let col = 0; col < gridRow.length; col++) {
+              let id = gridRow.charCodeAt(col);
+              if (id >= 93) id--;
+              if (id >= 35) id--;
+              id -= 32;
+              if (id === keyIndex) {
+                observed.add(`${Math.floor(row / groupSize)},${Math.floor(col / groupSize)}`);
+              }
+            }
+          }
+        }
+
+        if (!observed.size) {
+          card.style.display = 'none';
+          return;
+        }
+
+        document.getElementById('mapSub').textContent =
+          `${observed.size.toLocaleString()} grid square${observed.size !== 1 ? 's' : ''} of the world with observations in this period.`;
+        let html = '<img src="https://tile.openstreetmap.org/0/0/0.png" alt="World map" />';
+        for (let row = 0; row < displayGridSize; row++) {
+          for (let col = 0; col < displayGridSize; col++) {
+            const bg = observed.has(`${row},${col}`) ? 'rgba(116, 172, 0, 0.8)' : 'transparent';
+            html += `<div style="aspect-ratio: 1; background: ${bg}; position: relative; z-index: 1;"></div>`;
+          }
+        }
+        document.getElementById('yrMap').innerHTML = html;
+        card.style.display = 'block';
+      }
+
+      // ---- Identification community (user mode only) ----
+      function idPerson(entry, unit) {
+        const u = entry.user || {};
+        const avatar = u.icon_url || u.icon;
+        return `
+          <a class="yr-id-person" href="https://www.inaturalist.org/people/${escapeHtml(u.login || '')}" target="_blank" rel="noopener">
+            ${avatar ? `<img src="${escapeHtml(avatar)}" alt="" loading="lazy" />` : '<div class="yr-id-avatar"></div>'}
+            ${escapeHtml(u.login || '?')}
+            <small>${(entry.count || 0).toLocaleString()} ${unit}</small>
+          </a>
+        `;
+      }
+
+      function renderIdGraph(r) {
+        const card = document.getElementById('idGraphCard');
+        const hasHelped = r.helpedYou && r.helpedYou.top.length;
+        const hasYou = r.youHelped && r.youHelped.top.length;
+        if (r.mode !== 'user' || (!hasHelped && !hasYou)) {
+          card.style.display = 'none';
+          return;
+        }
+        const cols = [];
+        if (hasHelped) {
+          cols.push(`
+            <div>
+              <h3>Who helped ${escapeHtml(r.subject.login)} most</h3>
+              ${r.helpedYou.top.map((p) => idPerson(p, 'IDs')).join('')}
+            </div>
+          `);
+        }
+        if (hasYou) {
+          cols.push(`
+            <div>
+              <h3>Who ${escapeHtml(r.subject.login)} helped most</h3>
+              ${r.youHelped.top.map((p) => idPerson(p, 'IDs')).join('')}
+            </div>
+          `);
+        }
+        const subBits = [];
+        if (hasHelped) subBits.push(`${r.helpedYou.total.toLocaleString()} people helped identify these observations`);
+        if (hasYou && r.idsForOthers !== null) subBits.push(`${r.subject.login} helped ${r.youHelped.total.toLocaleString()} people with ${r.idsForOthers.toLocaleString()} IDs`);
+        document.getElementById('idGraphSub').textContent = subBits.join(' · ') + '.';
+        document.getElementById('yrIdGraph').innerHTML = cols.join('');
+        card.style.display = 'block';
       }
 
       // ---- Streaks: runs of consecutive days with observations ----
@@ -1612,6 +1999,19 @@
         const gridStart = new Date(yearStart);
         gridStart.setUTCDate(gridStart.getUTCDate() - gridStart.getUTCDay());
 
+        // Intensity thresholds relative to this subject's own daily counts,
+        // so a busy place shows the same gradient a casual user does instead
+        // of saturating at the fixed user-scale buckets.
+        const activeCounts = Object.values(r.dayData).filter((c) => c > 0).sort((a, b) => a - b);
+        const quantile = (q) => activeCounts[Math.min(activeCounts.length - 1, Math.floor(q * activeCounts.length))];
+        const t2 = Math.max(2, quantile(0.5));
+        const t3 = Math.max(t2 + 1, quantile(0.85));
+
+        // When streaks blanket the calendar (typical for places, where every
+        // day has observations), an all-gold grid hides the intensity signal —
+        // keep the gold overlay only while streaks are the exception.
+        const showStreakOverlay = streakDays.size <= activeCounts.length * 0.6;
+
         const weeks = [];
         const monthLabels = [];
         let cursor = new Date(gridStart);
@@ -1624,9 +2024,9 @@
             if (d === 1) monthLabels.push([weeks.length, MONTHS[m]]);
             const count = r.dayData[key] || 0;
             let cls = '';
-            if (streakDays.has(key)) cls = ' streak';
-            else if (count >= 10) cls = ' l3';
-            else if (count >= 3) cls = ' l2';
+            if (showStreakOverlay && streakDays.has(key)) cls = ' streak';
+            else if (count >= t3) cls = ' l3';
+            else if (count >= t2) cls = ' l2';
             else if (count >= 1) cls = ' l1';
             week.push(`<div class="yr-cal-day${cls}" title="${MONTHS[m]} ${d}: ${count.toLocaleString()} observation${count !== 1 ? 's' : ''}"></div>`);
           } else {
@@ -1650,8 +2050,8 @@
           </div>
         `;
         legend.innerHTML = [
-          '<span>Days with observations</span>',
-          '<span class="lg-peak">Part of a 5+ day streak</span>',
+          '<span>Days with observations (darker = more)</span>',
+          showStreakOverlay ? '<span class="lg-peak">Part of a 5+ day streak</span>' : '',
         ].join('');
         card.style.display = 'block';
       }
