@@ -10,11 +10,11 @@
         document.documentElement.classList.add("dark-mode");
       }
     </script>
-    <title>Year in Review - iNaturalist Stats for Any Year, User or Project</title>
+    <title>Year in Review - iNaturalist Stats for Any Year, User, Project or Place</title>
     <link rel="icon" href="favicon.ico" />
     <meta
       name="description"
-      content="A live Year in Review for any iNaturalist user or project, for any year or all time. Observations, species, new-to-you finds, rarest find, and monthly rhythm - computed fresh from the API."
+      content="A live Year in Review for any iNaturalist user, project, or place, for any year or all time. Observations, species, new-to-you finds, rarest find, and monthly rhythm - computed fresh from the API."
     />
     <meta name="robots" content="noindex" />
     <link rel="stylesheet" href="styles.css" />
@@ -401,6 +401,44 @@
         margin-top: 8px;
       }
 
+      body.yir-page .yr-axis {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+        height: 100%;
+        font-size: 0.65rem;
+        color: var(--yr-muted);
+      }
+
+      body.yir-page .yr-axis-ticks {
+        position: relative;
+        flex: 1;
+        min-width: 34px;
+        border-right: 1px solid var(--yr-line);
+        margin-right: 4px;
+      }
+
+      body.yir-page .yr-axis-ticks div {
+        position: absolute;
+        right: 8px;
+        white-space: nowrap;
+      }
+
+      body.yir-page .yr-axis-ticks div:nth-child(1) {
+        top: 0;
+      }
+
+      body.yir-page .yr-axis-ticks div:nth-child(2) {
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      body.yir-page .yr-axis-ticks div:nth-child(3) {
+        bottom: 0;
+      }
+
       body.yir-page .yr-chart-col {
         flex: 1;
         display: flex;
@@ -410,6 +448,44 @@
         gap: 4px;
         min-width: 0;
         height: 100%;
+        position: relative;
+      }
+
+      body.yir-page .yr-tip {
+        position: absolute;
+        left: 50%;
+        top: -6px;
+        transform: translate(-50%, -100%);
+        background: #2d2d2d;
+        color: #fff;
+        font-size: 0.7rem;
+        line-height: 1.4;
+        padding: 5px 9px;
+        border-radius: 6px;
+        white-space: nowrap;
+        text-align: center;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.12s;
+        z-index: 5;
+      }
+
+      body.yir-page .yr-tip small {
+        color: #aaa;
+        font-size: 0.65rem;
+      }
+
+      body.yir-page .yr-chart-col:hover .yr-tip {
+        opacity: 1;
+      }
+
+      html.dark-mode body.yir-page .yr-tip {
+        background: #e0e0e0;
+        color: #1f1f1f;
+      }
+
+      html.dark-mode body.yir-page .yr-tip small {
+        color: #555;
       }
 
       body.yir-page .yr-chart-bars {
@@ -477,6 +553,112 @@
 
       body.yir-page .yr-legend .lg-peak::before {
         background: var(--yr-gold);
+      }
+
+      /* ---- Streaks calendar (GitHub-style: week columns, weekday rows) ---- */
+      body.yir-page .yr-cal {
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+
+      body.yir-page .yr-gh-months {
+        position: relative;
+        height: 16px;
+        margin-left: 34px;
+        font-size: 0.65rem;
+        color: var(--yr-muted);
+      }
+
+      body.yir-page .yr-gh-months span {
+        position: absolute;
+        top: 0;
+      }
+
+      body.yir-page .yr-gh-body {
+        display: flex;
+      }
+
+      body.yir-page .yr-gh-days {
+        flex: 0 0 34px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        font-size: 0.65rem;
+        color: var(--yr-muted);
+      }
+
+      body.yir-page .yr-gh-days span {
+        height: 12px;
+        line-height: 12px;
+      }
+
+      body.yir-page .yr-gh-grid {
+        display: flex;
+        gap: 3px;
+      }
+
+      body.yir-page .yr-gh-week {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      body.yir-page .yr-cal-day {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        background: var(--yr-surface-2);
+        border: 1px solid var(--yr-line);
+      }
+
+      body.yir-page .yr-cal-day.empty {
+        background: transparent;
+        border-color: transparent;
+      }
+
+      body.yir-page .yr-cal-day.l1 { background: #cfe3a3; border-color: transparent; }
+      body.yir-page .yr-cal-day.l2 { background: #a3c968; border-color: transparent; }
+      body.yir-page .yr-cal-day.l3 { background: #74ac00; border-color: transparent; }
+      body.yir-page .yr-cal-day.streak { background: var(--yr-gold); border-color: transparent; }
+
+      body.yir-page .yr-streak-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 0.85rem;
+        color: var(--yr-ink);
+      }
+
+      body.yir-page .yr-streak-list strong {
+        color: var(--yr-green);
+      }
+
+      /* ---- Cumulative growth curve ---- */
+      body.yir-page #yrGrowth svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      /* ---- Quality grade split (inside the Observations tile) ---- */
+      body.yir-page .yr-quality-bar {
+        height: 6px;
+        border-radius: 3px;
+        background: var(--yr-line);
+        overflow: hidden;
+        margin-top: 8px;
+      }
+
+      body.yir-page .yr-quality-bar span {
+        display: block;
+        height: 100%;
+        background: var(--yr-green);
+      }
+
+      body.yir-page .yr-quality-legend {
+        font-size: 0.65rem;
+        color: var(--yr-muted);
+        margin-top: 4px;
       }
 
       /* ---- Iconic taxa bars ---- */
@@ -580,6 +762,13 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 12px;
+      }
+
+      /* Long lists cap at roughly three rows and scroll from there */
+      body.yir-page .yr-species-grid.yr-scroll {
+        max-height: 580px;
+        overflow-y: auto;
+        padding-right: 6px;
       }
 
       body.yir-page .yr-sp {
@@ -742,7 +931,7 @@
       <header>
         <h1>Year in Review</h1>
         <p class="subtitle">
-          A live review for any user or project, any year or all time —
+          A live review for any user, project, or place, any year or all time —
           computed fresh from the iNaturalist API, never cached.
         </p>
       </header>
@@ -751,6 +940,7 @@
         <div class="yr-mode" role="tablist" aria-label="Review subject">
           <button type="button" id="modeUser" class="active">User</button>
           <button type="button" id="modeProject">Project</button>
+          <button type="button" id="modePlace">Place</button>
         </div>
         <div class="yr-input-wrap">
           <input
@@ -792,7 +982,26 @@
           <div class="yr-legend" id="yrLegend"></div>
         </div>
 
+        <div class="yr-card" id="streaksCard" style="display: none">
+          <h2>Observation streaks</h2>
+          <div class="yr-card-sub" id="streaksSub"></div>
+          <div id="yrStreaks"></div>
+          <div class="yr-legend" id="streaksLegend"></div>
+        </div>
+
+        <div class="yr-card" id="growthCard" style="display: none">
+          <h2 id="growthTitle">The year, accumulating</h2>
+          <div class="yr-card-sub" id="growthSub"></div>
+          <div id="yrGrowth"></div>
+        </div>
+
         <div class="yr-card" id="rarestCardWrap" style="display: none"></div>
+
+        <div class="yr-card" id="favesCard" style="display: none">
+          <h2>Community favorites</h2>
+          <div class="yr-card-sub" id="favesSub"></div>
+          <div class="yr-species-grid" id="yrFaves"></div>
+        </div>
 
         <div class="yr-card" id="taxaCard" style="display: none">
           <h2>Species by category</h2>
@@ -853,16 +1062,26 @@
       })();
 
       // ---- Mode toggle ----
+      const MODE_LABELS = { user: 'user', project: 'project', place: 'place' };
       function setMode(next) {
+        const changed = mode !== next;
         mode = next;
         document.getElementById('modeUser').classList.toggle('active', mode === 'user');
         document.getElementById('modeProject').classList.toggle('active', mode === 'project');
-        subjectInput.placeholder = mode === 'user' ? 'Enter iNaturalist username' : 'Enter project name';
+        document.getElementById('modePlace').classList.toggle('active', mode === 'place');
+        subjectInput.placeholder =
+          mode === 'user' ? 'Enter iNaturalist username'
+          : mode === 'project' ? 'Enter project name'
+          : 'Enter place name';
         selectedSubject = null;
+        // A username is meaningless as a project/place query (and vice versa),
+        // so switching modes starts the input fresh
+        if (changed) subjectInput.value = '';
         closeSuggestions();
       }
       document.getElementById('modeUser').addEventListener('click', () => setMode('user'));
       document.getElementById('modeProject').addEventListener('click', () => setMode('project'));
+      document.getElementById('modePlace').addEventListener('click', () => setMode('place'));
 
       // ---- Autocomplete (keyboard-accessible) ----
       function closeSuggestions() {
@@ -873,15 +1092,17 @@
 
       async function fetchSuggestions(q) {
         try {
-          const endpoint = mode === 'user' ? 'users' : 'projects';
+          const endpoint = mode === 'user' ? 'users' : mode === 'project' ? 'projects' : 'places';
           const data = await fetchJSON(`${API_BASE}/${endpoint}/autocomplete?q=${encodeURIComponent(q)}`);
           const results = (data.results || []).slice(0, 8);
           if (!results.length) return closeSuggestions();
           suggestionsEl.innerHTML = results.map((r, i) => {
-            const label = mode === 'user' ? r.login : r.title;
+            const label = mode === 'user' ? r.login : mode === 'project' ? r.title : r.display_name;
             const sub = mode === 'user'
               ? `${(r.observations_count || 0).toLocaleString()} obs`
-              : (r.slug || '');
+              : mode === 'project'
+                ? (r.slug || '')
+                : (r.place_type_name || '');
             return `<div class="yr-suggestion" data-i="${i}">${escapeHtml(label)} <small>· ${escapeHtml(String(sub))}</small></div>`;
           }).join('');
           suggestionsEl.classList.add('open');
@@ -902,9 +1123,12 @@
         if (mode === 'user') {
           selectedSubject = { id: r.id, label: r.login, login: r.login };
           subjectInput.value = r.login;
-        } else {
+        } else if (mode === 'project') {
           selectedSubject = { id: r.id, label: r.title, slug: r.slug };
           subjectInput.value = r.title;
+        } else {
+          selectedSubject = { id: r.id, label: r.display_name };
+          subjectInput.value = r.display_name;
         }
         closeSuggestions();
       }
@@ -948,7 +1172,7 @@
       // ---- Subject resolution (exact-match first, suite convention) ----
       async function resolveSubject(query) {
         if (selectedSubject) return selectedSubject;
-        const endpoint = mode === 'user' ? 'users' : 'projects';
+        const endpoint = mode === 'user' ? 'users' : mode === 'project' ? 'projects' : 'places';
         const data = await fetchJSON(`${API_BASE}/${endpoint}/autocomplete?q=${encodeURIComponent(query)}`);
         const results = data.results || [];
         if (!results.length) return null;
@@ -956,8 +1180,12 @@
           const u = results.find((r) => r.login.toLowerCase() === query.toLowerCase()) || results[0];
           return { id: u.id, label: u.login, login: u.login };
         }
-        const p = results.find((r) => r.title.toLowerCase() === query.toLowerCase() || r.slug === query) || results[0];
-        return { id: p.id, label: p.title, slug: p.slug };
+        if (mode === 'project') {
+          const p = results.find((r) => r.title.toLowerCase() === query.toLowerCase() || r.slug === query) || results[0];
+          return { id: p.id, label: p.title, slug: p.slug };
+        }
+        const pl = results.find((r) => r.display_name.toLowerCase() === query.toLowerCase()) || results[0];
+        return { id: pl.id, label: pl.display_name };
       }
 
       // ---- Generate ----
@@ -973,7 +1201,10 @@
         const query = subjectInput.value.trim();
         hideError('yrError');
         if (!query) {
-          showError('yrError', mode === 'user' ? 'Enter a username to review.' : 'Enter a project to review.');
+          showError('yrError',
+            mode === 'user' ? 'Enter a username to review.'
+            : mode === 'project' ? 'Enter a project to review.'
+            : 'Enter a place to review.');
           return;
         }
 
@@ -982,10 +1213,11 @@
         resultsEl.style.display = 'none';
 
         try {
-          setStatus('Looking up ' + (mode === 'user' ? 'user' : 'project') + '...');
+          setStatus('Looking up ' + MODE_LABELS[mode] + '...');
           const subject = await resolveSubject(query);
           if (!subject) {
-            showError('yrError', (mode === 'user' ? 'User' : 'Project') + ' not found.');
+            showError('yrError',
+              (mode === 'user' ? 'User' : mode === 'project' ? 'Project' : 'Place') + ' not found.');
             return;
           }
 
@@ -997,7 +1229,10 @@
           const d2 = isAllTime || year === today.getFullYear()
             ? formatDateParam(today)
             : `${year}-12-31`;
-          const subjParam = mode === 'user' ? `user_id=${subject.id}` : `project_id=${subject.id}`;
+          const subjParam =
+            mode === 'user' ? `user_id=${subject.id}`
+            : mode === 'project' ? `project_id=${subject.id}`
+            : `place_id=${subject.id}`;
           const base = `${API_BASE}/observations`;
 
           if (mode === 'user') {
@@ -1012,6 +1247,16 @@
           if (totalObs === 0) {
             showError('yrError', 'No verifiable observations found for this period.');
             return;
+          }
+          await sleep(400);
+
+          // 1b. Research-grade share of that total (needs ID = the remainder)
+          let researchCount = null;
+          try {
+            const rgData = await fetchJSON(`${base}?${subjParam}&verifiable=true&d1=${d1}&d2=${d2}&quality_grade=research&per_page=0`);
+            researchCount = rgData.total_results || 0;
+          } catch {
+            researchCount = null; // non-essential; the tile just skips the split
           }
           await sleep(400);
 
@@ -1030,11 +1275,22 @@
             await sleep(400);
           }
 
-          // 4. Species in range (capped, loudly)
+          // 4. Hero mosaic — the subject's own observation photos, most faved first
+          setStatus('Picking photos...');
+          let mosaicObs = [];
+          try {
+            const mosaicData = await fetchJSON(`${base}?${subjParam}&verifiable=true&d1=${d1}&d2=${d2}&photos=true&per_page=28&order_by=votes`);
+            mosaicObs = mosaicData.results || [];
+          } catch {
+            mosaicObs = []; // non-essential; the mosaic falls back to taxon photos
+          }
+          await sleep(400);
+
+          // 5. Species in range (capped, loudly)
           setStatus('Listing species...');
           const speciesInfo = await fetchSpeciesPages(`${base}/species_counts?${subjParam}&verifiable=true&d1=${d1}&d2=${d2}&per_page=500`);
 
-          // 5. Species before the range → "new to you" (single-year mode)
+          // 6. Species before the range → "new to you" (single-year mode)
           let newSpecies = null;
           let beforeTruncated = false;
           if (!isAllTime && year > FIRST_INAT_YEAR) {
@@ -1045,7 +1301,7 @@
             newSpecies = speciesInfo.list.filter((s) => !beforeIds.has(s.taxon.id));
           }
 
-          // 6. Mode-specific extras
+          // 7. Mode-specific extras
           let idsForOthers = null;
           let observers = null;
           if (mode === 'user') {
@@ -1067,8 +1323,8 @@
 
           render({
             subject, mode, year, isAllTime, d1, d2,
-            totalObs, dayData, prevDayData,
-            species: speciesInfo, newSpecies, beforeTruncated,
+            totalObs, researchCount, dayData, prevDayData,
+            species: speciesInfo, newSpecies, beforeTruncated, mosaicObs,
             idsForOthers, observers,
           });
         } catch (error) {
@@ -1097,7 +1353,8 @@
       function updateUrl(subject, yearVal) {
         const params = new URLSearchParams();
         if (mode === 'user') params.set('user', subject.login);
-        else params.set('project', subject.slug || subject.id);
+        else if (mode === 'project') params.set('project', subject.slug || subject.id);
+        else params.set('place', subject.label);
         params.set('year', yearVal);
         history.replaceState({}, '', `${location.pathname}?${params}`);
       }
@@ -1109,11 +1366,19 @@
         // Hero
         document.getElementById('yrHeroYear').textContent = periodLabel;
         document.getElementById('yrHeroWho').textContent = r.subject.label;
-        const mosaicPhotos = r.species.list
-          .filter((s) => s.taxon.default_photo?.square_url)
-          .slice(0, 28);
-        document.getElementById('yrMosaic').innerHTML = mosaicPhotos
-          .map((s) => `<img src="${escapeHtml(s.taxon.default_photo.square_url)}" alt="" loading="lazy" />`)
+        // Prefer the subject's own observation photos; fall back to taxon
+        // default photos (which may be other people's) if none came back.
+        let mosaicUrls = (r.mosaicObs || [])
+          .map((o) => o.photos?.[0]?.url)
+          .filter(Boolean);
+        if (!mosaicUrls.length) {
+          mosaicUrls = r.species.list
+            .map((s) => s.taxon.default_photo?.square_url)
+            .filter(Boolean);
+        }
+        document.getElementById('yrMosaic').innerHTML = mosaicUrls
+          .slice(0, 28)
+          .map((url) => `<img src="${escapeHtml(url)}" alt="" loading="lazy" />`)
           .join('');
 
         // Day-derived stats
@@ -1126,10 +1391,19 @@
 
         // Tiles — every number says what it counts
         const tiles = [];
-        tiles.push(tile(r.totalObs, 'Observations', 'verifiable, by date observed'));
+        let qualityHtml = '';
+        if (r.researchCount !== null && r.totalObs > 0) {
+          const needsId = Math.max(0, r.totalObs - r.researchCount);
+          const pct = Math.round((r.researchCount / r.totalObs) * 100);
+          qualityHtml = `
+            <div class="yr-quality-bar"><span style="width: ${pct}%"></span></div>
+            <div class="yr-quality-legend">${r.researchCount.toLocaleString()} research grade · ${needsId.toLocaleString()} needs ID</div>
+          `;
+        }
+        tiles.push(tile(r.totalObs, 'Observations', 'verifiable, by date observed', null, qualityHtml));
         tiles.push(tile(r.species.total, 'Species', 'distinct taxa observed'));
         if (r.newSpecies) {
-          tiles.push(tile(r.newSpecies.length + (r.species.truncated || r.beforeTruncated ? '+' : ''), 'New species', 'first time ever for ' + (r.mode === 'user' ? 'you' : 'this project')));
+          tiles.push(tile(r.newSpecies.length + (r.species.truncated || r.beforeTruncated ? '+' : ''), 'New species', 'first time ever for ' + (r.mode === 'user' ? 'you' : r.mode === 'project' ? 'this project' : 'this place')));
         }
         if (bestDay) {
           const link = bestDayLink(r, bestDay.date);
@@ -1139,12 +1413,15 @@
         if (r.mode === 'user' && r.idsForOthers !== null) {
           tiles.push(tile(r.idsForOthers, 'IDs for others', 'identifications on other people’s observations'));
         }
-        if (r.mode === 'project' && r.observers) {
+        if (r.mode !== 'user' && r.observers) {
           tiles.push(tile(r.observers.total, 'Observers', 'people who contributed'));
         }
         document.getElementById('yrTiles').innerHTML = tiles.join('');
 
         renderChart(r);
+        renderStreaks(r);
+        renderGrowth(r);
+        renderFaves(r);
         renderRarest(r);
         renderTaxa(r);
         renderTopSpecies(r);
@@ -1157,19 +1434,33 @@
         resultsEl.style.display = 'block';
       }
 
-      function tile(value, label, hint, link) {
+      function tile(value, label, hint, link, extraHtml) {
         const v = typeof value === 'number' ? value.toLocaleString() : value;
         const inner = `
           <div class="yr-tile-value">${v}</div>
           <div class="yr-tile-label">${label}</div>
           ${hint ? `<div class="yr-tile-hint">${hint}</div>` : ''}
+          ${extraHtml || ''}
         `;
         return `<div class="yr-tile">${link ? `<a href="${escapeHtml(link)}" target="_blank">${inner}</a>` : inner}</div>`;
       }
 
       function bestDayLink(r, date) {
-        const subj = r.mode === 'user' ? `user_id=${r.subject.id}` : `project_id=${r.subject.id}`;
+        const subj =
+          r.mode === 'user' ? `user_id=${r.subject.id}`
+          : r.mode === 'project' ? `project_id=${r.subject.id}`
+          : `place_id=${r.subject.id}`;
         return `https://www.inaturalist.org/observations?${subj}&on=${date}`;
+      }
+
+      // Round up to 1/1.5/2/2.5/3/4/5/6/8/10 × 10^n so axis ticks are tidy
+      function niceCeil(v) {
+        if (v <= 10) return Math.max(1, Math.ceil(v));
+        const exp = Math.pow(10, Math.floor(Math.log10(v)));
+        const f = v / exp;
+        const steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+        const nice = steps.find((s) => f <= s);
+        return nice * exp;
       }
 
       function formatDay(dateStr) {
@@ -1208,17 +1499,39 @@
           document.getElementById('rhythmSub').textContent = 'Verifiable observations per month, by date observed.';
         }
 
-        const max = Math.max(1, ...buckets, ...(prevBuckets || []));
+        // Round the scale up to a tidy value so the axis ticks are clean numbers
+        const rawMax = Math.max(1, ...buckets, ...(prevBuckets || []));
+        const max = niceCeil(rawMax);
         const peak = buckets.indexOf(Math.max(...buckets));
+        const compact = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
 
-        chart.innerHTML = buckets.map((count, i) => {
+        const axis = `
+          <div class="yr-axis">
+            <div class="yr-axis-ticks">
+              <div>${compact.format(max)}</div>
+              <div>${compact.format(max / 2)}</div>
+              <div>0</div>
+            </div>
+            <div class="yr-chart-label">&nbsp;</div>
+          </div>
+        `;
+
+        chart.innerHTML = axis + buckets.map((count, i) => {
           const h = Math.round((count / max) * 100);
           const ghost = prevBuckets
-            ? `<div class="yr-bar-ghost" style="height: ${Math.round((prevBuckets[i] / max) * 100)}%" title="${labels[i]} ${r.year - 1}: ${prevBuckets[i].toLocaleString()} observations"></div>`
+            ? `<div class="yr-bar-ghost" style="height: ${Math.round((prevBuckets[i] / max) * 100)}%"></div>`
             : '';
+          const tip = `
+            <div class="yr-tip">
+              ${labels[i]}${r.isAllTime ? '' : ' ' + r.year}: ${count.toLocaleString()} obs${
+                prevBuckets ? `<br><small>${r.year - 1}: ${prevBuckets[i].toLocaleString()} obs</small>` : ''
+              }
+            </div>
+          `;
           return `
             <div class="yr-chart-col">
-              <div class="yr-chart-bars" title="${labels[i]}${r.isAllTime ? '' : ' ' + r.year}: ${count.toLocaleString()} observations">
+              ${tip}
+              <div class="yr-chart-bars">
                 ${ghost}
                 <div class="yr-bar${i === peak && count > 0 ? ' peak' : ''}" style="height: ${h}%"></div>
               </div>
@@ -1232,6 +1545,201 @@
           `<span class="lg-peak">Busiest ${r.isAllTime ? 'year' : 'month'}</span>`,
           prevBuckets ? `<span class="lg-ghost">${r.year - 1}, same month</span>` : '',
         ].join('');
+      }
+
+      // ---- Streaks: runs of consecutive days with observations ----
+      function computeStreaks(dayData, minLen) {
+        const days = Object.entries(dayData).filter(([, c]) => c > 0).map(([d]) => d).sort();
+        const streaks = [];
+        let start = null;
+        let prev = null;
+        let len = 0;
+        for (const d of days) {
+          if (prev && Math.round((new Date(d) - new Date(prev)) / 86400000) === 1) {
+            len++;
+          } else {
+            if (len >= minLen) streaks.push({ start, end: prev, len });
+            start = d;
+            len = 1;
+          }
+          prev = d;
+        }
+        if (len >= minLen) streaks.push({ start, end: prev, len });
+        return streaks;
+      }
+
+      function renderStreaks(r) {
+        const card = document.getElementById('streaksCard');
+        const el = document.getElementById('yrStreaks');
+        const legend = document.getElementById('streaksLegend');
+        const streaks = computeStreaks(r.dayData, 5);
+        const streakDays = new Set();
+        for (const s of streaks) {
+          const d = new Date(s.start);
+          for (let i = 0; i < s.len; i++) {
+            streakDays.add(d.toISOString().slice(0, 10));
+            d.setUTCDate(d.getUTCDate() + 1);
+          }
+        }
+        const longest = streaks.reduce((a, b) => (!a || b.len > a.len ? b : a), null);
+
+        if (r.isAllTime) {
+          // Too many days for a calendar — list the longest streaks instead
+          if (!streaks.length) {
+            card.style.display = 'none';
+            return;
+          }
+          const top = [...streaks].sort((a, b) => b.len - a.len).slice(0, 3);
+          document.getElementById('streaksSub').textContent =
+            `${streaks.length.toLocaleString()} streak${streaks.length !== 1 ? 's' : ''} of five or more consecutive days with observations. The longest:`;
+          el.innerHTML = `<div class="yr-streak-list">${top.map((s) =>
+            `<div><strong>${s.len} days</strong> · ${formatDay(s.start)} – ${formatDay(s.end)}</div>`
+          ).join('')}</div>`;
+          legend.innerHTML = '';
+          card.style.display = 'block';
+          return;
+        }
+
+        // Single year, GitHub-style: one column per week, one row per weekday
+        document.getElementById('streaksSub').textContent = longest
+          ? `Longest streak: ${longest.len} consecutive days (${formatDay(longest.start)} – ${formatDay(longest.end)}).`
+          : 'No streaks of five or more consecutive days this year — the calendar shows every day with observations.';
+
+        const COL = 15; // 12px cell + 3px gap
+        const yearStart = new Date(Date.UTC(r.year, 0, 1));
+        const yearEnd = new Date(Date.UTC(r.year, 11, 31));
+        // Grid starts on the Sunday on or before Jan 1
+        const gridStart = new Date(yearStart);
+        gridStart.setUTCDate(gridStart.getUTCDate() - gridStart.getUTCDay());
+
+        const weeks = [];
+        const monthLabels = [];
+        let cursor = new Date(gridStart);
+        let week = [];
+        while (cursor <= yearEnd) {
+          if (cursor >= yearStart) {
+            const key = cursor.toISOString().slice(0, 10);
+            const m = cursor.getUTCMonth();
+            const d = cursor.getUTCDate();
+            if (d === 1) monthLabels.push([weeks.length, MONTHS[m]]);
+            const count = r.dayData[key] || 0;
+            let cls = '';
+            if (streakDays.has(key)) cls = ' streak';
+            else if (count >= 10) cls = ' l3';
+            else if (count >= 3) cls = ' l2';
+            else if (count >= 1) cls = ' l1';
+            week.push(`<div class="yr-cal-day${cls}" title="${MONTHS[m]} ${d}: ${count.toLocaleString()} observation${count !== 1 ? 's' : ''}"></div>`);
+          } else {
+            week.push('<div class="yr-cal-day empty"></div>');
+          }
+          if (cursor.getUTCDay() === 6) {
+            weeks.push(`<div class="yr-gh-week">${week.join('')}</div>`);
+            week = [];
+          }
+          cursor.setUTCDate(cursor.getUTCDate() + 1);
+        }
+        if (week.length) weeks.push(`<div class="yr-gh-week">${week.join('')}</div>`);
+
+        el.innerHTML = `
+          <div class="yr-cal">
+            <div class="yr-gh-months">${monthLabels.map(([w, label]) => `<span style="left: ${w * COL}px">${label}</span>`).join('')}</div>
+            <div class="yr-gh-body">
+              <div class="yr-gh-days"><span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span></div>
+              <div class="yr-gh-grid">${weeks.join('')}</div>
+            </div>
+          </div>
+        `;
+        legend.innerHTML = [
+          '<span>Days with observations</span>',
+          '<span class="lg-peak">Part of a 5+ day streak</span>',
+        ].join('');
+        card.style.display = 'block';
+      }
+
+      // ---- Cumulative observations curve ----
+      function renderGrowth(r) {
+        const card = document.getElementById('growthCard');
+        const entries = Object.entries(r.dayData).filter(([, c]) => c > 0).sort();
+        if (entries.length < 2) {
+          card.style.display = 'none';
+          return;
+        }
+        let cum = 0;
+        const pts = entries.map(([d, c]) => {
+          cum += c;
+          return [new Date(d).getTime(), cum];
+        });
+        const t0 = new Date(r.d1).getTime();
+        const t1 = new Date(r.d2).getTime();
+        const W = 1000;
+        const H = 220;
+        const PAD = 8;
+        const x = (t) => PAD + ((t - t0) / (t1 - t0)) * (W - PAD * 2);
+        const y = (v) => H - 24 - (v / cum) * (H - 40);
+        let path = `M ${x(t0).toFixed(1)} ${y(0).toFixed(1)}`;
+        for (const [t, v] of pts) path += ` L ${x(t).toFixed(1)} ${y(v).toFixed(1)}`;
+        const area = `${path} L ${x(pts[pts.length - 1][0]).toFixed(1)} ${y(0).toFixed(1)} Z`;
+
+        // Ticks: month starts for a single year, January firsts for all time
+        const ticks = [];
+        if (r.isAllTime) {
+          const y0 = new Date(r.d1).getUTCFullYear();
+          const y1 = new Date(r.d2).getUTCFullYear();
+          const step = Math.max(1, Math.ceil((y1 - y0) / 9));
+          for (let yy = y0 + 1; yy <= y1; yy += step) {
+            ticks.push([Date.UTC(yy, 0, 1), String(yy)]);
+          }
+        } else {
+          for (let m = 0; m < 12; m++) ticks.push([Date.UTC(r.year, m, 1), MONTHS[m]]);
+        }
+
+        document.getElementById('growthTitle').textContent =
+          r.isAllTime ? 'All time, accumulating' : 'The year, accumulating';
+        document.getElementById('growthSub').textContent =
+          `Running total of verifiable observations, ending at ${cum.toLocaleString()}.`;
+        document.getElementById('yrGrowth').innerHTML = `
+          <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Cumulative observations">
+            <path d="${area}" fill="var(--yr-green)" opacity="0.15"></path>
+            <path d="${path}" fill="none" stroke="var(--yr-green)" stroke-width="2.5"></path>
+            <line x1="${PAD}" y1="${H - 24}" x2="${W - PAD}" y2="${H - 24}" stroke="var(--yr-line)" stroke-width="1"></line>
+            ${ticks.map(([t, label]) => `<text x="${x(t).toFixed(1)}" y="${H - 8}" font-size="11" fill="var(--yr-muted)">${label}</text>`).join('')}
+            <text x="${W - PAD}" y="${(y(cum) - 6).toFixed(1)}" font-size="12" font-weight="600" text-anchor="end" fill="var(--yr-green)">${cum.toLocaleString()}</text>
+          </svg>
+        `;
+        card.style.display = 'block';
+      }
+
+      // ---- Community favorites: most faved & commented observations ----
+      function renderFaves(r) {
+        const card = document.getElementById('favesCard');
+        const engaged = (r.mosaicObs || [])
+          .filter((o) => (o.faves_count || 0) + (o.comments_count || 0) > 0)
+          .sort((a, b) => ((b.faves_count || 0) + (b.comments_count || 0)) - ((a.faves_count || 0) + (a.comments_count || 0)))
+          .slice(0, 8);
+        if (!engaged.length) {
+          card.style.display = 'none';
+          return;
+        }
+        document.getElementById('favesSub').textContent =
+          'The observations that drew the most faves and comments.';
+        document.getElementById('yrFaves').innerHTML = engaged.map((o) => {
+          const photo = o.photos?.[0]?.url?.replace('square', 'medium');
+          const name = o.taxon?.preferred_common_name || o.taxon?.name || 'Unknown';
+          const bits = [];
+          if (o.faves_count) bits.push(`❤ ${o.faves_count}`);
+          if (o.comments_count) bits.push(`💬 ${o.comments_count}`);
+          if (o.observed_on) bits.push(formatDay(o.observed_on));
+          return `
+            <a class="yr-sp" href="https://www.inaturalist.org/observations/${o.id}" target="_blank">
+              ${photo ? `<img src="${escapeHtml(photo)}" alt="" loading="lazy" />` : ''}
+              <div class="yr-sp-body">
+                <div class="yr-sp-name">${escapeHtml(name)}</div>
+                <div class="yr-sp-meta">${bits.join(' · ')}</div>
+              </div>
+            </a>
+          `;
+        }).join('');
+        card.style.display = 'block';
       }
 
       function renderRarest(r) {
@@ -1305,13 +1813,15 @@
 
       function renderTopSpecies(r) {
         const card = document.getElementById('topSpeciesCard');
-        const top = r.species.list.slice(0, 8);
+        const top = r.species.list.slice(0, 10);
         if (!top.length) {
           card.style.display = 'none';
           return;
         }
         document.getElementById('topSpeciesSub').textContent =
-          r.isAllTime ? 'Your most observed species of all time.' : 'The species observed most often this year.';
+          r.isAllTime
+            ? (r.mode === 'user' ? 'Your most observed species of all time.' : 'The most observed species of all time.')
+            : 'The species observed most often this year.';
         document.getElementById('yrTopSpecies').innerHTML =
           top.map((s) => speciesCard(s, `${s.count.toLocaleString()} observation${s.count !== 1 ? 's' : ''}`)).join('');
         card.style.display = 'block';
@@ -1323,22 +1833,23 @@
           card.style.display = 'none';
           return;
         }
-        const shown = r.newSpecies.slice(0, 12);
         document.getElementById('newSpeciesTitle').textContent =
-          r.mode === 'user' ? 'New to you' : 'New to the project';
-        let sub = `${r.newSpecies.length.toLocaleString()} species observed for the first time in ${r.year}. Showing the ${shown.length} most observed.`;
+          r.mode === 'user' ? 'New to you' : r.mode === 'project' ? 'New to the project' : 'New to this place';
+        let sub = `${r.newSpecies.length.toLocaleString()} species observed for the first time in ${r.year}.`;
         if (r.species.truncated || r.beforeTruncated) {
           sub += ` Based on the first ${(SPECIES_PAGE_CAP * 500).toLocaleString()} species per list — large accounts may show approximate results.`;
         }
         document.getElementById('newSpeciesSub').textContent = sub;
-        document.getElementById('yrNewSpecies').innerHTML =
-          shown.map((s) => speciesCard(s, `${s.count.toLocaleString()} obs in ${r.year}`)).join('');
+        const grid = document.getElementById('yrNewSpecies');
+        grid.classList.add('yr-scroll');
+        grid.innerHTML =
+          r.newSpecies.map((s) => speciesCard(s, `${s.count.toLocaleString()} obs in ${r.year}`)).join('');
         card.style.display = 'block';
       }
 
       function renderObservers(r) {
         const card = document.getElementById('observersCard');
-        if (r.mode !== 'project' || !r.observers || !r.observers.top.length) {
+        if (r.mode === 'user' || !r.observers || !r.observers.top.length) {
           card.style.display = 'none';
           return;
         }
@@ -1375,10 +1886,14 @@
         const params = new URLSearchParams(location.search);
         const user = params.get('user');
         const project = params.get('project');
+        const place = params.get('place');
         const year = params.get('year');
         if (project) {
           setMode('project');
           subjectInput.value = project;
+        } else if (place) {
+          setMode('place');
+          subjectInput.value = place;
         } else if (user) {
           subjectInput.value = user;
         } else {
