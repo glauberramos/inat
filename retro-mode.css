@@ -1,0 +1,404 @@
+/* ==========================================================================
+   Retro Pokédex theme — shared add-on for pages with the retro toggle
+   (currently the Lifelist page; SpeciesDex carries its own copy inside
+   speciesdex.css). retro-mode.js toggles .retro-mode on <html>, set
+   pre-paint by each page's head bootstrap. Light retro = classic red
+   Pokédex on cream; dark retro = arcade cabinet at night.
+   ========================================================================== */
+
+/* Toggle button — sits left of the dark mode toggle (both themes) */
+.retro-mode-toggle {
+  position: absolute;
+  top: 20px;
+  right: 72px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  font-size: 1.7rem;
+  z-index: 1000;
+  transition: transform 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.retro-mode-toggle:hover {
+  transform: scale(1.1);
+  background: transparent;
+}
+
+@media (max-width: 480px) {
+  .retro-mode-toggle {
+    top: 10px;
+    right: 54px;
+    width: 38px;
+    height: 38px;
+    font-size: 1.4rem;
+  }
+}
+
+/* Low-res canvas drawn by retro-mode.js, stretched over the card photo.
+   On the lifelist the photo is the 120px strip at the top of the card; the
+   img underneath keeps its layout box so loading="lazy" still triggers. */
+body.lifelist-page .retro-pixel-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 120px; /* same as .card-image */
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Tokens
+   -------------------------------------------------------------------------- */
+html.retro-mode body.lifelist-page {
+  --rx-bg: #f2e7c9;
+  --rx-surface: #fdf6dd;
+  --rx-surface-2: #f4ecce;
+  --rx-ink: #33251b;
+  --rx-muted: #7d6b4f;
+  --rx-line-soft: rgba(51, 37, 27, 0.25);
+  --rx-green: #3f8f1f;
+  --rx-green-strong: #2f6f14;
+  --rx-green-tint: #e4ecc4;
+  --rx-chip-bg: #33251b;
+  --rx-chip-ink: #f2e7c9;
+  --rx-accent: #dc0a2d;
+  --rx-accent-strong: #a40824;
+  --rx-hard: #33251b;
+  font-family: "Pixelify Sans", monospace;
+  -webkit-font-smoothing: auto;
+  color: var(--rx-ink);
+  background-color: var(--rx-bg);
+  /* CRT scanlines */
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(51, 37, 27, 0.05) 0,
+    rgba(51, 37, 27, 0.05) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Dark retro: charcoal-navy ground, warm cream ink, Pokédex-red buttons;
+   green is reserved for meaning */
+html.retro-mode.dark-mode body.lifelist-page {
+  --rx-bg: #16151f;
+  --rx-surface: #232231;
+  --rx-surface-2: #1b1a27;
+  --rx-ink: #ece7d6;
+  --rx-muted: #a29cb0;
+  --rx-line-soft: rgba(236, 231, 214, 0.18);
+  --rx-green: #4fca4f;
+  --rx-green-strong: #78e878;
+  --rx-green-tint: #1e3320;
+  --rx-chip-bg: #16151f;
+  --rx-chip-ink: #ece7d6;
+  --rx-accent: #ef3e56;
+  --rx-accent-strong: #c92844;
+  --rx-hard: #000000;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.16) 0,
+    rgba(0, 0, 0, 0.16) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Pixel-hard everything: no rounding, no easing */
+html.retro-mode body.lifelist-page *,
+html.retro-mode body.lifelist-page *::before,
+html.retro-mode body.lifelist-page *::after {
+  border-radius: 0 !important;
+  transition: none !important;
+}
+
+/* Form controls don't inherit font by default */
+html.retro-mode body.lifelist-page input,
+html.retro-mode body.lifelist-page button,
+html.retro-mode body.lifelist-page select,
+html.retro-mode body.lifelist-page textarea {
+  font-family: inherit;
+}
+
+html.retro-mode body.lifelist-page ::selection {
+  background: var(--rx-ink);
+  color: var(--rx-bg);
+}
+
+/* Hero */
+html.retro-mode body.lifelist-page h1 {
+  color: var(--rx-ink);
+  text-shadow: 3px 3px 0 rgba(220, 10, 45, 0.35);
+}
+
+html.retro-mode.dark-mode body.lifelist-page h1 {
+  text-shadow: 3px 3px 0 rgba(239, 62, 86, 0.45);
+}
+
+html.retro-mode body.lifelist-page .subtitle {
+  color: var(--rx-muted);
+}
+
+html.retro-mode body.lifelist-page .checkbox-label {
+  color: var(--rx-ink);
+}
+
+/* Inputs and selects (selects carry inline borders and dark-mode.css
+   !important borders, hence the !important here) */
+html.retro-mode body.lifelist-page input[type="text"] {
+  background: var(--rx-surface);
+  border: 2px solid var(--rx-ink);
+  color: var(--rx-ink);
+}
+
+html.retro-mode body.lifelist-page input[type="text"]::placeholder {
+  color: var(--rx-muted);
+}
+
+html.retro-mode body.lifelist-page input[type="text"]:focus {
+  border-color: var(--rx-ink);
+  box-shadow: 3px 3px 0 var(--rx-green);
+}
+
+html.retro-mode body.lifelist-page .language-select {
+  background-color: var(--rx-surface) !important;
+  border-color: var(--rx-ink) !important;
+  color: var(--rx-ink) !important;
+}
+
+/* Buttons — Pokédex red with press-down; view toggles stay neutral */
+html.retro-mode body.lifelist-page button {
+  background: var(--rx-accent);
+  border: 2px solid var(--rx-ink);
+  color: #fff;
+  box-shadow: 3px 3px 0 var(--rx-hard);
+}
+
+html.retro-mode body.lifelist-page button:hover {
+  background: var(--rx-accent-strong);
+}
+
+html.retro-mode body.lifelist-page button:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+html.retro-mode body.lifelist-page button:disabled {
+  background: var(--rx-muted);
+  color: var(--rx-bg);
+  box-shadow: none;
+}
+
+/* The theme toggles are buttons too — keep them plain icons */
+html.retro-mode body.lifelist-page .dark-mode-toggle,
+html.retro-mode body.lifelist-page .dark-mode-toggle:hover,
+html.retro-mode body.lifelist-page .dark-mode-toggle:active,
+html.retro-mode body.lifelist-page .retro-mode-toggle,
+html.retro-mode body.lifelist-page .retro-mode-toggle:hover,
+html.retro-mode body.lifelist-page .retro-mode-toggle:active {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  transform: none;
+}
+
+html.retro-mode body.lifelist-page .view-btn {
+  background: var(--rx-surface);
+  border: 2px solid var(--rx-ink);
+  color: var(--rx-muted);
+  box-shadow: none;
+}
+
+html.retro-mode body.lifelist-page .view-btn:hover {
+  background: var(--rx-green-tint);
+  color: var(--rx-ink);
+}
+
+html.retro-mode body.lifelist-page .view-btn.active {
+  background: var(--rx-green);
+  border-color: var(--rx-ink);
+  color: #fff;
+}
+
+html.retro-mode.dark-mode body.lifelist-page .view-btn.active {
+  color: #16151f;
+}
+
+/* Autocomplete */
+html.retro-mode body.lifelist-page .autocomplete {
+  background: var(--rx-surface);
+  border: 2px solid var(--rx-ink);
+  box-shadow: 4px 4px 0 var(--rx-hard);
+}
+
+html.retro-mode body.lifelist-page .autocomplete-item {
+  border-bottom: 1px solid var(--rx-line-soft);
+}
+
+html.retro-mode body.lifelist-page .autocomplete-item:hover {
+  background: var(--rx-green-tint);
+}
+
+html.retro-mode body.lifelist-page .autocomplete-item.no-results:hover {
+  background: var(--rx-surface);
+}
+
+html.retro-mode body.lifelist-page .autocomplete-name {
+  color: var(--rx-ink);
+}
+
+html.retro-mode body.lifelist-page .autocomplete-login,
+html.retro-mode body.lifelist-page .autocomplete-rank,
+html.retro-mode body.lifelist-page .autocomplete-type {
+  color: var(--rx-muted);
+}
+
+html.retro-mode body.lifelist-page .autocomplete-divider {
+  background: var(--rx-line-soft);
+}
+
+/* Progress + results panels */
+html.retro-mode body.lifelist-page .progress-container,
+html.retro-mode body.lifelist-page .results-container {
+  background: var(--rx-surface);
+  border: 3px solid var(--rx-ink);
+  box-shadow: 4px 4px 0 var(--rx-hard);
+}
+
+html.retro-mode body.lifelist-page .progress-bar-bg {
+  background: var(--rx-surface-2);
+  border: 2px solid var(--rx-ink);
+}
+
+html.retro-mode body.lifelist-page .progress-bar {
+  background: var(--rx-green);
+}
+
+html.retro-mode body.lifelist-page .progress-text,
+html.retro-mode body.lifelist-page .current-check {
+  color: var(--rx-muted);
+}
+
+html.retro-mode body.lifelist-page .results-count {
+  color: var(--rx-green);
+}
+
+/* List view */
+html.retro-mode body.lifelist-page .species-item {
+  border-bottom: 1px solid var(--rx-line-soft);
+  color: var(--rx-ink);
+}
+
+html.retro-mode body.lifelist-page .species-item:hover {
+  background: var(--rx-green-tint);
+}
+
+html.retro-mode body.lifelist-page .species-number {
+  color: var(--rx-green);
+}
+
+html.retro-mode body.lifelist-page .species-name {
+  color: var(--rx-ink);
+}
+
+html.retro-mode body.lifelist-page .species-scientific,
+html.retro-mode body.lifelist-page .species-rank,
+html.retro-mode body.lifelist-page .species-date,
+html.retro-mode body.lifelist-page .species-observer {
+  color: var(--rx-muted);
+}
+
+html.retro-mode body.lifelist-page .species-observer a {
+  color: var(--rx-green);
+}
+
+html.retro-mode body.lifelist-page .rg-badge,
+html.retro-mode body.lifelist-page .species-card .card-rg {
+  background: var(--rx-green);
+  color: #fff;
+}
+
+html.retro-mode.dark-mode body.lifelist-page .rg-badge,
+html.retro-mode.dark-mode body.lifelist-page .species-card .card-rg {
+  color: #16151f;
+}
+
+/* Year separators — red banner rows */
+html.retro-mode body.lifelist-page .year-separator,
+html.retro-mode body.lifelist-page .grid-year-separator {
+  background: var(--rx-accent);
+  color: #fff;
+  border: 2px solid var(--rx-ink);
+  box-shadow: 3px 3px 0 var(--rx-hard);
+}
+
+/* Grid cards */
+html.retro-mode body.lifelist-page .species-card {
+  background: var(--rx-surface);
+  border: 3px solid var(--rx-ink);
+  box-shadow: 4px 4px 0 var(--rx-hard);
+}
+
+html.retro-mode body.lifelist-page .species-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--rx-hard);
+}
+
+html.retro-mode body.lifelist-page .species-card .card-image {
+  image-rendering: pixelated;
+}
+
+html.retro-mode body.lifelist-page .species-card .card-image-placeholder {
+  background: var(--rx-surface-2);
+  color: var(--rx-muted);
+}
+
+/* Badges sit above the pixel canvas */
+html.retro-mode body.lifelist-page .card-badges {
+  z-index: 1;
+}
+
+html.retro-mode body.lifelist-page .card-number {
+  background: var(--rx-chip-bg);
+  color: var(--rx-chip-ink);
+}
+
+html.retro-mode body.lifelist-page .card-common-name {
+  color: var(--rx-ink);
+}
+
+html.retro-mode body.lifelist-page .card-sci-name,
+html.retro-mode body.lifelist-page .card-date,
+html.retro-mode body.lifelist-page .card-observer {
+  color: var(--rx-muted);
+}
+
+html.retro-mode body.lifelist-page .card-observer a {
+  color: var(--rx-green);
+}
+
+/* Error + feedback */
+html.retro-mode body.lifelist-page .error {
+  background: var(--rx-surface);
+  color: var(--rx-accent);
+  border: 2px solid var(--rx-accent);
+}
+
+html.retro-mode body.lifelist-page .feedback-button {
+  background: var(--rx-accent);
+  border: 2px solid var(--rx-ink);
+  color: #fff;
+  box-shadow: 3px 3px 0 var(--rx-hard);
+}
+
+html.retro-mode body.lifelist-page .feedback-button:hover {
+  background: var(--rx-accent-strong);
+  transform: none;
+}

@@ -964,23 +964,25 @@ html.retro-mode body.speciesdex-page {
   background-size: auto;
 }
 
+/* Dark retro: arcade cabinet at night — charcoal-navy ground, warm cream
+   ink, Pokédex-red buttons; bright green is reserved for "observed" */
 html.retro-mode.dark-mode body.speciesdex-page {
-  --dex-bg: #0f380f;
-  --dex-surface: #1a4a1a;
-  --dex-surface-2: #133f13;
-  --dex-ink: #9bbc0f;
-  --dex-muted: #8bac0f;
-  --dex-line: #8bac0f;
-  --dex-green: #8bac0f;
-  --dex-green-strong: #9bbc0f;
-  --dex-green-tint: #306230;
-  --dex-gold: #cadc4a;
-  --dex-gold-tint: #2c4a0c;
-  --dex-chip-bg: #0f380f;
-  --dex-chip-ink: #9bbc0f;
-  --dex-accent: #8bac0f;
-  --dex-accent-strong: #9bbc0f;
-  --dex-hard: #082808;
+  --dex-bg: #16151f;
+  --dex-surface: #232231;
+  --dex-surface-2: #1b1a27;
+  --dex-ink: #ece7d6;
+  --dex-muted: #a29cb0;
+  --dex-line: #5b566f;
+  --dex-green: #4fca4f;
+  --dex-green-strong: #78e878;
+  --dex-green-tint: #1e3320;
+  --dex-gold: #f2c14e;
+  --dex-gold-tint: #35290f;
+  --dex-chip-bg: #16151f;
+  --dex-chip-ink: #ece7d6;
+  --dex-accent: #ef3e56;
+  --dex-accent-strong: #c92844;
+  --dex-hard: #000000;
   background-image: repeating-linear-gradient(
     0deg,
     rgba(0, 0, 0, 0.16) 0,
@@ -1018,7 +1020,7 @@ html.retro-mode body.speciesdex-page h1 {
 }
 
 html.retro-mode.dark-mode body.speciesdex-page h1 {
-  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  text-shadow: 3px 3px 0 rgba(239, 62, 86, 0.45);
 }
 
 html.retro-mode body.speciesdex-page .logo {
@@ -1048,11 +1050,6 @@ html.retro-mode body.speciesdex-page .search-button-advanced {
   border: 2px solid var(--dex-ink);
   color: #fff;
   box-shadow: 3px 3px 0 var(--dex-hard);
-}
-
-html.retro-mode.dark-mode body.speciesdex-page #searchButton,
-html.retro-mode.dark-mode body.speciesdex-page .search-button-advanced {
-  color: #0f380f;
 }
 
 html.retro-mode body.speciesdex-page #searchButton:hover,
@@ -1172,7 +1169,7 @@ html.retro-mode.dark-mode body.speciesdex-page .filter-toggle-btn.active,
 html.retro-mode.dark-mode body.speciesdex-page .filter-toggle-btn.active:hover,
 html.retro-mode.dark-mode body.speciesdex-page .date-preset-btn.active,
 html.retro-mode.dark-mode body.speciesdex-page .date-preset-btn.active:hover {
-  color: #0f380f;
+  color: #16151f;
 }
 
 /* Advanced panel + option chips */
@@ -1204,8 +1201,14 @@ html.retro-mode body.speciesdex-page .species-card:hover {
   transform: translate(-2px, -2px);
 }
 
-html.retro-mode body.speciesdex-page .species-card.observed {
+/* Observed vs missing must read at a glance: observed cards carry a green
+   border AND a green hard shadow (also on hover, so it never reverts to
+   the ink lift shadow). */
+html.retro-mode body.speciesdex-page .species-card.observed,
+html.retro-mode body.speciesdex-page .species-card.observed:hover {
   border: 3px solid var(--dex-green);
+  box-shadow: 4px 4px 0
+    color-mix(in srgb, var(--dex-green) 60%, var(--dex-hard));
 }
 
 html.retro-mode body.speciesdex-page .species-card img {
@@ -1239,7 +1242,7 @@ html.retro-mode body.speciesdex-page .species-card.observed .species-photo::afte
 }
 
 html.retro-mode.dark-mode body.speciesdex-page .species-card.observed .species-photo::after {
-  color: #0f380f;
+  color: #16151f;
 }
 
 /* Map modal + feedback button */
@@ -1256,10 +1259,6 @@ html.retro-mode body.speciesdex-page .map-apply-btn:hover {
   background: var(--dex-accent-strong);
 }
 
-html.retro-mode.dark-mode body.speciesdex-page .map-apply-btn {
-  color: #0f380f;
-}
-
 html.retro-mode body.speciesdex-page .map-cancel-btn {
   border: 2px solid var(--dex-ink);
 }
@@ -1272,10 +1271,6 @@ html.retro-mode body.speciesdex-page .feedback-button {
 
 html.retro-mode body.speciesdex-page .feedback-button:hover {
   background: var(--dex-accent-strong);
-}
-
-html.retro-mode.dark-mode body.speciesdex-page .feedback-button {
-  color: #0f380f;
 }
 
 /* --------------------------------------------------------------------------

@@ -9,6 +9,9 @@
       if (localStorage.getItem("darkMode") === "true") {
         document.documentElement.classList.add("dark-mode");
       }
+      if (localStorage.getItem("speciesdexRetro") === "true") {
+        document.documentElement.classList.add("retro-mode");
+      }
     </script>
     <title>Lifelist Timeline - View Your iNaturalist Species History by Date</title>
     <link rel="icon" href="favicon.ico" />
@@ -60,6 +63,12 @@
       ]
     }
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="dark-mode.css?v=6" />
     <style>
       * {
@@ -679,9 +688,10 @@
         }
       }
     </style>
+    <link rel="stylesheet" href="retro-mode.css?v=1" />
       <script src="analytics.js"></script>
   </head>
-  <body>
+  <body class="lifelist-page">
     <a
       href="/inat"
       class="back-button"
@@ -1761,6 +1771,7 @@
       initFeedbackButton();
     </script>
     <script src="dark-mode.js?v=2"></script>
+    <script src="retro-mode.js?v=1"></script>
     <script>
       registerServiceWorker();
     </script>

@@ -1,6 +1,6 @@
-// Retro Pokédex theme toggle (SpeciesDex page only)
-// The inline bootstrap in speciesdex.html's <head> already put .retro-mode
-// on <html> before first paint; here we build the toggle (next to the dark
+// Retro Pokédex theme toggle (SpeciesDex + Lifelist pages)
+// The inline bootstrap in each page's <head> already put .retro-mode on
+// <html> before first paint; here we build the toggle (next to the dark
 // mode toggle) and keep <html> and <body> in sync.
 (function () {
   let retroToggle = document.getElementById("retroModeToggle");
@@ -18,8 +18,8 @@
   // that redraws it in chunky pixels (CSS upscales it with
   // image-rendering: pixelated). Drawing — not reading back — a
   // cross-origin image is allowed, so this works for every photo host.
-  const PIXEL_WIDTH = 112; // internal resolution; smaller = chunkier
-  const PIXEL_HEIGHT = 84; // 4:3, matching the card photo box
+  const PIXEL_WIDTH = 130; // internal resolution; smaller = chunkier
+  const PIXEL_HEIGHT = 98; // 4:3, matching the card photo box
 
   function drawPixelated(img, canvas) {
     const w = img.naturalWidth;
