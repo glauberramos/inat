@@ -9,6 +9,9 @@
       if (localStorage.getItem("darkMode") === "true") {
         document.documentElement.classList.add("dark-mode");
       }
+      if (localStorage.getItem("speciesdexRetro") === "true") {
+        document.documentElement.classList.add("retro-mode");
+      }
     </script>
     <title>
       SpeciesDex - Track Top 100 Species in Any Location | iNaturalist Tool
@@ -74,6 +77,12 @@
       ]
     }
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css?v=4" />
     <link rel="stylesheet" href="dark-mode.css?v=6" />
     <!-- Leaflet CSS -->
@@ -473,7 +482,7 @@
         }
       }
     </style>
-    <link rel="stylesheet" href="speciesdex.css?v=2" />
+    <link rel="stylesheet" href="speciesdex.css?v=3" />
       <script src="analytics.js"></script>
   </head>
   <body class="speciesdex-page">
@@ -1462,6 +1471,7 @@
       initFeedbackButton();
     </script>
     <script src="dark-mode.js?v=2"></script>
+    <script src="retro-mode.js?v=1"></script>
     <script>
       registerServiceWorker();
     </script>

@@ -918,3 +918,388 @@ body.speciesdex-page.dark-mode .date-input {
     display: flex;
   }
 }
+
+/* ==========================================================================
+   Retro theme — old-school Pokédex / Game Boy
+   Toggled by retro-mode.js (.retro-mode on <html>, set pre-paint by the
+   head bootstrap). Selectors key off html.retro-mode so there is no flash;
+   composes with dark mode: light retro = classic red Pokédex on cream,
+   dark retro = original DMG Game Boy 4-shade green screen.
+   ========================================================================== */
+html.retro-mode body.speciesdex-page {
+  --dex-bg: #f2e7c9;
+  --dex-dot: transparent;
+  --dex-surface: #fdf6dd;
+  --dex-surface-2: #f4ecce;
+  --dex-ink: #33251b;
+  --dex-muted: #7d6b4f;
+  --dex-line: #33251b;
+  --dex-green: #3f8f1f;
+  --dex-green-strong: #2f6f14;
+  --dex-green-tint: #e4ecc4;
+  --dex-gold: #b8860b;
+  --dex-gold-tint: #f4e6bb;
+  --dex-chip-bg: #33251b;
+  --dex-chip-ink: #f2e7c9;
+  --dex-accent: #dc0a2d;
+  --dex-accent-strong: #a40824;
+  --dex-hard: #33251b;
+  --dex-shadow: 4px 4px 0 var(--dex-hard);
+  --dex-shadow-lift: 6px 6px 0 var(--dex-hard);
+  --dex-display: "Pixelify Sans", monospace;
+  --dex-mono: "Pixelify Sans", monospace;
+  font-family: "Pixelify Sans", monospace;
+  -webkit-font-smoothing: auto;
+  /* re-assert over html.dark-mode body's #1a1a1a */
+  background-color: var(--dex-bg);
+  color: var(--dex-ink);
+  /* CRT scanlines over the cream ground */
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(51, 37, 27, 0.05) 0,
+    rgba(51, 37, 27, 0.05) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  background-size: auto;
+}
+
+html.retro-mode.dark-mode body.speciesdex-page {
+  --dex-bg: #0f380f;
+  --dex-surface: #1a4a1a;
+  --dex-surface-2: #133f13;
+  --dex-ink: #9bbc0f;
+  --dex-muted: #8bac0f;
+  --dex-line: #8bac0f;
+  --dex-green: #8bac0f;
+  --dex-green-strong: #9bbc0f;
+  --dex-green-tint: #306230;
+  --dex-gold: #cadc4a;
+  --dex-gold-tint: #2c4a0c;
+  --dex-chip-bg: #0f380f;
+  --dex-chip-ink: #9bbc0f;
+  --dex-accent: #8bac0f;
+  --dex-accent-strong: #9bbc0f;
+  --dex-hard: #082808;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.16) 0,
+    rgba(0, 0, 0, 0.16) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Pixel-hard everything: no rounding, no easing */
+html.retro-mode body.speciesdex-page *,
+html.retro-mode body.speciesdex-page *::before,
+html.retro-mode body.speciesdex-page *::after {
+  border-radius: 0 !important;
+  transition: none !important;
+}
+
+/* Form controls don't inherit font by default */
+html.retro-mode body.speciesdex-page input,
+html.retro-mode body.speciesdex-page button,
+html.retro-mode body.speciesdex-page select,
+html.retro-mode body.speciesdex-page textarea {
+  font-family: inherit;
+}
+
+html.retro-mode body.speciesdex-page ::selection {
+  background: var(--dex-ink);
+  color: var(--dex-bg);
+}
+
+/* Hero */
+html.retro-mode body.speciesdex-page h1 {
+  letter-spacing: 0.02em;
+  text-shadow: 3px 3px 0 rgba(220, 10, 45, 0.35);
+}
+
+html.retro-mode.dark-mode body.speciesdex-page h1 {
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+
+html.retro-mode body.speciesdex-page .logo {
+  image-rendering: pixelated;
+}
+
+/* Inputs */
+html.retro-mode body.speciesdex-page input[type="text"],
+html.retro-mode body.speciesdex-page .limit-select,
+html.retro-mode body.speciesdex-page .language-select,
+html.retro-mode body.speciesdex-page .date-input {
+  border: 2px solid var(--dex-ink);
+}
+
+html.retro-mode body.speciesdex-page input[type="text"]:focus,
+html.retro-mode body.speciesdex-page .limit-select:focus,
+html.retro-mode body.speciesdex-page .language-select:focus,
+html.retro-mode body.speciesdex-page .date-input:focus {
+  border-color: var(--dex-ink);
+  box-shadow: 3px 3px 0 var(--dex-green);
+}
+
+/* Buttons — Pokédex red in light, DMG shade in dark; press to sink */
+html.retro-mode body.speciesdex-page #searchButton,
+html.retro-mode body.speciesdex-page .search-button-advanced {
+  background-color: var(--dex-accent);
+  border: 2px solid var(--dex-ink);
+  color: #fff;
+  box-shadow: 3px 3px 0 var(--dex-hard);
+}
+
+html.retro-mode.dark-mode body.speciesdex-page #searchButton,
+html.retro-mode.dark-mode body.speciesdex-page .search-button-advanced {
+  color: #0f380f;
+}
+
+html.retro-mode body.speciesdex-page #searchButton:hover,
+html.retro-mode body.speciesdex-page .search-button-advanced:hover {
+  background-color: var(--dex-accent-strong);
+  transform: none;
+  box-shadow: 3px 3px 0 var(--dex-hard);
+}
+
+html.retro-mode body.speciesdex-page #searchButton:active,
+html.retro-mode body.speciesdex-page .search-button-advanced:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+html.retro-mode body.speciesdex-page #advancedOptionsButton,
+html.retro-mode body.speciesdex-page .download-button {
+  border: 2px solid var(--dex-ink);
+  background-color: var(--dex-surface);
+  color: var(--dex-ink);
+}
+
+html.retro-mode body.speciesdex-page .map-open-btn:hover {
+  transform: none;
+}
+
+/* Autocomplete dropdowns (background re-asserted over dark-mode.css) */
+html.retro-mode body.speciesdex-page .taxon-autocomplete,
+html.retro-mode body.speciesdex-page .place-autocomplete,
+html.retro-mode body.speciesdex-page .username-autocomplete {
+  border: 2px solid var(--dex-ink);
+  border-top: none;
+  background: var(--dex-surface);
+}
+
+html.retro-mode body.speciesdex-page .taxon-suggestion,
+html.retro-mode body.speciesdex-page .place-suggestion,
+html.retro-mode body.speciesdex-page .username-suggestion {
+  background: var(--dex-surface);
+  border-color: var(--dex-line);
+}
+
+html.retro-mode body.speciesdex-page .taxon-suggestion:hover,
+html.retro-mode body.speciesdex-page .place-suggestion:hover,
+html.retro-mode body.speciesdex-page .username-suggestion:hover {
+  background: var(--dex-green-tint);
+}
+
+/* Status bar — the dex screen. Backgrounds/colors are re-asserted here
+   because dark-mode.css's html.dark-mode body rules outrank the themed
+   body.speciesdex-page rules above. */
+html.retro-mode body.speciesdex-page .status-bar {
+  border: 3px solid var(--dex-ink);
+  background: var(--dex-surface);
+}
+
+html.retro-mode body.speciesdex-page .status-text,
+html.retro-mode body.speciesdex-page .location-name {
+  color: var(--dex-ink);
+}
+
+html.retro-mode body.speciesdex-page .status-missing {
+  color: var(--dex-muted);
+}
+
+html.retro-mode body.speciesdex-page .checkbox-container {
+  background: transparent;
+}
+
+html.retro-mode body.speciesdex-page .status-bar.complete {
+  background: var(--dex-gold-tint);
+  border-color: var(--dex-ink);
+}
+
+html.retro-mode body.speciesdex-page .progress-bar {
+  height: 16px;
+  border: 2px solid var(--dex-ink);
+  background-color: var(--dex-surface-2);
+}
+
+html.retro-mode body.speciesdex-page .progress {
+  background: var(--dex-green);
+}
+
+html.retro-mode body.speciesdex-page .status-bar.complete .progress {
+  background: var(--dex-gold);
+}
+
+/* Filter toggles + date presets (colors re-asserted over dark-mode.css) */
+html.retro-mode body.speciesdex-page .filter-toggle,
+html.retro-mode body.speciesdex-page .date-range-presets {
+  border: 2px solid var(--dex-ink);
+  background: var(--dex-surface);
+}
+
+html.retro-mode body.speciesdex-page .filter-toggle-btn,
+html.retro-mode body.speciesdex-page .date-preset-btn {
+  background: transparent;
+  color: var(--dex-muted);
+}
+
+html.retro-mode body.speciesdex-page .filter-toggle-btn:hover,
+html.retro-mode body.speciesdex-page .date-preset-btn:hover {
+  background: var(--dex-green-tint);
+  color: var(--dex-ink);
+}
+
+html.retro-mode body.speciesdex-page .filter-toggle-btn.active,
+html.retro-mode body.speciesdex-page .filter-toggle-btn.active:hover,
+html.retro-mode body.speciesdex-page .date-preset-btn.active,
+html.retro-mode body.speciesdex-page .date-preset-btn.active:hover {
+  background: var(--dex-green);
+  color: #fff;
+}
+
+html.retro-mode.dark-mode body.speciesdex-page .filter-toggle-btn.active,
+html.retro-mode.dark-mode body.speciesdex-page .filter-toggle-btn.active:hover,
+html.retro-mode.dark-mode body.speciesdex-page .date-preset-btn.active,
+html.retro-mode.dark-mode body.speciesdex-page .date-preset-btn.active:hover {
+  color: #0f380f;
+}
+
+/* Advanced panel + option chips */
+html.retro-mode body.speciesdex-page .advanced-options-section {
+  border: 3px solid var(--dex-ink);
+}
+
+html.retro-mode body.speciesdex-page .advanced-options-checkbox label {
+  border-width: 2px;
+}
+
+/* Species cards — dex entries as sprite frames */
+html.retro-mode body.speciesdex-page .species-card {
+  border: 3px solid var(--dex-ink);
+  background: var(--dex-surface);
+  animation: none;
+}
+
+html.retro-mode body.speciesdex-page .species-card h3 {
+  color: var(--dex-ink);
+}
+
+html.retro-mode body.speciesdex-page .species-card .scientific-name,
+html.retro-mode body.speciesdex-page .species-card .observations {
+  color: var(--dex-muted);
+}
+
+html.retro-mode body.speciesdex-page .species-card:hover {
+  transform: translate(-2px, -2px);
+}
+
+html.retro-mode body.speciesdex-page .species-card.observed {
+  border: 3px solid var(--dex-green);
+}
+
+html.retro-mode body.speciesdex-page .species-card img {
+  image-rendering: pixelated;
+}
+
+html.retro-mode body.speciesdex-page .species-card:hover img {
+  transform: none;
+}
+
+html.retro-mode body.speciesdex-page .entry-number {
+  background: var(--dex-chip-bg);
+  color: var(--dex-chip-ink);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.retro-mode body.speciesdex-page .species-card.observed .species-photo::after {
+  box-shadow: 2px 2px 0 var(--dex-hard);
+}
+
+html.retro-mode.dark-mode body.speciesdex-page .species-card.observed .species-photo::after {
+  color: #0f380f;
+}
+
+/* Map modal + feedback button */
+html.retro-mode body.speciesdex-page .map-modal-content {
+  border: 3px solid var(--dex-ink);
+}
+
+html.retro-mode body.speciesdex-page .map-apply-btn {
+  background: var(--dex-accent);
+  border: 2px solid var(--dex-ink);
+}
+
+html.retro-mode body.speciesdex-page .map-apply-btn:hover {
+  background: var(--dex-accent-strong);
+}
+
+html.retro-mode.dark-mode body.speciesdex-page .map-apply-btn {
+  color: #0f380f;
+}
+
+html.retro-mode body.speciesdex-page .map-cancel-btn {
+  border: 2px solid var(--dex-ink);
+}
+
+html.retro-mode body.speciesdex-page .feedback-button {
+  background: var(--dex-accent);
+  border: 2px solid var(--dex-ink);
+  box-shadow: 3px 3px 0 var(--dex-hard);
+}
+
+html.retro-mode body.speciesdex-page .feedback-button:hover {
+  background: var(--dex-accent-strong);
+}
+
+html.retro-mode.dark-mode body.speciesdex-page .feedback-button {
+  color: #0f380f;
+}
+
+/* --------------------------------------------------------------------------
+   Retro toggle button — sits left of the dark mode toggle (always visible,
+   in both themes)
+   -------------------------------------------------------------------------- */
+body.speciesdex-page .retro-mode-toggle {
+  position: absolute;
+  top: 20px;
+  right: 72px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  font-size: 1.7rem;
+  z-index: 1000;
+  transition: transform 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.speciesdex-page .retro-mode-toggle:hover {
+  transform: scale(1.1);
+  background: transparent;
+}
+
+@media (max-width: 480px) {
+  body.speciesdex-page .retro-mode-toggle {
+    top: 10px;
+    right: 54px;
+    width: 38px;
+    height: 38px;
+    font-size: 1.4rem;
+  }
+}
