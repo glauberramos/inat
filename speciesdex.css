@@ -1212,6 +1212,17 @@ html.retro-mode body.speciesdex-page .species-card img {
   image-rendering: pixelated;
 }
 
+/* Low-res canvas drawn by retro-mode.js, stretched over the photo. The img
+   underneath keeps its layout box so loading="lazy" still triggers. */
+body.speciesdex-page .retro-pixel-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
 html.retro-mode body.speciesdex-page .species-card:hover img {
   transform: none;
 }
