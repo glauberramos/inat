@@ -134,11 +134,83 @@
         cursor: pointer;
       }
 
-      #speciesContainer {
+      #speciesContainer,
+      .family-cards {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
         gap: 16px;
         margin-top: 16px;
+      }
+
+      #speciesContainer.family-view {
+        display: block;
+      }
+
+      .family-group {
+        margin-top: 28px;
+      }
+
+      .family-group:first-child {
+        margin-top: 16px;
+      }
+
+      .family-header {
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 6px 12px;
+        margin: 0;
+        padding: 0 0 8px;
+        border-bottom: 2px solid #74ac00;
+        font-size: 18px;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .family-header a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .family-header a:hover {
+        text-decoration: underline;
+      }
+
+      .family-header .family-common {
+        font-size: 14px;
+        font-weight: 400;
+        color: #666;
+      }
+
+      .family-header .family-count {
+        margin-left: auto;
+        font-size: 13px;
+        font-weight: 500;
+        color: #74ac00;
+        white-space: nowrap;
+      }
+
+      .family-cards {
+        margin-top: 12px;
+      }
+
+      .species-table tr.family-row td {
+        background: #f0f7e6;
+        font-weight: 600;
+        color: #2c3e50;
+        border-top: 2px solid #74ac00;
+      }
+
+      .species-table tr.family-row td .family-common {
+        font-weight: 400;
+        color: #666;
+        margin-left: 8px;
+      }
+
+      .species-table tr.family-row td .family-count {
+        font-weight: 500;
+        color: #74ac00;
+        margin-left: 8px;
       }
 
       .species-card {
@@ -268,25 +340,29 @@
       }
 
       @media (max-width: 1400px) {
-        #speciesContainer {
+        #speciesContainer,
+        .family-cards {
           grid-template-columns: repeat(4, 1fr);
         }
       }
 
       @media (max-width: 1200px) {
-        #speciesContainer {
+        #speciesContainer,
+        .family-cards {
           grid-template-columns: repeat(3, 1fr);
         }
       }
 
       @media (max-width: 900px) {
-        #speciesContainer {
+        #speciesContainer,
+        .family-cards {
           grid-template-columns: repeat(2, 1fr);
         }
       }
 
       @media (max-width: 600px) {
-        #speciesContainer {
+        #speciesContainer,
+        .family-cards {
           grid-template-columns: repeat(2, 1fr);
           gap: 10px;
         }
@@ -301,7 +377,8 @@
       }
 
       @media (max-width: 400px) {
-        #speciesContainer {
+        #speciesContainer,
+        .family-cards {
           grid-template-columns: 1fr;
         }
       }
@@ -837,6 +914,7 @@
             <option value="global-asc">
               Global Observations (Low to High)
             </option>
+            <option value="family">Family (A to Z)</option>
           </select>
           <label for="filterInput" style="margin-left: 20px">Filter:</label>
           <input
@@ -915,6 +993,10 @@
       let currentUserId = null;
       let searchTimeout = null;
       let currentView = "grid"; // 'grid' or 'table'
+      // Family grouping: taxon id -> {id, name, commonName}; resolved lazily
+      // the first time the "Family" sort is selected (one batched lookup).
+      let familyByTaxonId = new Map();
+      let familyLookupPromise = null;
 
       // URL parameter and localStorage handling for username
       const urlParams = new URLSearchParams(window.location.search);
@@ -932,7 +1014,7 @@
 
       // URL parameter handling for sort order
       const urlSort = urlParams.get("sort");
-      const validSortValues = ["user", "user-asc", "global", "global-asc"];
+      const validSortValues = ["user", "user-asc", "global", "global-asc", "family"];
       if (urlSort && validSortValues.includes(urlSort)) {
         sortSelect.value = urlSort;
       }
@@ -1305,6 +1387,8 @@
           loading.textContent = "Loading species stats...";
 
           speciesData = allResults;
+          familyByTaxonId = new Map();
+          familyLookupPromise = null;
 
           // Fetch all threatened species using separate API call with pagination
           threatenedTaxonIds = new Set();
@@ -1501,6 +1585,104 @@
         }
       }
 
+      // Resolve the family of every loaded species. species_counts only
+      // returns ancestor ids, so look up which of those ids are families
+      // in batches of 500, filtered server-side by rank.
+      async function loadFamilies() {
+        const ancestorIds = new Set();
+        speciesData.forEach((item) => {
+          const taxon = item.taxon;
+          if (!taxon) return;
+          // Include the taxon itself: observations identified only to
+          // family level come back as a family-rank leaf taxon.
+          ancestorIds.add(taxon.id);
+          (taxon.ancestor_ids || []).forEach((id) => ancestorIds.add(id));
+        });
+
+        const ids = [...ancestorIds];
+        const batchSize = 500;
+        const batches = [];
+        for (let i = 0; i < ids.length; i += batchSize) {
+          batches.push(ids.slice(i, i + batchSize));
+        }
+
+        // Match the language used for the species list so common names
+        // come back translated.
+        const selectedLanguage = document.getElementById("languageSelect").value;
+        const localeParam = selectedLanguage !== "en" ? `&locale=${selectedLanguage}` : "";
+
+        const familyMap = new Map();
+        const results = await Promise.all(
+          batches.map((batch) =>
+            fetchJSON(
+              `${API_BASE}/taxa?id=${batch.join(",")}&rank=family&per_page=${batchSize}${localeParam}`
+            ).then((data) => data.results || [])
+          )
+        );
+        results.flat().forEach((taxon) => {
+          familyMap.set(taxon.id, {
+            id: taxon.id,
+            name: taxon.name,
+            commonName: taxon.preferred_common_name || "",
+          });
+        });
+
+        const resolved = new Map();
+        speciesData.forEach((item) => {
+          const taxon = item.taxon;
+          if (!taxon) return;
+          const familyId = familyMap.has(taxon.id)
+            ? taxon.id
+            : (taxon.ancestor_ids || []).find((id) => familyMap.has(id));
+          if (familyId) resolved.set(taxon.id, familyMap.get(familyId));
+        });
+        familyByTaxonId = resolved;
+      }
+
+      function ensureFamilies() {
+        if (!familyLookupPromise) {
+          familyLookupPromise = loadFamilies().catch((err) => {
+            familyLookupPromise = null;
+            throw err;
+          });
+        }
+        return familyLookupPromise;
+      }
+
+      // Group sorted species by family, families A to Z by scientific
+      // name, species without a resolved family last.
+      function groupByFamily(items) {
+        const groups = new Map();
+        items.forEach((item) => {
+          const family = familyByTaxonId.get(item.taxon.id);
+          const key = family ? family.id : "none";
+          if (!groups.has(key)) groups.set(key, { family, items: [] });
+          groups.get(key).items.push(item);
+        });
+        return [...groups.values()].sort((a, b) => {
+          if (!a.family) return 1;
+          if (!b.family) return -1;
+          return a.family.name.localeCompare(b.family.name);
+        });
+      }
+
+      function familyHeaderHtml(group, cssClass) {
+        const count = group.items.length;
+        const countText = `${count.toLocaleString()} species`;
+        if (!group.family) {
+          return `<span class="${cssClass}-name">Other taxa</span><span class="family-common">No family assigned</span><span class="family-count">${countText}</span>`;
+        }
+        const { id, name, commonName } = group.family;
+        const link = `https://www.inaturalist.org/taxa/${id}`;
+        return `<a href="${link}" target="_blank" class="${cssClass}-name">${escapeHtml(
+          name
+        )}</a>${
+          commonName
+            ? `<span class="family-common">${escapeHtml(commonName)}</span>`
+            : ""
+        }<span class="family-count">${countText}</span>`;
+      }
+
       function displaySpecies() {
         // Filter data based on text input and iconic taxon
         const filterText = filterInput.value.trim().toLowerCase();
@@ -1566,13 +1748,39 @@
               (a.taxon.observations_count || 0) -
               (b.taxon.observations_count || 0)
           );
+        } else if (sortBy === "family") {
+          // Within a family, most observed first
+          sortedData.sort((a, b) => b.count - a.count);
         }
+
+        const familyMode = sortBy === "family";
+        if (familyMode && familyByTaxonId.size === 0 && speciesData.length) {
+          speciesContainer.classList.remove("table-view", "family-view");
+          speciesContainer.innerHTML =
+            '<div class="loading" style="display: block; grid-column: 1 / -1;">Loading families...</div>';
+          ensureFamilies()
+            .then(() => {
+              if (sortSelect.value === "family") displaySpecies();
+            })
+            .catch(() => {
+              speciesContainer.innerHTML =
+                '<div class="loading" style="display: block; grid-column: 1 / -1;">Could not load family names. Please try again.</div>';
+            });
+          return;
+        }
+        const familyGroups = familyMode ? groupByFamily(sortedData) : null;
 
         // Display results count
         const resultCount = sortedData.length;
         resultsCount.textContent = `${resultCount.toLocaleString()} result${
           resultCount !== 1 ? "s" : ""
         }`;
+        if (familyGroups) {
+          const familyTotal = familyGroups.filter((g) => g.family).length;
+          resultsCount.textContent += ` in ${familyTotal.toLocaleString()} famil${
+            familyTotal !== 1 ? "ies" : "y"
+          }`;
+        }
 
         // Get conservation status from taxon, checking all available sources
         const getConservationStatus = (taxon) => {
@@ -1629,23 +1837,8 @@
         // Render based on current view
         if (currentView === "table") {
           speciesContainer.classList.add("table-view");
-          speciesContainer.innerHTML = `
-            <table class="species-table">
-              <thead>
-                <tr>
-                  <th>Taxon ID</th>
-                  <th>Iconic Taxon</th>
-                  <th>Image</th>
-                  <th>Common Name</th>
-                  <th>Scientific Name</th>
-                  <th>Your Observations</th>
-                  <th>Global Observations</th>
-                  <th>Conservation Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${sortedData
-                  .map((item) => {
+          speciesContainer.classList.remove("family-view");
+          const renderTableRow = (item) => {
                     const taxon = item.taxon;
                     const userCount = item.count;
                     const globalCount = taxon.observations_count || 0;
@@ -1733,16 +1926,41 @@
                         <td>${conservationStatusHtml}</td>
                       </tr>
                     `;
-                  })
-                  .join("")}
+          };
+          const tableRowsHtml = familyGroups
+            ? familyGroups
+                .map(
+                  (group) =>
+                    `<tr class="family-row"><td colspan="8">${familyHeaderHtml(
+                      group,
+                      "family"
+                    )}</td></tr>` + group.items.map(renderTableRow).join("")
+                )
+                .join("")
+            : sortedData.map(renderTableRow).join("");
+          speciesContainer.innerHTML = `
+            <table class="species-table">
+              <thead>
+                <tr>
+                  <th>Taxon ID</th>
+                  <th>Iconic Taxon</th>
+                  <th>Image</th>
+                  <th>Common Name</th>
+                  <th>Scientific Name</th>
+                  <th>Your Observations</th>
+                  <th>Global Observations</th>
+                  <th>Conservation Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableRowsHtml}
               </tbody>
             </table>
           `;
         } else {
           // Grid view
           speciesContainer.classList.remove("table-view");
-          speciesContainer.innerHTML = sortedData
-            .map((item) => {
+          const renderGridCard = (item) => {
               const taxon = item.taxon;
               const userCount = item.count;
               const globalCount = taxon.observations_count || 0;
@@ -1822,8 +2040,25 @@
                   </a>
                 </div>
               `;
-            })
-            .join("");
+          };
+          if (familyGroups) {
+            speciesContainer.classList.add("family-view");
+            speciesContainer.innerHTML = familyGroups
+              .map(
+                (group) => `
+                <section class="family-group">
+                  <h3 class="family-header">${familyHeaderHtml(group, "family")}</h3>
+                  <div class="family-cards">${group.items
+                    .map(renderGridCard)
+                    .join("")}</div>
+                </section>
+              `
+              )
+              .join("");
+          } else {
+            speciesContainer.classList.remove("family-view");
+            speciesContainer.innerHTML = sortedData.map(renderGridCard).join("");
+          }
         }
       }
     </script>

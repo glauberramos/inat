@@ -1228,3 +1228,19 @@ html.dark-mode body #filterSelect {
   color: #e0e0e0;
 }
 
+
+/* Family grouping (species-observed) */
+html.dark-mode body .family-header {
+  color: #e0e0e0;
+  border-bottom-color: #74ac00;
+}
+
+html.dark-mode body .family-header .family-common,
+html.dark-mode body .species-table tr.family-row td .family-common {
+  color: #999;
+}
+
+html.dark-mode body .species-table tr.family-row td {
+  background: #2f3a26;
+  color: #e0e0e0;
+}
