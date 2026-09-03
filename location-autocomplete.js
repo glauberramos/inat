@@ -1,7 +1,75 @@
 /**
  * Location Autocomplete Module
- * Provides iNaturalist places autocomplete functionality with optional localStorage persistence
+ * Provides iNaturalist places autocomplete functionality with optional localStorage persistence.
+ * With `includeProjects: true` the same input also searches projects; the picked
+ * project id goes into `options.projectIdInput` (a hidden input) instead of placeIdInput.
  */
+
+// Place type mappings
+const LOCATION_PLACE_TYPES = {
+  6: "Street",
+  7: "Town",
+  8: "State",
+  9: "County",
+  10: "Local Admin",
+  12: "Country",
+  13: "Island",
+  16: "Suburb",
+  19: "Colloquial",
+  20: "Point of Interest",
+  21: "Region",
+  22: "Continent",
+  24: "Estate",
+  25: "Historical County",
+  29: "Drainage",
+  100: "Open Space",
+  1001: "Territory",
+  1002: "District",
+  1003: "Province",
+  1004: "Commune",
+  1005: "Municipality",
+  1006: "Prefecture",
+  1007: "Department",
+  1008: "Canton",
+  1009: "Parish",
+  1010: "Borough",
+  1011: "Ward",
+  1013: "Suburb",
+};
+
+function getLocationPlaceTypeName(place) {
+  if (place.place_type_name) return place.place_type_name;
+  if (place.place_type && LOCATION_PLACE_TYPES[place.place_type]) {
+    return LOCATION_PLACE_TYPES[place.place_type];
+  }
+  return "";
+}
+
+/**
+ * Normalize raw API results into one suggestion list: places first, then
+ * projects. Each item: { type: "place"|"project", id, name, label, location }.
+ */
+function buildLocationSuggestions(places, projects) {
+  const placeItems = (places || []).map(function (place) {
+    return {
+      type: "place",
+      id: place.id,
+      name: place.display_name || place.name,
+      label: getLocationPlaceTypeName(place),
+      location: place.location || "",
+    };
+  });
+  const projectItems = (projects || []).map(function (project) {
+    return {
+      type: "project",
+      id: project.id,
+      name: project.title,
+      label: "Project",
+      location: "",
+    };
+  });
+  return placeItems.concat(projectItems);
+}
 
 function initLocationAutocomplete(inputElement, autocompleteElement, placeIdInput, options) {
   const persistToStorage = options?.persistToStorage || false;
@@ -16,58 +84,29 @@ function initLocationAutocomplete(inputElement, autocompleteElement, placeIdInpu
   const suggestionClass = options?.suggestionClass || "username-suggestion";
   const nameClass = options?.nameClass || "username-name";
   const infoClass = options?.infoClass || "username-info";
+  const includeProjects = options?.includeProjects || false;
+  const projectIdInput = options?.projectIdInput || null;
 
   let searchTimeout = null;
   let selectedPlace = null;
 
-  // Place type mappings
-  const placeTypes = {
-    6: "Street",
-    7: "Town",
-    8: "State",
-    9: "County",
-    10: "Local Admin",
-    12: "Country",
-    13: "Island",
-    16: "Suburb",
-    19: "Colloquial",
-    20: "Point of Interest",
-    21: "Region",
-    22: "Continent",
-    24: "Estate",
-    25: "Historical County",
-    29: "Drainage",
-    100: "Open Space",
-    1001: "Territory",
-    1002: "District",
-    1003: "Province",
-    1004: "Commune",
-    1005: "Municipality",
-    1006: "Prefecture",
-    1007: "Department",
-    1008: "Canton",
-    1009: "Parish",
-    1010: "Borough",
-    1011: "Ward",
-    1013: "Suburb",
-  };
-
-  function getPlaceTypeName(place) {
-    if (place.place_type_name) return place.place_type_name;
-    if (place.place_type && placeTypes[place.place_type]) {
-      return placeTypes[place.place_type];
-    }
-    return "";
+  function setIds(placeId, projectId) {
+    if (placeIdInput) placeIdInput.value = placeId || "";
+    if (projectIdInput) projectIdInput.value = projectId || "";
   }
 
-  function updateUrl(placeId, placeName) {
+  function updateUrl(selected) {
     const url = new URL(window.location);
-    if (placeId && placeName) {
-      url.searchParams.set("place_id", placeId);
-      url.searchParams.set("place", placeName);
-    } else {
-      url.searchParams.delete("place_id");
-      url.searchParams.delete("place");
+    url.searchParams.delete("place_id");
+    url.searchParams.delete("place");
+    url.searchParams.delete("project_id");
+    url.searchParams.delete("project");
+    if (selected && selected.type === "project") {
+      url.searchParams.set("project_id", selected.id);
+      url.searchParams.set("project", selected.name);
+    } else if (selected) {
+      url.searchParams.set("place_id", selected.id);
+      url.searchParams.set("place", selected.name);
     }
     window.history.replaceState({}, "", url);
   }
@@ -75,6 +114,19 @@ function initLocationAutocomplete(inputElement, autocompleteElement, placeIdInpu
   function clearStorage() {
     localStorage.removeItem("inatPlaceId");
     localStorage.removeItem("inatPlaceName");
+    localStorage.removeItem("inatProjectId");
+    localStorage.removeItem("inatProjectName");
+  }
+
+  function saveToStorage(selected) {
+    clearStorage();
+    if (selected.type === "project") {
+      localStorage.setItem("inatProjectId", selected.id);
+      localStorage.setItem("inatProjectName", selected.name);
+    } else {
+      localStorage.setItem("inatPlaceId", selected.id);
+      localStorage.setItem("inatPlaceName", selected.name);
+    }
   }
 
   function hideAutocomplete() {
@@ -82,29 +134,29 @@ function initLocationAutocomplete(inputElement, autocompleteElement, placeIdInpu
     autocompleteElement.style.display = "none";
   }
 
-  function selectPlace(item) {
-    const placeId = item.dataset.placeId;
-    const placeName = item.dataset.placeName;
-    const placeLocation = item.dataset.placeLocation;
-
-    inputElement.value = placeName;
-    if (placeIdInput) {
-      placeIdInput.value = placeId;
+  function applySelection(selected) {
+    inputElement.value = selected.name;
+    if (selected.type === "project") {
+      setIds("", selected.id);
+    } else {
+      setIds(selected.id, "");
     }
-
-    selectedPlace = {
-      id: placeId,
-      name: placeName,
-      location: placeLocation,
-    };
-
+    selectedPlace = selected;
     if (persistToStorage) {
-      localStorage.setItem("inatPlaceId", placeId);
-      localStorage.setItem("inatPlaceName", placeName);
+      saveToStorage(selected);
     }
+  }
+
+  function selectSuggestion(item) {
+    applySelection({
+      type: item.dataset.type || "place",
+      id: item.dataset.placeId,
+      name: item.dataset.placeName,
+      location: item.dataset.placeLocation,
+    });
 
     if (updateUrlOnSelect) {
-      updateUrl(placeId, placeName);
+      updateUrl(selectedPlace);
     }
 
     if (onSelect) {
@@ -114,18 +166,18 @@ function initLocationAutocomplete(inputElement, autocompleteElement, placeIdInpu
     hideAutocomplete();
   }
 
-  function renderSuggestions(places) {
-    autocompleteElement.innerHTML = places
+  function renderSuggestions(items) {
+    autocompleteElement.innerHTML = items
       .slice(0, maxResults)
-      .map(function (place) {
-        var placeTypeName = getPlaceTypeName(place);
+      .map(function (item) {
         return `
           <div class="${suggestionClass}"
-               data-place-id="${place.id}"
-               data-place-name="${escapeHtml(place.display_name || place.name)}"
-               data-place-location="${place.location || ""}">
-            <span class="${nameClass}">${escapeHtml(place.display_name || place.name)}</span>
-            ${placeTypeName ? `<span class="${infoClass}">${placeTypeName.toUpperCase()}</span>` : ""}
+               data-type="${item.type}"
+               data-place-id="${item.id}"
+               data-place-name="${escapeHtml(item.name)}"
+               data-place-location="${item.location}">
+            <span class="${nameClass}">${escapeHtml(item.name)}</span>
+            ${item.label ? `<span class="${infoClass}">${item.label.toUpperCase()}</span>` : ""}
           </div>
         `;
       })
@@ -135,21 +187,35 @@ function initLocationAutocomplete(inputElement, autocompleteElement, placeIdInpu
 
     autocompleteElement.querySelectorAll("." + suggestionClass).forEach(function (item) {
       item.addEventListener("click", function () {
-        selectPlace(item);
+        selectSuggestion(item);
       });
     });
   }
 
-  function search(query) {
-    fetch(
-      API_BASE + "/places/autocomplete?q=" + encodeURIComponent(query) + "&per_page=" + maxResults
-    )
+  function fetchResults(path) {
+    return fetch(API_BASE + path)
       .then(function (response) {
         return response.json();
       })
       .then(function (data) {
-        if (data.results && data.results.length > 0) {
-          renderSuggestions(data.results);
+        return data.results || [];
+      });
+  }
+
+  function search(query) {
+    const q = encodeURIComponent(query);
+    // When projects are included, split the result budget between the two lists
+    const perList = includeProjects ? Math.ceil(maxResults / 2) : maxResults;
+    const requests = [fetchResults("/places/autocomplete?q=" + q + "&per_page=" + perList)];
+    if (includeProjects) {
+      requests.push(fetchResults("/projects?q=" + q + "&per_page=" + perList));
+    }
+
+    Promise.all(requests)
+      .then(function (results) {
+        const items = buildLocationSuggestions(results[0], results[1]);
+        if (items.length > 0) {
+          renderSuggestions(items);
         } else {
           hideAutocomplete();
         }
@@ -164,9 +230,7 @@ function initLocationAutocomplete(inputElement, autocompleteElement, placeIdInpu
     clearTimeout(searchTimeout);
     const query = e.target.value.trim();
 
-    if (placeIdInput) {
-      placeIdInput.value = "";
-    }
+    setIds("", "");
     selectedPlace = null;
 
     if (query.length < minChars) {
@@ -177,7 +241,7 @@ function initLocationAutocomplete(inputElement, autocompleteElement, placeIdInpu
           clearStorage();
         }
         if (updateUrlOnSelect) {
-          updateUrl(null, null);
+          updateUrl(null);
         }
         if (onClear) {
           onClear();
@@ -201,18 +265,15 @@ function initLocationAutocomplete(inputElement, autocompleteElement, placeIdInpu
     const urlParams = new URLSearchParams(window.location.search);
     const urlPlaceId = urlParams.get("place_id");
     const urlPlaceName = urlParams.get("place");
+    const urlProjectId = urlParams.get("project_id");
+    const urlProjectName = urlParams.get("project");
 
+    if (includeProjects && urlProjectId && urlProjectName) {
+      applySelection({ type: "project", id: urlProjectId, name: urlProjectName });
+      return true;
+    }
     if (urlPlaceId && urlPlaceName) {
-      inputElement.value = urlPlaceName;
-      if (placeIdInput) {
-        placeIdInput.value = urlPlaceId;
-      }
-      selectedPlace = { id: urlPlaceId, name: urlPlaceName };
-
-      if (persistToStorage) {
-        localStorage.setItem("inatPlaceId", urlPlaceId);
-        localStorage.setItem("inatPlaceName", urlPlaceName);
-      }
+      applySelection({ type: "place", id: urlPlaceId, name: urlPlaceName });
       return true;
     }
     return false;
@@ -221,13 +282,15 @@ function initLocationAutocomplete(inputElement, autocompleteElement, placeIdInpu
   function loadSavedPlace() {
     const savedPlaceId = localStorage.getItem("inatPlaceId");
     const savedPlaceName = localStorage.getItem("inatPlaceName");
+    const savedProjectId = localStorage.getItem("inatProjectId");
+    const savedProjectName = localStorage.getItem("inatProjectName");
 
+    if (includeProjects && savedProjectId && savedProjectName) {
+      applySelection({ type: "project", id: savedProjectId, name: savedProjectName });
+      return true;
+    }
     if (savedPlaceId && savedPlaceName) {
-      inputElement.value = savedPlaceName;
-      if (placeIdInput) {
-        placeIdInput.value = savedPlaceId;
-      }
-      selectedPlace = { id: savedPlaceId, name: savedPlaceName };
+      applySelection({ type: "place", id: savedPlaceId, name: savedPlaceName });
       return true;
     }
     return false;
@@ -250,28 +313,22 @@ function initLocationAutocomplete(inputElement, autocompleteElement, placeIdInpu
       return selectedPlace;
     },
     getPlaceId: function () {
-      return placeIdInput ? placeIdInput.value : selectedPlace ? selectedPlace.id : null;
+      if (placeIdInput) return placeIdInput.value;
+      return selectedPlace && selectedPlace.type !== "project" ? selectedPlace.id : null;
+    },
+    getProjectId: function () {
+      if (projectIdInput) return projectIdInput.value;
+      return selectedPlace && selectedPlace.type === "project" ? selectedPlace.id : null;
     },
     getPlaceName: function () {
       return inputElement.value.trim();
     },
     setPlace: function (placeId, placeName) {
-      inputElement.value = placeName;
-      if (placeIdInput) {
-        placeIdInput.value = placeId;
-      }
-      selectedPlace = { id: placeId, name: placeName };
-
-      if (persistToStorage) {
-        localStorage.setItem("inatPlaceId", placeId);
-        localStorage.setItem("inatPlaceName", placeName);
-      }
+      applySelection({ type: "place", id: placeId, name: placeName });
     },
     clear: function () {
       inputElement.value = "";
-      if (placeIdInput) {
-        placeIdInput.value = "";
-      }
+      setIds("", "");
       selectedPlace = null;
       hideAutocomplete();
 
@@ -279,11 +336,15 @@ function initLocationAutocomplete(inputElement, autocompleteElement, placeIdInpu
         clearStorage();
       }
       if (updateUrlOnSelect) {
-        updateUrl(null, null);
+        updateUrl(null);
       }
       if (onClear) {
         onClear();
       }
     },
   };
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { buildLocationSuggestions, initLocationAutocomplete };
 }

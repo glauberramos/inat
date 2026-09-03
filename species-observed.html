@@ -773,7 +773,7 @@
             <img src="logo.png" alt="iNaturalist Logo" class="logo" />
             <h1>Species Observed on iNaturalist</h1>
           </div>
-          <p class="description">View user statistics and species</p>
+          <p class="description">View species observed by a user, in a place, or in a project</p>
         </div>
         <div class="error-message" id="errorMessage"></div>
       </header>
@@ -785,7 +785,7 @@
               <input
                 type="text"
                 id="usernameInput"
-                placeholder="Enter iNaturalist username..."
+                placeholder="Username (optional if place/project selected)"
                 autocomplete="off"
                 style="width: 100%"
               />
@@ -798,7 +798,7 @@
               <input
                 type="text"
                 id="locationInput"
-                placeholder="Filter by location (optional)"
+                placeholder="Search place or project (optional)"
                 autocomplete="off"
                 style="width: 100%"
               />
@@ -807,6 +807,7 @@
                 class="username-autocomplete"
               ></div>
               <input type="hidden" id="placeId" value="" />
+              <input type="hidden" id="projectId" value="" />
             </div>
             <div class="username-search-container" style="flex: 1; min-width: 150px;">
               <input
@@ -963,6 +964,7 @@
         "locationAutocomplete"
       );
       const placeIdInput = document.getElementById("placeId");
+      const projectIdInput = document.getElementById("projectId");
       const taxonInput = document.getElementById("taxonInput");
       const taxonAutocomplete = document.getElementById("taxonAutocomplete");
       const taxonIdInput = document.getElementById("taxonId");
@@ -990,7 +992,9 @@
       let needsIdTaxonIds = new Set();
       let researchGradeCount = 0;
       let needsIdCount = 0;
-      let currentUserId = null;
+      // Query string (user_id / place_id / project_id) describing the current
+      // search, reused for the per-species iNaturalist observation links
+      let currentObsFilter = "";
       let searchTimeout = null;
       let currentView = "grid"; // 'grid' or 'table'
       // Family grouping: taxon id -> {id, name, commonName}; resolved lazily
@@ -1028,7 +1032,9 @@
           persistToStorage: true,
           loadFromStorage: true,
           loadFromUrl: true,
-          updateUrlOnSelect: true
+          updateUrlOnSelect: true,
+          includeProjects: true,
+          projectIdInput: projectIdInput,
         }
       );
 
@@ -1177,10 +1183,12 @@
       });
 
       // Enter key handler
-      usernameInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-          fetchUserData();
-        }
+      [usernameInput, locationInput].forEach((input) => {
+        input.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            fetchUserData();
+          }
+        });
       });
 
       // Iconic taxon filter handler
@@ -1284,15 +1292,17 @@
       async function fetchUserData() {
         const username = usernameInput.value.trim();
 
-        if (!username) {
-          showError("errorMessage", "Please enter a username");
-          return;
-        }
-
-        // Get place ID if location filter is set
+        // Get place or project ID if the location input is set
         const placeId = placeIdInput.value || null;
+        const projectId = projectIdInput.value || null;
         const locationName = locationInput.value.trim();
         const placeParam = placeId ? `&place_id=${placeId}` : "";
+        const projectParam = projectId ? `&project_id=${projectId}` : "";
+
+        if (!username && !placeId && !projectId) {
+          showError("errorMessage", "Please enter a username or select a place/project");
+          return;
+        }
 
         // Get taxon ID if taxon filter is set
         const taxonId = taxonIdInput.value || null;
@@ -1317,44 +1327,60 @@
         controls.style.display = "none";
 
         try {
-          // First, get user info to get user_id
-          const userResponse = await fetch(
-            `${API_BASE}/users/autocomplete?q=${encodeURIComponent(
-              username
-            )}`
-          );
-          const userData = await userResponse.json();
+          let userId = null;
+          if (username) {
+            // Get user info to get user_id
+            const userResponse = await fetch(
+              `${API_BASE}/users/autocomplete?q=${encodeURIComponent(
+                username
+              )}`
+            );
+            const userData = await userResponse.json();
 
-          if (!userData.results || userData.results.length === 0) {
-            loading.style.display = "none";
-            showError("errorMessage", "User not found");
-            return;
+            if (!userData.results || userData.results.length === 0) {
+              loading.style.display = "none";
+              showError("errorMessage", "User not found");
+              return;
+            }
+
+            const user = userData.results.find(
+              (u) => u.login.toLowerCase() === username.toLowerCase()
+            ) || userData.results[0];
+            userId = user.id;
+
+            // Save username to localStorage and update URL
+            localStorage.setItem("inatUsername", username);
           }
+          updateUrlWithUsername(username || null);
 
-          const user = userData.results.find(
-            (u) => u.login.toLowerCase() === username.toLowerCase()
-          ) || userData.results[0];
-          const userId = user.id;
-          currentUserId = userId;
-
-          // Save username to localStorage and update URL
-          localStorage.setItem("inatUsername", username);
-          updateUrlWithUsername(username);
+          // Shared query for every species_counts request in this search
+          const userParam = userId ? `user_id=${userId}&` : "";
+          const baseParams = `${userParam}verifiable=true${placeParam}${projectParam}${taxonParam}${dateParam}`;
+          currentObsFilter = [
+            userId ? `user_id=${userId}` : "",
+            placeId ? `place_id=${placeId}` : "",
+            projectId ? `project_id=${projectId}` : "",
+          ]
+            .filter(Boolean)
+            .join("&");
 
           // Fetch species count data - first page to get total_results
           const perPage = 500;
           const firstResponse = await fetch(
-            `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${perPage}&page=1${placeParam}${taxonParam}${dateParam}${languageParam}`
+            `${API_BASE}/observations/species_counts?${baseParams}&per_page=${perPage}&page=1${languageParam}`
           );
           const firstData = await firstResponse.json();
 
           if (!firstData.results || firstData.results.length === 0) {
             loading.style.display = "none";
+            document.getElementById("resultsSummary").style.display = "none";
+            viewControls.style.display = "none";
             const locationMsg = locationName ? ` in ${locationName}` : "";
-            if (!locationMsg && !taxonParam && !dateParam) {
+            if (username && !locationMsg && !taxonParam && !dateParam) {
               showWelcome("errorMessage", "🌱 No observations yet! Record your first sighting on iNaturalist and your species will show up here.");
             } else {
-              showError("errorMessage", `No species found for this user${locationMsg}`);
+              const scope = username ? `for this user${locationMsg}` : locationMsg.trim();
+              showError("errorMessage", `No species found ${scope}`);
             }
             return;
           }
@@ -1370,7 +1396,7 @@
             for (let page = 2; page <= totalPages; page++) {
               additionalPromises.push(
                 fetch(
-                  `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${perPage}&page=${page}${placeParam}${taxonParam}${dateParam}${languageParam}`
+                  `${API_BASE}/observations/species_counts?${baseParams}&per_page=${perPage}&page=${page}${languageParam}`
                 )
                   .then((response) => response.json())
                   .then((data) => data.results)
@@ -1394,7 +1420,7 @@
           threatenedTaxonIds = new Set();
           const threatenedPerPage = 500;
           const firstThreatenedResponse = await fetch(
-            `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${threatenedPerPage}&page=1&threatened=true${placeParam}${taxonParam}${dateParam}`
+            `${API_BASE}/observations/species_counts?${baseParams}&per_page=${threatenedPerPage}&page=1&threatened=true`
           );
           const firstThreatenedData = await firstThreatenedResponse.json();
           let threatenedTotalResults = firstThreatenedData.total_results || 0;
@@ -1417,7 +1443,7 @@
             for (let page = 2; page <= threatenedTotalPages; page++) {
               threatenedPromises.push(
                 fetch(
-                  `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${threatenedPerPage}&page=${page}&threatened=true${placeParam}${taxonParam}${dateParam}`
+                  `${API_BASE}/observations/species_counts?${baseParams}&per_page=${threatenedPerPage}&page=${page}&threatened=true`
                 )
                   .then((response) => response.json())
                   .then((data) => data.results || [])
@@ -1439,7 +1465,7 @@
           endemicTaxonIds = new Set();
           const endemicPerPage = 500;
           const firstEndemicResponse = await fetch(
-            `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${endemicPerPage}&page=1&endemic=true${placeParam}${taxonParam}${dateParam}`
+            `${API_BASE}/observations/species_counts?${baseParams}&per_page=${endemicPerPage}&page=1&endemic=true`
           );
           const firstEndemicData = await firstEndemicResponse.json();
           let endemicTotalResults = firstEndemicData.total_results || 0;
@@ -1458,7 +1484,7 @@
             for (let page = 2; page <= endemicTotalPages; page++) {
               endemicPromises.push(
                 fetch(
-                  `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${endemicPerPage}&page=${page}&endemic=true${placeParam}${taxonParam}${dateParam}`
+                  `${API_BASE}/observations/species_counts?${baseParams}&per_page=${endemicPerPage}&page=${page}&endemic=true`
                 )
                   .then((response) => response.json())
                   .then((data) => data.results || [])
@@ -1478,7 +1504,7 @@
           introducedTaxonIds = new Set();
           const introducedPerPage = 500;
           const firstIntroducedResponse = await fetch(
-            `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${introducedPerPage}&page=1&introduced=true${placeParam}${taxonParam}${dateParam}`
+            `${API_BASE}/observations/species_counts?${baseParams}&per_page=${introducedPerPage}&page=1&introduced=true`
           );
           const firstIntroducedData = await firstIntroducedResponse.json();
           let introducedTotalResults = firstIntroducedData.total_results || 0;
@@ -1497,7 +1523,7 @@
             for (let page = 2; page <= introducedTotalPages; page++) {
               introducedPromises.push(
                 fetch(
-                  `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${introducedPerPage}&page=${page}&introduced=true${placeParam}${taxonParam}${dateParam}`
+                  `${API_BASE}/observations/species_counts?${baseParams}&per_page=${introducedPerPage}&page=${page}&introduced=true`
                 )
                   .then((response) => response.json())
                   .then((data) => data.results || [])
@@ -1517,7 +1543,7 @@
           nativeTaxonIds = new Set();
           const nativePerPage = 500;
           const firstNativeResponse = await fetch(
-            `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${nativePerPage}&page=1&native=true${placeParam}${taxonParam}${dateParam}`
+            `${API_BASE}/observations/species_counts?${baseParams}&per_page=${nativePerPage}&page=1&native=true`
           );
           const firstNativeData = await firstNativeResponse.json();
           const nativeTotalResults = firstNativeData.total_results || 0;
@@ -1536,7 +1562,7 @@
             for (let page = 2; page <= nativeTotalPages; page++) {
               nativePromises.push(
                 fetch(
-                  `${API_BASE}/observations/species_counts?user_id=${userId}&verifiable=true&per_page=${nativePerPage}&page=${page}&native=true${placeParam}${taxonParam}${dateParam}`
+                  `${API_BASE}/observations/species_counts?${baseParams}&per_page=${nativePerPage}&page=${page}&native=true`
                 )
                   .then((response) => response.json())
                   .then((data) => data.results || [])
@@ -1554,7 +1580,7 @@
 
           // Fetch research grade and needs ID species (full ID sets so the
           // summary chips can filter the grid, not just show counts)
-          const qualityBase = `user_id=${userId}&verifiable=true${placeParam}${taxonParam}${dateParam}`;
+          const qualityBase = baseParams;
           const [researchSet, needsIdSet] = await Promise.all([
             fetchTaxonIdSet(`${qualityBase}&quality_grade=research`),
             fetchTaxonIdSet(`${qualityBase}&quality_grade=needs_id`),
@@ -1917,7 +1943,7 @@
                         <td><div class="table-sci-name">${escapeHtml(
                           sciName
                         )}</div></td>
-                        <td><a href="https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${
+                        <td><a href="https://www.inaturalist.org/observations?${currentObsFilter}&taxon_id=${
                       taxon.id
                     }" target="_blank" style="color: #74ac00; text-decoration: underline; font-weight: 600;">${userCount.toLocaleString()}</a></td>
                         <td><a href="https://www.inaturalist.org/observations?taxon_id=${
@@ -1947,7 +1973,7 @@
                   <th>Image</th>
                   <th>Common Name</th>
                   <th>Scientific Name</th>
-                  <th>Your Observations</th>
+                  <th>${currentObsFilter.startsWith("user_id=") ? "Your" : "Filtered"} Observations</th>
                   <th>Global Observations</th>
                   <th>Conservation Status</th>
                 </tr>
@@ -2007,7 +2033,7 @@
 
               return `
                 <div class="species-card${onlyObserverClass}">
-                  <a href="https://www.inaturalist.org/observations?user_id=${currentUserId}&taxon_id=${
+                  <a href="https://www.inaturalist.org/observations?${currentObsFilter}&taxon_id=${
                 taxon.id
               }" target="_blank" style="text-decoration: none; color: inherit;">
                     ${
@@ -2029,7 +2055,7 @@
                           : ""
                       }
                       <div class="species-stats">
-                        <div>Your obs: <span class="user-count">${userCount.toLocaleString()}</span></div>
+                        <div>${currentObsFilter.startsWith("user_id=") ? "Your" : "Filtered"} obs: <span class="user-count">${userCount.toLocaleString()}</span></div>
                         <div>Global: <span class="global-count">${globalCount.toLocaleString()}</span></div>
                       </div>
                       ${onlyObserverStatusHtml}
