@@ -40,6 +40,16 @@ const sharedGlobals = {
   initUsername: "readonly",
   initPlace: "readonly",
   initLanguage: "readonly",
+  // notifications.js
+  CATEGORY_PRIORITY: "readonly",
+  CATEGORY_LABELS: "readonly",
+  classifyIdentification: "readonly",
+  classifyUpdate: "readonly",
+  findMyCurrentIdTaxon: "readonly",
+  topCategory: "readonly",
+  groupUpdatesByObservation: "readonly",
+  summarizeCategories: "readonly",
+  decodeJwtExpiry: "readonly",
   // autocomplete.js / location-autocomplete.js
   createAutocomplete: "readonly",
   initUsernameAutocomplete: "readonly",
@@ -125,6 +135,7 @@ module.exports = [
     files: [
       "shared-utils.js",
       "constants.js",
+      "notifications.js",
       "autocomplete.js",
       "location-autocomplete.js",
       "calendar-modal.js",
@@ -135,7 +146,12 @@ module.exports = [
     files: ["tests/**/*.js", "eslint.config.js"],
     languageOptions: {
       sourceType: "commonjs",
-      globals: { require: "readonly", process: "readonly", __dirname: "readonly" },
+      globals: {
+        require: "readonly",
+        process: "readonly",
+        __dirname: "readonly",
+        Buffer: "readonly",
+      },
     },
   },
 ];
