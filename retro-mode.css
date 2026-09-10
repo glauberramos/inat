@@ -53,6 +53,19 @@ body.lifelist-page .retro-pixel-canvas {
   pointer-events: none;
 }
 
+/* Digits only, borrowed from VT323 (OFL, see fonts/OFL-VT323.txt).
+   Pixelify Sans draws 5/S and 8/B almost identically, so numbers were hard
+   to read; this 3 KB subset covers U+0030-0039 and falls through to
+   Pixelify for everything else. size-adjust matches VT323's digit height
+   to Pixelify's. */
+@font-face {
+  font-family: "Retro Digits";
+  src: url("fonts/vt323-digits.woff2") format("woff2");
+  unicode-range: U+0030-0039;
+  size-adjust: 116%;
+  font-display: swap;
+}
+
 /* --------------------------------------------------------------------------
    Tokens
    -------------------------------------------------------------------------- */
@@ -71,7 +84,7 @@ html.retro-mode body.lifelist-page {
   --rx-accent: #dc0a2d;
   --rx-accent-strong: #a40824;
   --rx-hard: #33251b;
-  font-family: "Pixelify Sans", monospace;
+  font-family: "Retro Digits", "Pixelify Sans", monospace;
   -webkit-font-smoothing: auto;
   color: var(--rx-ink);
   background-color: var(--rx-bg);

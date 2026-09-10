@@ -926,6 +926,19 @@ body.speciesdex-page.dark-mode .date-input {
    composes with dark mode: light retro = classic red Pokédex on cream,
    dark retro = original DMG Game Boy 4-shade green screen.
    ========================================================================== */
+/* Digits only, borrowed from VT323 (OFL, see fonts/OFL-VT323.txt).
+   Pixelify Sans draws 5/S and 8/B almost identically, so numbers were hard
+   to read; this 3 KB subset covers U+0030-0039 and falls through to
+   Pixelify for everything else. size-adjust matches VT323's digit height
+   to Pixelify's. */
+@font-face {
+  font-family: "Retro Digits";
+  src: url("fonts/vt323-digits.woff2") format("woff2");
+  unicode-range: U+0030-0039;
+  size-adjust: 116%;
+  font-display: swap;
+}
+
 html.retro-mode body.speciesdex-page {
   --dex-bg: #f2e7c9;
   --dex-dot: transparent;
@@ -946,9 +959,9 @@ html.retro-mode body.speciesdex-page {
   --dex-hard: #33251b;
   --dex-shadow: 4px 4px 0 var(--dex-hard);
   --dex-shadow-lift: 6px 6px 0 var(--dex-hard);
-  --dex-display: "Pixelify Sans", monospace;
-  --dex-mono: "Pixelify Sans", monospace;
-  font-family: "Pixelify Sans", monospace;
+  --dex-display: "Retro Digits", "Pixelify Sans", monospace;
+  --dex-mono: "Retro Digits", "Pixelify Sans", monospace;
+  font-family: "Retro Digits", "Pixelify Sans", monospace;
   -webkit-font-smoothing: auto;
   /* re-assert over html.dark-mode body's #1a1a1a */
   background-color: var(--dex-bg);
