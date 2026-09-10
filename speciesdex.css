@@ -924,7 +924,7 @@ body.speciesdex-page.dark-mode .date-input {
    Toggled by retro-mode.js (.retro-mode on <html>, set pre-paint by the
    head bootstrap). Selectors key off html.retro-mode so there is no flash;
    composes with dark mode: light retro = classic red Pokédex on cream,
-   dark retro = original DMG Game Boy 4-shade green screen.
+   dark retro = Kirokaze Game Boy palette (indigo/teal/lime/mint).
    ========================================================================== */
 /* Digits only, borrowed from VT323 (OFL, see fonts/OFL-VT323.txt).
    Pixelify Sans draws 5/S and 8/B almost identically, so numbers were hard
@@ -978,29 +978,29 @@ html.retro-mode body.speciesdex-page {
   background-size: auto;
 }
 
-/* Dark retro: original Game Boy (DMG) LCD. The four classic shades —
-   #0f380f, #306230, #8bac0f, #9bbc0f — do all the work: darkest is the
-   ground, mid is hover fill and hard shadows, the two light shades are
-   ink and "observed". No red or gold: buttons, badges and the complete
-   state invert to dark-on-green. Surfaces sit just above the ground so
-   small text keeps contrast. */
+/* Dark retro: Kirokaze's 4-colour Game Boy palette — indigo #332c50,
+   teal #46878f, lime #94e344, mint #e2f3e4. Indigo is the ground, teal
+   is lines, hover fill and hard shadows, lime is buttons/"observed"
+   (with indigo text on it), mint is ink and the complete state. No red
+   or gold anywhere. Surfaces sit just above the ground so small text
+   keeps contrast. */
 html.retro-mode.dark-mode body.speciesdex-page {
-  --dex-bg: #0f380f;
-  --dex-surface: #1a451a;
-  --dex-surface-2: #143d14;
-  --dex-ink: #9bbc0f;
-  --dex-muted: #6c9420;
-  --dex-line: #306230;
-  --dex-green: #8bac0f;
-  --dex-green-strong: #9bbc0f;
-  --dex-green-tint: #306230;
-  --dex-gold: #9bbc0f;
-  --dex-gold-tint: #306230;
-  --dex-chip-bg: #9bbc0f;
-  --dex-chip-ink: #0f380f;
-  --dex-accent: #8bac0f;
-  --dex-accent-strong: #9bbc0f;
-  --dex-hard: #306230;
+  --dex-bg: #332c50;
+  --dex-surface: #3b345c;
+  --dex-surface-2: #2b2545;
+  --dex-ink: #e2f3e4;
+  --dex-muted: #7cc0c6;
+  --dex-line: #46878f;
+  --dex-green: #94e344;
+  --dex-green-strong: #b3f070;
+  --dex-green-tint: #46878f;
+  --dex-gold: #e2f3e4;
+  --dex-gold-tint: #46878f;
+  --dex-chip-bg: #94e344;
+  --dex-chip-ink: #332c50;
+  --dex-accent: #94e344;
+  --dex-accent-strong: #b3f070;
+  --dex-hard: #46878f;
   background-image: repeating-linear-gradient(
     0deg,
     rgba(0, 0, 0, 0.16) 0,
@@ -1038,7 +1038,7 @@ html.retro-mode body.speciesdex-page h1 {
 }
 
 html.retro-mode.dark-mode body.speciesdex-page h1 {
-  text-shadow: 3px 3px 0 #306230;
+  text-shadow: 3px 3px 0 #46878f;
 }
 
 html.retro-mode body.speciesdex-page .logo {
@@ -1061,7 +1061,7 @@ html.retro-mode body.speciesdex-page .date-input:focus {
   box-shadow: 3px 3px 0 var(--dex-green);
 }
 
-/* Buttons — Pokédex red in light, DMG light shade in dark; press to sink */
+/* Buttons — Pokédex red in light, lime in dark; press to sink */
 html.retro-mode body.speciesdex-page #searchButton,
 html.retro-mode body.speciesdex-page .search-button-advanced {
   background-color: var(--dex-accent);
@@ -1077,12 +1077,12 @@ html.retro-mode body.speciesdex-page .search-button-advanced:hover {
   box-shadow: 3px 3px 0 var(--dex-hard);
 }
 
-/* DMG buttons are dark-on-green */
+/* Buttons are indigo-on-lime */
 html.retro-mode.dark-mode body.speciesdex-page #searchButton,
 html.retro-mode.dark-mode body.speciesdex-page .search-button-advanced,
 html.retro-mode.dark-mode body.speciesdex-page .map-apply-btn,
 html.retro-mode.dark-mode body.speciesdex-page .feedback-button {
-  color: #0f380f;
+  color: #332c50;
 }
 
 html.retro-mode body.speciesdex-page #searchButton:active,
@@ -1195,7 +1195,7 @@ html.retro-mode.dark-mode body.speciesdex-page .filter-toggle-btn.active,
 html.retro-mode.dark-mode body.speciesdex-page .filter-toggle-btn.active:hover,
 html.retro-mode.dark-mode body.speciesdex-page .date-preset-btn.active,
 html.retro-mode.dark-mode body.speciesdex-page .date-preset-btn.active:hover {
-  color: #0f380f;
+  color: #332c50;
 }
 
 /* Advanced panel + option chips */
@@ -1268,11 +1268,11 @@ html.retro-mode body.speciesdex-page .species-card.observed .species-photo::afte
 }
 
 html.retro-mode.dark-mode body.speciesdex-page .species-card.observed .species-photo::after {
-  color: #0f380f;
+  color: #332c50;
 }
 
-/* DMG has no red/orange: missing cards drop to the mid shade so observed
-   ones (light border + badge) are the lit entries; status pills become
+/* No red/orange in the palette: missing cards drop to teal so observed
+   ones (lime border + badge) are the lit entries; status pills become
    outlined chips instead of orange/red fills */
 html.retro-mode.dark-mode body.speciesdex-page .species-card:not(.observed) {
   border-color: var(--dex-line);
