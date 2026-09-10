@@ -3,7 +3,7 @@
    (currently the Lifelist page; SpeciesDex carries its own copy inside
    speciesdex.css). retro-mode.js toggles .retro-mode on <html>, set
    pre-paint by each page's head bootstrap. Light retro = classic red
-   Pokédex on cream; dark retro = arcade cabinet at night.
+   Pokédex on cream; dark retro = original Game Boy green LCD.
    ========================================================================== */
 
 /* Toggle button — sits left of the dark mode toggle (both themes) */
@@ -86,6 +86,7 @@ html.retro-mode body.lifelist-page {
   --rx-hard: #33251b;
   font-family: "Retro Digits", "Pixelify Sans", monospace;
   -webkit-font-smoothing: auto;
+  accent-color: var(--rx-green);
   color: var(--rx-ink);
   background-color: var(--rx-bg);
   /* CRT scanlines */
@@ -98,23 +99,26 @@ html.retro-mode body.lifelist-page {
   );
 }
 
-/* Dark retro: charcoal-navy ground, warm cream ink, Pokédex-red buttons;
-   green is reserved for meaning */
+/* Dark retro: original Game Boy (DMG) LCD. The four classic shades —
+   #0f380f, #306230, #8bac0f, #9bbc0f — do all the work: darkest is the
+   ground, mid is hover fill and hard shadows, the two light shades are
+   ink and "observed". No red: buttons and badges invert to dark-on-green.
+   Surfaces sit just above the ground so small text keeps contrast. */
 html.retro-mode.dark-mode body.lifelist-page {
-  --rx-bg: #16151f;
-  --rx-surface: #232231;
-  --rx-surface-2: #1b1a27;
-  --rx-ink: #ece7d6;
-  --rx-muted: #a29cb0;
-  --rx-line-soft: rgba(236, 231, 214, 0.18);
-  --rx-green: #4fca4f;
-  --rx-green-strong: #78e878;
-  --rx-green-tint: #1e3320;
-  --rx-chip-bg: #16151f;
-  --rx-chip-ink: #ece7d6;
-  --rx-accent: #ef3e56;
-  --rx-accent-strong: #c92844;
-  --rx-hard: #000000;
+  --rx-bg: #0f380f;
+  --rx-surface: #1a451a;
+  --rx-surface-2: #143d14;
+  --rx-ink: #9bbc0f;
+  --rx-muted: #6c9420;
+  --rx-line-soft: rgba(155, 188, 15, 0.25);
+  --rx-green: #8bac0f;
+  --rx-green-strong: #9bbc0f;
+  --rx-green-tint: #306230;
+  --rx-chip-bg: #9bbc0f;
+  --rx-chip-ink: #0f380f;
+  --rx-accent: #8bac0f;
+  --rx-accent-strong: #9bbc0f;
+  --rx-hard: #306230;
   background-image: repeating-linear-gradient(
     0deg,
     rgba(0, 0, 0, 0.16) 0,
@@ -152,7 +156,7 @@ html.retro-mode body.lifelist-page h1 {
 }
 
 html.retro-mode.dark-mode body.lifelist-page h1 {
-  text-shadow: 3px 3px 0 rgba(239, 62, 86, 0.45);
+  text-shadow: 3px 3px 0 #306230;
 }
 
 html.retro-mode body.lifelist-page .subtitle {
@@ -198,6 +202,13 @@ html.retro-mode body.lifelist-page button:hover {
   background: var(--rx-accent-strong);
 }
 
+html.retro-mode.dark-mode body.lifelist-page button,
+html.retro-mode.dark-mode body.lifelist-page .year-separator,
+html.retro-mode.dark-mode body.lifelist-page .grid-year-separator,
+html.retro-mode.dark-mode body.lifelist-page .feedback-button {
+  color: #0f380f;
+}
+
 html.retro-mode body.lifelist-page button:active {
   transform: translate(3px, 3px);
   box-shadow: none;
@@ -241,7 +252,7 @@ html.retro-mode body.lifelist-page .view-btn.active {
 }
 
 html.retro-mode.dark-mode body.lifelist-page .view-btn.active {
-  color: #16151f;
+  color: #0f380f;
 }
 
 /* Autocomplete */
@@ -340,7 +351,7 @@ html.retro-mode body.lifelist-page .species-card .card-rg {
 
 html.retro-mode.dark-mode body.lifelist-page .rg-badge,
 html.retro-mode.dark-mode body.lifelist-page .species-card .card-rg {
-  color: #16151f;
+  color: #0f380f;
 }
 
 /* Year separators — red banner rows */

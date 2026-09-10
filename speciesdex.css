@@ -963,6 +963,7 @@ html.retro-mode body.speciesdex-page {
   --dex-mono: "Retro Digits", "Pixelify Sans", monospace;
   font-family: "Retro Digits", "Pixelify Sans", monospace;
   -webkit-font-smoothing: auto;
+  accent-color: var(--dex-green);
   /* re-assert over html.dark-mode body's #1a1a1a */
   background-color: var(--dex-bg);
   color: var(--dex-ink);
@@ -977,25 +978,29 @@ html.retro-mode body.speciesdex-page {
   background-size: auto;
 }
 
-/* Dark retro: arcade cabinet at night — charcoal-navy ground, warm cream
-   ink, Pokédex-red buttons; bright green is reserved for "observed" */
+/* Dark retro: original Game Boy (DMG) LCD. The four classic shades —
+   #0f380f, #306230, #8bac0f, #9bbc0f — do all the work: darkest is the
+   ground, mid is hover fill and hard shadows, the two light shades are
+   ink and "observed". No red or gold: buttons, badges and the complete
+   state invert to dark-on-green. Surfaces sit just above the ground so
+   small text keeps contrast. */
 html.retro-mode.dark-mode body.speciesdex-page {
-  --dex-bg: #16151f;
-  --dex-surface: #232231;
-  --dex-surface-2: #1b1a27;
-  --dex-ink: #ece7d6;
-  --dex-muted: #a29cb0;
-  --dex-line: #5b566f;
-  --dex-green: #4fca4f;
-  --dex-green-strong: #78e878;
-  --dex-green-tint: #1e3320;
-  --dex-gold: #f2c14e;
-  --dex-gold-tint: #35290f;
-  --dex-chip-bg: #16151f;
-  --dex-chip-ink: #ece7d6;
-  --dex-accent: #ef3e56;
-  --dex-accent-strong: #c92844;
-  --dex-hard: #000000;
+  --dex-bg: #0f380f;
+  --dex-surface: #1a451a;
+  --dex-surface-2: #143d14;
+  --dex-ink: #9bbc0f;
+  --dex-muted: #6c9420;
+  --dex-line: #306230;
+  --dex-green: #8bac0f;
+  --dex-green-strong: #9bbc0f;
+  --dex-green-tint: #306230;
+  --dex-gold: #9bbc0f;
+  --dex-gold-tint: #306230;
+  --dex-chip-bg: #9bbc0f;
+  --dex-chip-ink: #0f380f;
+  --dex-accent: #8bac0f;
+  --dex-accent-strong: #9bbc0f;
+  --dex-hard: #306230;
   background-image: repeating-linear-gradient(
     0deg,
     rgba(0, 0, 0, 0.16) 0,
@@ -1033,7 +1038,7 @@ html.retro-mode body.speciesdex-page h1 {
 }
 
 html.retro-mode.dark-mode body.speciesdex-page h1 {
-  text-shadow: 3px 3px 0 rgba(239, 62, 86, 0.45);
+  text-shadow: 3px 3px 0 #306230;
 }
 
 html.retro-mode body.speciesdex-page .logo {
@@ -1056,7 +1061,7 @@ html.retro-mode body.speciesdex-page .date-input:focus {
   box-shadow: 3px 3px 0 var(--dex-green);
 }
 
-/* Buttons — Pokédex red in light, DMG shade in dark; press to sink */
+/* Buttons — Pokédex red in light, DMG light shade in dark; press to sink */
 html.retro-mode body.speciesdex-page #searchButton,
 html.retro-mode body.speciesdex-page .search-button-advanced {
   background-color: var(--dex-accent);
@@ -1070,6 +1075,14 @@ html.retro-mode body.speciesdex-page .search-button-advanced:hover {
   background-color: var(--dex-accent-strong);
   transform: none;
   box-shadow: 3px 3px 0 var(--dex-hard);
+}
+
+/* DMG buttons are dark-on-green */
+html.retro-mode.dark-mode body.speciesdex-page #searchButton,
+html.retro-mode.dark-mode body.speciesdex-page .search-button-advanced,
+html.retro-mode.dark-mode body.speciesdex-page .map-apply-btn,
+html.retro-mode.dark-mode body.speciesdex-page .feedback-button {
+  color: #0f380f;
 }
 
 html.retro-mode body.speciesdex-page #searchButton:active,
@@ -1182,7 +1195,7 @@ html.retro-mode.dark-mode body.speciesdex-page .filter-toggle-btn.active,
 html.retro-mode.dark-mode body.speciesdex-page .filter-toggle-btn.active:hover,
 html.retro-mode.dark-mode body.speciesdex-page .date-preset-btn.active,
 html.retro-mode.dark-mode body.speciesdex-page .date-preset-btn.active:hover {
-  color: #16151f;
+  color: #0f380f;
 }
 
 /* Advanced panel + option chips */
@@ -1255,7 +1268,20 @@ html.retro-mode body.speciesdex-page .species-card.observed .species-photo::afte
 }
 
 html.retro-mode.dark-mode body.speciesdex-page .species-card.observed .species-photo::after {
-  color: #16151f;
+  color: #0f380f;
+}
+
+/* DMG has no red/orange: missing cards drop to the mid shade so observed
+   ones (light border + badge) are the lit entries; status pills become
+   outlined chips instead of orange/red fills */
+html.retro-mode.dark-mode body.speciesdex-page .species-card:not(.observed) {
+  border-color: var(--dex-line);
+}
+
+html.retro-mode.dark-mode body.speciesdex-page .status-label {
+  background-color: var(--dex-bg);
+  color: var(--dex-ink);
+  border: 2px solid var(--dex-ink);
 }
 
 /* Map modal + feedback button */
