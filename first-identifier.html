@@ -485,7 +485,7 @@
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js?v=3"></script>
+    <script src="shared-utils.js?v=4"></script>
     <script>
       const DELAY_MS = 50;
 
@@ -701,13 +701,13 @@
         let totalPages = 1;
 
         // Build base URL - get species counts from user's identifications (research grade only)
-        let baseUrl = `${API_BASE}/identifications/species_counts?user_id=${userId}&quality_grade=research&current_taxon=true&per_page=${perPage}`;
+        let baseUrl = `${API_BASE}/identifications/species_counts?user_id=${userId}&quality_grade=research&current_taxon=true`;
         if (selectedPlaceId) {
           baseUrl += `&place_id=${selectedPlaceId}`;
         }
 
         // Fetch first page to get total count
-        const firstData = await fetchJSON(`${baseUrl}&page=1`);
+        const firstData = await fetchJSON(`${baseUrl}&per_page=${perPage}&page=1`);
         if (!firstData.results || firstData.results.length === 0) {
           return [];
         }
@@ -724,7 +724,7 @@
             ""
           );
           await sleep(DELAY_MS);
-          const data = await fetchJSON(`${baseUrl}&page=${p}`);
+          const data = await fetchJSON(`${baseUrl}&per_page=${perPage}&page=${p}`);
           if (data.results) {
             allResults.push(...data.results);
           }
@@ -764,7 +764,27 @@
           { delayMs: DELAY_MS }
         );
 
-        return speciesTaxa.concat(subspeciesTaxa);
+        // species_counts also folds a coarser taxon into a finer one the user
+        // identified (a genus into its subgenus). Queried one rank at a time
+        // there is nothing to fold into, so those taxa surface.
+        const knownIds = new Set(speciesTaxa.map((item) => item.taxon.id));
+        const higherTaxa = [];
+        for (const rank of FOLDED_RANKS) {
+          updateProgress(0, `Fetching ${rank}-level taxa...`, "");
+          await sleep(DELAY_MS);
+          const results = await fetchSpeciesCountPages(`${baseUrl}&rank=${rank}`, {
+            perPage,
+            delayMs: DELAY_MS,
+          });
+          for (const item of mapSpeciesCountTaxa(results)) {
+            if (!knownIds.has(item.taxon.id)) {
+              knownIds.add(item.taxon.id);
+              higherTaxa.push(item);
+            }
+          }
+        }
+
+        return speciesTaxa.concat(subspeciesTaxa, higherTaxa);
       }
 
       async function checkFirstIdentifiersBatch(

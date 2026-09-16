@@ -525,7 +525,7 @@
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js?v=3"></script>
+    <script src="shared-utils.js?v=4"></script>
     <script>
       let isSearching = false;
       let searchTimeout = null;
@@ -715,11 +715,9 @@
         updateProgress(0, "Fetching species list...", "");
 
         const perPage = 500;
-        let allResults = [];
-        let totalPages = 1;
 
         // Build base URL
-        let baseUrl = `${API_BASE}/observations/species_counts?user_login=${username}&verifiable=true&per_page=${perPage}`;
+        let baseUrl = `${API_BASE}/observations/species_counts?user_login=${username}&verifiable=true`;
         if (selectedPlaceId) {
           baseUrl += `&place_id=${selectedPlaceId}`;
         }
@@ -729,55 +727,36 @@
           baseUrl += `&locale=${selectedLanguage}`;
         }
 
-        // Fetch first page to get total count
-        const firstData = await fetchJSON(`${baseUrl}&page=1`);
-        if (!firstData.results || firstData.results.length === 0) {
+        const speciesTaxa = mapSpeciesCountTaxa(
+          await fetchSpeciesCountPages(baseUrl, {
+            perPage,
+            onPage: (page, totalPages) => {
+              if (page < totalPages) {
+                updateProgress(0, `Fetching species list (page ${page + 1} of ${totalPages})...`, "");
+              }
+            },
+          })
+        );
+        if (speciesTaxa.length === 0) {
           return [];
         }
 
-        allResults = [...firstData.results];
-        const totalResults = firstData.total_results;
-        totalPages = Math.ceil(totalResults / perPage);
-
-        // Fetch remaining pages
-        for (let p = 2; p <= totalPages; p++) {
-          updateProgress(0, `Fetching species list (page ${p} of ${totalPages})...`, "");
-          const data = await fetchJSON(`${baseUrl}&page=${p}`);
-          if (data.results) {
-            allResults.push(...data.results);
-          }
-        }
-
-        // Map results to expected structure
-        const speciesTaxa = allResults
-          .filter((item) => item.taxon)
-          .map((item) => ({
-            taxon: {
-              id: item.taxon.id,
-              name: item.taxon.name,
-              rank: item.taxon.rank,
-              observations_count: item.taxon.observations_count || 0,
-              preferred_common_name: item.taxon.preferred_common_name,
-              default_photo: item.taxon.default_photo,
-            },
-          }));
-
-        // species_counts rolls subspecies up into their species, so fetch the
-        // user's subspecies-level observations and add those taxa as well
-        updateProgress(0, "Fetching subspecies list...", "");
-        let subspeciesUrl = `${API_BASE}/observations?user_login=${username}&verifiable=true&hrank=subspecies`;
+        // species_counts folds a coarser taxon into a finer one the user also
+        // observed (a genus into its subgenus) and rolls subspecies up into
+        // species. The taxonomy endpoint lists every taxon with direct
+        // observations, so add the ones species_counts left out.
+        updateProgress(0, "Fetching remaining taxa...", "");
+        let taxonomyUrl = `${API_BASE}/observations/taxonomy?user_login=${username}&verifiable=true`;
         if (selectedPlaceId) {
-          subspeciesUrl += `&place_id=${selectedPlaceId}`;
+          taxonomyUrl += `&place_id=${selectedPlaceId}`;
         }
-        if (selectedLanguage !== "en") {
-          subspeciesUrl += `&locale=${selectedLanguage}`;
-        }
-        const subspeciesRecords = await fetchAllRecords(subspeciesUrl, {
-          onPage: (fetched, total) =>
-            updateProgress(0, `Fetching subspecies list (${fetched} of ${total})...`, ""),
-        });
+        const taxonomy = await fetchJSON(taxonomyUrl);
+        const extras = collectTaxonomyExtras(
+          taxonomy.results,
+          speciesTaxa.map((item) => item.taxon.id)
+        );
 
-        return speciesTaxa.concat(collectInfraspecificTaxa(subspeciesRecords));
+        return speciesTaxa.concat(extras);
       }
 
       async function checkFirstObserversBatch(
@@ -910,6 +889,7 @@
         const listEl = document.getElementById("speciesList");
         const li = document.createElement("li");
         li.className = "species-item";
+        li.dataset.taxonId = sp.taxonId;
         const rankLabel =
           sp.rank && sp.rank !== "species" ? ` (${sp.rank})` : "";
         li.innerHTML = `
@@ -926,6 +906,24 @@
         </div>
       `;
         listEl.appendChild(li);
+      }
+
+      // Taxa from the taxonomy endpoint arrive without common names or photos;
+      // fill those in once the taxon turns out to be a first.
+      function updateResultItem(taxon) {
+        const sp = firstObserverResults.find((r) => r.taxonId === taxon.id);
+        if (!sp) return;
+        sp.commonName = taxon.preferred_common_name || taxon.name;
+        sp.totalObservations = taxon.observations_count || 0;
+        if (!sp.imageUrl) sp.imageUrl = taxon.default_photo?.medium_url;
+
+        const li = document.querySelector(`.species-item[data-taxon-id="${taxon.id}"]`);
+        if (!li) return;
+        const rankLabel = sp.rank && sp.rank !== "species" ? ` (${sp.rank})` : "";
+        li.querySelector(".species-name").textContent = `${sp.commonName}${rankLabel}`;
+        const img = li.querySelector(".species-image");
+        img.alt = sp.commonName;
+        if (sp.imageUrl) img.src = sp.imageUrl;
       }
 
       function showNoResults() {
@@ -1020,6 +1018,7 @@
           }
 
           // Step 4: Batch check for first observers
+          const pendingHydration = [];
           await checkFirstObserversBatch(
             username,
             taxaMap,
@@ -1027,6 +1026,7 @@
             (taxon, result) => {
               firstObserverCount++;
               updateResultsCount(firstObserverCount);
+              if (taxon.needsHydration) pendingHydration.push({ taxon });
               addResultItem({
                 taxonId: taxon.id,
                 taxonName: taxon.name,
@@ -1050,7 +1050,20 @@
             useCreatedAt
           );
 
-          // Step 5: Finalize
+          // Step 5: Fill in names and photos for firsts that came from the
+          // taxonomy endpoint (only the winners, to keep API calls low)
+          if (pendingHydration.length > 0) {
+            updateProgress(100, `Fetching names for ${pendingHydration.length} taxa...`, "");
+            const languageSelect = document.getElementById("languageSelect");
+            const hydrated = await hydrateTaxa(pendingHydration, API_BASE, {
+              locale: languageSelect ? languageSelect.value : "en",
+            });
+            for (const { taxon } of hydrated) {
+              updateResultItem(taxon);
+            }
+          }
+
+          // Step 6: Finalize
           document.getElementById("progress").style.display = "none";
           showNoResults();
           if (firstObserverResults.length > 0) {

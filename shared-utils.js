@@ -444,6 +444,70 @@ async function hydrateTaxa(taxaList, apiBase, { chunkSize = 30, locale, delayMs 
   return Array.from(byId.values());
 }
 
+// Ranks above species that species_counts can fold into a finer taxon the
+// user also recorded (a genus into its subgenus). Queried one rank at a time
+// there is nothing to fold into, so those taxa surface.
+const FOLDED_RANKS = ["subgenus", "genus", "complex", "tribe", "subfamily", "family"];
+// Family (rank_level 30); anything coarser is not worth a first-observer check.
+const FOLDED_MAX_RANK_LEVEL = 30;
+
+// Map species_counts results to the taxon shape the checker pages use.
+function mapSpeciesCountTaxa(results) {
+  return (results || [])
+    .filter((item) => item.taxon)
+    .map((item) => ({
+      taxon: {
+        id: item.taxon.id,
+        name: item.taxon.name,
+        rank: item.taxon.rank,
+        observations_count: item.taxon.observations_count || 0,
+        preferred_common_name: item.taxon.preferred_common_name,
+        default_photo: item.taxon.default_photo,
+      },
+    }));
+}
+
+// Walk every page of a species_counts URL (page-based paging).
+async function fetchSpeciesCountPages(baseUrl, { perPage = 500, delayMs = 0, onPage } = {}) {
+  const results = [];
+  let page = 1;
+  let totalPages = 1;
+  do {
+    const data = await fetchJSON(`${baseUrl}&per_page=${perPage}&page=${page}`);
+    results.push(...(data.results || []));
+    totalPages = Math.ceil((data.total_results || 0) / perPage);
+    if (onPage) onPage(page, totalPages);
+    page++;
+    if (page <= totalPages && delayMs) await sleep(delayMs);
+  } while (page <= totalPages);
+  return results;
+}
+
+// species_counts folds a coarser taxon into a finer one the user also
+// observed and rolls subspecies up into species. The observations/taxonomy
+// endpoint lists every taxon with direct observations, so pick out the ones
+// species_counts left out. Names and photos are filled in later, only for the
+// taxa that turn out to be firsts.
+function collectTaxonomyExtras(rows, knownIds) {
+  const known = new Set(knownIds);
+  return (rows || [])
+    .filter(
+      (row) =>
+        row.direct_obs_count > 0 && row.rank_level <= FOLDED_MAX_RANK_LEVEL && !known.has(row.id)
+    )
+    .map((row) => ({
+      taxon: {
+        id: row.id,
+        name: row.name,
+        rank: row.rank,
+        observations_count: 0,
+        preferred_common_name: undefined,
+        default_photo: undefined,
+        needsHydration: true,
+      },
+    }));
+}
+
 // Allow unit tests (Node) to import the pure helpers; no-op in the browser.
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
@@ -452,6 +516,10 @@ if (typeof module !== "undefined" && module.exports) {
     fetchAllRecords,
     collectInfraspecificTaxa,
     hydrateTaxa,
+    FOLDED_RANKS,
+    mapSpeciesCountTaxa,
+    fetchSpeciesCountPages,
+    collectTaxonomyExtras,
     DATE_RANGE_PRESETS,
     isDateRangePreset,
     formatDateParam,
