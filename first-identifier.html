@@ -488,6 +488,7 @@
     <script src="shared-utils.js?v=4"></script>
     <script>
       const DELAY_MS = 50;
+      const MIN_ROUND_MS = 2500;
 
       let isSearching = false;
       let searchTimeout = null;
@@ -817,6 +818,7 @@
             batchSize = Math.max(10, Math.ceil(totalTaxa.length / 3));
           }
 
+          const roundStarted = Date.now();
           // Fill each of the 3 parallel batches up to batchSize
           for (const batch of currentBatches) {
             while (batch.size < batchSize && totalTaxa.length > 0) {
@@ -907,8 +909,10 @@
             batch.clear();
           }
 
-          // Small delay between batch rounds
-          await sleep(DELAY_MS);
+          // Pace the next round: 3 requests per round, keep near ~1 request/second
+          if (totalTaxa.length > 0) {
+            await sleep(Math.max(0, MIN_ROUND_MS - (Date.now() - roundStarted)));
+          }
         }
 
         onProgress(processedCount, totalCount, apiCalls);

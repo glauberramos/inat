@@ -767,6 +767,9 @@
         useCreatedAt = false
       ) {
         const BATCH_SIZE = 200;
+        // Each round fires 3 requests; keep rounds at least this far apart so
+        // the run stays near iNaturalist's guideline of ~1 request per second
+        const MIN_ROUND_MS = 2500;
 
         const totalTaxa = Array.from(taxaMap.entries()); // All taxa to process
         const currentBatches = [new Map(), new Map(), new Map()]; // 3 parallel batches
@@ -798,6 +801,7 @@
           // Filter to only non-empty batches
           const activeBatches = currentBatches.filter((b) => b.size > 0);
           if (activeBatches.length === 0) break;
+          const roundStarted = Date.now();
 
           apiCalls += activeBatches.length;
           onProgress(processedCount, taxaMap.size, apiCalls);
@@ -867,6 +871,11 @@
 
             // Clear the batch
             batch.clear();
+          }
+
+          // Pace the next round
+          if (totalTaxa.length > 0) {
+            await sleep(Math.max(0, MIN_ROUND_MS - (Date.now() - roundStarted)));
           }
         }
 

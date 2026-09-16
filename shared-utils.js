@@ -226,14 +226,29 @@ function registerServiceWorker() {
 
 // ===== API Helpers =====
 
-async function fetchJSON(url) {
-  const response = await fetch(url, {
-    headers: { Accept: "application/json" },
-  });
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
+// Fetch JSON from the API. iNaturalist answers 429 when a client sends too
+// many requests per minute; wait and retry (honoring Retry-After when sent)
+// instead of failing the whole run. Server errors are retried the same way.
+async function fetchJSON(url, { retries = 4, baseDelayMs = 1500 } = {}) {
+  for (let attempt = 0; ; attempt++) {
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" },
+    });
+    if (response.ok) {
+      return response.json();
+    }
+    const retryable = response.status === 429 || response.status >= 500;
+    if (!retryable || attempt >= retries) {
+      const hint =
+        response.status === 429
+          ? " (iNaturalist rate limit reached, please wait a minute and try again)"
+          : "";
+      throw new Error(`HTTP ${response.status}${hint}`);
+    }
+    const retryAfter = Number(response.headers.get("Retry-After"));
+    const waitMs = retryAfter > 0 ? retryAfter * 1000 : baseDelayMs * 2 ** attempt;
+    await sleep(waitMs);
   }
-  return response.json();
 }
 
 // ===== HTML Helpers =====
@@ -513,6 +528,7 @@ if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     escapeHtml,
     sleep,
+    fetchJSON,
     fetchAllRecords,
     collectInfraspecificTaxa,
     hydrateTaxa,
