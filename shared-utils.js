@@ -372,11 +372,86 @@ function initLanguage(selectElement) {
   return savedLanguage;
 }
 
+// Fetch every record behind an API list URL, cursoring with id_above.
+// Unlike page= paging this is not capped at 10,000 results.
+async function fetchAllRecords(baseUrl, { perPage = 200, delayMs = 0, onPage } = {}) {
+  const records = [];
+  let idAbove = 0;
+  let total = null;
+  while (true) {
+    const data = await fetchJSON(
+      `${baseUrl}&per_page=${perPage}&order_by=id&order=asc&id_above=${idAbove}`
+    );
+    const results = data.results || [];
+    records.push(...results);
+    // id_above also filters total_results, so only the first page reports the full total
+    if (total === null) total = data.total_results;
+    if (onPage) onPage(records.length, total);
+    if (results.length < perPage) break;
+    idAbove = results[results.length - 1].id;
+    if (delayMs) await sleep(delayMs);
+  }
+  return records;
+}
+
+// species_counts rolls subspecies, varieties and forms up into their species.
+// Collect the distinct infraspecific taxa from raw observation or
+// identification records, in the same shape species_counts results are mapped
+// to, so they can be checked as taxa in their own right.
+function collectInfraspecificTaxa(records) {
+  const byId = new Map();
+  for (const record of records) {
+    const taxon = record.taxon;
+    if (!taxon || byId.has(taxon.id)) continue;
+    byId.set(taxon.id, {
+      taxon: {
+        id: taxon.id,
+        name: taxon.name,
+        rank: taxon.rank,
+        observations_count: taxon.observations_count || 0,
+        preferred_common_name: taxon.preferred_common_name,
+        default_photo: taxon.default_photo,
+      },
+    });
+  }
+  return Array.from(byId.values());
+}
+
+// The identifications endpoint returns bare taxa (id and rank only). Fill in
+// names, photos and counts from /taxa, which accepts up to 30 ids per call.
+async function hydrateTaxa(taxaList, apiBase, { chunkSize = 30, locale, delayMs = 0 } = {}) {
+  const byId = new Map(taxaList.map((item) => [item.taxon.id, item]));
+  const ids = Array.from(byId.keys());
+  for (let i = 0; i < ids.length; i += chunkSize) {
+    const chunk = ids.slice(i, i + chunkSize);
+    let url = `${apiBase}/taxa/${chunk.join(",")}?per_page=${chunkSize}`;
+    if (locale && locale !== "en") url += `&locale=${locale}`;
+    const data = await fetchJSON(url);
+    for (const taxon of data.results || []) {
+      const item = byId.get(taxon.id);
+      if (!item) continue;
+      item.taxon = {
+        id: taxon.id,
+        name: taxon.name,
+        rank: taxon.rank,
+        observations_count: taxon.observations_count || 0,
+        preferred_common_name: taxon.preferred_common_name,
+        default_photo: taxon.default_photo,
+      };
+    }
+    if (delayMs && i + chunkSize < ids.length) await sleep(delayMs);
+  }
+  return Array.from(byId.values());
+}
+
 // Allow unit tests (Node) to import the pure helpers; no-op in the browser.
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     escapeHtml,
     sleep,
+    fetchAllRecords,
+    collectInfraspecificTaxa,
+    hydrateTaxa,
     DATE_RANGE_PRESETS,
     isDateRangePreset,
     formatDateParam,

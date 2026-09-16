@@ -161,6 +161,11 @@ html.dark-mode body .species-item {
   border-bottom-color: #444;
 }
 
+html.dark-mode body .species-grid .species-item {
+  border-color: #444;
+  background: #2d2d2d;
+}
+
 html.dark-mode body .species-item:hover {
   background: #333;
 }
