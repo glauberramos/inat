@@ -140,9 +140,10 @@ document.addEventListener("DOMContentLoaded", function () {
       );
       const placesData = await placesResponse.json();
 
-      // Search for projects
+      // Search for projects. /projects/autocomplete ranks title matches first;
+      // the general /projects search can push an exact title off a short page
       const projectsResponse = await fetch(
-        `${API_BASE}/projects?q=${encodeURIComponent(query)}&per_page=7`
+        `${API_BASE}/projects/autocomplete?q=${encodeURIComponent(query)}&per_page=7`
       );
       const projectsData = await projectsResponse.json();
 

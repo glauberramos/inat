@@ -208,7 +208,9 @@ function initLocationAutocomplete(inputElement, autocompleteElement, placeIdInpu
     const perList = includeProjects ? Math.ceil(maxResults / 2) : maxResults;
     const requests = [fetchResults("/places/autocomplete?q=" + q + "&per_page=" + perList)];
     if (includeProjects) {
-      requests.push(fetchResults("/projects?q=" + q + "&per_page=" + perList));
+      // /projects/autocomplete ranks title matches first; the general /projects
+      // search scores by relevance and can push an exact title off a short page
+      requests.push(fetchResults("/projects/autocomplete?q=" + q + "&per_page=" + perList));
     }
 
     Promise.all(requests)

@@ -1078,7 +1078,7 @@
           // Search for both places and projects in parallel
           const [placesResponse, projectsResponse] = await Promise.all([
             fetch(`${API_BASE}/places/autocomplete?q=${encodeURIComponent(query)}&per_page=7`),
-            fetch(`${API_BASE}/projects?q=${encodeURIComponent(query)}&per_page=7`)
+            fetch(`${API_BASE}/projects/autocomplete?q=${encodeURIComponent(query)}&per_page=7`)
           ]);
 
           const placesData = await placesResponse.json();
