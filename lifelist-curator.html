@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+      if (localStorage.getItem("speciesdexRetro") === "true") {
+        document.documentElement.classList.add("retro-mode");
+      }
+    </script>
+    <title>Lifelist Curator - Species Suggestions for Your Next Observations</title>
+    <link rel="icon" href="favicon.ico" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#74ac00" />
+    <link rel="canonical" href="https://glauberramos.github.io/inat/lifelist-curator" />
+    <meta
+      name="description"
+      content="Get suggestions for species you haven't observed yet, ranked by how likely you are to find them in a place — powered by local observation data, optionally scored by AI."
+    />
+    <!-- Prototype: keep out of search results until the tool graduates. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="author" content="Glauber Ramos" />
+    <link rel="stylesheet" href="dark-mode.css?v=6" />
+    <link rel="stylesheet" href="location-autocomplete.css?v=1" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        padding-top: 70px;
+        background: #f5f5f5;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .subtitle {
+        color: #666;
+        margin-bottom: 20px;
+      }
+      .search-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 12px;
+        position: relative;
+        flex-wrap: wrap;
+      }
+      .input-wrapper {
+        flex: 1;
+        position: relative;
+        min-width: 200px;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 10px 15px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        outline: none;
+      }
+      input[type="text"]:focus {
+        border-color: #74ac00;
+      }
+      button.primary {
+        padding: 10px 25px;
+        background: #74ac00;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      button.primary:hover {
+        background: #5d8a00;
+      }
+      button.primary:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      .autocomplete {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+        z-index: 100;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .autocomplete.active {
+        display: block;
+      }
+      .autocomplete-item {
+        padding: 10px 15px;
+        cursor: pointer;
+      }
+      .autocomplete-item:hover {
+        background: #f0f7e6;
+      }
+      .autocomplete-name {
+        font-weight: 600;
+        color: #333;
+      }
+      .autocomplete-login {
+        font-size: 13px;
+        color: #888;
+      }
+      details.advanced {
+        margin-bottom: 20px;
+        font-size: 14px;
+        color: #555;
+      }
+      details.advanced summary {
+        cursor: pointer;
+        color: #74ac00;
+        font-weight: 600;
+      }
+      details.advanced .advanced-body {
+        margin-top: 10px;
+        padding: 12px;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+      }
+      details.advanced input[type="text"] {
+        font-size: 14px;
+        margin-top: 6px;
+      }
+      .status {
+        margin: 15px 0;
+        color: #666;
+        display: none;
+      }
+      .error {
+        margin: 15px 0;
+        padding: 12px 15px;
+        background: #fdecea;
+        color: #b3261e;
+        border-radius: 8px;
+        display: none;
+      }
+      .mode-badge {
+        display: none;
+        margin: 15px 0;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 14px;
+        background: #eef4e2;
+        color: #4a6b00;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+      .card img {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        display: block;
+        background: #e8e8e8;
+      }
+      .card .no-photo {
+        width: 100%;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 42px;
+        background: #eef2e4;
+      }
+      .card-body {
+        padding: 10px 12px;
+      }
+      .card-common {
+        font-weight: 600;
+        color: #333;
+      }
+      .card-sci {
+        font-style: italic;
+        font-size: 13px;
+        color: #777;
+      }
+      .card-meta {
+        font-size: 12px;
+        color: #888;
+        margin-top: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .score-bar {
+        height: 5px;
+        background: #eee;
+        border-radius: 3px;
+        margin-top: 8px;
+        overflow: hidden;
+      }
+      .score-fill {
+        height: 100%;
+        background: #74ac00;
+      }
+    </style>
+  </head>
+  <body class="lifelist-curator-page">
+    <a
+      href="/inat"
+      class="back-button"
+      style="
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        background: #2d2d2d;
+        color: #ccc;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 4px 10px;
+        border-radius: 6px;
+        z-index: 1000;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: background 0.2s;
+      "
+      onmouseover="this.style.background='#3d3d3d'"
+      onmouseout="this.style.background='#2d2d2d'"
+    >
+      <span style="font-size: 1rem">←</span> More tools
+    </a>
+
+    <h1>Lifelist Curator</h1>
+    <p class="subtitle">
+      Species you haven't observed yet, ranked by how likely you are to find them in a place.
+      Enter your username and a place — suggestions come from what's commonly observed there
+      minus your lifelist, optionally re-ranked by AI (Jev).
+    </p>
+
+    <div class="search-container">
+      <div class="input-wrapper">
+        <input type="text" id="username" placeholder="iNaturalist username" autocomplete="off" />
+        <div class="autocomplete" id="autocomplete"></div>
+      </div>
+      <div class="input-wrapper">
+        <input type="text" id="placeInput" placeholder="Search place..." autocomplete="off" />
+        <input type="hidden" id="placeId" />
+        <div class="autocomplete" id="placeAutocomplete"></div>
+      </div>
+      <button class="primary" id="suggestBtn">Suggest species</button>
+    </div>
+
+    <details class="advanced">
+      <summary>AI ranking (optional)</summary>
+      <div class="advanced-body">
+        <label for="proxyUrl">
+          Jev proxy URL — deploy <code>jev-proxy-worker.js</code> with your TypeSafe AI key and
+          paste its URL here. Leave empty to rank by local frequency + your group affinity only.
+        </label>
+        <input type="text" id="proxyUrl" placeholder="https://your-worker.workers.dev" autocomplete="off" />
+      </div>
+    </details>
+
+    <div class="error" id="error"></div>
+    <div class="status" id="status"></div>
+    <div class="mode-badge" id="modeBadge"></div>
+    <div class="grid" id="grid"></div>
+
+    <script src="constants.js?v=1"></script>
+    <script src="shared-utils.js?v=1"></script>
+    <script src="location-autocomplete.js?v=1"></script>
+    <script src="lifelist-curator.js?v=1"></script>
+    <script>
+      const usernameInput = document.getElementById("username");
+      const autocompleteEl = document.getElementById("autocomplete");
+      const proxyUrlInput = document.getElementById("proxyUrl");
+      const statusEl = document.getElementById("status");
+      const modeBadgeEl = document.getElementById("modeBadge");
+      const gridEl = document.getElementById("grid");
+      const suggestBtn = document.getElementById("suggestBtn");
+      let searchTimeout = null;
+      let isSearching = false;
+
+      initUsername(usernameInput);
+      initLocationAutocomplete(
+        document.getElementById("placeInput"),
+        document.getElementById("placeAutocomplete"),
+        document.getElementById("placeId"),
+        {
+          persistToStorage: true,
+          loadFromStorage: true,
+          loadFromUrl: true,
+          updateUrlOnSelect: true,
+          suggestionClass: "autocomplete-item",
+          nameClass: "autocomplete-name",
+          infoClass: "autocomplete-login",
+        }
+      );
+
+      // Saved proxy URL (kept in localStorage only — it's the user's own worker).
+      proxyUrlInput.value = localStorage.getItem("jevProxyUrl") || "";
+      proxyUrlInput.addEventListener("change", () => {
+        localStorage.setItem("jevProxyUrl", proxyUrlInput.value.trim());
+      });
+
+      // Username autocomplete (same pattern as the other tools).
+      usernameInput.addEventListener("input", (e) => {
+        clearTimeout(searchTimeout);
+        const query = e.target.value.trim();
+        if (query.length < 2) {
+          autocompleteEl.innerHTML = "";
+          autocompleteEl.classList.remove("active");
+          if (query.length === 0) localStorage.removeItem("inatUsername");
+          return;
+        }
+        searchTimeout = setTimeout(() => searchUsers(query), 300);
+      });
+
+      async function searchUsers(query) {
+        try {
+          const data = await fetchJSON(
+            `${API_BASE}/users/autocomplete?q=${encodeURIComponent(query)}&per_page=10`
+          );
+          if (data.results && data.results.length > 0) {
+            autocompleteEl.innerHTML = data.results
+              .map(
+                (user) => `
+              <div class="autocomplete-item" data-login="${escapeHtml(user.login)}">
+                <div class="autocomplete-name">${escapeHtml(user.login)}</div>
+                <div class="autocomplete-login">${escapeHtml(user.name || "")} · ${(user.observations_count || 0).toLocaleString()} observations</div>
+              </div>`
+              )
+              .join("");
+            autocompleteEl.querySelectorAll(".autocomplete-item").forEach((item) => {
+              item.addEventListener("click", () => {
+                usernameInput.value = item.dataset.login;
+                saveUsername(item.dataset.login);
+                updateUrlWithUsername(item.dataset.login);
+                autocompleteEl.classList.remove("active");
+              });
+            });
+            autocompleteEl.classList.add("active");
+          } else {
+            autocompleteEl.innerHTML = "";
+            autocompleteEl.classList.remove("active");
+          }
+        } catch (error) {
+          console.error("Error searching users:", error);
+        }
+      }
+
+      document.addEventListener("click", (e) => {
+        if (!usernameInput.contains(e.target) && !autocompleteEl.contains(e.target)) {
+          autocompleteEl.classList.remove("active");
+        }
+      });
+
+      function setStatus(text) {
+        statusEl.style.display = text ? "block" : "none";
+        statusEl.textContent = text || "";
+      }
+
+      // Ask the Jev proxy to score every candidate; returns a map of
+      // taxonId -> 0..1 rank (see lifelist-curator.js for the questions and
+      // jev-proxy-worker.js for the proxy contract).
+      async function jevScores(proxyUrl, profile, candidates, context) {
+        const items = candidates.map((candidate) => buildJevItem(profile, candidate, context));
+        const response = await fetch(proxyUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items }),
+        });
+        if (!response.ok) throw new Error(`Jev proxy returned ${response.status}`);
+        const data = await response.json();
+        const scores = {};
+        for (const result of data.results || []) {
+          scores[result.id] = combineJevAnswers(result.answers);
+        }
+        return scores;
+      }
+
+      function heuristicScores(profile, candidates) {
+        const maxLocalCount = candidates.reduce((max, c) => Math.max(max, c.localCount), 0);
+        const scores = {};
+        for (const candidate of candidates) {
+          scores[String(candidate.taxonId)] = heuristicScore(candidate, profile, maxLocalCount);
+        }
+        return scores;
+      }
+
+      function renderCards(ranked) {
+        gridEl.innerHTML = "";
+        for (const species of ranked) {
+          const a = document.createElement("a");
+          a.className = "card";
+          a.href = `https://www.inaturalist.org/taxa/${species.taxonId}`;
+          a.target = "_blank";
+          a.rel = "noopener";
+          const displayName = species.commonName || species.name;
+          const percent = species.score !== null ? Math.round(species.score * 100) : null;
+          const photo = species.photoUrl
+            ? `<img src="${escapeHtml(species.photoUrl)}" alt="${escapeHtml(displayName)}" loading="lazy" />`
+            : `<div class="no-photo">${getIconicTaxonIcon(species.group)}</div>`;
+          a.innerHTML = `
+            ${photo}
+            <div class="card-body">
+              <div class="card-common">${escapeHtml(displayName)}</div>
+              ${species.commonName ? `<div class="card-sci">${escapeHtml(species.name)}</div>` : ""}
+              <div class="card-meta">
+                <span>${getIconicTaxonIcon(species.group)} ${species.localCount.toLocaleString()} obs here</span>
+                <span>${percent !== null ? percent + "%" : "–"}</span>
+              </div>
+              <div class="score-bar"><div class="score-fill" style="width: ${percent || 0}%"></div></div>
+            </div>`;
+          gridEl.appendChild(a);
+        }
+      }
+
+      async function suggest() {
+        if (isSearching) return;
+        const username = usernameInput.value.trim();
+        const placeId = document.getElementById("placeId").value;
+        const placeName = document.getElementById("placeInput").value.trim();
+        hideError("error");
+        modeBadgeEl.style.display = "none";
+        gridEl.innerHTML = "";
+        if (!username || !placeId) {
+          showError("error", "Enter a username and pick a place from the suggestions.");
+          return;
+        }
+
+        isSearching = true;
+        suggestBtn.disabled = true;
+        try {
+          setStatus("Loading your lifelist...");
+          const userRows = await fetchSpeciesCountPages(
+            `${API_BASE}/observations/species_counts?user_id=${encodeURIComponent(username)}&verifiable=true`,
+            { onPage: (page, total) => setStatus(`Loading your lifelist... page ${page}/${total || 1}`) }
+          );
+
+          setStatus("Loading species observed in this place...");
+          const placeData = await fetchJSON(
+            `${API_BASE}/observations/species_counts?place_id=${placeId}&verifiable=true&per_page=500`
+          );
+
+          const profile = deriveUserProfile(userRows);
+          const observedIds = new Set(
+            userRows.filter((row) => row.taxon).map((row) => row.taxon.id)
+          );
+          const candidates = buildCandidates(placeData.results, observedIds);
+          if (candidates.length === 0) {
+            setStatus("Nothing to suggest — you've seen everything commonly observed here. 🎉");
+            return;
+          }
+
+          const now = new Date();
+          const context = { placeName, monthName: CURATOR_MONTH_NAMES[now.getMonth()] };
+          const proxyUrl = proxyUrlInput.value.trim();
+          let scores;
+          let mode;
+          if (proxyUrl) {
+            setStatus(`Asking Jev to rank ${candidates.length} candidates...`);
+            try {
+              scores = await jevScores(proxyUrl, profile, candidates, context);
+              mode = "🤖 Ranked by Jev (TypeSafe AI) — likelihood this month, affinity with your interests, and ease of identification.";
+            } catch (error) {
+              console.error("Jev proxy failed, falling back to heuristic:", error);
+              scores = heuristicScores(profile, candidates);
+              mode = "⚠️ Jev proxy unreachable — fell back to heuristic ranking (local frequency + your group affinity).";
+            }
+          } else {
+            scores = heuristicScores(profile, candidates);
+            mode = "📊 Heuristic ranking (local frequency + your group affinity). Configure a Jev proxy under \"AI ranking\" for smarter suggestions.";
+          }
+
+          renderCards(rankCandidates(candidates, scores));
+          modeBadgeEl.textContent = mode;
+          modeBadgeEl.style.display = "block";
+          setStatus("");
+        } catch (error) {
+          showError("error", "Error: " + error.message);
+          setStatus("");
+        } finally {
+          isSearching = false;
+          suggestBtn.disabled = false;
+        }
+      }
+
+      suggestBtn.addEventListener("click", suggest);
+      usernameInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") suggest();
+      });
+    </script>
+    <button class="feedback-button" id="feedbackBtn">Send feedback</button>
+    <script
+      defer
+      data-domain="glauberramos.github.io/inat"
+      src="https://plausible.io/js/script.js"
+    ></script>
+    <script type="text/javascript">
+      initFeedbackButton();
+    </script>
+    <script src="dark-mode.js?v=2"></script>
+    <script src="retro-mode.js?v=1"></script>
+    <script>
+      registerServiceWorker();
+    </script>
+  </body>
+</html>
