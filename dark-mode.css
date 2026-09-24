@@ -267,6 +267,12 @@ html.dark-mode body .progress-bar {
   background: #444;
 }
 
+/* On the checker and lifelist pages .progress-bar is the fill inside
+   .progress-bar-bg, not the track; keep it green so it shows on the #444 track */
+html.dark-mode body .progress-bar-bg > .progress-bar {
+  background: #74ac00;
+}
+
 /* Checkbox containers */
 html.dark-mode body .checkbox-container {
   background: #2d2d2d;
