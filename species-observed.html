@@ -916,6 +916,7 @@
               Global Observations (Low to High)
             </option>
             <option value="family">Family (A to Z)</option>
+            <option value="order">Order (A to Z)</option>
           </select>
           <label for="filterInput" style="margin-left: 20px">Filter:</label>
           <input
@@ -997,10 +998,12 @@
       let currentObsFilter = "";
       let searchTimeout = null;
       let currentView = "grid"; // 'grid' or 'table'
-      // Family grouping: taxon id -> {id, name, commonName}; resolved lazily
-      // the first time the "Family" sort is selected (one batched lookup).
-      let familyByTaxonId = new Map();
-      let familyLookupPromise = null;
+      // Rank grouping (Family / Order sorts): rank -> Map of taxon id ->
+      // {id, name, commonName}; resolved lazily the first time that sort
+      // is selected (one batched lookup per rank).
+      const GROUP_RANKS = { family: "families", order: "orders" };
+      let groupByTaxonId = {};
+      let groupLookupPromises = {};
 
       // URL parameter and localStorage handling for username
       const urlParams = new URLSearchParams(window.location.search);
@@ -1018,7 +1021,7 @@
 
       // URL parameter handling for sort order
       const urlSort = urlParams.get("sort");
-      const validSortValues = ["user", "user-asc", "global", "global-asc", "family"];
+      const validSortValues = ["user", "user-asc", "global", "global-asc", "family", "order"];
       if (urlSort && validSortValues.includes(urlSort)) {
         sortSelect.value = urlSort;
       }
@@ -1413,8 +1416,8 @@
           loading.textContent = "Loading species stats...";
 
           speciesData = allResults;
-          familyByTaxonId = new Map();
-          familyLookupPromise = null;
+          groupByTaxonId = {};
+          groupLookupPromises = {};
 
           // Fetch all threatened species using separate API call with pagination
           threatenedTaxonIds = new Set();
@@ -1611,16 +1614,16 @@
         }
       }
 
-      // Resolve the family of every loaded species. species_counts only
-      // returns ancestor ids, so look up which of those ids are families
-      // in batches of 500, filtered server-side by rank.
-      async function loadFamilies() {
+      // Resolve the family (or order) of every loaded species.
+      // species_counts only returns ancestor ids, so look up which of those
+      // ids have the given rank in batches of 500, filtered server-side.
+      async function loadRankGroups(rank) {
         const ancestorIds = new Set();
         speciesData.forEach((item) => {
           const taxon = item.taxon;
           if (!taxon) return;
           // Include the taxon itself: observations identified only to
-          // family level come back as a family-rank leaf taxon.
+          // family/order level come back as a leaf taxon of that rank.
           ancestorIds.add(taxon.id);
           (taxon.ancestor_ids || []).forEach((id) => ancestorIds.add(id));
         });
@@ -1637,16 +1640,16 @@
         const selectedLanguage = document.getElementById("languageSelect").value;
         const localeParam = selectedLanguage !== "en" ? `&locale=${selectedLanguage}` : "";
 
-        const familyMap = new Map();
+        const rankMap = new Map();
         const results = await Promise.all(
           batches.map((batch) =>
             fetchJSON(
-              `${API_BASE}/taxa?id=${batch.join(",")}&rank=family&per_page=${batchSize}${localeParam}`
+              `${API_BASE}/taxa?id=${batch.join(",")}&rank=${rank}&per_page=${batchSize}${localeParam}`
             ).then((data) => data.results || [])
           )
         );
         results.flat().forEach((taxon) => {
-          familyMap.set(taxon.id, {
+          rankMap.set(taxon.id, {
             id: taxon.id,
             name: taxon.name,
             commonName: taxon.preferred_common_name || "",
@@ -1657,48 +1660,49 @@
         speciesData.forEach((item) => {
           const taxon = item.taxon;
           if (!taxon) return;
-          const familyId = familyMap.has(taxon.id)
+          const groupId = rankMap.has(taxon.id)
             ? taxon.id
-            : (taxon.ancestor_ids || []).find((id) => familyMap.has(id));
-          if (familyId) resolved.set(taxon.id, familyMap.get(familyId));
+            : (taxon.ancestor_ids || []).find((id) => rankMap.has(id));
+          if (groupId) resolved.set(taxon.id, rankMap.get(groupId));
         });
-        familyByTaxonId = resolved;
+        groupByTaxonId[rank] = resolved;
       }
 
-      function ensureFamilies() {
-        if (!familyLookupPromise) {
-          familyLookupPromise = loadFamilies().catch((err) => {
-            familyLookupPromise = null;
+      function ensureRankGroups(rank) {
+        if (!groupLookupPromises[rank]) {
+          groupLookupPromises[rank] = loadRankGroups(rank).catch((err) => {
+            delete groupLookupPromises[rank];
             throw err;
           });
         }
-        return familyLookupPromise;
+        return groupLookupPromises[rank];
       }
 
-      // Group sorted species by family, families A to Z by scientific
-      // name, species without a resolved family last.
-      function groupByFamily(items) {
+      // Group sorted species by family/order, groups A to Z by scientific
+      // name, species without a resolved group last.
+      function groupByRank(items, rank) {
+        const lookup = groupByTaxonId[rank];
         const groups = new Map();
         items.forEach((item) => {
-          const family = familyByTaxonId.get(item.taxon.id);
-          const key = family ? family.id : "none";
-          if (!groups.has(key)) groups.set(key, { family, items: [] });
+          const group = lookup.get(item.taxon.id);
+          const key = group ? group.id : "none";
+          if (!groups.has(key)) groups.set(key, { group, rank, items: [] });
           groups.get(key).items.push(item);
         });
         return [...groups.values()].sort((a, b) => {
-          if (!a.family) return 1;
-          if (!b.family) return -1;
-          return a.family.name.localeCompare(b.family.name);
+          if (!a.group) return 1;
+          if (!b.group) return -1;
+          return a.group.name.localeCompare(b.group.name);
         });
       }
 
-      function familyHeaderHtml(group, cssClass) {
+      function groupHeaderHtml(group, cssClass) {
         const count = group.items.length;
         const countText = `${count.toLocaleString()} species`;
-        if (!group.family) {
-          return `<span class="${cssClass}-name">Other taxa</span><span class="family-common">No family assigned</span><span class="family-count">${countText}</span>`;
+        if (!group.group) {
+          return `<span class="${cssClass}-name">Other taxa</span><span class="family-common">No ${group.rank} assigned</span><span class="family-count">${countText}</span>`;
         }
-        const { id, name, commonName } = group.family;
+        const { id, name, commonName } = group.group;
         const link = `https://www.inaturalist.org/taxa/${id}`;
         return `<a href="${link}" target="_blank" class="${cssClass}-name">${escapeHtml(
           name
@@ -1774,37 +1778,36 @@
               (a.taxon.observations_count || 0) -
               (b.taxon.observations_count || 0)
           );
-        } else if (sortBy === "family") {
-          // Within a family, most observed first
+        } else if (GROUP_RANKS[sortBy]) {
+          // Within a family/order, most observed first
           sortedData.sort((a, b) => b.count - a.count);
         }
 
-        const familyMode = sortBy === "family";
-        if (familyMode && familyByTaxonId.size === 0 && speciesData.length) {
+        const groupRank = GROUP_RANKS[sortBy] ? sortBy : null;
+        if (groupRank && !groupByTaxonId[groupRank] && speciesData.length) {
           speciesContainer.classList.remove("table-view", "family-view");
-          speciesContainer.innerHTML =
-            '<div class="loading" style="display: block; grid-column: 1 / -1;">Loading families...</div>';
-          ensureFamilies()
+          speciesContainer.innerHTML = `<div class="loading" style="display: block; grid-column: 1 / -1;">Loading ${GROUP_RANKS[groupRank]}...</div>`;
+          ensureRankGroups(groupRank)
             .then(() => {
-              if (sortSelect.value === "family") displaySpecies();
+              if (sortSelect.value === groupRank) displaySpecies();
             })
             .catch(() => {
-              speciesContainer.innerHTML =
-                '<div class="loading" style="display: block; grid-column: 1 / -1;">Could not load family names. Please try again.</div>';
+              if (sortSelect.value !== groupRank) return;
+              speciesContainer.innerHTML = `<div class="loading" style="display: block; grid-column: 1 / -1;">Could not load ${groupRank} names. Please try again.</div>`;
             });
           return;
         }
-        const familyGroups = familyMode ? groupByFamily(sortedData) : null;
+        const rankGroups = groupRank ? groupByRank(sortedData, groupRank) : null;
 
         // Display results count
         const resultCount = sortedData.length;
         resultsCount.textContent = `${resultCount.toLocaleString()} result${
           resultCount !== 1 ? "s" : ""
         }`;
-        if (familyGroups) {
-          const familyTotal = familyGroups.filter((g) => g.family).length;
-          resultsCount.textContent += ` in ${familyTotal.toLocaleString()} famil${
-            familyTotal !== 1 ? "ies" : "y"
+        if (rankGroups) {
+          const groupTotal = rankGroups.filter((g) => g.group).length;
+          resultsCount.textContent += ` in ${groupTotal.toLocaleString()} ${
+            groupTotal !== 1 ? GROUP_RANKS[groupRank] : groupRank
           }`;
         }
 
@@ -1953,11 +1956,11 @@
                       </tr>
                     `;
           };
-          const tableRowsHtml = familyGroups
-            ? familyGroups
+          const tableRowsHtml = rankGroups
+            ? rankGroups
                 .map(
                   (group) =>
-                    `<tr class="family-row"><td colspan="8">${familyHeaderHtml(
+                    `<tr class="family-row"><td colspan="8">${groupHeaderHtml(
                       group,
                       "family"
                     )}</td></tr>` + group.items.map(renderTableRow).join("")
@@ -2067,13 +2070,13 @@
                 </div>
               `;
           };
-          if (familyGroups) {
+          if (rankGroups) {
             speciesContainer.classList.add("family-view");
-            speciesContainer.innerHTML = familyGroups
+            speciesContainer.innerHTML = rankGroups
               .map(
                 (group) => `
                 <section class="family-group">
-                  <h3 class="family-header">${familyHeaderHtml(group, "family")}</h3>
+                  <h3 class="family-header">${groupHeaderHtml(group, "family")}</h3>
                   <div class="family-cards">${group.items
                     .map(renderGridCard)
                     .join("")}</div>
