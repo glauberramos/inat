@@ -29,6 +29,10 @@ A suite of companion tools for [iNaturalist](https://www.inaturalist.org) — ex
 - **Project Search** — find iNaturalist projects by name and location
 - **iNaturalist Top Users** — top observers and identifiers in any place or project, ranked by observations, species, or identifications, with your own position highlighted
 
+### Prototypes
+
+- **Lifelist Curator** (`lifelist-curator.html`, not linked from the home page yet) — species you haven't observed, ranked by how likely you are to find them in a place. Works out of the box with a heuristic ranking (local frequency + your taxon-group affinity); optionally re-ranks candidates with [TypeSafe AI's Jev model](https://typesafe.ai/blog/introducing-system-one-models-and-jev) through a tiny Cloudflare Worker (`jev-proxy-worker.js`) that keeps the API key off the static site. Deploy the worker with `wrangler deploy jev-proxy-worker.js`, add your key with `wrangler secret put TYPESAFE_API_KEY`, and paste the worker URL into the tool's "AI ranking" panel.
+
 ### Create & embed
 
 - **Widget Builder** — create embeddable observation widgets for any website

@@ -40,6 +40,15 @@ const sharedGlobals = {
   initUsername: "readonly",
   initPlace: "readonly",
   initLanguage: "readonly",
+  fetchSpeciesCountPages: "readonly",
+  // lifelist-curator.js
+  CURATOR_MONTH_NAMES: "readonly",
+  deriveUserProfile: "readonly",
+  buildCandidates: "readonly",
+  buildJevItem: "readonly",
+  combineJevAnswers: "readonly",
+  heuristicScore: "readonly",
+  rankCandidates: "readonly",
   // notifications.js
   CATEGORY_PRIORITY: "readonly",
   CATEGORY_LABELS: "readonly",
@@ -139,8 +148,17 @@ module.exports = [
       "autocomplete.js",
       "location-autocomplete.js",
       "calendar-modal.js",
+      "lifelist-curator.js",
     ],
     rules: { "no-redeclare": "off", "no-unused-vars": "off" },
+  },
+  {
+    // Cloudflare Worker: deployed standalone, uses ESM export syntax.
+    files: ["jev-proxy-worker.js"],
+    languageOptions: {
+      sourceType: "module",
+      globals: { fetch: "readonly", Response: "readonly", console: "readonly" },
+    },
   },
   {
     files: ["tests/**/*.js", "eslint.config.js"],
