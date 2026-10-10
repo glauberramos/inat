@@ -391,6 +391,7 @@
             oldTimerCount: 0,
             observedContinents: new Set(),
             worldGridData: null,
+            speciesInDay: { count: 0, bestDay: null },
           };
 
           // Helper function to compute derived values and render achievements
@@ -567,7 +568,8 @@
               state.fromArchivesCount,
               state.oldTimerCount,
               observedGridCells,
-              observedGridSquares
+              observedGridSquares,
+              state.speciesInDay
             );
 
             achievementsContainer.innerHTML = result.html;
@@ -578,7 +580,7 @@
 
           const loadingCount = document.getElementById("loadingCount");
           let completedRequests = 0;
-          const estimatedTotal = 11 + CNC_PROJECTS.length + 6 + 25;
+          const estimatedTotal = 12 + CNC_PROJECTS.length + 6 + 25;
           const updateProgress = () => {
             completedRequests++;
             const percentage = Math.min(99, Math.round((completedRequests / estimatedTotal) * 100));
@@ -633,6 +635,9 @@
           state.researchGradeData = researchGradeData;
           state.histogramData = histogramData;
           state.favoriteObservations = favoriteObservations;
+          refreshAchievements();
+
+          state.speciesInDay = await loadMaxSpeciesInDay(userId, histogramData.results?.day || {}, updateProgress);
           refreshAchievements();
 
           // Species counts (sequential - refresh after each page)
@@ -829,6 +834,45 @@
         const data = await response.json();
         if (onProgress) onProgress();
         return data.total_results || 0;
+      }
+
+      // A day can't have more species than observations, so the day histogram is an
+      // upper bound: probe days busiest-first and stop once no remaining day can beat
+      // the best so far. Days below the lowest goal only get one probe, for progress.
+      async function loadMaxSpeciesInDay(userId, histogram, onProgress) {
+        const minGoal = 50;
+        const maxGoal = 100;
+        const maxCalls = 10;
+        const days = Object.keys(histogram)
+          .filter((date) => histogram[date] > 0)
+          .sort((a, b) => histogram[b] - histogram[a]);
+
+        let count = 0;
+        let bestDay = null;
+        let calls = 0;
+
+        for (const day of days) {
+          const obsCount = histogram[day];
+          if (obsCount <= count || count >= maxGoal || calls >= maxCalls) break;
+          if (obsCount < minGoal && calls > 0) break;
+
+          try {
+            const url = `${API_BASE}/observations/species_counts?user_id=${userId}&d1=${day}&d2=${day}&per_page=0&captive=false&verifiable=true`;
+            const response = await fetch(url);
+            const data = await response.json();
+            calls++;
+            if (onProgress) onProgress();
+            if ((data.total_results || 0) > count) {
+              count = data.total_results;
+              bestDay = day;
+            }
+          } catch (error) {
+            console.error("Error fetching species in a day:", error);
+            break;
+          }
+        }
+
+        return { count, bestDay };
       }
 
       async function loadFavoriteObservations(userId, onProgress) {
@@ -1396,7 +1440,8 @@
         fromArchivesCount,
         oldTimerCount,
         observedGridCells,
-        observedGridSquares
+        observedGridSquares,
+        speciesInDay
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
         const iconicTaxonAchievement =
@@ -1678,6 +1723,16 @@
         const obsDay10 = histogramAchievements.obsDay10;
         const obsDay100 = histogramAchievements.obsDay100;
 
+        // Species in a day achievements
+        const speciesDay50 = {
+          ...calculateCountAchievement(speciesInDay.count, 50),
+          bestDay: speciesInDay.bestDay,
+        };
+        const speciesDay100 = {
+          ...calculateCountAchievement(speciesInDay.count, 100),
+          bestDay: speciesInDay.bestDay,
+        };
+
         // Species per iconic taxon achievements
         const taxonAchievements = {};
         const taxonGoals = {
@@ -1815,7 +1870,7 @@
           })
           .join("");
 
-        // Count total achievements (excluding WIP: speciesDay10, speciesDay100)
+        // Count total achievements
         const allAchievements = [
           obs100,
           obs1000,
@@ -1882,6 +1937,8 @@
           newYear,
           obsDay10,
           obsDay100,
+          speciesDay50,
+          speciesDay100,
           weekendWarrior,
           observationDays100,
           observationDays500,
@@ -2016,7 +2073,7 @@
 
         const timeDedicationAchievements = [
           streak7, streak30, streak60, newYear, obsDay10, obsDay100,
-          earlyBird, nightOwl, fromArchives, oldTimer,
+          speciesDay50, speciesDay100, earlyBird, nightOwl, fromArchives, oldTimer,
           weekendWarrior, observationDays100, observationDays500, yearRoundObserver
         ];
 
@@ -2514,6 +2571,26 @@
                 false
               )}
               ${renderAchievementCard(
+                speciesDay50,
+                "🌈",
+                "Diversity Day",
+                "50 species in a single day",
+                speciesDay50.bestDay
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&d1=${speciesDay50.bestDay}&d2=${speciesDay50.bestDay}&view=species`
+                  : null,
+                false
+              )}
+              ${renderAchievementCard(
+                speciesDay100,
+                "🌈",
+                "Biodiversity Blitz",
+                "100 species in a single day",
+                speciesDay100.bestDay
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&d1=${speciesDay100.bestDay}&d2=${speciesDay100.bestDay}&view=species`
+                  : null,
+                false
+              )}
+              ${renderAchievementCard(
                 earlyBird,
                 "🌅",
                 "Early Bird",
@@ -2549,26 +2626,6 @@
                   ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&quality_grade=research&d2=2008-03-01`
                   : null
               )}
-              ${
-                /* WIP - Diversity Day and Biodiversity Blitz
-              ${renderAchievementCard(
-                speciesDay10,
-                "🌈",
-                "Diversity Day (WIP)",
-                "10 species in a single day",
-                null,
-                false
-              )}
-              ${renderAchievementCard(
-                speciesDay100,
-                "🌈",
-                "Biodiversity Blitz (WIP)",
-                "100 species in a single day",
-                null,
-                false
-              )}
-              */ ""
-              }
             </div>
 
             ${renderCategoryTitle('Community', '👥', communityAchievements)}
