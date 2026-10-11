@@ -513,6 +513,10 @@
             const researchGradeResult = state.researchGradeData.results?.find((r) => r.quality_grade === "research");
             const researchGradeCount = researchGradeResult?.count || 0;
             const speciesCount = state.allSpeciesCounts.length;
+            const mostObservedSpecies = state.allSpeciesCounts.reduce(
+              (top, species) => (species.count > top.count ? species : top),
+              { count: 0, taxon: null }
+            );
 
             const histogramAchievements = calculateHistogramAchievements(state.histogramData.results?.day || {});
 
@@ -583,7 +587,8 @@
               state.speciesInDay,
               spiderSpeciesCount,
               sharkRaySpeciesCount,
-              state.antarcticaCount
+              state.antarcticaCount,
+              mostObservedSpecies
             );
 
             achievementsContainer.innerHTML = result.html;
@@ -1471,7 +1476,8 @@
         speciesInDay,
         spiderSpeciesCount,
         sharkRaySpeciesCount,
-        antarcticaCount
+        antarcticaCount,
+        mostObservedSpecies
       ) {
         // Calculate iconic taxon achievement from species counts (not observations)
         const iconicTaxonAchievement =
@@ -1653,6 +1659,11 @@
         const species100 = calculateCountAchievement(speciesCount, 100);
         const species1000 = calculateCountAchievement(speciesCount, 1000);
         const species10000 = calculateCountAchievement(speciesCount, 10000);
+        const speciesObserved100 = calculateCountAchievement(mostObservedSpecies.count, 100);
+        const mostObservedTaxon = mostObservedSpecies.taxon;
+        const mostObservedName = mostObservedTaxon
+          ? mostObservedTaxon.preferred_common_name || mostObservedTaxon.name || ""
+          : "";
 
         // Identification achievements
         const ids100 = calculateCountAchievement(identificationsCount, 100);
@@ -1943,6 +1954,7 @@
           species100,
           species1000,
           species10000,
+          speciesObserved100,
           ids100,
           ids1000,
           ids10000,
@@ -2104,7 +2116,7 @@
         const milestonesAchievements = [
           obs100, obs1000, obs10000, obs50000,
           researchGrade100, researchGrade1000, researchGrade10000,
-          species100, species1000, species10000,
+          species100, species1000, species10000, speciesObserved100,
           veteran2, veteran5, veteran10,
           account2, account5, account10,
           soundObservation, soundObservation100, soundPhotoObservation
@@ -2226,6 +2238,17 @@
                 "Species Master",
                 "Observe 10,000 species",
                 `https://www.inaturalist.org/observations?user_id=${currentUsername}&view=species`
+              )}
+              ${renderAchievementCard(
+                speciesObserved100,
+                "👀",
+                "Familiar Face",
+                `Observe a species 100 times${
+                  mostObservedName ? ` (${escapeHtml(mostObservedName)})` : ""
+                }`,
+                mostObservedTaxon
+                  ? `https://www.inaturalist.org/observations?user_id=${currentUsername}&taxon_id=${mostObservedTaxon.id}`
+                  : null
               )}
               ${renderAchievementCard(
                 veteran2,
