@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,35 +8,30 @@
         document.documentElement.classList.add("dark-mode");
       }
     </script>
-    <title>Common Birds of Porto Alegre - Photos and Songs</title>
+    <title>Aves de Porto Alegre</title>
     <link rel="icon" href="favicon.ico" />
     <meta name="theme-color" content="#74ac00" />
     <link rel="canonical" href="https://glauberramos.github.io/inat/birds-porto-alegre" />
-    <meta
-      name="description"
-      content="The 20 most observed bird species in Porto Alegre, RS, Brazil on iNaturalist, with photos and recordings of their songs and calls."
-    />
-    <meta property="og:title" content="Common Birds of Porto Alegre - Photos and Songs" />
-    <meta property="og:description" content="The 20 most observed birds in Porto Alegre on iNaturalist, with photos and songs." />
+    <meta name="description" content="As 20 aves mais comuns de Porto Alegre, com fotos e cantos." />
+    <meta property="og:title" content="Aves de Porto Alegre" />
+    <meta property="og:description" content="As 20 aves mais comuns de Porto Alegre, com fotos e cantos." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://glauberramos.github.io/inat/birds-porto-alegre" />
-    <meta property="og:site_name" content="iNaturalist Tools" />
+    <meta property="og:locale" content="pt_BR" />
     <meta property="og:image" content="https://glauberramos.github.io/inat/logo.png" />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="Glauber Ramos" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="dark-mode.css?v=8" />
     <style>
-      .birds-intro {
-        max-width: 720px;
-        margin: 8px auto 28px;
+      .birds-subtitle {
         text-align: center;
-        color: #555;
-        font-size: 0.95rem;
+        color: #666;
+        margin: 4px 0 28px;
       }
       .birds-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: 20px;
       }
       .bird-card {
@@ -44,87 +39,40 @@
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        display: flex;
-        flex-direction: column;
       }
-      .bird-photo {
-        position: relative;
-        aspect-ratio: 4 / 3;
-        background: #e8e8e8;
-      }
-      .bird-photo img {
+      .bird-card img {
         width: 100%;
-        height: 100%;
+        aspect-ratio: 4 / 3;
         object-fit: cover;
         display: block;
-      }
-      .bird-rank {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: rgba(0, 0, 0, 0.65);
-        color: #fff;
-        font-weight: 700;
-        font-size: 0.85rem;
-        padding: 2px 9px;
-        border-radius: 999px;
+        background: #e8e8e8;
       }
       .bird-body {
         padding: 14px 16px 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        flex: 1;
       }
       .bird-name {
-        font-size: 1.2rem;
+        font-size: 1.25rem;
         font-weight: 700;
         color: #2c3e50;
-        line-height: 1.25;
-      }
-      .bird-name a {
-        color: inherit;
-        text-decoration: none;
-      }
-      .bird-name a:hover {
-        text-decoration: underline;
-      }
-      .bird-sub {
-        font-size: 0.9rem;
-        color: #666;
-      }
-      .bird-sub em {
-        color: #888;
-      }
-      .bird-count {
-        font-size: 0.8rem;
-        color: #74ac00;
-        font-weight: 600;
+        margin-bottom: 12px;
       }
       .bird-sounds {
         display: flex;
-        flex-direction: column;
         gap: 6px;
-        margin-top: auto;
-      }
-      .sound-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
       }
       .play-btn {
-        flex-shrink: 0;
         border: none;
         background: #74ac00;
         color: #fff;
         font-size: 0.85rem;
         font-weight: 600;
-        padding: 7px 12px;
+        padding: 7px 4px;
+        flex: 1 1 0;
+        white-space: nowrap;
         border-radius: 8px;
         cursor: pointer;
         width: auto;
-        min-width: 92px;
-        text-align: left;
+        max-width: 110px;
         transition: background 0.15s;
       }
       .play-btn:hover {
@@ -140,59 +88,46 @@
         background: #999;
         cursor: default;
       }
-      .sound-credit {
+      .birds-credits {
+        max-width: 720px;
+        margin: 36px auto 16px;
         font-size: 0.75rem;
         color: #888;
-        line-height: 1.3;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
       }
-      .sound-credit a,
-      .photo-credit a,
-      .birds-footer a {
+      .birds-credits summary {
+        cursor: pointer;
+        text-align: center;
+      }
+      .birds-credits ul {
+        list-style: none;
+        margin-top: 10px;
+        line-height: 1.5;
+      }
+      .birds-credits a {
         color: inherit;
       }
-      .photo-credit {
-        font-size: 0.7rem;
-        color: #999;
-        line-height: 1.3;
-      }
-      .birds-footer {
-        text-align: center;
-        font-size: 0.8rem;
-        color: #888;
-        margin: 32px auto 16px;
-        max-width: 720px;
-      }
 
-      .dark-mode .birds-intro {
+      .dark-mode .birds-subtitle {
         color: #bbb;
       }
       .dark-mode .bird-card {
         background: #2a2a2a;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
       }
-      html.dark-mode body .play-btn.playing {
-        background: #e67e22;
-      }
-      html.dark-mode body .play-btn.failed {
-        background: #666;
-      }
-      .dark-mode .bird-photo {
+      .dark-mode .bird-card img {
         background: #333;
       }
       .dark-mode .bird-name {
         color: #eee;
       }
-      .dark-mode .bird-sub {
-        color: #bbb;
-      }
-      .dark-mode .bird-sub em,
-      .dark-mode .sound-credit,
-      .dark-mode .photo-credit,
-      .dark-mode .birds-footer {
+      .dark-mode .birds-credits {
         color: #999;
+      }
+      html.dark-mode body .play-btn.playing {
+        background: #e67e22;
+      }
+      html.dark-mode body .play-btn.failed {
+        background: #666;
       }
 
       @media (max-width: 480px) {
@@ -206,62 +141,24 @@
     </style>
   </head>
   <body>
-    <a
-      href="/inat"
-      class="back-button"
-      style="
-        position: absolute;
-        top: 16px;
-        left: 16px;
-        background: #2d2d2d;
-        color: #ccc;
-        text-decoration: none;
-        font-size: 0.8rem;
-        font-weight: 500;
-        padding: 4px 10px;
-        border-radius: 6px;
-        z-index: 1000;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-      "
-    >
-      <span style="font-size: 1rem">&larr;</span> More tools
-    </a>
-
     <div class="container">
       <header>
-        <div class="header-content">
-          <div class="title-container">
-            <img src="logo.png" alt="iNaturalist Logo" class="logo" />
-            <h1>Birds of Porto Alegre</h1>
-          </div>
-          <p class="description">The 20 most common birds in Porto Alegre, RS — Aves comuns de Porto Alegre</p>
-        </div>
+        <h1>Aves de Porto Alegre</h1>
+        <p class="birds-subtitle">As 20 aves mais comuns. Toque para ouvir o canto.</p>
       </header>
-
-      <p class="birds-intro">
-        Ranked by verifiable observations on
-        <a href="https://www.inaturalist.org/observations?place_id=207283&iconic_taxa=Aves&view=species" target="_blank" rel="noopener">iNaturalist</a>
-        (snapshot from October 2026). Tap a button to hear the bird — recordings are streamed from iNaturalist.
-      </p>
 
       <main class="birds-grid" id="birdsGrid"></main>
 
-      <p class="birds-footer">
-        Photos and recordings belong to their authors and are shared under the licenses shown, via
-        <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a>.
-      </p>
+      <details class="birds-credits">
+        <summary>Créditos das fotos e sons (iNaturalist)</summary>
+        <ul id="birdsCredits"></ul>
+      </details>
     </div>
 
     <script>
       const BIRDS = [
         {
-          "id": 4867,
-          "sci": "Vanellus chilensis",
           "pt": "Quero-quero",
-          "en": "Southern Lapwing",
-          "count": 649,
           "photo": "https://static.inaturalist.org/photos/601222938/medium.jpg",
           "photoAttr": "(c) Robin James, all rights reserved, uploaded by Robin James",
           "sounds": [
@@ -269,31 +166,24 @@
               "url": "https://static.inaturalist.org/sounds/71355.mp3",
               "by": "Luiza",
               "license": "cc-by-nc",
-              "obs": 42480587,
-              "place": "Maria Paula"
+              "obs": 42480587
             },
             {
               "url": "https://static.inaturalist.org/sounds/376829.mp3",
               "by": "Danilo Rosa",
               "license": "cc-by-nc",
-              "obs": 109265559,
-              "place": "Araraquara"
+              "obs": 109265559
             },
             {
               "url": "https://static.inaturalist.org/sounds/398053.mp3",
               "by": "Luciano Bernardes",
               "license": "cc-by-nc",
-              "obs": 111976228,
-              "place": "Parque Linear Nove de Julho, São Paulo - SP, Brasil"
+              "obs": 111976228
             }
           ]
         },
         {
-          "id": 12738,
-          "sci": "Turdus rufiventris",
           "pt": "Sabiá-laranjeira",
-          "en": "Rufous-bellied Thrush",
-          "count": 286,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/1507197/medium.jpg",
           "photoAttr": "(c) Nigel Voaden, some rights reserved (CC BY)",
           "sounds": [
@@ -301,31 +191,24 @@
               "url": "https://static.inaturalist.org/sounds/1199638.mp3",
               "by": "Victor",
               "license": "cc-by-nc",
-              "obs": 241409713,
-              "place": "Parque Sarapuí, Duque de Caxias - RJ, Brasil"
+              "obs": 241409713
             },
             {
               "url": "https://static.inaturalist.org/sounds/835914.mp3",
               "by": "Alan Hentz",
               "license": "cc-by-nc",
-              "obs": 188705587,
-              "place": "PAEAR"
+              "obs": 188705587
             },
             {
               "url": "https://static.inaturalist.org/sounds/471555.mp3",
               "by": "Gabriel Bonfa",
               "license": "cc-by-nc-nd",
-              "obs": 121795838,
-              "place": "Nossa Sra. da Conceição, Linhares - ES, Brasil"
+              "obs": 121795838
             }
           ]
         },
         {
-          "id": 3736,
-          "sci": "Phimosus infuscatus",
           "pt": "Tapicuru",
-          "en": "Bare-faced Ibis",
-          "count": 224,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/417897827/medium.jpg",
           "photoAttr": "(c) Bernard DUPONT, some rights reserved (CC BY-SA)",
           "sounds": [
@@ -333,24 +216,18 @@
               "url": "https://static.inaturalist.org/sounds/1762154.m4a",
               "by": "Bruno Lima",
               "license": "cc-by-nc",
-              "obs": 337931829,
-              "place": "Estância Antonio Novaes, Peruíbe - SP, 11750-000, Brasil"
+              "obs": 337931829
             },
             {
               "url": "https://static.inaturalist.org/sounds/1277131.m4a",
               "by": "Moses J. Michelsohn",
               "license": "cc-by-nc",
-              "obs": 256951632,
-              "place": "San Luis de Palenque, CO-CS, CO"
+              "obs": 256951632
             }
           ]
         },
         {
-          "id": 11275,
-          "sci": "Furnarius rufus",
           "pt": "João-de-Barro",
-          "en": "Rufous Hornero",
-          "count": 214,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/182076045/medium.jpg",
           "photoAttr": "(c) Ron Knight, some rights reserved (CC BY)",
           "sounds": [
@@ -358,31 +235,24 @@
               "url": "https://static.inaturalist.org/sounds/152119.mp3",
               "by": "Allyson Gabriel",
               "license": "cc-by-nc",
-              "obs": 65671449,
-              "place": "QS 7 - Taguatinga, Brasília - DF, 70297-400, Brasil"
+              "obs": 65671449
             },
             {
               "url": "https://static.inaturalist.org/sounds/165576.mp3",
               "by": "Palhas",
               "license": "cc-by-nc",
-              "obs": 69921241,
-              "place": "CERET"
+              "obs": 69921241
             },
             {
               "url": "https://static.inaturalist.org/sounds/1699117.mp3",
               "by": "Manequinho Correia",
               "license": "cc-by-nc",
-              "obs": 327528448,
-              "place": "Estr. Mun. do Mingu, 1700 - Parque Rio Abaixo, Atibaia - SP, 12952-720, Brasil"
+              "obs": 327528448
             }
           ]
         },
         {
-          "id": 19349,
-          "sci": "Myiopsitta monachus",
           "pt": "Caturrita",
-          "en": "Monk Parakeet",
-          "count": 210,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/101224790/medium.jpg",
           "photoAttr": "(c) Juan Emilio, some rights reserved (CC BY-SA)",
           "sounds": [
@@ -390,31 +260,24 @@
               "url": "https://static.inaturalist.org/sounds/151964.mp3",
               "by": "Néri Henrique Andrades",
               "license": "cc-by-nc",
-              "obs": 65998825,
-              "place": "Tramandaí, RS, Brasil"
+              "obs": 65998825
             },
             {
               "url": "https://static.inaturalist.org/sounds/1789794.mp3",
               "by": "amandapmarcon",
               "license": "cc-by-nc",
-              "obs": 341087756,
-              "place": "Ipiranga do Sul, RS, 99925-000, Brasil"
+              "obs": 341087756
             },
             {
               "url": "https://static.inaturalist.org/sounds/56046.mp3",
               "by": "Fernando Sessegolo",
               "license": "cc0",
-              "obs": 38072577,
-              "place": "Meu Jardim Vila Sao Francisco, Cruz Alta - RS, Brasil"
+              "obs": 38072577
             }
           ]
         },
         {
-          "id": 3439,
-          "sci": "Zenaida auriculata",
           "pt": "Avoante",
-          "en": "Eared Dove",
-          "count": 198,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/85633474/medium.jpeg",
           "photoAttr": "(c) Diego Caballero, some rights reserved (CC BY-NC), uploaded by Diego Caballero",
           "sounds": [
@@ -422,31 +285,24 @@
               "url": "https://static.inaturalist.org/sounds/897406.mp3",
               "by": "Gabriel Bonfa",
               "license": "cc-by-nc-nd",
-              "obs": 199308816,
-              "place": "Nossa Sra. da Conceição, Linhares - ES, Brasil"
+              "obs": 199308816
             },
             {
               "url": "https://static.inaturalist.org/sounds/376841.mp3",
               "by": "Danilo Rosa",
               "license": "cc-by-nc",
-              "obs": 109267982,
-              "place": "Araraquara"
+              "obs": 109267982
             },
             {
               "url": "https://static.inaturalist.org/sounds/506307.mp3",
               "by": "Rodrigo Secolin",
               "license": "cc-by-nc",
-              "obs": 127680372,
-              "place": "Jardim Rosacruz, Mogi Guaçu - SP, 13843, Brasil"
+              "obs": 127680372
             }
           ]
         },
         {
-          "id": 16956,
-          "sci": "Pitangus sulphuratus",
           "pt": "Bem-te-vi",
-          "en": "Great Kiskadee",
-          "count": 166,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/1766279/medium.jpg",
           "photoAttr": "(c) Dario Sanches, some rights reserved (CC BY-SA)",
           "sounds": [
@@ -454,31 +310,24 @@
               "url": "https://static.inaturalist.org/sounds/857258.mp3",
               "by": "Víctor de Paiva",
               "license": "cc-by-nc-nd",
-              "obs": 193340604,
-              "place": "Rio Grande do Norte, BR"
+              "obs": 193340604
             },
             {
               "url": "https://static.inaturalist.org/sounds/193005.mp3",
               "by": "Helio Lourencini",
               "license": "cc-by-nc",
-              "obs": 74886862,
-              "place": "Zona rural de Paudalho - Pernambuco"
+              "obs": 74886862
             },
             {
               "url": "https://static.inaturalist.org/sounds/1688306.mp3",
               "by": "Manequinho Correia",
               "license": "cc-by-nc",
-              "obs": 325329287,
-              "place": "Morretes, PR, 83350-000, Brasil"
+              "obs": 325329287
             }
           ]
         },
         {
-          "id": 10254,
-          "sci": "Paroaria coronata",
           "pt": "Cardeal",
-          "en": "Red-crested Cardinal",
-          "count": 156,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/313854459/medium.jpg",
           "photoAttr": "(c) GUSTAVO PASCUAS, some rights reserved (CC BY-NC), uploaded by GUSTAVO PASCUAS",
           "sounds": [
@@ -486,31 +335,24 @@
               "url": "https://static.inaturalist.org/sounds/885646.mp3",
               "by": "Letícia Baccarin",
               "license": "cc-by-nc",
-              "obs": 197799237,
-              "place": "São Domingos - SC, 89835-000, Brasil"
+              "obs": 197799237
             },
             {
               "url": "https://static.inaturalist.org/sounds/536803.mp3",
               "by": "Enéas V. Gouvêa Junior",
               "license": "cc-by-nc",
-              "obs": 135313857,
-              "place": "Parque Ecológico do Tietê, SP"
+              "obs": 135313857
             },
             {
               "url": "https://static.inaturalist.org/sounds/55801.mp3",
               "by": "Fernando Sessegolo",
               "license": "cc0",
-              "obs": 37968754,
-              "place": "Cruz Alta - RS, Brasil"
+              "obs": 37968754
             }
           ]
         },
         {
-          "id": 144455,
-          "sci": "Ardea alba",
           "pt": "Garça-branca-grande",
-          "en": "Great Egret",
-          "count": 138,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/56653891/medium.jpg",
           "photoAttr": "(c) daverowe, some rights reserved (CC BY-NC)",
           "sounds": [
@@ -518,31 +360,24 @@
               "url": "https://static.inaturalist.org/sounds/396159.mp3",
               "by": "Luciano Bernardes",
               "license": "cc-by-nc",
-              "obs": 111786005,
-              "place": "Jardim Botânico, São Paulo - SP, 04301-902, Brasil"
+              "obs": 111786005
             },
             {
               "url": "https://static.inaturalist.org/sounds/1762243.mp3",
               "by": "dbeadle",
               "license": "cc-by-nc",
-              "obs": 263343252,
-              "place": "Rio Guaviare, Guainía/Vichada, Colombia"
+              "obs": 263343252
             },
             {
               "url": "https://static.inaturalist.org/sounds/870100.mp3",
               "by": "Cristopher Rodríguez-Moreira",
               "license": "cc-by-nc",
-              "obs": 195678987,
-              "place": "Manta, Ecuador"
+              "obs": 195678987
             }
           ]
         },
         {
-          "id": 10293,
-          "sci": "Thraupis sayaca",
           "pt": "Sanhaço-cinzento",
-          "en": "Sayaca Tanager",
-          "count": 124,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/9892758/medium.jpg",
           "photoAttr": "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
           "sounds": [
@@ -550,31 +385,24 @@
               "url": "https://static.inaturalist.org/sounds/1653551.mp3",
               "by": "Manequinho Correia",
               "license": "cc-by-nc",
-              "obs": 317725019,
-              "place": "Estrada Gonçalves/ Costas km 4 Dos Onças - Costas, Paraisópolis - MG, 37680-000, Brasil"
+              "obs": 317725019
             },
             {
               "url": "https://static.inaturalist.org/sounds/376884.mp3",
               "by": "Danilo Rosa",
               "license": "cc-by-nc",
-              "obs": 109271340,
-              "place": "Araraquara"
+              "obs": 109271340
             },
             {
               "url": "https://static.inaturalist.org/sounds/151969.mp3",
               "by": "Néri Henrique Andrades",
               "license": "cc-by-nc",
-              "obs": 65938452,
-              "place": "Porto Lacustre, Osório - RS, 95520-000, Brasil"
+              "obs": 65938452
             }
           ]
         },
         {
-          "id": 1979,
-          "sci": "Guira guira",
           "pt": "Anu-branco",
-          "en": "Guira Cuckoo",
-          "count": 118,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/23659730/medium.jpg",
           "photoAttr": "(c) Josh van der Meulen, some rights reserved (CC BY-NC-ND), uploaded by Josh van der Meulen",
           "sounds": [
@@ -582,31 +410,24 @@
               "url": "https://static.inaturalist.org/sounds/620407.mp3",
               "by": "Víctor de Paiva",
               "license": "cc-by-nc-nd",
-              "obs": 151884393,
-              "place": "São José de Mipibu - RN, Brasil"
+              "obs": 151884393
             },
             {
               "url": "https://static.inaturalist.org/sounds/628433.mp3",
               "by": "Alexandre S. Michelotto",
               "license": "cc0",
-              "obs": 152942044,
-              "place": "Belém, BR-PA, BR"
+              "obs": 152942044
             },
             {
               "url": "https://static.inaturalist.org/sounds/878572.mp3",
               "by": "Breno Farias",
               "license": "cc-by-nc",
-              "obs": 196928103,
-              "place": "Cabaceiras - PB, Brasil"
+              "obs": 196928103
             }
           ]
         },
         {
-          "id": 4715,
-          "sci": "Caracara plancus",
           "pt": "Carcará",
-          "en": "Crested Caracara",
-          "count": 115,
           "photo": "https://static.inaturalist.org/photos/165701475/medium.jpg",
           "photoAttr": "(c) Dan LaVorgna, all rights reserved, uploaded by Dan LaVorgna",
           "sounds": [
@@ -614,31 +435,24 @@
               "url": "https://static.inaturalist.org/sounds/193261.mp3",
               "by": "Helio Lourencini",
               "license": "cc-by-nc",
-              "obs": 74924043,
-              "place": "Zona rural de Paudalho - Pernambuco"
+              "obs": 74924043
             },
             {
               "url": "https://static.inaturalist.org/sounds/889462.mp3",
               "by": "Gabriel Bonfa",
               "license": "cc-by-nc-nd",
-              "obs": 198389031,
-              "place": "Linhares, ES, Brasil"
+              "obs": 198389031
             },
             {
               "url": "https://static.inaturalist.org/sounds/1700154.mp3",
               "by": "Gabriela Dornfeld",
               "license": "cc-by-nc",
-              "obs": 327764357,
-              "place": "SHCN SQN 412 BL C - Asa Norte, Brasília - DF, 70867-030, Brasil"
+              "obs": 327764357
             }
           ]
         },
         {
-          "id": 9864,
-          "sci": "Sicalis flaveola",
           "pt": "Canário-da-terra",
-          "en": "Saffron Finch",
-          "count": 113,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/220765971/medium.jpg",
           "photoAttr": "(c) Alejandro  Bayer Tamayo, some rights reserved (CC BY-SA)",
           "sounds": [
@@ -646,31 +460,24 @@
               "url": "https://static.inaturalist.org/sounds/1664518.mp3",
               "by": "amandapmarcon",
               "license": "cc-by-nc",
-              "obs": 320181792,
-              "place": "Getúlio Vargas, RS, 99900-000, Brasil"
+              "obs": 320181792
             },
             {
               "url": "https://static.inaturalist.org/sounds/588719.mp3",
               "by": "Douglas",
               "license": "cc-by",
-              "obs": 147322980,
-              "place": "Núcleo Rural Córrego Urubu - Lago Norte, Brasília - DF, 70297-400, Brasil"
+              "obs": 147322980
             },
             {
               "url": "https://static.inaturalist.org/sounds/55733.mp3",
               "by": "Fernando Sessegolo",
               "license": "cc0",
-              "obs": 37944542,
-              "place": "Meu Jardim Vila Sao Francisco, Cruz Alta - RS, Brasil"
+              "obs": 37944542
             }
           ]
         },
         {
-          "id": 458,
-          "sci": "Aramides saracura",
           "pt": "Saracura-do-mato",
-          "en": "Slaty-breasted Wood-Rail",
-          "count": 109,
           "photo": "https://static.inaturalist.org/photos/38306077/medium.jpg",
           "photoAttr": "(c) Eden Fontes, all rights reserved, uploaded by Eden Fontes",
           "sounds": [
@@ -678,31 +485,24 @@
               "url": "https://static.inaturalist.org/sounds/380572.mp3",
               "by": "Rodrigo Paiva Lázaro",
               "license": "cc-by",
-              "obs": 109762012,
-              "place": "Cotia - SP, Brasil"
+              "obs": 109762012
             },
             {
               "url": "https://static.inaturalist.org/sounds/1633080.mp3",
               "by": "Juliano Marques",
               "license": "cc-by-nc",
-              "obs": 313210557,
-              "place": "Pindamonhangaba - SP, 12446, Brasil"
+              "obs": 313210557
             },
             {
               "url": "https://static.inaturalist.org/sounds/1613569.mp3",
               "by": "amandapmarcon",
               "license": "cc-by-nc",
-              "obs": 308531402,
-              "place": "BR-285 - Vila Victor Issler, Passo Fundo - RS, 99042-800, Brasil"
+              "obs": 308531402
             }
           ]
         },
         {
-          "id": 10199,
-          "sci": "Coereba flaveola",
           "pt": "Cambacica",
-          "en": "Bananaquit",
-          "count": 106,
           "photo": "https://static.inaturalist.org/photos/207544720/medium.jpg",
           "photoAttr": "(c) Mason Maron, all rights reserved, uploaded by Mason Maron",
           "sounds": [
@@ -710,31 +510,24 @@
               "url": "https://static.inaturalist.org/sounds/1225624.mp3",
               "by": "Victor",
               "license": "cc-by-nc",
-              "obs": 246504874,
-              "place": "Parque Sarapuí, Duque de Caxias - RJ, Brasil"
+              "obs": 246504874
             },
             {
               "url": "https://static.inaturalist.org/sounds/196105.mp3",
               "by": "Helio Lourencini",
               "license": "cc-by-nc",
-              "obs": 75356566,
-              "place": "Zona rural de Paudalho - Pernambuco"
+              "obs": 75356566
             },
             {
               "url": "https://static.inaturalist.org/sounds/366408.mp3",
               "by": "Pedro Henrique Maloso Ramos",
               "license": "cc-by",
-              "obs": 108028124,
-              "place": "Piracicaba - SP, Brasil"
+              "obs": 108028124
             }
           ]
         },
         {
-          "id": 10371,
-          "sci": "Molothrus bonariensis",
           "pt": "Chupim",
-          "en": "Shiny Cowbird",
-          "count": 105,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/158695164/medium.jpg",
           "photoAttr": "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
           "sounds": [
@@ -742,31 +535,24 @@
               "url": "https://static.inaturalist.org/sounds/1624656.mp3",
               "by": "amandapmarcon",
               "license": "cc-by-nc",
-              "obs": 311317827,
-              "place": "Getúlio Vargas, RS, 99900-000, Brasil"
+              "obs": 311317827
             },
             {
               "url": "https://static.inaturalist.org/sounds/396825.mp3",
               "by": "Luciano Bernardes",
               "license": "cc-by-nc",
-              "obs": 111853835,
-              "place": "Caconde, SP, 13770-000, Brasil"
+              "obs": 111853835
             },
             {
               "url": "https://static.inaturalist.org/sounds/1097130.mp3",
               "by": "Lucas Klitzke",
               "license": "cc-by-nc",
-              "obs": 223201180,
-              "place": "Dr. Pedrinho - SC, 89126-000, Brasil"
+              "obs": 223201180
             }
           ]
         },
         {
-          "id": 18262,
-          "sci": "Colaptes campestris",
           "pt": "Pica-pau-do-campo",
-          "en": "Campo Flicker",
-          "count": 102,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/169149980/medium.jpg",
           "photoAttr": "(c) Dave Curtis, some rights reserved (CC BY-NC-ND)",
           "sounds": [
@@ -774,31 +560,24 @@
               "url": "https://static.inaturalist.org/sounds/376874.mp3",
               "by": "Danilo Rosa",
               "license": "cc-by-nc",
-              "obs": 109270230,
-              "place": "Araraquara"
+              "obs": 109270230
             },
             {
               "url": "https://static.inaturalist.org/sounds/859688.mp3",
               "by": "Gabriel Bonfa",
               "license": "cc-by-nc-nd",
-              "obs": 193896798,
-              "place": "Linhares, ES, Brasil"
+              "obs": 193896798
             },
             {
               "url": "https://static.inaturalist.org/sounds/462469.mp3",
               "by": "Observações Naturalistas | Bruno Uehara",
               "license": "cc-by-nc",
-              "obs": 120375349,
-              "place": "São Paulo, SP, Brasil"
+              "obs": 120375349
             }
           ]
         },
         {
-          "id": 1289601,
-          "sci": "Nannopterum brasilianum",
           "pt": "Biguá",
-          "en": "Neotropic Cormorant",
-          "count": 99,
           "photo": "https://static.inaturalist.org/photos/48364706/medium.jpg",
           "photoAttr": "(c) Luis Mauricio Mena Páramo, all rights reserved, uploaded by Luis Mauricio Mena Páramo",
           "sounds": [
@@ -806,31 +585,24 @@
               "url": "https://static.inaturalist.org/sounds/1762939.mp3",
               "by": "J. Ribamar S. Amarante",
               "license": "cc-by-nc",
-              "obs": 337552124,
-              "place": "Floriano - PI, 64800-000, Brasil"
+              "obs": 337552124
             },
             {
               "url": "https://static.inaturalist.org/sounds/396725.mp3",
               "by": "Luciano Bernardes",
               "license": "cc-by-nc",
-              "obs": 111843153,
-              "place": "Vila Santo Henrique, São Paulo - SP, Brasil"
+              "obs": 111843153
             },
             {
               "url": "https://static.inaturalist.org/sounds/1799981.mp3",
               "by": "amandapmarcon",
               "license": "cc-by-nc",
-              "obs": 342239240,
-              "place": "Getúlio Vargas, RS, 99900-000, Brasil"
+              "obs": 342239240
             }
           ]
         },
         {
-          "id": 4765,
-          "sci": "Coragyps atratus",
           "pt": "Urubu-preto",
-          "en": "Black Vulture",
-          "count": 98,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/176419188/medium.jpg",
           "photoAttr": "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
           "sounds": [
@@ -838,31 +610,24 @@
               "url": "https://static.inaturalist.org/sounds/1335719.mp3",
               "by": "Alisson",
               "license": "cc-by-nc",
-              "obs": 250954620,
-              "place": "Chã de Alegria - PE, Brasil"
+              "obs": 250954620
             },
             {
               "url": "https://static.inaturalist.org/sounds/70622.mp3",
               "by": "David Monroy R",
               "license": "cc-by-nc",
-              "obs": 42291785,
-              "place": "DCS Barbas-Bremen, Circuito Turístico Sur Oriente, Pereira, Risaralda, Colombia"
+              "obs": 42291785
             },
             {
               "url": "https://static.inaturalist.org/sounds/2164868.m4a",
               "by": "Marcello Mastroianni Albuquerque Araújo",
               "license": "cc-by",
-              "obs": 401399454,
-              "place": "Pará, Santa Cruz do Capibaribe - PE, 55190-000, Brasil"
+              "obs": 401399454
             }
           ]
         },
         {
-          "id": 4981,
-          "sci": "Nycticorax nycticorax",
           "pt": "Savacu",
-          "en": "Black-crowned Night Heron",
-          "count": 94,
           "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/49357930/medium.jpg",
           "photoAttr": "no rights reserved, uploaded by Kyle Nessen",
           "sounds": [
@@ -870,22 +635,19 @@
               "url": "https://static.inaturalist.org/sounds/398124.mp3",
               "by": "Luciano Bernardes",
               "license": "cc-by-nc",
-              "obs": 111981053,
-              "place": "Horto Florestal, São Paulo - SP, 02377-000, Brasil"
+              "obs": 111981053
             },
             {
               "url": "https://static.inaturalist.org/sounds/512778.mp3",
               "by": "José Vinícius de Medeiros",
               "license": "cc-by-nc-sa",
-              "obs": 129126813,
-              "place": "Ouro Branco - RN, Brasil"
+              "obs": 129126813
             },
             {
               "url": "https://static.inaturalist.org/sounds/890191.mp3",
               "by": "Gabriel Bonfa",
               "license": "cc-by-nc-nd",
-              "obs": 198488365,
-              "place": "Itinga - MG, 39610-000, Brasil"
+              "obs": 198488365
             }
           ]
         }
@@ -926,7 +688,7 @@
         if (!activeBtn) return;
         activeBtn.classList.remove("is-loading");
         activeBtn.classList.add("playing");
-        activeBtn.textContent = "⏸ Pause";
+        activeBtn.textContent = "⏸ Pausar";
       });
       player.addEventListener("ended", () => {
         resetBtn(activeBtn);
@@ -936,7 +698,7 @@
         if (!activeBtn) return;
         activeBtn.classList.remove("playing", "is-loading");
         activeBtn.classList.add("failed");
-        activeBtn.textContent = "Unavailable";
+        activeBtn.textContent = "Indisponível";
         activeBtn.disabled = true;
         activeBtn = null;
       });
@@ -952,52 +714,53 @@
         resetBtn(activeBtn);
         activeBtn = btn;
         btn.classList.add("is-loading");
-        btn.textContent = "Loading…";
+        btn.textContent = "…";
         player.src = btn.dataset.src;
         player.play().catch(() => {});
       }
 
-      function renderBird(bird, i) {
-        const inatUrl = `https://www.inaturalist.org/taxa/${bird.id}`;
-        const img = el("img", { src: bird.photo, alt: `${bird.pt} (${bird.sci})`, loading: "lazy" });
-        const photo = el("div", { class: "bird-photo" }, [img, el("span", { class: "bird-rank", text: `#${i + 1}` })]);
+      function renderBird(bird) {
+        const buttons = bird.sounds.map((s, j) => {
+          const label = `▶ Canto ${j + 1}`;
+          const btn = el("button", { class: "play-btn", type: "button", "data-src": s.url, "data-label": label, text: label });
+          btn.title = `Gravação: ${s.by}`;
+          btn.addEventListener("click", () => toggle(btn));
+          return btn;
+        });
 
-        const nameLink = el("a", { href: inatUrl, target: "_blank", rel: "noopener", text: bird.pt });
-        const sub = el("div", { class: "bird-sub" });
-        sub.appendChild(document.createTextNode(`${bird.en} · `));
-        sub.appendChild(el("em", { text: bird.sci }));
-
-        const sounds = el(
-          "div",
-          { class: "bird-sounds" },
-          bird.sounds.map((s, j) => {
-            const label = `▶ Song ${j + 1}`;
-            const btn = el("button", { class: "play-btn", type: "button", "data-src": s.url, "data-label": label, text: label });
-            btn.setAttribute("aria-label", `Play recording ${j + 1} of ${bird.en}`);
-            btn.addEventListener("click", () => toggle(btn));
-            const credit = el("span", { class: "sound-credit" });
-            credit.appendChild(document.createTextNode(`${s.by} · ${LICENSES[s.license] || s.license} · `));
-            credit.appendChild(
-              el("a", { href: `https://www.inaturalist.org/observations/${s.obs}`, target: "_blank", rel: "noopener", text: "source" })
-            );
-            credit.title = s.place;
-            return el("div", { class: "sound-row" }, [btn, credit]);
-          })
-        );
-
-        const body = el("div", { class: "bird-body" }, [
-          el("div", { class: "bird-name" }, [nameLink]),
-          sub,
-          el("div", { class: "bird-count", text: `${bird.count.toLocaleString()} observations in Porto Alegre` }),
-          sounds,
-          el("div", { class: "photo-credit", text: `Photo: ${bird.photoAttr}` }),
+        return el("article", { class: "bird-card" }, [
+          el("img", { src: bird.photo, alt: bird.pt, title: bird.photoAttr, loading: "lazy" }),
+          el("div", { class: "bird-body" }, [
+            el("div", { class: "bird-name", text: bird.pt }),
+            el("div", { class: "bird-sounds" }, buttons),
+          ]),
         ]);
+      }
 
-        return el("article", { class: "bird-card" }, [photo, body]);
+      function renderCredits(bird) {
+        const li = el("li");
+        li.appendChild(el("strong", { text: `${bird.pt}: ` }));
+        li.appendChild(document.createTextNode(`foto ${bird.photoAttr}; cantos `));
+        bird.sounds.forEach((s, j) => {
+          if (j) li.appendChild(document.createTextNode(", "));
+          li.appendChild(
+            el("a", {
+              href: `https://www.inaturalist.org/observations/${s.obs}`,
+              target: "_blank",
+              rel: "noopener",
+              text: `${s.by} (${LICENSES[s.license] || s.license})`,
+            })
+          );
+        });
+        return li;
       }
 
       const grid = document.getElementById("birdsGrid");
-      BIRDS.forEach((bird, i) => grid.appendChild(renderBird(bird, i)));
+      const credits = document.getElementById("birdsCredits");
+      BIRDS.forEach((bird) => {
+        grid.appendChild(renderBird(bird));
+        credits.appendChild(renderCredits(bird));
+      });
     </script>
     <script defer data-domain="glauberramos.github.io/inat" src="https://plausible.io/js/script.js"></script>
     <script src="dark-mode.js?v=2"></script>
