@@ -210,573 +210,8 @@
       </details>
     </div>
 
+    <script src="birds-porto-alegre-data.js"></script>
     <script>
-      const BIRDS = [
-        {
-          "pt": "Quero-quero",
-          "photo": "https://static.inaturalist.org/photos/601222938/medium.jpg",
-          "photoAttr": "(c) Robin James, all rights reserved, uploaded by Robin James",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/71355.mp3",
-              "spec": "71355",
-              "by": "Luiza",
-              "license": "cc-by-nc",
-              "obs": 42480587
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/376829.mp3",
-              "spec": "376829",
-              "by": "Danilo Rosa",
-              "license": "cc-by-nc",
-              "obs": 109265559
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/398053.mp3",
-              "spec": "398053",
-              "by": "Luciano Bernardes",
-              "license": "cc-by-nc",
-              "obs": 111976228
-            }
-          ]
-        },
-        {
-          "pt": "Sabiá-laranjeira",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/1507197/medium.jpg",
-          "photoAttr": "(c) Nigel Voaden, some rights reserved (CC BY)",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/1199638.mp3",
-              "spec": "1199638",
-              "by": "Victor",
-              "license": "cc-by-nc",
-              "obs": 241409713
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/835914.mp3",
-              "spec": "835914",
-              "by": "Alan Hentz",
-              "license": "cc-by-nc",
-              "obs": 188705587
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/471555.mp3",
-              "spec": "471555",
-              "by": "Gabriel Bonfa",
-              "license": "cc-by-nc-nd",
-              "obs": 121795838
-            }
-          ]
-        },
-        {
-          "pt": "Tapicuru",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/417897827/medium.jpg",
-          "photoAttr": "(c) Bernard DUPONT, some rights reserved (CC BY-SA)",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/1762154.m4a",
-              "spec": "1762154",
-              "by": "Bruno Lima",
-              "license": "cc-by-nc",
-              "obs": 337931829
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/1277131.m4a",
-              "spec": "1277131",
-              "by": "Moses J. Michelsohn",
-              "license": "cc-by-nc",
-              "obs": 256951632
-            }
-          ]
-        },
-        {
-          "pt": "João-de-Barro",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/182076045/medium.jpg",
-          "photoAttr": "(c) Ron Knight, some rights reserved (CC BY)",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/152119.mp3",
-              "spec": "152119",
-              "by": "Allyson Gabriel",
-              "license": "cc-by-nc",
-              "obs": 65671449
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/165576.mp3",
-              "spec": "165576",
-              "by": "Palhas",
-              "license": "cc-by-nc",
-              "obs": 69921241
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/1699117.mp3",
-              "spec": "1699117",
-              "by": "Manequinho Correia",
-              "license": "cc-by-nc",
-              "obs": 327528448
-            }
-          ]
-        },
-        {
-          "pt": "Caturrita",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/101224790/medium.jpg",
-          "photoAttr": "(c) Juan Emilio, some rights reserved (CC BY-SA)",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/151964.mp3",
-              "spec": "151964",
-              "by": "Néri Henrique Andrades",
-              "license": "cc-by-nc",
-              "obs": 65998825
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/1789794.mp3",
-              "spec": "1789794",
-              "by": "amandapmarcon",
-              "license": "cc-by-nc",
-              "obs": 341087756
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/56046.mp3",
-              "spec": "56046",
-              "by": "Fernando Sessegolo",
-              "license": "cc0",
-              "obs": 38072577
-            }
-          ]
-        },
-        {
-          "pt": "Avoante",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/85633474/medium.jpeg",
-          "photoAttr": "(c) Diego Caballero, some rights reserved (CC BY-NC), uploaded by Diego Caballero",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/897406.mp3",
-              "spec": "897406",
-              "by": "Gabriel Bonfa",
-              "license": "cc-by-nc-nd",
-              "obs": 199308816
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/376841.mp3",
-              "spec": "376841",
-              "by": "Danilo Rosa",
-              "license": "cc-by-nc",
-              "obs": 109267982
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/506307.mp3",
-              "spec": "506307",
-              "by": "Rodrigo Secolin",
-              "license": "cc-by-nc",
-              "obs": 127680372
-            }
-          ]
-        },
-        {
-          "pt": "Bem-te-vi",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/1766279/medium.jpg",
-          "photoAttr": "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/857258.mp3",
-              "spec": "857258",
-              "by": "Víctor de Paiva",
-              "license": "cc-by-nc-nd",
-              "obs": 193340604
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/193005.mp3",
-              "spec": "193005",
-              "by": "Helio Lourencini",
-              "license": "cc-by-nc",
-              "obs": 74886862
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/1688306.mp3",
-              "spec": "1688306",
-              "by": "Manequinho Correia",
-              "license": "cc-by-nc",
-              "obs": 325329287
-            }
-          ]
-        },
-        {
-          "pt": "Cardeal",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/313854459/medium.jpg",
-          "photoAttr": "(c) GUSTAVO PASCUAS, some rights reserved (CC BY-NC), uploaded by GUSTAVO PASCUAS",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/885646.mp3",
-              "spec": "885646",
-              "by": "Letícia Baccarin",
-              "license": "cc-by-nc",
-              "obs": 197799237
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/536803.mp3",
-              "spec": "536803",
-              "by": "Enéas V. Gouvêa Junior",
-              "license": "cc-by-nc",
-              "obs": 135313857
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/55801.mp3",
-              "spec": "55801",
-              "by": "Fernando Sessegolo",
-              "license": "cc0",
-              "obs": 37968754
-            }
-          ]
-        },
-        {
-          "pt": "Garça-branca-grande",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/56653891/medium.jpg",
-          "photoAttr": "(c) daverowe, some rights reserved (CC BY-NC)",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/396159.mp3",
-              "spec": "396159",
-              "by": "Luciano Bernardes",
-              "license": "cc-by-nc",
-              "obs": 111786005
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/1762243.mp3",
-              "spec": "1762243",
-              "by": "dbeadle",
-              "license": "cc-by-nc",
-              "obs": 263343252
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/870100.mp3",
-              "spec": "870100",
-              "by": "Cristopher Rodríguez-Moreira",
-              "license": "cc-by-nc",
-              "obs": 195678987
-            }
-          ]
-        },
-        {
-          "pt": "Sanhaço-cinzento",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/9892758/medium.jpg",
-          "photoAttr": "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/1653551.mp3",
-              "spec": "1653551",
-              "by": "Manequinho Correia",
-              "license": "cc-by-nc",
-              "obs": 317725019
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/376884.mp3",
-              "spec": "376884",
-              "by": "Danilo Rosa",
-              "license": "cc-by-nc",
-              "obs": 109271340
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/151969.mp3",
-              "spec": "151969",
-              "by": "Néri Henrique Andrades",
-              "license": "cc-by-nc",
-              "obs": 65938452
-            }
-          ]
-        },
-        {
-          "pt": "Anu-branco",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/23659730/medium.jpg",
-          "photoAttr": "(c) Josh van der Meulen, some rights reserved (CC BY-NC-ND), uploaded by Josh van der Meulen",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/620407.mp3",
-              "spec": "620407",
-              "by": "Víctor de Paiva",
-              "license": "cc-by-nc-nd",
-              "obs": 151884393
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/628433.mp3",
-              "spec": "628433",
-              "by": "Alexandre S. Michelotto",
-              "license": "cc0",
-              "obs": 152942044
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/878572.mp3",
-              "spec": "878572",
-              "by": "Breno Farias",
-              "license": "cc-by-nc",
-              "obs": 196928103
-            }
-          ]
-        },
-        {
-          "pt": "Carcará",
-          "photo": "https://static.inaturalist.org/photos/165701475/medium.jpg",
-          "photoAttr": "(c) Dan LaVorgna, all rights reserved, uploaded by Dan LaVorgna",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/193261.mp3",
-              "spec": "193261",
-              "by": "Helio Lourencini",
-              "license": "cc-by-nc",
-              "obs": 74924043
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/889462.mp3",
-              "spec": "889462",
-              "by": "Gabriel Bonfa",
-              "license": "cc-by-nc-nd",
-              "obs": 198389031
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/1700154.mp3",
-              "spec": "1700154",
-              "by": "Gabriela Dornfeld",
-              "license": "cc-by-nc",
-              "obs": 327764357
-            },
-            {
-              "url": "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/42754231/audio",
-              "spec": "ml42754231",
-              "ml": 42754231
-            },
-            {
-              "url": "https://cdn.download.ams.birds.cornell.edu/api/v1/asset/132654/audio",
-              "spec": "ml132654",
-              "ml": 132654
-            }
-          ]
-        },
-        {
-          "pt": "Canário-da-terra",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/220765971/medium.jpg",
-          "photoAttr": "(c) Alejandro  Bayer Tamayo, some rights reserved (CC BY-SA)",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/1664518.mp3",
-              "spec": "1664518",
-              "by": "amandapmarcon",
-              "license": "cc-by-nc",
-              "obs": 320181792
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/588719.mp3",
-              "spec": "588719",
-              "by": "Douglas",
-              "license": "cc-by",
-              "obs": 147322980
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/55733.mp3",
-              "spec": "55733",
-              "by": "Fernando Sessegolo",
-              "license": "cc0",
-              "obs": 37944542
-            }
-          ]
-        },
-        {
-          "pt": "Saracura-do-mato",
-          "photo": "https://static.inaturalist.org/photos/38306077/medium.jpg",
-          "photoAttr": "(c) Eden Fontes, all rights reserved, uploaded by Eden Fontes",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/380572.mp3",
-              "spec": "380572",
-              "by": "Rodrigo Paiva Lázaro",
-              "license": "cc-by",
-              "obs": 109762012
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/1633080.mp3",
-              "spec": "1633080",
-              "by": "Juliano Marques",
-              "license": "cc-by-nc",
-              "obs": 313210557
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/1613569.mp3",
-              "spec": "1613569",
-              "by": "amandapmarcon",
-              "license": "cc-by-nc",
-              "obs": 308531402
-            }
-          ]
-        },
-        {
-          "pt": "Cambacica",
-          "photo": "https://static.inaturalist.org/photos/207544720/medium.jpg",
-          "photoAttr": "(c) Mason Maron, all rights reserved, uploaded by Mason Maron",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/1225624.mp3",
-              "spec": "1225624",
-              "by": "Victor",
-              "license": "cc-by-nc",
-              "obs": 246504874
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/196105.mp3",
-              "spec": "196105",
-              "by": "Helio Lourencini",
-              "license": "cc-by-nc",
-              "obs": 75356566
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/366408.mp3",
-              "spec": "366408",
-              "by": "Pedro Henrique Maloso Ramos",
-              "license": "cc-by",
-              "obs": 108028124
-            }
-          ]
-        },
-        {
-          "pt": "Chupim",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/158695164/medium.jpg",
-          "photoAttr": "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/1624656.mp3",
-              "spec": "1624656",
-              "by": "amandapmarcon",
-              "license": "cc-by-nc",
-              "obs": 311317827
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/396825.mp3",
-              "spec": "396825",
-              "by": "Luciano Bernardes",
-              "license": "cc-by-nc",
-              "obs": 111853835
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/1097130.mp3",
-              "spec": "1097130",
-              "by": "Lucas Klitzke",
-              "license": "cc-by-nc",
-              "obs": 223201180
-            }
-          ]
-        },
-        {
-          "pt": "Pica-pau-do-campo",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/169149980/medium.jpg",
-          "photoAttr": "(c) Dave Curtis, some rights reserved (CC BY-NC-ND)",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/376874.mp3",
-              "spec": "376874",
-              "by": "Danilo Rosa",
-              "license": "cc-by-nc",
-              "obs": 109270230
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/859688.mp3",
-              "spec": "859688",
-              "by": "Gabriel Bonfa",
-              "license": "cc-by-nc-nd",
-              "obs": 193896798
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/462469.mp3",
-              "spec": "462469",
-              "by": "Observações Naturalistas | Bruno Uehara",
-              "license": "cc-by-nc",
-              "obs": 120375349
-            }
-          ]
-        },
-        {
-          "pt": "Biguá",
-          "photo": "https://static.inaturalist.org/photos/48364706/medium.jpg",
-          "photoAttr": "(c) Luis Mauricio Mena Páramo, all rights reserved, uploaded by Luis Mauricio Mena Páramo",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/1762939.mp3",
-              "spec": "1762939",
-              "by": "J. Ribamar S. Amarante",
-              "license": "cc-by-nc",
-              "obs": 337552124
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/396725.mp3",
-              "spec": "396725",
-              "by": "Luciano Bernardes",
-              "license": "cc-by-nc",
-              "obs": 111843153
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/1799981.mp3",
-              "spec": "1799981",
-              "by": "amandapmarcon",
-              "license": "cc-by-nc",
-              "obs": 342239240
-            }
-          ]
-        },
-        {
-          "pt": "Urubu-preto",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/176419188/medium.jpg",
-          "photoAttr": "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/1335719.mp3",
-              "spec": "1335719",
-              "by": "Alisson",
-              "license": "cc-by-nc",
-              "obs": 250954620
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/70622.mp3",
-              "spec": "70622",
-              "by": "David Monroy R",
-              "license": "cc-by-nc",
-              "obs": 42291785
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/2164868.m4a",
-              "spec": "2164868",
-              "by": "Marcello Mastroianni Albuquerque Araújo",
-              "license": "cc-by",
-              "obs": 401399454
-            }
-          ]
-        },
-        {
-          "pt": "Savacu",
-          "photo": "https://inaturalist-open-data.s3.amazonaws.com/photos/49357930/medium.jpg",
-          "photoAttr": "no rights reserved, uploaded by Kyle Nessen",
-          "sounds": [
-            {
-              "url": "https://static.inaturalist.org/sounds/398124.mp3",
-              "spec": "398124",
-              "by": "Luciano Bernardes",
-              "license": "cc-by-nc",
-              "obs": 111981053
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/512778.mp3",
-              "spec": "512778",
-              "by": "José Vinícius de Medeiros",
-              "license": "cc-by-nc-sa",
-              "obs": 129126813
-            },
-            {
-              "url": "https://static.inaturalist.org/sounds/890191.mp3",
-              "spec": "890191",
-              "by": "Gabriel Bonfa",
-              "license": "cc-by-nc-nd",
-              "obs": 198488365
-            }
-          ]
-        }
-      ];
-
       const LICENSES = {
         cc0: "CC0",
         "cc-by": "CC BY",
@@ -802,21 +237,33 @@
       player.preload = "none";
       let active = null; // { card, btn } currently loaded in the player
 
+      const BIRDS = BIRDS_PORTO_ALEGRE;
+
+      function audioUrl(sound) {
+        if (sound.source === "macaulay") {
+          return `https://cdn.download.ams.birds.cornell.edu/api/v1/asset/${sound.ml}/audio`;
+        }
+        return sound.audio;
+      }
+
+      // Pre-rendered by scripts/bird-spectrograms.py
       function specUrl(sound) {
-        return `images/birds-porto-alegre/${sound.spec}.webp`;
+        const name = sound.source === "macaulay" ? `ml${sound.ml}` : sound.audio.split("/").pop().replace(/\.\w+$/, "");
+        return `images/birds-porto-alegre/${name}.webp`;
       }
 
       // Recordings come from iNaturalist or the Macaulay Library (eBird/Merlin).
       function soundCredit(sound) {
-        if (sound.ml) {
+        if (sound.source === "macaulay") {
+          const by = sound.recordist ? `${sound.recordist} · ` : "";
           return {
-            text: `Macaulay Library ML${sound.ml}`,
+            text: `${by}Macaulay Library ML${sound.ml}`,
             href: `https://macaulaylibrary.org/asset/${sound.ml}`,
           };
         }
         return {
-          text: `${sound.by} · ${LICENSES[sound.license] || sound.license}`,
-          href: `https://www.inaturalist.org/observations/${sound.obs}`,
+          text: `${sound.recordist} · ${LICENSES[sound.license] || sound.license}`,
+          href: `https://www.inaturalist.org/observations/${sound.observation}`,
         };
       }
 
@@ -921,12 +368,14 @@
         const card = { bird, selected: 0 };
         card.buttons = bird.sounds.map((s, j) => {
           const label = `▶ Canto ${j + 1}`;
-          const btn = el("button", { class: "play-btn", type: "button", "data-src": s.url, "data-label": label, text: label });
+          const btn = el("button", { class: "play-btn", type: "button", "data-src": audioUrl(s), "data-label": label, text: label });
           btn.title = `Gravação: ${soundCredit(s).text}`;
           btn.addEventListener("click", () => onButton(card, j));
           return btn;
         });
-        card.specImg = el("img", { alt: `Espectrograma do canto de ${bird.pt}`, loading: "lazy" });
+        card.specImg = el("img", { alt: `Espectrograma do canto de ${bird.name}`, loading: "lazy" });
+        card.specImg.addEventListener("error", () => (card.specImg.style.visibility = "hidden"));
+        card.specImg.addEventListener("load", () => (card.specImg.style.visibility = ""));
         card.playhead = el("div", { class: "playhead" });
         card.playhead.hidden = true;
         card.spec = el("div", { class: "spec", title: "Toque para ouvir a partir deste ponto" }, [card.specImg, card.playhead]);
@@ -935,9 +384,9 @@
         select(card, 0);
 
         return el("article", { class: "bird-card" }, [
-          el("img", { class: "bird-photo", src: bird.photo, alt: bird.pt, title: bird.photoAttr, loading: "lazy" }),
+          el("img", { class: "bird-photo", src: bird.photo, alt: bird.name, title: bird.photoCredit, loading: "lazy" }),
           el("div", { class: "bird-body" }, [
-            el("div", { class: "bird-name", text: bird.pt }),
+            el("div", { class: "bird-name", text: bird.name }),
             card.spec,
             card.credit,
             el("div", { class: "bird-sounds" }, card.buttons),
@@ -947,8 +396,8 @@
 
       function renderCredits(bird) {
         const li = el("li");
-        li.appendChild(el("strong", { text: `${bird.pt}: ` }));
-        li.appendChild(document.createTextNode(`foto ${bird.photoAttr}; cantos `));
+        li.appendChild(el("strong", { text: `${bird.name}: ` }));
+        li.appendChild(document.createTextNode(`foto ${bird.photoCredit}; cantos `));
         bird.sounds.forEach((s, j) => {
           if (j) li.appendChild(document.createTextNode(", "));
           const credit = soundCredit(s);
