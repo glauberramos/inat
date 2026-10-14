@@ -40,7 +40,7 @@
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       }
-      .bird-card img {
+      .bird-photo {
         width: 100%;
         aspect-ratio: 4 / 3;
         object-fit: cover;
@@ -54,7 +54,32 @@
         font-size: 1.25rem;
         font-weight: 700;
         color: #2c3e50;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
+      }
+      .spec {
+        position: relative;
+        aspect-ratio: 4 / 1;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #000004;
+        cursor: pointer;
+        margin-bottom: 10px;
+      }
+      .spec img {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .playhead {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 2px;
+        margin-left: -1px;
+        background: #fff;
+        box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+        pointer-events: none;
       }
       .bird-sounds {
         display: flex;
@@ -114,7 +139,7 @@
         background: #2a2a2a;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
       }
-      .dark-mode .bird-card img {
+      .dark-mode .bird-photo {
         background: #333;
       }
       .dark-mode .bird-name {
@@ -144,7 +169,7 @@
     <div class="container">
       <header>
         <h1>Aves de Porto Alegre</h1>
-        <p class="birds-subtitle">As 20 aves mais comuns. Toque para ouvir o canto.</p>
+        <p class="birds-subtitle">As 20 aves mais comuns. Toque para ouvir o canto e acompanhar no espectrograma.</p>
       </header>
 
       <main class="birds-grid" id="birdsGrid"></main>
@@ -676,63 +701,126 @@
       // One shared player: starting a recording stops whatever was playing.
       const player = document.createElement("audio");
       player.preload = "none";
-      let activeBtn = null;
+      let active = null; // { card, btn } currently loaded in the player
 
-      function resetBtn(btn) {
-        if (!btn) return;
-        btn.classList.remove("playing", "is-loading");
-        btn.textContent = btn.dataset.label;
+      function specUrl(sound) {
+        const file = sound.url.split("/").pop().replace(/\.\w+$/, ".webp");
+        return `images/birds-porto-alegre/${file}`;
+      }
+
+      function setLabel(btn, state) {
+        btn.classList.toggle("playing", state === "playing");
+        btn.classList.toggle("is-loading", state === "loading");
+        btn.textContent = state === "playing" ? "⏸ Pausar" : state === "loading" ? "…" : btn.dataset.label;
+      }
+
+      function movePlayhead() {
+        if (!active || !player.duration) return;
+        active.card.playhead.style.left = `${(player.currentTime / player.duration) * 100}%`;
+      }
+
+      function tick() {
+        movePlayhead();
+        if (active && !player.paused) requestAnimationFrame(tick);
+      }
+
+      function deactivate() {
+        if (!active) return;
+        setLabel(active.btn, "idle");
+        active.card.playhead.hidden = true;
+        active = null;
       }
 
       player.addEventListener("playing", () => {
-        if (!activeBtn) return;
-        activeBtn.classList.remove("is-loading");
-        activeBtn.classList.add("playing");
-        activeBtn.textContent = "⏸ Pausar";
+        if (!active) return;
+        setLabel(active.btn, "playing");
+        active.card.playhead.hidden = false;
+        requestAnimationFrame(tick);
       });
-      player.addEventListener("ended", () => {
-        resetBtn(activeBtn);
-        activeBtn = null;
+      player.addEventListener("pause", () => {
+        if (active && !active.btn.classList.contains("is-loading")) setLabel(active.btn, "idle");
       });
+      player.addEventListener("seeked", movePlayhead);
+      player.addEventListener("ended", deactivate);
       player.addEventListener("error", () => {
-        if (!activeBtn) return;
-        activeBtn.classList.remove("playing", "is-loading");
-        activeBtn.classList.add("failed");
-        activeBtn.textContent = "Indisponível";
-        activeBtn.disabled = true;
-        activeBtn = null;
+        if (!active) return;
+        const btn = active.btn;
+        deactivate();
+        btn.classList.add("failed");
+        btn.textContent = "Indisponível";
+        btn.disabled = true;
       });
 
-      function toggle(btn) {
-        if (activeBtn === btn) {
-          player.pause();
-          resetBtn(btn);
-          activeBtn = null;
-          return;
-        }
+      function select(card, j) {
+        card.selected = j;
+        card.specImg.src = specUrl(card.bird.sounds[j]);
+        card.playhead.style.left = "0%";
+      }
+
+      function start(card, j, fraction) {
+        const btn = card.buttons[j];
         player.pause();
-        resetBtn(activeBtn);
-        activeBtn = btn;
-        btn.classList.add("is-loading");
-        btn.textContent = "…";
-        player.src = btn.dataset.src;
+        deactivate();
+        select(card, j);
+        active = { card, btn };
+        setLabel(btn, "loading");
+        const src = btn.dataset.src;
+        player.src = src;
+        if (fraction) {
+          player.addEventListener(
+            "loadedmetadata",
+            () => {
+              if (player.src === src) player.currentTime = fraction * player.duration;
+            },
+            { once: true }
+          );
+        }
         player.play().catch(() => {});
       }
 
+      function onButton(card, j) {
+        if (active && active.btn === card.buttons[j]) {
+          if (player.paused) player.play().catch(() => {});
+          else player.pause();
+        } else {
+          start(card, j, 0);
+        }
+      }
+
+      // Clicking the spectrogram jumps to that point of the recording.
+      function onSpectrogram(card, event) {
+        const rect = card.spec.getBoundingClientRect();
+        const fraction = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1);
+        if (active && active.card === card && player.duration) {
+          player.currentTime = fraction * player.duration;
+          if (player.paused) player.play().catch(() => {});
+        } else {
+          start(card, card.selected, fraction);
+        }
+      }
+
       function renderBird(bird) {
-        const buttons = bird.sounds.map((s, j) => {
+        const card = { bird, selected: 0 };
+        card.buttons = bird.sounds.map((s, j) => {
           const label = `▶ Canto ${j + 1}`;
           const btn = el("button", { class: "play-btn", type: "button", "data-src": s.url, "data-label": label, text: label });
           btn.title = `Gravação: ${s.by}`;
-          btn.addEventListener("click", () => toggle(btn));
+          btn.addEventListener("click", () => onButton(card, j));
           return btn;
         });
+        card.specImg = el("img", { alt: `Espectrograma do canto de ${bird.pt}`, loading: "lazy" });
+        card.playhead = el("div", { class: "playhead" });
+        card.playhead.hidden = true;
+        card.spec = el("div", { class: "spec", title: "Toque para ouvir a partir deste ponto" }, [card.specImg, card.playhead]);
+        card.spec.addEventListener("click", (e) => onSpectrogram(card, e));
+        select(card, 0);
 
         return el("article", { class: "bird-card" }, [
-          el("img", { src: bird.photo, alt: bird.pt, title: bird.photoAttr, loading: "lazy" }),
+          el("img", { class: "bird-photo", src: bird.photo, alt: bird.pt, title: bird.photoAttr, loading: "lazy" }),
           el("div", { class: "bird-body" }, [
             el("div", { class: "bird-name", text: bird.pt }),
-            el("div", { class: "bird-sounds" }, buttons),
+            card.spec,
+            el("div", { class: "bird-sounds" }, card.buttons),
           ]),
         ]);
       }
