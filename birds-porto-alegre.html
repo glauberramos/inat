@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
+    <title>Aves de Porto Alegre</title>
+    <link rel="icon" href="favicon.ico" />
+    <meta name="theme-color" content="#74ac00" />
+    <link rel="canonical" href="https://glauberramos.github.io/inat/birds-porto-alegre" />
+    <meta name="description" content="As 20 aves mais comuns de Porto Alegre, com fotos e cantos." />
+    <meta property="og:title" content="Aves de Porto Alegre" />
+    <meta property="og:description" content="As 20 aves mais comuns de Porto Alegre, com fotos e cantos." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://glauberramos.github.io/inat/birds-porto-alegre" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:image" content="https://glauberramos.github.io/inat/logo.png" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Glauber Ramos" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="dark-mode.css?v=8" />
+    <style>
+      .birds-subtitle {
+        text-align: center;
+        color: #666;
+        margin: 4px 0 28px;
+      }
+      .birds-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      .bird-card {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        display: grid;
+        grid-template-columns: 260px 1fr;
+      }
+      .bird-photo {
+        width: 100%;
+        height: 100%;
+        min-height: 195px;
+        object-fit: cover;
+        display: block;
+        background: #e8e8e8;
+      }
+      .bird-body {
+        padding: 16px 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 0;
+      }
+      .bird-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+      .spec {
+        position: relative;
+        aspect-ratio: 4 / 1;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #000004;
+        cursor: pointer;
+      }
+      .spec-credit {
+        font-size: 0.75rem;
+        color: #888;
+        margin: 4px 0 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .spec-credit a {
+        color: inherit;
+      }
+      .spec img {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .playhead {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 2px;
+        margin-left: -1px;
+        background: #fff;
+        box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+        pointer-events: none;
+      }
+      .bird-sounds {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .play-btn {
+        border: none;
+        background: #74ac00;
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 7px 4px;
+        flex: 1 1 84px;
+        white-space: nowrap;
+        border-radius: 8px;
+        cursor: pointer;
+        width: auto;
+        max-width: 130px;
+        transition: background 0.15s;
+      }
+      .play-btn:hover {
+        background: #5f8f00;
+      }
+      .play-btn.playing {
+        background: #e67e22;
+      }
+      .play-btn.is-loading {
+        opacity: 0.7;
+      }
+      .play-btn.failed {
+        background: #999;
+        cursor: default;
+      }
+      .birds-credits {
+        max-width: 720px;
+        margin: 36px auto 16px;
+        font-size: 0.75rem;
+        color: #888;
+      }
+      .birds-credits summary {
+        cursor: pointer;
+        text-align: center;
+      }
+      .birds-credits ul {
+        list-style: none;
+        margin-top: 10px;
+        line-height: 1.5;
+      }
+      .birds-credits a {
+        color: inherit;
+      }
+
+      .dark-mode .birds-subtitle {
+        color: #bbb;
+      }
+      .dark-mode .bird-card {
+        background: #2a2a2a;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      }
+      .dark-mode .bird-photo {
+        background: #333;
+      }
+      .dark-mode .bird-name {
+        color: #eee;
+      }
+      .dark-mode .spec-credit,
+      .dark-mode .birds-credits {
+        color: #999;
+      }
+      html.dark-mode body .play-btn.playing {
+        background: #e67e22;
+      }
+      html.dark-mode body .play-btn.failed {
+        background: #666;
+      }
+
+      @media (max-width: 640px) {
+        .bird-card {
+          grid-template-columns: 1fr;
+        }
+        .bird-photo {
+          min-height: 0;
+          aspect-ratio: 4 / 3;
+        }
+      }
+      @media (max-width: 480px) {
+        .container {
+          padding: 56px 16px 16px;
+        }
+        h1 {
+          font-size: 1.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Aves de Porto Alegre</h1>
+        <p class="birds-subtitle">As 20 aves mais comuns. Toque para ouvir o canto e acompanhar no espectrograma.</p>
+      </header>
+
+      <main class="birds-grid" id="birdsGrid"></main>
+
+      <details class="birds-credits">
+        <summary>Créditos das fotos e sons (iNaturalist)</summary>
+        <ul id="birdsCredits"></ul>
+      </details>
+    </div>
+
+    <script src="birds-porto-alegre-data.js"></script>
+    <script>
+      const LICENSES = {
+        cc0: "CC0",
+        "cc-by": "CC BY",
+        "cc-by-nc": "CC BY-NC",
+        "cc-by-sa": "CC BY-SA",
+        "cc-by-nd": "CC BY-ND",
+        "cc-by-nc-sa": "CC BY-NC-SA",
+        "cc-by-nc-nd": "CC BY-NC-ND",
+      };
+
+      function el(tag, attrs, children) {
+        const node = document.createElement(tag);
+        Object.entries(attrs || {}).forEach(([k, v]) => {
+          if (k === "text") node.textContent = v;
+          else node.setAttribute(k, v);
+        });
+        (children || []).forEach((c) => node.appendChild(c));
+        return node;
+      }
+
+      // One shared player: starting a recording stops whatever was playing.
+      const player = document.createElement("audio");
+      player.preload = "none";
+      let active = null; // { card, btn } currently loaded in the player
+
+      const BIRDS = BIRDS_PORTO_ALEGRE;
+
+      function audioUrl(sound) {
+        if (sound.source === "macaulay") {
+          return `https://cdn.download.ams.birds.cornell.edu/api/v1/asset/${sound.ml}/audio`;
+        }
+        return sound.audio;
+      }
+
+      // Pre-rendered by scripts/bird-spectrograms.py
+      function specUrl(sound) {
+        const name = sound.source === "macaulay" ? `ml${sound.ml}` : sound.audio.split("/").pop().replace(/\.\w+$/, "");
+        return `images/birds-porto-alegre/${name}.webp`;
+      }
+
+      // Recordings come from iNaturalist or the Macaulay Library (eBird/Merlin).
+      function soundCredit(sound) {
+        if (sound.source === "macaulay") {
+          const by = sound.recordist ? `${sound.recordist} · ` : "";
+          return {
+            text: `${by}Macaulay Library ML${sound.ml}`,
+            href: `https://macaulaylibrary.org/asset/${sound.ml}`,
+          };
+        }
+        return {
+          text: `${sound.recordist} · ${LICENSES[sound.license] || sound.license}`,
+          href: `https://www.inaturalist.org/observations/${sound.observation}`,
+        };
+      }
+
+      function setLabel(btn, state) {
+        btn.classList.toggle("playing", state === "playing");
+        btn.classList.toggle("is-loading", state === "loading");
+        btn.textContent = state === "playing" ? "⏸ Pausar" : state === "loading" ? "…" : btn.dataset.label;
+      }
+
+      function movePlayhead() {
+        if (!active || !player.duration) return;
+        active.card.playhead.style.left = `${(player.currentTime / player.duration) * 100}%`;
+      }
+
+      function tick() {
+        movePlayhead();
+        if (active && !player.paused) requestAnimationFrame(tick);
+      }
+
+      function deactivate() {
+        if (!active) return;
+        setLabel(active.btn, "idle");
+        active.card.playhead.hidden = true;
+        active = null;
+      }
+
+      player.addEventListener("playing", () => {
+        if (!active) return;
+        setLabel(active.btn, "playing");
+        active.card.playhead.hidden = false;
+        requestAnimationFrame(tick);
+      });
+      player.addEventListener("pause", () => {
+        if (active && !active.btn.classList.contains("is-loading")) setLabel(active.btn, "idle");
+      });
+      player.addEventListener("seeked", movePlayhead);
+      player.addEventListener("ended", deactivate);
+      player.addEventListener("error", () => {
+        if (!active) return;
+        const btn = active.btn;
+        deactivate();
+        btn.classList.add("failed");
+        btn.textContent = "Indisponível";
+        btn.disabled = true;
+      });
+
+      function select(card, j) {
+        card.selected = j;
+        const sound = card.bird.sounds[j];
+        card.specImg.src = specUrl(sound);
+        card.playhead.style.left = "0%";
+        const credit = soundCredit(sound);
+        card.credit.replaceChildren(
+          document.createTextNode("Gravação: "),
+          el("a", { href: credit.href, target: "_blank", rel: "noopener", text: credit.text })
+        );
+      }
+
+      function start(card, j, fraction) {
+        const btn = card.buttons[j];
+        player.pause();
+        deactivate();
+        select(card, j);
+        active = { card, btn };
+        setLabel(btn, "loading");
+        const src = btn.dataset.src;
+        player.src = src;
+        if (fraction) {
+          player.addEventListener(
+            "loadedmetadata",
+            () => {
+              if (player.src === src) player.currentTime = fraction * player.duration;
+            },
+            { once: true }
+          );
+        }
+        player.play().catch(() => {});
+      }
+
+      function onButton(card, j) {
+        if (active && active.btn === card.buttons[j]) {
+          if (player.paused) player.play().catch(() => {});
+          else player.pause();
+        } else {
+          start(card, j, 0);
+        }
+      }
+
+      // Clicking the spectrogram jumps to that point of the recording.
+      function onSpectrogram(card, event) {
+        const rect = card.spec.getBoundingClientRect();
+        const fraction = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1);
+        if (active && active.card === card && player.duration) {
+          player.currentTime = fraction * player.duration;
+          if (player.paused) player.play().catch(() => {});
+        } else {
+          start(card, card.selected, fraction);
+        }
+      }
+
+      function renderBird(bird) {
+        const card = { bird, selected: 0 };
+        card.buttons = bird.sounds.map((s, j) => {
+          const label = `▶ Canto ${j + 1}`;
+          const btn = el("button", { class: "play-btn", type: "button", "data-src": audioUrl(s), "data-label": label, text: label });
+          btn.title = `Gravação: ${soundCredit(s).text}`;
+          btn.addEventListener("click", () => onButton(card, j));
+          return btn;
+        });
+        card.specImg = el("img", { alt: `Espectrograma do canto de ${bird.name}`, loading: "lazy" });
+        card.specImg.addEventListener("error", () => (card.specImg.style.visibility = "hidden"));
+        card.specImg.addEventListener("load", () => (card.specImg.style.visibility = ""));
+        card.playhead = el("div", { class: "playhead" });
+        card.playhead.hidden = true;
+        card.spec = el("div", { class: "spec", title: "Toque para ouvir a partir deste ponto" }, [card.specImg, card.playhead]);
+        card.spec.addEventListener("click", (e) => onSpectrogram(card, e));
+        card.credit = el("div", { class: "spec-credit" });
+        select(card, 0);
+
+        return el("article", { class: "bird-card" }, [
+          el("img", { class: "bird-photo", src: bird.photo, alt: bird.name, title: bird.photoCredit, loading: "lazy" }),
+          el("div", { class: "bird-body" }, [
+            el("div", { class: "bird-name", text: bird.name }),
+            card.spec,
+            card.credit,
+            el("div", { class: "bird-sounds" }, card.buttons),
+          ]),
+        ]);
+      }
+
+      function renderCredits(bird) {
+        const li = el("li");
+        li.appendChild(el("strong", { text: `${bird.name}: ` }));
+        li.appendChild(document.createTextNode(`foto ${bird.photoCredit}; cantos `));
+        bird.sounds.forEach((s, j) => {
+          if (j) li.appendChild(document.createTextNode(", "));
+          const credit = soundCredit(s);
+          li.appendChild(el("a", { href: credit.href, target: "_blank", rel: "noopener", text: credit.text }));
+        });
+        return li;
+      }
+
+      const grid = document.getElementById("birdsGrid");
+      const credits = document.getElementById("birdsCredits");
+      BIRDS.forEach((bird) => {
+        grid.appendChild(renderBird(bird));
+        credits.appendChild(renderCredits(bird));
+      });
+    </script>
+    <script defer data-domain="glauberramos.github.io/inat" src="https://plausible.io/js/script.js"></script>
+    <script src="dark-mode.js?v=2"></script>
+  </body>
+</html>
