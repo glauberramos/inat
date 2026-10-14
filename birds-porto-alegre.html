@@ -72,7 +72,17 @@
         overflow: hidden;
         background: #000004;
         cursor: pointer;
-        margin-bottom: 10px;
+      }
+      .spec-credit {
+        font-size: 0.75rem;
+        color: #888;
+        margin: 4px 0 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .spec-credit a {
+        color: inherit;
       }
       .spec img {
         width: 100%;
@@ -154,6 +164,7 @@
       .dark-mode .bird-name {
         color: #eee;
       }
+      .dark-mode .spec-credit,
       .dark-mode .birds-credits {
         color: #999;
       }
@@ -771,8 +782,18 @@
 
       function select(card, j) {
         card.selected = j;
-        card.specImg.src = specUrl(card.bird.sounds[j]);
+        const sound = card.bird.sounds[j];
+        card.specImg.src = specUrl(sound);
         card.playhead.style.left = "0%";
+        card.credit.replaceChildren(
+          document.createTextNode(`Gravação: ${sound.by} · ${LICENSES[sound.license] || sound.license} · `),
+          el("a", {
+            href: `https://www.inaturalist.org/observations/${sound.obs}`,
+            target: "_blank",
+            rel: "noopener",
+            text: "iNaturalist",
+          })
+        );
       }
 
       function start(card, j, fraction) {
@@ -831,6 +852,7 @@
         card.playhead.hidden = true;
         card.spec = el("div", { class: "spec", title: "Toque para ouvir a partir deste ponto" }, [card.specImg, card.playhead]);
         card.spec.addEventListener("click", (e) => onSpectrogram(card, e));
+        card.credit = el("div", { class: "spec-credit" });
         select(card, 0);
 
         return el("article", { class: "bird-card" }, [
@@ -838,6 +860,7 @@
           el("div", { class: "bird-body" }, [
             el("div", { class: "bird-name", text: bird.pt }),
             card.spec,
+            card.credit,
             el("div", { class: "bird-sounds" }, card.buttons),
           ]),
         ]);
