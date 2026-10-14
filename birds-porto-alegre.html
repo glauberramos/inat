@@ -30,25 +30,34 @@
         margin: 4px 0 28px;
       }
       .birds-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        max-width: 960px;
+        margin: 0 auto;
       }
       .bird-card {
         background: #fff;
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        display: grid;
+        grid-template-columns: 260px 1fr;
       }
       .bird-photo {
         width: 100%;
-        aspect-ratio: 4 / 3;
+        height: 100%;
+        min-height: 195px;
         object-fit: cover;
         display: block;
         background: #e8e8e8;
       }
       .bird-body {
-        padding: 14px 16px 16px;
+        padding: 16px 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 0;
       }
       .bird-name {
         font-size: 1.25rem;
@@ -97,7 +106,7 @@
         border-radius: 8px;
         cursor: pointer;
         width: auto;
-        max-width: 110px;
+        max-width: 130px;
         transition: background 0.15s;
       }
       .play-btn:hover {
@@ -155,6 +164,15 @@
         background: #666;
       }
 
+      @media (max-width: 640px) {
+        .bird-card {
+          grid-template-columns: 1fr;
+        }
+        .bird-photo {
+          min-height: 0;
+          aspect-ratio: 4 / 3;
+        }
+      }
       @media (max-width: 480px) {
         .container {
           padding: 56px 16px 16px;
