@@ -91,7 +91,7 @@
       }
 
       .app {
-        max-width: 1000px;
+        max-width: 1240px;
         margin: 0 auto;
         padding: 0 20px 48px;
       }
@@ -155,6 +155,7 @@
       .header-actions .family-filter select {
         -webkit-appearance: none;
         appearance: none;
+        field-sizing: content; /* as wide as the chosen family, where supported */
         max-width: 100%;
         height: 100%;
         padding: 8px 34px 8px 14px;
@@ -194,15 +195,21 @@
         white-space: nowrap;
       }
 
+      /* Three birds per row on desktop, two on tablets, one on phones */
       .birds {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 20px;
       }
       .bird {
+        display: flex;
+        flex-direction: column;
         background: var(--cell);
         border-radius: 22px;
         overflow: hidden;
+      }
+      .bird[hidden] {
+        display: none; /* display: flex above would otherwise override [hidden], which the family filter uses */
       }
       .bird-photo {
         display: block;
@@ -224,6 +231,13 @@
         font-size: 15px;
         font-style: italic;
         color: var(--label-2);
+      }
+      /* The page is ordered by family; the label above the name shows which one */
+      .bird-family {
+        margin-bottom: 2px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--tint);
       }
 
       /* One recording: play button, name and time, then its spectrogram */
@@ -345,10 +359,8 @@
         margin-top: 6px;
         font-size: 12px;
         color: var(--label-2);
+        line-height: 16px;
         text-decoration: none;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
       .rec-credit:hover {
         text-decoration: underline;
@@ -564,6 +576,16 @@
         outline-offset: 2px;
       }
 
+      @media (max-width: 1000px) {
+        .birds {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 640px) {
+        .birds {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
       @media (max-width: 480px) {
         .app {
           padding: 0 16px 40px;
@@ -871,6 +893,7 @@
         return el("article", { class: "bird" }, [
           el("img", { class: "bird-photo", src: bird.photo, alt: bird.name, title: bird.photoCredit, loading: "lazy" }),
           el("div", { class: "bird-body" }, [
+            el("p", { class: "bird-family", text: BIRD_FAMILIES[bird.family] }),
             el("h2", { class: "bird-name", text: bird.name }),
             el("p", { class: "bird-sci", text: bird.scientificName }),
             ...sounds,
