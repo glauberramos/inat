@@ -522,6 +522,7 @@
         .inat-w-slideshow {
           position: relative;
           aspect-ratio: 3 / 2;
+          margin: 0 auto;
           border-radius: var(--inat-radius-sm);
           overflow: hidden;
           background: var(--inat-border);
@@ -1688,6 +1689,13 @@
       show(0);
       this.contentEl.innerHTML = "";
       this.contentEl.appendChild(wrap);
+      if (!this.fill) {
+        // Keep the 3:2 shape but narrow it (centered) so the whole widget fits the screen height
+        const chrome = Math.round(this.container.offsetHeight - wrap.offsetHeight);
+        const fitWidth = (vh) => `min(100%, max(300px, calc((${vh} - ${chrome}px) * 1.5)))`;
+        wrap.style.width = fitWidth("100vh");
+        wrap.style.width = fitWidth("100dvh"); // ignored where dvh is unsupported
+      }
       start();
     }
 
