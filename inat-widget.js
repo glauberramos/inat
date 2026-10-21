@@ -8,6 +8,10 @@
 
   const INAT_API = "https://api.inaturalist.org/v1";
   const WIDGET_HOME_URL = "https://glauberramos.github.io/inat/widget?ref=widget-embed";
+  const MAX_LIMIT = 50;
+  const SLIDESHOW_MAX_LIMIT = 1000;
+  // The API caps per_page at 200, so bigger slideshows fetch further pages as they play
+  const API_MAX_PER_PAGE = 200;
 
   function initWidgets() {
     const containers = document.querySelectorAll("[data-inat-widget]");
@@ -20,9 +24,13 @@
       this.source = container.dataset.inatSource || "";
       this.sourceType = container.dataset.inatSourceType || "user";
       this.dataType = container.dataset.inatDataType || "observations";
-      this.limit = Math.min(50, Math.max(1, parseInt(container.dataset.inatLimit) || 10));
       this.orderBy = container.dataset.inatOrderBy || "observed_on";
       this.layout = container.dataset.inatLayout || "grid";
+      const isSlideshow = this.layout === "slideshow";
+      this.limit = Math.min(
+        isSlideshow ? SLIDESHOW_MAX_LIMIT : MAX_LIMIT,
+        Math.max(1, parseInt(container.dataset.inatLimit) || 10)
+      );
       this.theme = container.dataset.inatTheme || "light";
       this.title = container.dataset.inatTitle || "";
       this.headerText = container.dataset.inatHeaderText || "";
@@ -34,7 +42,11 @@
       this.showGrade = container.dataset.inatShowGrade === "true";
       this.showLocation = container.dataset.inatShowLocation !== "false";
       this.showNotes = container.dataset.inatShowNotes === "true";
-      this.showTitle = container.dataset.inatShowTitle !== "false";
+      // Slideshow defaults to no title and always-visible names; other layouts the reverse
+      this.showTitle =
+        container.dataset.inatShowTitle !== undefined
+          ? container.dataset.inatShowTitle !== "false"
+          : !isSlideshow;
       this.borderRadius =
         container.dataset.inatRadius !== undefined ? parseInt(container.dataset.inatRadius) : 12;
       this.padding =
@@ -42,10 +54,16 @@
       this.compact = container.dataset.inatCompact === "true";
       this.lang = container.dataset.inatLang || "";
       this.extraParams = container.dataset.inatParams || "";
-      this.pagination = container.dataset.inatPagination === "true";
+      // Slideshows page through results on their own
+      this.pagination = container.dataset.inatPagination === "true" && !isSlideshow;
       this.searchEnabled = container.dataset.inatSearch === "true";
-      this.showNames = container.dataset.inatShowNames === "true";
+      this.showNames =
+        container.dataset.inatShowNames !== undefined
+          ? container.dataset.inatShowNames === "true"
+          : isSlideshow;
       this.showCount = container.dataset.inatShowCount !== "false";
+      this.interval = Math.min(60, Math.max(1, parseInt(container.dataset.inatInterval) || 5));
+      this.slideTimer = null;
       this.searchTaxon = null;
       this.page = 1;
       this.totalResults = 0;
@@ -498,6 +516,109 @@
           background: #fff;
         }
 
+        /* ===== SLIDESHOW LAYOUT ===== */
+        .inat-w-slideshow {
+          position: relative;
+          aspect-ratio: 3 / 2;
+          border-radius: var(--inat-radius-sm);
+          overflow: hidden;
+          background: var(--inat-border);
+        }
+        .inat-w-slide {
+          position: absolute;
+          inset: 0;
+          display: block;
+          opacity: 0;
+          visibility: hidden;
+          transition: opacity 0.6s ease, visibility 0.6s;
+          text-decoration: none !important;
+        }
+        .inat-w-slide.inat-w-active {
+          opacity: 1;
+          visibility: visible;
+        }
+        .inat-w-slide-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        .inat-w-slide-overlay {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          padding: 40px 14px 12px;
+          background: linear-gradient(transparent, rgba(0,0,0,0.75));
+          opacity: 0;
+          transition: opacity 0.2s;
+        }
+        .inat-w-slideshow:hover .inat-w-slide-overlay,
+        .inat-w-slideshow.inat-w-show-names .inat-w-slide-overlay {
+          opacity: 1;
+        }
+        .inat-w-slide-name {
+          font-size: 16px;
+          font-weight: 700;
+          color: #fff;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .inat-w-slide-sci {
+          font-size: 13px;
+          font-style: italic;
+          color: rgba(255,255,255,0.85);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .inat-w-slide-nav {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          margin: auto 0;
+          z-index: 2;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          border: none;
+          background: rgba(0,0,0,0.5);
+          color: #fff;
+          font-size: 18px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: opacity 0.2s;
+        }
+        .inat-w-slideshow:hover .inat-w-slide-nav {
+          opacity: 1;
+        }
+        .inat-w-slide-nav-prev { left: 8px; }
+        .inat-w-slide-nav-next { right: 8px; }
+        .inat-w-slide-nav:hover { background: rgba(0,0,0,0.7); }
+        .inat-w-slide-counter {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          z-index: 2;
+          background: rgba(0,0,0,0.6);
+          color: #fff;
+          font-size: 11px;
+          font-weight: 600;
+          padding: 2px 8px;
+          border-radius: 10px;
+        }
+        /* Touch devices have no hover — keep names and arrows visible */
+        @media (hover: none) {
+          .inat-w-slide-overlay,
+          .inat-w-slide-nav { opacity: 1; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .inat-w-slide { transition: none; }
+        }
+
         /* Footer */
         .inat-w-footer {
           display: flex;
@@ -947,61 +1068,9 @@
         }
 
         const isSpecies = this.dataType === "species";
-        const params = new URLSearchParams({
-          per_page: this.limit,
-        });
-        if (this.pagination && this.page > 1) {
-          params.set("page", this.page);
-        }
-        if (!isSpecies) {
-          params.set("order", "desc");
-          params.set("order_by", this.orderBy);
-        }
-
-        if (this.sourceType === "project") {
-          params.set("project_id", this.source);
-        } else if (this.sourceType === "place") {
-          params.set("place_id", this.source);
-        } else {
-          params.set("user_id", this.source);
-        }
-
-        // Language/locale
-        if (this.lang) {
-          params.set("locale", this.lang);
-        }
-
-        // Taxon filter (in-widget search takes precedence over the configured filter)
-        const taxonFilter = this.searchTaxon || this.taxon;
-        if (taxonFilter) {
-          params.set("taxon_id", taxonFilter);
-        }
-
-        // Quality grade filter
-        if (this.qualityGrade && this.qualityGrade !== "any") {
-          params.set("quality_grade", this.qualityGrade);
-        }
-
-        // Date filters
-        if (this.dateOn) {
-          params.set("on", this.dateOn);
-        } else {
-          if (this.dateFrom) params.set("d1", this.dateFrom);
-          if (this.dateTo) params.set("d2", this.dateTo);
-        }
-
-        // Raw API params passthrough — any /observations filter the widget has no
-        // attribute for (e.g. "photos=true&threatened=true" or "user_id=alice,bob").
-        // Overrides other attributes on conflict; the in-widget taxa search still wins.
-        if (this.extraParams) {
-          new URLSearchParams(this.extraParams).forEach((value, key) => {
-            params.set(key, value);
-          });
-          if (this.searchTaxon) params.set("taxon_id", this.searchTaxon);
-        }
-
-        const endpoint = isSpecies ? "observations/species_counts" : "observations";
-        const response = await fetch(`${INAT_API}/${endpoint}?${params.toString()}`);
+        const perPage =
+          this.layout === "slideshow" ? Math.min(this.limit, API_MAX_PER_PAGE) : this.limit;
+        const response = await fetch(this.listUrl(perPage, this.page));
         if (!response.ok) throw new Error("Failed to fetch");
 
         const data = await response.json();
@@ -1026,6 +1095,65 @@
       }
     }
 
+    listUrl(perPage, page) {
+      const isSpecies = this.dataType === "species";
+      const params = new URLSearchParams({
+        per_page: perPage,
+      });
+      if (page > 1) {
+        params.set("page", page);
+      }
+      if (!isSpecies) {
+        params.set("order", "desc");
+        params.set("order_by", this.orderBy);
+      }
+
+      if (this.sourceType === "project") {
+        params.set("project_id", this.source);
+      } else if (this.sourceType === "place") {
+        params.set("place_id", this.source);
+      } else {
+        params.set("user_id", this.source);
+      }
+
+      // Language/locale
+      if (this.lang) {
+        params.set("locale", this.lang);
+      }
+
+      // Taxon filter (in-widget search takes precedence over the configured filter)
+      const taxonFilter = this.searchTaxon || this.taxon;
+      if (taxonFilter) {
+        params.set("taxon_id", taxonFilter);
+      }
+
+      // Quality grade filter
+      if (this.qualityGrade && this.qualityGrade !== "any") {
+        params.set("quality_grade", this.qualityGrade);
+      }
+
+      // Date filters
+      if (this.dateOn) {
+        params.set("on", this.dateOn);
+      } else {
+        if (this.dateFrom) params.set("d1", this.dateFrom);
+        if (this.dateTo) params.set("d2", this.dateTo);
+      }
+
+      // Raw API params passthrough — any /observations filter the widget has no
+      // attribute for (e.g. "photos=true&threatened=true" or "user_id=alice,bob").
+      // Overrides other attributes on conflict; the in-widget taxa search still wins.
+      if (this.extraParams) {
+        new URLSearchParams(this.extraParams).forEach((value, key) => {
+          params.set(key, value);
+        });
+        if (this.searchTaxon) params.set("taxon_id", this.searchTaxon);
+      }
+
+      const endpoint = isSpecies ? "observations/species_counts" : "observations";
+      return `${INAT_API}/${endpoint}?${params.toString()}`;
+    }
+
     renderObservations() {
       // Single observation always renders as card
       if (this.sourceType === "observation") {
@@ -1040,6 +1168,9 @@
           case "cards":
             this.renderSpeciesCards();
             break;
+          case "slideshow":
+            this.renderSlideshow();
+            break;
           case "grid":
           default:
             this.renderSpeciesGrid();
@@ -1053,6 +1184,9 @@
           break;
         case "grid":
           this.renderGrid();
+          break;
+        case "slideshow":
+          this.renderSlideshow();
           break;
         case "cards":
         default:
@@ -1375,6 +1509,162 @@
       });
       this.contentEl.innerHTML = "";
       this.contentEl.appendChild(wrap);
+    }
+
+    slideshowItem(result) {
+      if (this.dataType === "species") {
+        const taxon = result.taxon || {};
+        // Taxon photos only expose medium; iNat-hosted ones also have a large size
+        const medium = this.speciesPhoto(taxon, "medium");
+        return {
+          url: this.speciesUrl(taxon),
+          name: this.speciesCommonName(taxon),
+          sci: this.speciesScientificName(taxon),
+          photo: medium ? medium.replace("/medium.", "/large.") : null,
+          placeholder: "&#x1F33F;",
+          badge: this.showCount
+            ? `<span class="inat-w-count-badge">${this.formatCount(result.count)} obs</span>`
+            : "",
+        };
+      }
+      return {
+        url: `https://www.inaturalist.org/observations/${result.id}`,
+        name: this.getCommonName(result),
+        sci: this.getScientificName(result),
+        photo: this.getPhotoUrl(result, "large"),
+        placeholder: this.noPhotoIcon(result),
+        badge: "",
+      };
+    }
+
+    renderSlideshow() {
+      clearInterval(this.slideTimer);
+      const wrap = document.createElement("div");
+      wrap.className = "inat-w-slideshow" + (this.showNames ? " inat-w-show-names" : "");
+
+      // Only the first page is loaded up front; later pages load as the slideshow nears them
+      const pageSize = Math.min(this.limit, API_MAX_PER_PAGE);
+      let total = Math.max(this.observations.length, Math.min(this.limit, this.totalResults));
+      const slideEls = [];
+      let current = 0;
+      let hovering = false;
+      let loadingMore = false;
+
+      const addSlides = (results) => {
+        results.forEach((r) => {
+          const s = this.slideshowItem(r);
+          const slide = document.createElement("a");
+          slide.className = "inat-w-slide";
+          slide.href = s.url;
+          slide.target = "_blank";
+          slide.rel = "noopener";
+          // Photos load on demand as slides come up (see show below)
+          slide.innerHTML = `
+            ${s.photo ? `<img class="inat-w-slide-img" data-src="${s.photo}" alt="${this.escapeHtml(s.name)}" />` : `<div class="inat-w-no-photo" style="font-size:40px">${s.placeholder}</div>`}
+            ${s.badge}
+            <div class="inat-w-slide-overlay">
+              <div class="inat-w-slide-name">${this.escapeHtml(s.name)}</div>
+              <div class="inat-w-slide-sci">${this.escapeHtml(s.sci)}</div>
+            </div>
+          `;
+          wrap.appendChild(slide);
+          slideEls.push(slide);
+        });
+      };
+
+      addSlides(this.observations);
+
+      if (total > 1) {
+        wrap.insertAdjacentHTML(
+          "beforeend",
+          `<button type="button" class="inat-w-slide-nav inat-w-slide-nav-prev" data-dir="-1" aria-label="Previous">‹</button>
+          <button type="button" class="inat-w-slide-nav inat-w-slide-nav-next" data-dir="1" aria-label="Next">›</button>
+          <span class="inat-w-slide-counter"></span>`
+        );
+      }
+      const counter = wrap.querySelector(".inat-w-slide-counter");
+      const updateCounter = () => {
+        if (counter) {
+          counter.textContent = `${this.formatCount(current + 1)} / ${this.formatCount(total)}`;
+        }
+      };
+
+      const loadMore = async () => {
+        loadingMore = true;
+        try {
+          const page = Math.floor(slideEls.length / pageSize) + 1;
+          const response = await fetch(this.listUrl(pageSize, page));
+          if (!response.ok) throw new Error("Failed to fetch");
+          const data = await response.json();
+          // Drop the page if the slideshow was replaced while it loaded
+          if (!wrap.isConnected) return;
+          const results = data.results || [];
+          addSlides(results.slice(0, total - slideEls.length));
+          // A short page means the source has fewer results than expected
+          if (results.length < pageSize) total = slideEls.length;
+        } catch {
+          // Stop paging and keep cycling through what loaded
+          total = slideEls.length;
+        }
+        updateCounter();
+        loadingMore = false;
+      };
+
+      const show = (idx) => {
+        slideEls[current].classList.remove("inat-w-active");
+        current = (idx + slideEls.length) % slideEls.length;
+        slideEls[current].classList.add("inat-w-active");
+        // Load the current photo and preload the next one
+        [current, (current + 1) % slideEls.length].forEach((i) => {
+          const img = slideEls[i].querySelector("img[data-src]");
+          if (img) {
+            img.src = img.dataset.src;
+            img.removeAttribute("data-src");
+          }
+        });
+        updateCounter();
+        // Fetch the next page a few slides before running out
+        if (!loadingMore && slideEls.length < total && current >= slideEls.length - 3) {
+          loadMore();
+        }
+      };
+
+      const start = () => {
+        clearInterval(this.slideTimer);
+        if (hovering || slideEls.length < 2) return;
+        this.slideTimer = setInterval(() => {
+          // Stop once this slideshow leaves the page (re-render, search, builder preview swap)
+          if (!wrap.isConnected) {
+            clearInterval(this.slideTimer);
+            return;
+          }
+          show(current + 1);
+        }, this.interval * 1000);
+      };
+
+      wrap.querySelectorAll(".inat-w-slide-nav").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          show(current + parseInt(btn.dataset.dir));
+          start();
+        });
+      });
+
+      // Pause while a mouse hovers; touch taps would otherwise pause it indefinitely
+      wrap.addEventListener("pointerenter", (e) => {
+        if (e.pointerType !== "mouse") return;
+        hovering = true;
+        clearInterval(this.slideTimer);
+      });
+      wrap.addEventListener("pointerleave", (e) => {
+        if (e.pointerType !== "mouse") return;
+        hovering = false;
+        start();
+      });
+
+      show(0);
+      this.contentEl.innerHTML = "";
+      this.contentEl.appendChild(wrap);
+      start();
     }
 
     getCommonName(obs) {

@@ -710,6 +710,17 @@
               <div class="layout-icon">▦</div>
               <div class="layout-label">Cards</div>
             </button>
+            <button class="layout-option" data-layout="slideshow">
+              <div class="layout-icon">▶&#xFE0E;</div>
+              <div class="layout-label">Slideshow</div>
+            </button>
+          </div>
+          <div class="option-row" id="intervalRow" style="display:none">
+            <div class="option-label">Change every</div>
+            <div class="range-row">
+              <input type="range" class="range-input" id="intervalRange" min="1" max="30" value="5" />
+              <span class="range-value" id="intervalValue">5s</span>
+            </div>
           </div>
         </div>
 
@@ -723,7 +734,7 @@
             <label class="checkbox-label" id="showNamesLabel"><input type="checkbox" id="showNames" /> Always show names</label>
             <label class="checkbox-label" id="showCountLabel" style="display:none"><input type="checkbox" id="showCount" checked /> Obs count</label>
             <label class="checkbox-label" id="compactLabel"><input type="checkbox" id="compact" /> Compact</label>
-            <label class="checkbox-label"><input type="checkbox" id="paginationCheck" /> Pagination</label>
+            <label class="checkbox-label" id="paginationLabel"><input type="checkbox" id="paginationCheck" /> Pagination</label>
             <label class="checkbox-label"><input type="checkbox" id="searchCheck" /> Taxa search</label>
           </div>
           <div class="option-row">
@@ -929,6 +940,7 @@
         search: false,
         showNames: false,
         showCount: true,
+        interval: 5,
         headerText: "",
         borderRadius: 12,
         padding: 16,
@@ -1038,20 +1050,37 @@
 
       // Layout picker
       function updateDisplayOptions() {
-        const isGrid = state.layout === "grid";
-        const hasCompact = isGrid || state.layout === "cards";
-        document.getElementById("showLocationLabel").style.display = isGrid ? "none" : "";
-        document.getElementById("showGradeLabel").style.display = isGrid ? "none" : "";
-        document.getElementById("showNotesLabel").style.display = isGrid ? "none" : "";
-        document.getElementById("showNamesLabel").style.display = isGrid ? "" : "none";
+        const isSlideshow = state.layout === "slideshow";
+        const hasOverlay = state.layout === "grid" || isSlideshow;
+        const hasCompact = state.layout === "grid" || state.layout === "cards";
+        document.getElementById("showLocationLabel").style.display = hasOverlay ? "none" : "";
+        document.getElementById("showGradeLabel").style.display = hasOverlay ? "none" : "";
+        document.getElementById("showNotesLabel").style.display = hasOverlay ? "none" : "";
+        document.getElementById("showNamesLabel").style.display = hasOverlay ? "" : "none";
         document.getElementById("compactLabel").style.display = hasCompact ? "" : "none";
+        document.getElementById("paginationLabel").style.display = isSlideshow ? "none" : "";
+        document.getElementById("intervalRow").style.display = isSlideshow ? "" : "none";
       }
 
       document.querySelectorAll(".layout-option").forEach((opt) => {
         opt.addEventListener("click", () => {
           document.querySelectorAll(".layout-option").forEach((o) => o.classList.remove("active"));
           opt.classList.add("active");
+          const wasSlideshow = state.layout === "slideshow";
           state.layout = opt.dataset.layout;
+          // Slideshow defaults to names on and title off; other layouts the reverse
+          const isSlideshow = state.layout === "slideshow";
+          if (isSlideshow !== wasSlideshow) {
+            state.showNames = isSlideshow;
+            state.showTitle = !isSlideshow;
+            document.getElementById("showNames").checked = state.showNames;
+            document.getElementById("showTitle").checked = state.showTitle;
+          }
+          // Slideshows page through results as they play, so they allow a much bigger limit
+          limitRange.max = isSlideshow ? 1000 : 50;
+          state.limit = Math.min(state.limit, parseInt(limitRange.max));
+          limitRange.value = state.limit;
+          limitValue.textContent = state.limit;
           updateDisplayOptions();
           renderPreview();
           updateEmbedCode();
@@ -1114,6 +1143,18 @@
         limitValue.textContent = state.limit;
       });
       limitRange.addEventListener("change", () => {
+        renderPreview();
+        updateEmbedCode();
+      });
+
+      // Slideshow interval
+      const intervalRange = document.getElementById("intervalRange");
+      const intervalValue = document.getElementById("intervalValue");
+      intervalRange.addEventListener("input", () => {
+        state.interval = parseInt(intervalRange.value);
+        intervalValue.textContent = `${state.interval}s`;
+      });
+      intervalRange.addEventListener("change", () => {
         renderPreview();
         updateEmbedCode();
       });
@@ -1421,6 +1462,10 @@
 
       function buildDataAttrs() {
         const isSpecies = state.dataType === "species";
+        const isSlideshow = state.layout === "slideshow";
+        // Title and names defaults depend on layout (see inat-widget.js), so only emit them when they differ
+        const titleDefault = !isSlideshow;
+        const namesDefault = isSlideshow;
         const attrs = [
           `data-inat-widget`,
           `data-inat-source="${escapeAttr(state.source)}"`,
@@ -1447,7 +1492,7 @@
           if (state.extraParams) attrs.push(`data-inat-params="${escapeAttr(state.extraParams)}"`);
         }
 
-        if (!state.showTitle) attrs.push(`data-inat-show-title="false"`);
+        if (state.showTitle !== titleDefault) attrs.push(`data-inat-show-title="${state.showTitle}"`);
         if (state.headerText) attrs.push(`data-inat-header-text="${escapeAttr(state.headerText)}"`);
         if (!isSpecies) {
           if (!state.showLocation) attrs.push(`data-inat-show-location="false"`);
@@ -1456,10 +1501,13 @@
         }
         if (state.borderRadius !== 12) attrs.push(`data-inat-radius="${state.borderRadius}"`);
         if (state.padding !== 16) attrs.push(`data-inat-padding="${state.padding}"`);
-        if (state.showNames && state.layout === "grid") attrs.push(`data-inat-show-names="true"`);
+        if ((state.layout === "grid" || isSlideshow) && state.showNames !== namesDefault) {
+          attrs.push(`data-inat-show-names="${state.showNames}"`);
+        }
+        if (isSlideshow && state.interval !== 5) attrs.push(`data-inat-interval="${state.interval}"`);
         if (isSpecies && !state.showCount) attrs.push(`data-inat-show-count="false"`);
         if (state.compact) attrs.push(`data-inat-compact="true"`);
-        if (state.pagination && state.sourceType !== "observation") attrs.push(`data-inat-pagination="true"`);
+        if (state.pagination && state.sourceType !== "observation" && !isSlideshow) attrs.push(`data-inat-pagination="true"`);
         if (state.search && state.sourceType !== "observation") attrs.push(`data-inat-search="true"`);
         if (state.lang) attrs.push(`data-inat-lang="${escapeAttr(state.lang)}"`);
 
@@ -1481,6 +1529,9 @@
 
         if (state.embedType === "iframe") {
           const isSpecies = state.dataType === "species";
+          const isSlideshow = state.layout === "slideshow";
+          const titleDefault = !isSlideshow;
+          const namesDefault = isSlideshow;
           // Build iframe URL
           const params = new URLSearchParams();
           params.set("source", state.source || "username");
@@ -1504,7 +1555,7 @@
             }
             if (state.extraParams) params.set("params", state.extraParams);
           }
-          if (!state.showTitle) params.set("show_title", "false");
+          if (state.showTitle !== titleDefault) params.set("show_title", String(state.showTitle));
           if (state.headerText) params.set("header_text", state.headerText);
           if (!isSpecies) {
             if (!state.showLocation) params.set("show_location", "false");
@@ -1513,10 +1564,13 @@
           }
           if (state.borderRadius !== 12) params.set("radius", state.borderRadius);
           if (state.padding !== 16) params.set("padding", state.padding);
-          if (state.showNames && state.layout === "grid") params.set("show_names", "true");
+          if ((state.layout === "grid" || isSlideshow) && state.showNames !== namesDefault) {
+            params.set("show_names", String(state.showNames));
+          }
+          if (isSlideshow && state.interval !== 5) params.set("interval", state.interval);
           if (isSpecies && !state.showCount) params.set("show_count", "false");
           if (state.compact) params.set("compact", "true");
-          if (state.pagination && state.sourceType !== "observation") params.set("pagination", "true");
+          if (state.pagination && state.sourceType !== "observation" && !isSlideshow) params.set("pagination", "true");
           if (state.search && state.sourceType !== "observation") params.set("search", "true");
           if (state.lang) params.set("lang", state.lang);
           const iframeUrl = `${WIDGET_EMBED_URL}?${params.toString()}`;
