@@ -59,18 +59,27 @@ def colormap(x):
     return (STOPS[i] * (1 - f) + STOPS[j] * f).astype(np.uint8)
 
 
-def render(src, dst):
+def render(src, dst, sound):
+    # Trimmed sounds (start/end in seconds) only draw that part
+    trim = []
+    if "start" in sound:
+        trim += ["-ss", str(sound["start"])]
+    if "end" in sound:
+        trim += ["-to", str(sound["end"])]
     pcm = subprocess.run(
-        ["ffmpeg", "-v", "error", "-i", src, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"],
+        ["ffmpeg", "-v", "error", *trim, "-i", src, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"],
         capture_output=True, check=True,
     ).stdout
     y = np.frombuffer(pcm, np.float32)
-    n, hop = 1024, 128
+    # fmin/fmax zoom in on the bird's pitch range; low ranges get a longer
+    # window to keep enough frequency detail
+    fmin, fmax = sound.get("fmin", 0), sound.get("fmax", FMAX)
+    n, hop = (1024 if fmax > 3000 else 2048), 128
     if len(y) < n:
         y = np.pad(y, (0, n - len(y)))
     frames = np.lib.stride_tricks.sliding_window_view(y, n)[::hop] * np.hanning(n)
     spec = np.abs(np.fft.rfft(frames, axis=1)) ** 2
-    spec = spec[:, : int(FMAX / (SR / 2) * (n // 2))]
+    spec = spec[:, int(fmin * n / SR) : int(fmax * n / SR)]
     db = 10 * np.log10(spec + 1e-12)
     # Squeeze the whole recording into W columns; max keeps short notes visible
     edges = np.linspace(0, db.shape[0], W + 1).astype(int)
@@ -95,7 +104,7 @@ def main():
                 with urllib.request.urlopen(req, timeout=60) as r:
                     tmp.write(r.read())
                 tmp.flush()
-                render(tmp.name, dst)
+                render(tmp.name, dst, sound)
 
 
 if __name__ == "__main__":

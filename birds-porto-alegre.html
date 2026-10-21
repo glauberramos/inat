@@ -2,7 +2,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <script>
       if (localStorage.getItem("darkMode") === "true") {
         document.documentElement.classList.add("dark-mode");
@@ -10,11 +10,11 @@
     </script>
     <title>Aves de Porto Alegre</title>
     <link rel="icon" href="favicon.ico" />
-    <meta name="theme-color" content="#74ac00" />
+    <meta name="theme-color" content="#f2f2f7" />
     <link rel="canonical" href="https://glauberramos.github.io/inat/birds-porto-alegre" />
-    <meta name="description" content="As 20 aves mais comuns de Porto Alegre, com fotos e cantos." />
+    <meta name="description" content="As aves mais comuns de Porto Alegre, com fotos e cantos." />
     <meta property="og:title" content="Aves de Porto Alegre" />
-    <meta property="og:description" content="As 20 aves mais comuns de Porto Alegre, com fotos e cantos." />
+    <meta property="og:description" content="As aves mais comuns de Porto Alegre, com fotos e cantos." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://glauberramos.github.io/inat/birds-porto-alegre" />
     <meta property="og:locale" content="pt_BR" />
@@ -24,191 +24,628 @@
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="dark-mode.css?v=8" />
     <style>
-      .birds-subtitle {
-        text-align: center;
-        color: #666;
-        margin: 4px 0 28px;
+      /* iOS-style grouped look: system colors, SF type scale, inset cards without shadows. */
+      :root {
+        --bg: #f2f2f7;
+        --cell: #ffffff;
+        --label: #000000;
+        --label-2: rgba(60, 60, 67, 0.6);
+        --label-3: rgba(60, 60, 67, 0.3);
+        --separator: rgba(60, 60, 67, 0.2);
+        --fill: rgba(120, 120, 128, 0.12);
+        --tint: #4c8c00;
+        --tint-pressed: #3f7500;
+        --red: #d70015;
+        --bar: rgba(242, 242, 247, 0.8);
       }
-      .birds-grid {
+      html.dark-mode {
+        --bg: #000000;
+        --cell: #1c1c1e;
+        --label: #ffffff;
+        --label-2: rgba(235, 235, 245, 0.6);
+        --label-3: rgba(235, 235, 245, 0.3);
+        --separator: rgba(84, 84, 88, 0.65);
+        --fill: rgba(118, 118, 128, 0.24);
+        --tint: #5a9e0a;
+        --tint-pressed: #4c8c00;
+        --red: #ff6961;
+        --bar: rgba(22, 22, 24, 0.8);
+      }
+
+      body.birds-page,
+      html.dark-mode body.birds-page {
+        background: var(--bg);
+        color: var(--label);
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        font-size: 17px;
+        line-height: 1.3;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Compact title bar that appears once the large title scrolls away */
+      .nav-bar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        height: 44px;
         display: flex;
-        flex-direction: column;
-        gap: 16px;
-        max-width: 960px;
-        margin: 0 auto;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        font-weight: 600;
+        border-bottom: 0.5px solid transparent;
+        transition: background-color 0.2s, border-color 0.2s;
       }
-      .bird-card {
-        background: #fff;
-        border-radius: 12px;
+      .nav-bar span {
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .nav-bar.is-visible {
+        background: var(--bar);
+        -webkit-backdrop-filter: saturate(180%) blur(20px);
+        backdrop-filter: saturate(180%) blur(20px);
+        border-bottom-color: var(--separator);
+      }
+      .nav-bar.is-visible span {
+        opacity: 1;
+      }
+
+      .app {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 20px 48px;
+      }
+      .app-header {
+        text-align: left;
+        padding: 8px 4px 22px;
+      }
+      .app-header .large-title {
+        font-size: 34px;
+        line-height: 41px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        color: var(--label);
+        margin: 0;
+      }
+      .app-header .subtitle {
+        font-size: 15px;
+        color: var(--label-2);
+        margin-top: 4px;
+      }
+      .header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .app-header .challenge-btn {
+        width: auto; /* styles.css makes buttons full width on phones */
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 16px 8px 13px;
+        border-radius: 999px;
+        background: var(--tint);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .app-header .challenge-btn:hover,
+      .app-header .challenge-btn:active {
+        background: var(--tint-pressed);
+      }
+      .app-header .challenge-btn:focus-visible {
+        outline: 3px solid var(--tint);
+        outline-offset: 2px;
+      }
+      .challenge-btn svg {
+        width: 18px;
+        height: 18px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+      }
+      /* Family filter: a native menu dressed as a pill, with its own chevron */
+      .family-filter {
+        position: relative;
+        min-width: 0;
+        max-width: 100%;
+      }
+      .header-actions .family-filter select {
+        -webkit-appearance: none;
+        appearance: none;
+        max-width: 100%;
+        height: 100%;
+        padding: 8px 34px 8px 14px;
+        border: none;
+        border-radius: 999px;
+        background: var(--cell);
+        color: var(--label);
+        font: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        cursor: pointer;
+      }
+      .header-actions .family-filter select:focus-visible {
+        outline: 3px solid var(--tint);
+        outline-offset: 2px;
+      }
+      .family-filter::after {
+        content: "";
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        width: 7px;
+        height: 7px;
+        margin-top: -6px;
+        border-right: 2px solid var(--label-2);
+        border-bottom: 2px solid var(--label-2);
+        transform: rotate(45deg);
+        pointer-events: none;
+      }
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
         overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+
+      .birds {
         display: grid;
-        grid-template-columns: 260px 1fr;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+        gap: 20px;
+      }
+      .bird {
+        background: var(--cell);
+        border-radius: 22px;
+        overflow: hidden;
       }
       .bird-photo {
-        width: 100%;
-        height: 100%;
-        min-height: 195px;
-        object-fit: cover;
         display: block;
-        background: #e8e8e8;
+        width: 100%;
+        aspect-ratio: 3 / 2;
+        object-fit: cover;
+        background: var(--fill);
       }
       .bird-body {
-        padding: 16px 20px;
+        padding: 14px 16px 16px;
+      }
+      .bird .bird-name {
+        font-size: 20px;
+        line-height: 25px;
+        font-weight: 600;
+        color: var(--label);
+      }
+      .bird-sci {
+        font-size: 15px;
+        font-style: italic;
+        color: var(--label-2);
+      }
+
+      /* One recording: play button, name and time, then its spectrogram */
+      .rec {
+        margin-top: 14px;
+      }
+      .rec + .rec {
+        padding-top: 14px;
+        border-top: 0.5px solid var(--separator);
+      }
+      .rec-head {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        min-width: 0;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
       }
-      .bird-name {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 10px;
+      .rec .play-btn {
+        flex: none;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        border-radius: 50%;
+        background: var(--tint);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        transition: transform 0.12s, background-color 0.12s;
       }
+      .rec .play-btn:hover {
+        background: var(--tint);
+      }
+      .rec .play-btn:active {
+        background: var(--tint-pressed);
+        transform: scale(0.92);
+      }
+      .rec .play-btn:focus-visible {
+        outline: 3px solid var(--tint);
+        outline-offset: 2px;
+      }
+      .rec .play-btn:disabled {
+        background: var(--label-3);
+        cursor: default;
+        transform: none;
+      }
+      .play-btn svg {
+        width: 15px;
+        height: 15px;
+        fill: currentColor;
+      }
+      .play-btn .icon-play {
+        margin-left: 2px; /* optical centering of the triangle */
+      }
+      .play-btn .icon-pause,
+      .rec.is-playing .play-btn .icon-play,
+      .rec.is-loading .play-btn svg {
+        display: none;
+      }
+      .rec.is-playing .play-btn .icon-pause {
+        display: block;
+      }
+      .rec.is-loading .play-btn::after {
+        content: "";
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #fff;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .rec-title {
+        flex: 1;
+        font-size: 17px;
+        font-weight: 600;
+      }
+      .rec-time {
+        font-size: 15px;
+        color: var(--label-2);
+        font-variant-numeric: tabular-nums;
+      }
+      .rec.is-playing .rec-time {
+        color: var(--tint);
+      }
+      .rec.failed .rec-title,
+      .rec.failed .rec-time {
+        color: var(--label-2);
+      }
+
       .spec {
         position: relative;
-        aspect-ratio: 4 / 1;
-        border-radius: 6px;
+        height: 64px;
+        border-radius: 10px;
         overflow: hidden;
         background: #000004;
         cursor: pointer;
       }
-      .spec-credit {
-        font-size: 0.75rem;
-        color: #888;
-        margin: 4px 0 10px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .spec-credit a {
-        color: inherit;
-      }
       .spec img {
+        display: block;
         width: 100%;
         height: 100%;
-        display: block;
       }
-      .playhead {
+      /* Dims what hasn't played yet; its left edge is the playhead */
+      .spec-progress {
         position: absolute;
         top: 0;
+        right: 0;
         bottom: 0;
-        left: 0;
-        width: 2px;
-        margin-left: -1px;
-        background: #fff;
-        box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+        background: rgba(0, 0, 0, 0.5);
+        border-left: 2px solid #fff;
         pointer-events: none;
       }
-      .bird-sounds {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-      .play-btn {
-        border: none;
-        background: #74ac00;
-        color: #fff;
-        font-size: 0.85rem;
-        font-weight: 600;
-        padding: 7px 4px;
-        flex: 1 1 84px;
+      .rec-credit,
+      html.dark-mode body .rec-credit {
+        display: block;
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--label-2);
+        text-decoration: none;
         white-space: nowrap;
-        border-radius: 8px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .rec-credit:hover {
+        text-decoration: underline;
+      }
+
+      .credits {
+        margin-top: 36px;
+      }
+      .credits summary {
+        font-size: 13px;
+        color: var(--label-2);
         cursor: pointer;
-        width: auto;
-        max-width: 130px;
-        transition: background 0.15s;
-      }
-      .play-btn:hover {
-        background: #5f8f00;
-      }
-      .play-btn.playing {
-        background: #e67e22;
-      }
-      .play-btn.is-loading {
-        opacity: 0.7;
-      }
-      .play-btn.failed {
-        background: #999;
-        cursor: default;
-      }
-      .birds-credits {
-        max-width: 720px;
-        margin: 36px auto 16px;
-        font-size: 0.75rem;
-        color: #888;
-      }
-      .birds-credits summary {
-        cursor: pointer;
-        text-align: center;
-      }
-      .birds-credits ul {
+        padding: 0 4px 8px;
         list-style: none;
-        margin-top: 10px;
-        line-height: 1.5;
       }
-      .birds-credits a {
+      .credits summary::-webkit-details-marker {
+        display: none;
+      }
+      .credits summary::after {
+        content: "›";
+        display: inline-block;
+        margin-left: 6px;
+        transition: transform 0.2s;
+      }
+      .credits[open] summary::after {
+        transform: rotate(90deg);
+      }
+      .credits ul {
+        list-style: none;
+        background: var(--cell);
+        border-radius: 12px;
+        padding: 0 16px;
+        font-size: 13px;
+        line-height: 1.45;
+        color: var(--label-2);
+      }
+      .credits li {
+        padding: 10px 0;
+      }
+      .credits li + li {
+        border-top: 0.5px solid var(--separator);
+      }
+      .credits strong {
+        color: var(--label);
+        font-weight: 600;
+      }
+      .credits a,
+      html.dark-mode body .credits a {
         color: inherit;
       }
 
-      .dark-mode .birds-subtitle {
-        color: #bbb;
+      /* Challenge: a sheet with one mystery recording and four birds to pick from */
+      .quiz {
+        margin: auto; /* styles.css zeroes every margin, which would pin the dialog to the corner */
+        border: none;
+        padding: 0;
+        width: min(440px, calc(100% - 32px));
+        max-width: none;
+        max-height: calc(100% - 32px);
+        border-radius: 20px;
+        background: var(--bg);
+        color: var(--label);
       }
-      .dark-mode .bird-card {
-        background: #2a2a2a;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      .quiz::backdrop {
+        background: rgba(0, 0, 0, 0.4);
       }
-      .dark-mode .bird-photo {
-        background: #333;
+      .quiz[open] {
+        animation: sheet-in 0.25s ease-out;
       }
-      .dark-mode .bird-name {
-        color: #eee;
+      @keyframes sheet-in {
+        from {
+          opacity: 0;
+          transform: translateY(32px);
+        }
       }
-      .dark-mode .spec-credit,
-      .dark-mode .birds-credits {
-        color: #999;
+      .quiz-bar {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        height: 52px;
+        padding: 0 16px;
       }
-      html.dark-mode body .play-btn.playing {
-        background: #e67e22;
+      .quiz .quiz-bar h2 {
+        grid-column: 2;
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--label);
       }
-      html.dark-mode body .play-btn.failed {
-        background: #666;
+      .quiz .quiz-close {
+        grid-column: 3;
+        justify-self: end;
+        width: auto;
+        padding: 6px 0;
+        background: transparent;
+        color: var(--tint);
+        font-size: 17px;
+      }
+      .quiz .quiz-close:hover {
+        background: transparent;
+      }
+      .quiz-body {
+        padding: 0 16px 20px;
+      }
+      .quiz-score {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        font-size: 13px;
+        color: var(--label-2);
+        font-variant-numeric: tabular-nums;
+      }
+      .quiz-question {
+        margin: 14px 4px 8px;
+        font-size: 22px;
+        line-height: 28px;
+        font-weight: 700;
+      }
+      .quiz-sound {
+        background: var(--cell);
+        border-radius: 14px;
+        padding: 12px;
+      }
+      .quiz .rec {
+        margin-top: 0;
+      }
+      .quiz-options {
+        margin-top: 14px;
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .quiz .quiz-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 8px 16px 8px 8px;
+        border-radius: 0;
+        background: var(--cell);
+        color: var(--label);
+        font-size: 17px;
+        text-align: left;
+        transition: background-color 0.15s, opacity 0.15s;
+      }
+      .quiz .quiz-option + .quiz-option {
+        border-top: 0.5px solid var(--separator);
+      }
+      .quiz .quiz-option:hover {
+        background: var(--cell) linear-gradient(var(--fill), var(--fill));
+      }
+      .quiz .quiz-option:focus-visible {
+        outline: 3px solid var(--tint);
+        outline-offset: -3px;
+      }
+      .quiz .quiz-option:disabled {
+        background: var(--cell);
+        color: var(--label);
+        cursor: default;
+      }
+      .quiz .quiz-option:disabled:not(.is-correct):not(.is-wrong) {
+        opacity: 0.45;
+      }
+      .quiz-option img {
+        flex: none;
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        object-fit: cover;
+        background: var(--fill);
+      }
+      .quiz-option-name {
+        flex: 1;
+      }
+      .quiz-mark {
+        font-size: 20px;
+        font-weight: 700;
+      }
+      .quiz-option.is-correct .quiz-mark::before {
+        content: "✓";
+        color: var(--tint);
+      }
+      .quiz-option.is-wrong .quiz-mark::before {
+        content: "✕";
+        color: var(--red);
+      }
+      .quiz-feedback {
+        min-height: 22px;
+        margin: 14px 4px 0;
+        font-size: 17px;
+        font-weight: 600;
+      }
+      .quiz-feedback.is-right {
+        color: var(--tint);
+      }
+      .quiz-feedback.is-wrong {
+        color: var(--red);
+      }
+      .quiz .quiz-next {
+        width: 100%;
+        margin-top: 12px;
+        padding: 14px;
+        border-radius: 14px;
+        background: var(--tint);
+        color: #fff;
+        font-size: 17px;
+        font-weight: 600;
+      }
+      .quiz .quiz-next:hover,
+      .quiz .quiz-next:active {
+        background: var(--tint-pressed);
+      }
+      .quiz .quiz-next:focus-visible {
+        outline: 3px solid var(--tint);
+        outline-offset: 2px;
       }
 
-      @media (max-width: 640px) {
-        .bird-card {
-          grid-template-columns: 1fr;
+      @media (max-width: 480px) {
+        .app {
+          padding: 0 16px 40px;
         }
-        .bird-photo {
-          min-height: 0;
-          aspect-ratio: 4 / 3;
+        /* Bottom sheet on phones */
+        .quiz {
+          width: 100%;
+          margin: auto 0 0;
+          border-radius: 20px 20px 0 0;
+          padding-bottom: env(safe-area-inset-bottom);
+        }
+        .app-header .large-title {
+          font-size: 30px;
+          line-height: 36px;
+        }
+        .birds {
+          gap: 16px;
         }
       }
-      @media (max-width: 480px) {
-        .container {
-          padding: 56px 16px 16px;
+      @media (prefers-reduced-motion: reduce) {
+        .rec.is-loading .play-btn::after {
+          animation-duration: 2.4s;
         }
-        h1 {
-          font-size: 1.8rem;
+        .nav-bar,
+        .nav-bar span,
+        .rec .play-btn,
+        .quiz .quiz-option {
+          transition: none;
+        }
+        .quiz[open] {
+          animation: none;
         }
       }
     </style>
   </head>
-  <body>
-    <div class="container">
-      <header>
-        <h1>Aves de Porto Alegre</h1>
-        <p class="birds-subtitle">As 20 aves mais comuns. Toque para ouvir o canto e acompanhar no espectrograma.</p>
+  <body class="birds-page">
+    <div class="nav-bar" id="navBar" aria-hidden="true"><span>Aves de Porto Alegre</span></div>
+
+    <div class="app">
+      <header class="app-header">
+        <h1 class="large-title" id="largeTitle">Aves de Porto Alegre</h1>
+        <p class="subtitle">As aves mais comuns: <span id="speciesCount"></span>. Toque para ouvir o canto.</p>
+        <div class="header-actions">
+          <button class="challenge-btn" id="challengeBtn" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 15v-3a8 8 0 0 1 16 0v3" />
+              <rect x="3" y="14" width="4.5" height="7" rx="2" />
+              <rect x="16.5" y="14" width="4.5" height="7" rx="2" />
+            </svg>
+            Desafio
+          </button>
+          <label class="family-filter">
+            <span class="visually-hidden">Filtrar por família</span>
+            <select id="familyFilter">
+              <option value="">Todas as famílias</option>
+            </select>
+          </label>
+        </div>
       </header>
 
-      <main class="birds-grid" id="birdsGrid"></main>
+      <main class="birds" id="birdsGrid"></main>
 
-      <details class="birds-credits">
-        <summary>Créditos das fotos e sons (iNaturalist)</summary>
+      <details class="credits">
+        <summary>Créditos das fotos e sons</summary>
         <ul id="birdsCredits"></ul>
       </details>
     </div>
+
+    <dialog class="quiz" id="quiz" aria-labelledby="quizTitle">
+      <div class="quiz-bar">
+        <h2 id="quizTitle">Desafio</h2>
+        <button class="quiz-close" id="quizClose" type="button">Fechar</button>
+      </div>
+      <div class="quiz-body">
+        <p class="quiz-score" id="quizScore"></p>
+        <p class="quiz-question">Que ave é essa?</p>
+        <div class="quiz-sound" id="quizSound"></div>
+        <div class="quiz-options" id="quizOptions"></div>
+        <p class="quiz-feedback" id="quizFeedback" aria-live="polite"></p>
+        <button class="quiz-next" id="quizNext" type="button" hidden>Próxima</button>
+      </div>
+    </dialog>
 
     <script src="birds-porto-alegre-data.js"></script>
     <script>
@@ -221,6 +658,17 @@
         "cc-by-nc-sa": "CC BY-NC-SA",
         "cc-by-nc-nd": "CC BY-NC-ND",
       };
+
+      // Recording name per sound type; sounds without a type are songs.
+      const SOUND_TYPES = { song: "Canto", call: "Chamado" };
+
+      function soundKind(sound) {
+        return SOUND_TYPES[sound.type] || SOUND_TYPES.song;
+      }
+
+      const PLAY_ICONS =
+        '<svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.6v14.8a1.1 1.1 0 0 0 1.7.9l11.4-7.4a1.1 1.1 0 0 0 0-1.8L8.7 3.7A1.1 1.1 0 0 0 7 4.6z"/></svg>' +
+        '<svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="4" width="4.6" height="16" rx="1.3"/><rect x="13.9" y="4" width="4.6" height="16" rx="1.3"/></svg>';
 
       function el(tag, attrs, children) {
         const node = document.createElement(tag);
@@ -235,9 +683,12 @@
       // One shared player: starting a recording stops whatever was playing.
       const player = document.createElement("audio");
       player.preload = "none";
-      let active = null; // { card, btn } currently loaded in the player
+      let active = null; // recording row { sound, el, btn, spec, progress, time } currently loaded in the player
 
-      const BIRDS = BIRDS_PORTO_ALEGRE;
+      // Grouped by family in taxonomic order (the order of BIRD_FAMILIES); the sort is stable,
+      // so birds keep the data file's order within a family.
+      const FAMILY_ORDER = Object.keys(BIRD_FAMILIES);
+      const BIRDS = BIRDS_PORTO_ALEGRE.slice().sort((a, b) => FAMILY_ORDER.indexOf(a.family) - FAMILY_ORDER.indexOf(b.family));
 
       function audioUrl(sound) {
         if (sound.source === "macaulay") {
@@ -267,15 +718,38 @@
         };
       }
 
-      function setLabel(btn, state) {
-        btn.classList.toggle("playing", state === "playing");
-        btn.classList.toggle("is-loading", state === "loading");
-        btn.textContent = state === "playing" ? "⏸ Pausar" : state === "loading" ? "…" : btn.dataset.label;
+      // m:ss
+      function clock(seconds) {
+        const s = Math.max(0, Math.floor(seconds));
+        return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+      }
+
+      // The part of the recording that plays: start/end trim it, otherwise all of it.
+      function span(sound) {
+        const start = sound.start || 0;
+        const end = Math.min(sound.end || Infinity, player.duration);
+        return { start, len: end - start };
+      }
+
+      function setState(row, state) {
+        row.el.classList.toggle("is-playing", state === "playing");
+        row.el.classList.toggle("is-loading", state === "loading");
+        row.btn.setAttribute("aria-label", `${state === "playing" ? "Pausar" : "Ouvir"} ${row.name}`);
       }
 
       function movePlayhead() {
         if (!active || !player.duration) return;
-        active.card.playhead.style.left = `${(player.currentTime / player.duration) * 100}%`;
+        const { start, len } = span(active.sound);
+        const fraction = (player.currentTime - start) / len;
+        if (fraction >= 1) {
+          // Reached the end of a trimmed sound: stop as if the recording ended.
+          player.pause();
+          deactivate();
+          return;
+        }
+        const played = Math.max(fraction, 0);
+        active.progress.style.left = `${played * 100}%`;
+        active.time.textContent = clock(played * len);
       }
 
       function tick() {
@@ -285,111 +759,121 @@
 
       function deactivate() {
         if (!active) return;
-        setLabel(active.btn, "idle");
-        active.card.playhead.hidden = true;
+        setState(active, "idle");
+        active.progress.hidden = true;
+        active.time.textContent = active.length;
         active = null;
       }
 
       player.addEventListener("playing", () => {
         if (!active) return;
-        setLabel(active.btn, "playing");
-        active.card.playhead.hidden = false;
+        setState(active, "playing");
+        active.progress.hidden = false;
         requestAnimationFrame(tick);
       });
       player.addEventListener("pause", () => {
-        if (active && !active.btn.classList.contains("is-loading")) setLabel(active.btn, "idle");
+        if (active && !active.el.classList.contains("is-loading")) setState(active, "idle");
       });
       player.addEventListener("seeked", movePlayhead);
+      player.addEventListener("timeupdate", movePlayhead); // keeps trims working when rAF is throttled
       player.addEventListener("ended", deactivate);
       player.addEventListener("error", () => {
         if (!active) return;
-        const btn = active.btn;
+        const row = active;
         deactivate();
-        btn.classList.add("failed");
-        btn.textContent = "Indisponível";
-        btn.disabled = true;
+        row.el.classList.add("failed");
+        row.btn.disabled = true;
+        row.time.textContent = "Indisponível";
       });
 
-      function select(card, j) {
-        card.selected = j;
-        const sound = card.bird.sounds[j];
-        card.specImg.src = specUrl(sound);
-        card.playhead.style.left = "0%";
-        const credit = soundCredit(sound);
-        card.credit.replaceChildren(
-          document.createTextNode("Gravação: "),
-          el("a", { href: credit.href, target: "_blank", rel: "noopener", text: credit.text })
-        );
-      }
-
-      function start(card, j, fraction) {
-        const btn = card.buttons[j];
+      function start(row, fraction) {
         player.pause();
         deactivate();
-        select(card, j);
-        active = { card, btn };
-        setLabel(btn, "loading");
-        const src = btn.dataset.src;
+        active = row;
+        row.progress.style.left = "0%";
+        setState(row, "loading");
+        const src = row.src;
         player.src = src;
-        if (fraction) {
-          player.addEventListener(
-            "loadedmetadata",
-            () => {
-              if (player.src === src) player.currentTime = fraction * player.duration;
-            },
-            { once: true }
-          );
-        }
+        player.addEventListener(
+          "loadedmetadata",
+          () => {
+            if (player.src !== src) return;
+            const { start, len } = span(row.sound);
+            if (start || fraction) player.currentTime = start + fraction * len;
+          },
+          { once: true }
+        );
         player.play().catch(() => {});
       }
 
-      function onButton(card, j) {
-        if (active && active.btn === card.buttons[j]) {
+      function onButton(row) {
+        if (active === row) {
           if (player.paused) player.play().catch(() => {});
           else player.pause();
         } else {
-          start(card, j, 0);
+          start(row, 0);
         }
       }
 
       // Clicking the spectrogram jumps to that point of the recording.
-      function onSpectrogram(card, event) {
-        const rect = card.spec.getBoundingClientRect();
+      function onSpectrogram(row, event) {
+        if (row.btn.disabled) return;
+        const rect = row.spec.getBoundingClientRect();
         const fraction = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1);
-        if (active && active.card === card && player.duration) {
-          player.currentTime = fraction * player.duration;
+        if (active === row && player.duration) {
+          const { start, len } = span(row.sound);
+          player.currentTime = start + fraction * len;
           if (player.paused) player.play().catch(() => {});
         } else {
-          start(card, card.selected, fraction);
+          start(row, fraction);
         }
       }
 
-      function renderBird(bird) {
-        const card = { bird, selected: 0 };
-        card.buttons = bird.sounds.map((s, j) => {
-          const label = `▶ Canto ${j + 1}`;
-          const btn = el("button", { class: "play-btn", type: "button", "data-src": audioUrl(s), "data-label": label, text: label });
-          btn.title = `Gravação: ${soundCredit(s).text}`;
-          btn.addEventListener("click", () => onButton(card, j));
-          return btn;
-        });
-        card.specImg = el("img", { alt: `Espectrograma do canto de ${bird.name}`, loading: "lazy" });
-        card.specImg.addEventListener("error", () => (card.specImg.style.visibility = "hidden"));
-        card.specImg.addEventListener("load", () => (card.specImg.style.visibility = ""));
-        card.playhead = el("div", { class: "playhead" });
-        card.playhead.hidden = true;
-        card.spec = el("div", { class: "spec", title: "Toque para ouvir a partir deste ponto" }, [card.specImg, card.playhead]);
-        card.spec.addEventListener("click", (e) => onSpectrogram(card, e));
-        card.credit = el("div", { class: "spec-credit" });
-        select(card, 0);
+      // Play button, time and spectrogram for one recording; the cards and the challenge both use it.
+      function makeRow(sound, name, alt) {
+        // Trimmed sounds know their length up front; others show it once played.
+        const length = sound.end ? clock(sound.end - (sound.start || 0)) : "";
+        const row = { sound, name, length, src: audioUrl(sound) };
+        row.btn = el("button", { class: "play-btn", type: "button", "aria-label": `Ouvir ${name}` });
+        row.btn.innerHTML = PLAY_ICONS;
+        row.btn.addEventListener("click", () => onButton(row));
+        row.time = el("span", { class: "rec-time", text: length });
+        const img = el("img", { src: specUrl(sound), alt, loading: "lazy" });
+        img.addEventListener("error", () => (img.style.visibility = "hidden"));
+        row.progress = el("div", { class: "spec-progress" });
+        row.progress.hidden = true;
+        row.spec = el("div", { class: "spec", title: "Toque para ouvir a partir deste ponto" }, [img, row.progress]);
+        row.spec.addEventListener("click", (e) => onSpectrogram(row, e));
+        return row;
+      }
 
-        return el("article", { class: "bird-card" }, [
+      function renderSound(bird, sound, name) {
+        const row = makeRow(sound, name, `Espectrograma: ${bird.name}, ${name.toLowerCase()}`);
+        const credit = soundCredit(sound);
+        row.el = el("div", { class: "rec" }, [
+          el("div", { class: "rec-head" }, [row.btn, el("span", { class: "rec-title", text: name }), row.time]),
+          row.spec,
+          el("a", { class: "rec-credit", href: credit.href, target: "_blank", rel: "noopener", text: `Gravação: ${credit.text}` }),
+        ]);
+        return row.el;
+      }
+
+      function renderBird(bird) {
+        // Numbered only when a bird has more than one of a kind: Canto, or Canto 1 and Canto 2.
+        const kinds = bird.sounds.map(soundKind);
+        const sounds = bird.sounds.map((s, j) => {
+          const kind = kinds[j];
+          const n = kinds.slice(0, j + 1).filter((k) => k === kind).length;
+          const many = kinds.filter((k) => k === kind).length > 1;
+          return renderSound(bird, s, many ? `${kind} ${n}` : kind);
+        });
+
+        return el("article", { class: "bird" }, [
           el("img", { class: "bird-photo", src: bird.photo, alt: bird.name, title: bird.photoCredit, loading: "lazy" }),
           el("div", { class: "bird-body" }, [
-            el("div", { class: "bird-name", text: bird.name }),
-            card.spec,
-            card.credit,
-            el("div", { class: "bird-sounds" }, card.buttons),
+            el("h2", { class: "bird-name", text: bird.name }),
+            el("p", { class: "bird-sci", text: bird.scientificName }),
+            ...sounds,
           ]),
         ]);
       }
@@ -397,7 +881,7 @@
       function renderCredits(bird) {
         const li = el("li");
         li.appendChild(el("strong", { text: `${bird.name}: ` }));
-        li.appendChild(document.createTextNode(`foto ${bird.photoCredit}; cantos `));
+        li.appendChild(document.createTextNode(`foto ${bird.photoCredit}${bird.sounds.length ? "; cantos " : ""}`));
         bird.sounds.forEach((s, j) => {
           if (j) li.appendChild(document.createTextNode(", "));
           const credit = soundCredit(s);
@@ -408,9 +892,160 @@
 
       const grid = document.getElementById("birdsGrid");
       const credits = document.getElementById("birdsCredits");
-      BIRDS.forEach((bird) => {
-        grid.appendChild(renderBird(bird));
+      const cards = BIRDS.map((bird) => {
+        const card = renderBird(bird);
+        grid.appendChild(card);
         credits.appendChild(renderCredits(bird));
+        return { bird, card };
+      });
+
+      // Family filter: one option per family on the page, by its Portuguese name.
+      const familyFilter = document.getElementById("familyFilter");
+      [...new Set(BIRDS.map((b) => b.family))]
+        .sort((a, b) => BIRD_FAMILIES[a].localeCompare(BIRD_FAMILIES[b], "pt"))
+        .forEach((family) => familyFilter.appendChild(el("option", { value: family, text: `${BIRD_FAMILIES[family]} (${family})` })));
+      // Species total in the subtitle; with a family picked, how many of the total are shown.
+      const speciesCount = document.getElementById("speciesCount");
+      function updateCount() {
+        const shown = cards.filter(({ card }) => !card.hidden).length;
+        const total = cards.length;
+        speciesCount.textContent = shown === total ? `${total} espécies` : `${shown} de ${total} espécies`;
+      }
+      updateCount();
+
+      familyFilter.addEventListener("change", () => {
+        const family = familyFilter.value;
+        cards.forEach(({ bird, card }) => (card.hidden = Boolean(family) && bird.family !== family));
+        if (active && active.el.closest(".bird[hidden]")) stopPlayback();
+        updateCount();
+      });
+
+      // Like an iOS navigation bar: the compact title shows once the large one scrolls under the bar.
+      const navBar = document.getElementById("navBar");
+      const largeTitle = document.getElementById("largeTitle");
+      function updateNavBar() {
+        navBar.classList.toggle("is-visible", largeTitle.getBoundingClientRect().bottom < navBar.offsetHeight);
+      }
+      addEventListener("scroll", updateNavBar, { passive: true });
+      updateNavBar();
+
+      // Challenge: guess the bird from its recording. Endless; the score lives in localStorage.
+      const SCORE_KEY = "birdsPortoAlegreChallenge";
+      const CHOICES = 4; // birds to pick from each round, the right one included
+      const quiz = document.getElementById("quiz");
+      const quizScore = document.getElementById("quizScore");
+      const quizSound = document.getElementById("quizSound");
+      const quizOptions = document.getElementById("quizOptions");
+      const quizFeedback = document.getElementById("quizFeedback");
+      const quizNext = document.getElementById("quizNext");
+      let score = loadScore();
+      let round = null; // { bird, correctBtn, answered }
+
+      function loadScore() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(SCORE_KEY));
+          if (saved && Number.isFinite(saved.right) && Number.isFinite(saved.wrong)) return saved;
+        } catch (e) {}
+        return { right: 0, wrong: 0 };
+      }
+
+      function saveScore() {
+        try {
+          localStorage.setItem(SCORE_KEY, JSON.stringify(score));
+        } catch (e) {}
+      }
+
+      function renderScore() {
+        const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+        quizScore.replaceChildren(
+          el("span", { text: plural(score.right, "acerto") }),
+          el("span", { text: plural(score.wrong, "erro") })
+        );
+      }
+
+      function pickOne(list) {
+        return list[Math.floor(Math.random() * list.length)];
+      }
+
+      function shuffle(list) {
+        const out = list.slice();
+        for (let i = out.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [out[i], out[j]] = [out[j], out[i]];
+        }
+        return out;
+      }
+
+      function stopPlayback() {
+        player.pause();
+        deactivate();
+      }
+
+      function newRound() {
+        stopPlayback();
+        // Never the same bird twice in a row
+        const bird = pickOne(BIRDS.filter((b) => b.sounds.length && (!round || b !== round.bird)));
+        const sound = pickOne(bird.sounds);
+        // Wrong choices come from the same family first, which makes it harder; any left over are random
+        const others = BIRDS.filter((b) => b !== bird);
+        const sameFamily = shuffle(others.filter((b) => b.family === bird.family));
+        const otherFamilies = shuffle(others.filter((b) => b.family !== bird.family));
+        const choices = shuffle([bird, ...sameFamily.concat(otherFamilies).slice(0, CHOICES - 1)]);
+        round = { bird, answered: false };
+
+        const row = makeRow(sound, "a gravação", "Espectrograma da gravação");
+        row.el = el("div", { class: "rec" }, [
+          el("div", { class: "rec-head" }, [row.btn, el("span", { class: "rec-title", text: "Ouça" }), row.time]),
+          row.spec,
+        ]);
+        quizSound.replaceChildren(row.el);
+
+        quizOptions.replaceChildren(
+          ...choices.map((choice) => {
+            const btn = el("button", { class: "quiz-option", type: "button" }, [
+              el("img", { src: choice.photo, alt: "" }),
+              el("span", { class: "quiz-option-name", text: choice.name }),
+              el("span", { class: "quiz-mark", "aria-hidden": "true" }),
+            ]);
+            btn.addEventListener("click", () => answer(choice, btn));
+            if (choice === bird) round.correctBtn = btn;
+            return btn;
+          })
+        );
+        quizFeedback.textContent = "";
+        quizFeedback.className = "quiz-feedback";
+        quizNext.hidden = true;
+        renderScore();
+        row.btn.focus();
+      }
+
+      function answer(choice, btn) {
+        if (round.answered) return;
+        round.answered = true;
+        const right = choice === round.bird;
+        score[right ? "right" : "wrong"] += 1;
+        saveScore();
+        renderScore();
+
+        quizOptions.querySelectorAll(".quiz-option").forEach((option) => (option.disabled = true));
+        round.correctBtn.classList.add("is-correct");
+        if (!right) btn.classList.add("is-wrong");
+        quizFeedback.textContent = right ? "Acertou!" : `Errou. A resposta é ${round.bird.name}.`;
+        quizFeedback.classList.add(right ? "is-right" : "is-wrong");
+        quizNext.hidden = false;
+        quizNext.focus();
+      }
+
+      document.getElementById("challengeBtn").addEventListener("click", () => {
+        quiz.showModal();
+        newRound();
+      });
+      document.getElementById("quizClose").addEventListener("click", () => quiz.close());
+      quizNext.addEventListener("click", newRound);
+      quiz.addEventListener("close", stopPlayback);
+      // Tapping the dimmed backdrop closes the sheet
+      quiz.addEventListener("click", (e) => {
+        if (e.target === quiz) quiz.close();
       });
     </script>
     <script defer data-domain="glauberramos.github.io/inat" src="https://plausible.io/js/script.js"></script>
