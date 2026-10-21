@@ -44,6 +44,7 @@
         show_names: "data-inat-show-names",
         show_count: "data-inat-show-count",
         interval: "data-inat-interval",
+        fill: "data-inat-fill",
         search: "data-inat-search",
         radius: "data-inat-radius",
         padding: "data-inat-padding",
@@ -58,6 +59,11 @@
       for (const [param, attr] of Object.entries(attrMap)) {
         const val = params.get(param);
         if (val) widget.setAttribute(attr, val);
+      }
+
+      // Opened directly as a page rather than inside an iframe: let a slideshow fill the window
+      if (!params.has("fill") && window.self === window.top) {
+        widget.setAttribute("data-inat-fill", "true");
       }
 
       if (window.initInatWidgets) {

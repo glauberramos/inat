@@ -516,6 +516,35 @@
       }
       .copy-btn:hover { background: #475569; }
       .copy-btn.copied { background: #74ac00; }
+      .direct-link-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .direct-link-btn {
+        padding: 8px 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        background: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: inherit;
+        color: #334155;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .direct-link-btn:first-child { flex: 1; }
+      .direct-link-btn:hover { border-color: #cbd5e1; }
+      .direct-link-btn.copied {
+        border-color: #74ac00;
+        color: #74ac00;
+      }
+      .direct-link-hint {
+        font-size: 11px;
+        color: #94a3b8;
+        margin-top: 6px;
+      }
 
       /* Observation ID section */
       .obs-id-section {
@@ -892,6 +921,11 @@
             <button class="copy-btn" id="copyBtn">Copy</button>
             <code id="embedCodeText"></code>
           </div>
+          <div class="direct-link-row">
+            <button class="direct-link-btn" id="copyLinkBtn">🔗 Copy direct link</button>
+            <a class="direct-link-btn" id="directLink" href="#" target="_blank" rel="noopener">Open ↗</a>
+          </div>
+          <div class="direct-link-hint">No code needed: the link opens the widget as its own page, and slideshows fill the screen.</div>
         </div>
       </aside>
 
@@ -968,6 +1002,8 @@
       const previewContainer = document.getElementById("previewContainer");
       const embedCodeText = document.getElementById("embedCodeText");
       const copyBtn = document.getElementById("copyBtn");
+      const copyLinkBtn = document.getElementById("copyLinkBtn");
+      const directLink = document.getElementById("directLink");
 
       // Data type tabs (Observations vs Species)
       const limitLabel = document.getElementById("limitLabel");
@@ -1524,57 +1560,62 @@
         });
       });
 
+      // Standalone widget page URL, used for the iframe src and the direct link
+      function buildEmbedUrl() {
+        const isSpecies = state.dataType === "species";
+        const isSlideshow = state.layout === "slideshow";
+        const titleDefault = !isSlideshow;
+        const namesDefault = isSlideshow;
+        const params = new URLSearchParams();
+        params.set("source", state.source || "username");
+        params.set("type", state.sourceType);
+        params.set("theme", state.theme);
+        if (isSpecies) params.set("data_type", "species");
+        if (state.sourceDisplay && state.sourceDisplay !== state.source) {
+          params.set("title", state.sourceDisplay);
+        }
+        if (state.sourceType !== "observation") {
+          params.set("layout", state.layout);
+          params.set("limit", state.limit);
+          if (!isSpecies) params.set("order_by", state.orderBy);
+          if (state.taxon) params.set("taxon", state.taxon);
+          if (state.qualityGrade) params.set("quality", state.qualityGrade);
+          if (state.dateOn) {
+            params.set("date", state.dateOn);
+          } else {
+            if (state.dateFrom) params.set("date_from", state.dateFrom);
+            if (state.dateTo) params.set("date_to", state.dateTo);
+          }
+          if (state.extraParams) params.set("params", state.extraParams);
+        }
+        if (state.showTitle !== titleDefault) params.set("show_title", String(state.showTitle));
+        if (state.headerText) params.set("header_text", state.headerText);
+        if (!isSpecies) {
+          if (!state.showLocation) params.set("show_location", "false");
+          if (state.showGrade) params.set("show_grade", "true");
+          if (state.showNotes) params.set("show_notes", "true");
+        }
+        if (state.borderRadius !== 12) params.set("radius", state.borderRadius);
+        if (state.padding !== 16) params.set("padding", state.padding);
+        if ((state.layout === "grid" || isSlideshow) && state.showNames !== namesDefault) {
+          params.set("show_names", String(state.showNames));
+        }
+        if (isSlideshow && state.interval !== 5) params.set("interval", state.interval);
+        if (isSpecies && !state.showCount) params.set("show_count", "false");
+        if (state.compact) params.set("compact", "true");
+        if (state.pagination && state.sourceType !== "observation" && !isSlideshow) params.set("pagination", "true");
+        if (state.search && state.sourceType !== "observation") params.set("search", "true");
+        if (state.lang) params.set("lang", state.lang);
+        return `${WIDGET_EMBED_URL}?${params.toString()}`;
+      }
+
       function updateEmbedCode() {
         const attrs = buildDataAttrs();
+        const embedUrl = buildEmbedUrl();
+        directLink.href = embedUrl;
 
         if (state.embedType === "iframe") {
-          const isSpecies = state.dataType === "species";
-          const isSlideshow = state.layout === "slideshow";
-          const titleDefault = !isSlideshow;
-          const namesDefault = isSlideshow;
-          // Build iframe URL
-          const params = new URLSearchParams();
-          params.set("source", state.source || "username");
-          params.set("type", state.sourceType);
-          params.set("theme", state.theme);
-          if (isSpecies) params.set("data_type", "species");
-          if (state.sourceDisplay && state.sourceDisplay !== state.source) {
-            params.set("title", state.sourceDisplay);
-          }
-          if (state.sourceType !== "observation") {
-            params.set("layout", state.layout);
-            params.set("limit", state.limit);
-            if (!isSpecies) params.set("order_by", state.orderBy);
-            if (state.taxon) params.set("taxon", state.taxon);
-            if (state.qualityGrade) params.set("quality", state.qualityGrade);
-            if (state.dateOn) {
-              params.set("date", state.dateOn);
-            } else {
-              if (state.dateFrom) params.set("date_from", state.dateFrom);
-              if (state.dateTo) params.set("date_to", state.dateTo);
-            }
-            if (state.extraParams) params.set("params", state.extraParams);
-          }
-          if (state.showTitle !== titleDefault) params.set("show_title", String(state.showTitle));
-          if (state.headerText) params.set("header_text", state.headerText);
-          if (!isSpecies) {
-            if (!state.showLocation) params.set("show_location", "false");
-            if (state.showGrade) params.set("show_grade", "true");
-            if (state.showNotes) params.set("show_notes", "true");
-          }
-          if (state.borderRadius !== 12) params.set("radius", state.borderRadius);
-          if (state.padding !== 16) params.set("padding", state.padding);
-          if ((state.layout === "grid" || isSlideshow) && state.showNames !== namesDefault) {
-            params.set("show_names", String(state.showNames));
-          }
-          if (isSlideshow && state.interval !== 5) params.set("interval", state.interval);
-          if (isSpecies && !state.showCount) params.set("show_count", "false");
-          if (state.compact) params.set("compact", "true");
-          if (state.pagination && state.sourceType !== "observation" && !isSlideshow) params.set("pagination", "true");
-          if (state.search && state.sourceType !== "observation") params.set("search", "true");
-          if (state.lang) params.set("lang", state.lang);
-          const iframeUrl = `${WIDGET_EMBED_URL}?${params.toString()}`;
-          const code = `<!-- iNaturalist Widget (iframe) -->\n<iframe\n  src="${iframeUrl}"\n  width="100%"\n  height="100%"\n  frameborder="0"\n  style="border:none;border-radius:12px"\n></iframe>`;
+          const code = `<!-- iNaturalist Widget (iframe) -->\n<iframe\n  src="${embedUrl}"\n  width="100%"\n  height="100%"\n  frameborder="0"\n  style="border:none;border-radius:12px"\n></iframe>`;
           embedCodeText.textContent = code;
         } else {
           // The \/ keeps the closing script tag below from terminating this inline script.
@@ -1592,6 +1633,17 @@
           setTimeout(() => {
             copyBtn.textContent = "Copy";
             copyBtn.classList.remove("copied");
+          }, 2000);
+        });
+      });
+
+      copyLinkBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(buildEmbedUrl()).then(() => {
+          copyLinkBtn.textContent = "Copied!";
+          copyLinkBtn.classList.add("copied");
+          setTimeout(() => {
+            copyLinkBtn.textContent = "🔗 Copy direct link";
+            copyLinkBtn.classList.remove("copied");
           }, 2000);
         });
       });

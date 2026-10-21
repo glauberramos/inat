@@ -62,6 +62,8 @@
           ? container.dataset.inatShowNames === "true"
           : isSlideshow;
       this.showCount = container.dataset.inatShowCount !== "false";
+      // Stretch a slideshow to the viewport, e.g. when the embed page is opened directly
+      this.fill = isSlideshow && container.dataset.inatFill === "true";
       this.interval = Math.min(60, Math.max(1, parseInt(container.dataset.inatInterval) || 5));
       this.slideTimer = null;
       this.searchTaxon = null;
@@ -618,6 +620,26 @@
         @media (prefers-reduced-motion: reduce) {
           .inat-w-slide { transition: none; }
         }
+        /* Fill: slideshow takes the whole viewport and shows each photo uncropped */
+        .inat-w.inat-w-fill {
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          height: 100dvh;
+          box-sizing: border-box;
+        }
+        .inat-w-fill .inat-w-content {
+          flex: 1;
+          min-height: 0;
+        }
+        .inat-w-fill .inat-w-slideshow {
+          aspect-ratio: auto;
+          height: 100%;
+          background: #000;
+        }
+        .inat-w-fill .inat-w-slide-img {
+          object-fit: contain;
+        }
 
         /* Footer */
         .inat-w-footer {
@@ -849,7 +871,8 @@
 
     render() {
       this.container.innerHTML = "";
-      this.container.className = `inat-w inat-theme-${this.theme}`;
+      this.container.className =
+        `inat-w inat-theme-${this.theme}` + (this.fill ? " inat-w-fill" : "");
       this.container.style.setProperty("--inat-radius", `${this.borderRadius}px`);
       this.container.style.setProperty(
         "--inat-radius-sm",
@@ -881,6 +904,7 @@
 
       // Content area
       this.contentEl = document.createElement("div");
+      this.contentEl.className = "inat-w-content";
       this.contentEl.innerHTML = `<div class="inat-w-loading"><div class="inat-w-spinner"></div><span>Loading observations…</span></div>`;
       this.container.appendChild(this.contentEl);
 
