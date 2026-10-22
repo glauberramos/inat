@@ -757,6 +757,7 @@
         <div class="option-group hidden-for-obs" id="displayOptionsSection">
           <div class="checkbox-group">
             <label class="checkbox-label"><input type="checkbox" id="showTitle" checked /> Title</label>
+            <label class="checkbox-label hidden-for-species" id="showDetailsLabel" style="display:none"><input type="checkbox" id="showDetails" /> Observer &amp; date</label>
             <label class="checkbox-label hidden-for-species" id="showLocationLabel"><input type="checkbox" id="showLocation" checked /> Location</label>
             <label class="checkbox-label hidden-for-species" id="showGradeLabel"><input type="checkbox" id="showGrade" /> Research Grade</label>
             <label class="checkbox-label hidden-for-species" id="showNotesLabel"><input type="checkbox" id="showNotes" /> Notes</label>
@@ -969,6 +970,7 @@
         showLocation: true,
         showGrade: false,
         showNotes: false,
+        showDetails: false,
         compact: false,
         pagination: false,
         search: false,
@@ -1089,7 +1091,10 @@
         const isSlideshow = state.layout === "slideshow";
         const hasOverlay = state.layout === "grid" || isSlideshow;
         const hasCompact = state.layout === "grid" || state.layout === "cards";
-        document.getElementById("showLocationLabel").style.display = hasOverlay ? "none" : "";
+        // Slideshow details (observer & date) can include the location too
+        const hasDetails = isSlideshow && state.showDetails;
+        document.getElementById("showDetailsLabel").style.display = isSlideshow ? "" : "none";
+        document.getElementById("showLocationLabel").style.display = hasOverlay && !hasDetails ? "none" : "";
         document.getElementById("showGradeLabel").style.display = hasOverlay ? "none" : "";
         document.getElementById("showNotesLabel").style.display = hasOverlay ? "none" : "";
         document.getElementById("showNamesLabel").style.display = hasOverlay ? "" : "none";
@@ -1157,6 +1162,12 @@
       });
       document.getElementById("showNotes").addEventListener("change", (e) => {
         state.showNotes = e.target.checked;
+        renderPreview();
+        updateEmbedCode();
+      });
+      document.getElementById("showDetails").addEventListener("change", (e) => {
+        state.showDetails = e.target.checked;
+        updateDisplayOptions();
         renderPreview();
         updateEmbedCode();
       });
@@ -1534,6 +1545,7 @@
           if (!state.showLocation) attrs.push(`data-inat-show-location="false"`);
           if (state.showGrade) attrs.push(`data-inat-show-grade="true"`);
           if (state.showNotes) attrs.push(`data-inat-show-notes="true"`);
+          if (isSlideshow && state.showDetails) attrs.push(`data-inat-show-details="true"`);
         }
         if (state.borderRadius !== 12) attrs.push(`data-inat-radius="${state.borderRadius}"`);
         if (state.padding !== 16) attrs.push(`data-inat-padding="${state.padding}"`);
@@ -1594,6 +1606,7 @@
           if (!state.showLocation) params.set("show_location", "false");
           if (state.showGrade) params.set("show_grade", "true");
           if (state.showNotes) params.set("show_notes", "true");
+          if (isSlideshow && state.showDetails) params.set("show_details", "true");
         }
         if (state.borderRadius !== 12) params.set("radius", state.borderRadius);
         if (state.padding !== 16) params.set("padding", state.padding);

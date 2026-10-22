@@ -42,6 +42,8 @@
       this.showGrade = container.dataset.inatShowGrade === "true";
       this.showLocation = container.dataset.inatShowLocation !== "false";
       this.showNotes = container.dataset.inatShowNotes === "true";
+      // Slideshow only: observer, date and location under the names, like the cards
+      this.showDetails = container.dataset.inatShowDetails === "true";
       // Slideshow defaults to no title and always-visible names; other layouts the reverse
       this.showTitle =
         container.dataset.inatShowTitle !== undefined
@@ -574,6 +576,31 @@
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+        }
+        .inat-w-slide-details {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 2px 14px;
+          margin-top: 6px;
+          font-size: 12px;
+          color: rgba(255,255,255,0.9);
+        }
+        .inat-w-slide-detail {
+          max-width: 100%;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .inat-w .inat-w-slide-avatar {
+          display: inline-block;
+          width: 18px;
+          height: 18px;
+          margin-right: 2px;
+          border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.7);
+          object-fit: cover;
+          vertical-align: -5px;
         }
         .inat-w-slide-nav {
           position: absolute;
@@ -1550,7 +1577,21 @@
           badge: this.showCount
             ? `<span class="inat-w-count-badge">${this.formatCount(result.count)} obs</span>`
             : "",
+          details: "",
         };
+      }
+      let details = "";
+      if (this.showDetails) {
+        const user = result.user ? result.user.login : "Unknown";
+        const userIcon = result.user && result.user.icon ? result.user.icon : null;
+        const place = result.place_guess || "Unknown location";
+        details = `
+          <div class="inat-w-slide-details">
+            <span class="inat-w-slide-detail">${userIcon ? `<img class="inat-w-slide-avatar" data-src="${userIcon}" alt="" />` : "&#x1F464;"} ${this.escapeHtml(user)}</span>
+            <span class="inat-w-slide-detail">&#x1F4C5; ${this.formatDate(result)}</span>
+            ${this.showLocation ? `<span class="inat-w-slide-detail">&#x1F4CD; ${this.escapeHtml(place)}</span>` : ""}
+          </div>
+        `;
       }
       return {
         url: `https://www.inaturalist.org/observations/${result.id}`,
@@ -1559,6 +1600,7 @@
         photo: this.getPhotoUrl(result, "large"),
         placeholder: this.noPhotoIcon(result),
         badge: "",
+        details,
       };
     }
 
@@ -1590,6 +1632,7 @@
             <div class="inat-w-slide-overlay">
               <div class="inat-w-slide-name">${this.escapeHtml(s.name)}</div>
               <div class="inat-w-slide-sci">${this.escapeHtml(s.sci)}</div>
+              ${s.details}
             </div>
           `;
           wrap.appendChild(slide);
@@ -1639,13 +1682,12 @@
         slideEls[current].classList.remove("inat-w-active");
         current = (idx + slideEls.length) % slideEls.length;
         slideEls[current].classList.add("inat-w-active");
-        // Load the current photo and preload the next one
+        // Load the current photo (and observer avatar) and preload the next one
         [current, (current + 1) % slideEls.length].forEach((i) => {
-          const img = slideEls[i].querySelector("img[data-src]");
-          if (img) {
+          slideEls[i].querySelectorAll("img[data-src]").forEach((img) => {
             img.src = img.dataset.src;
             img.removeAttribute("data-src");
-          }
+          });
         });
         updateCounter();
         // Fetch the next page a few slides before running out
