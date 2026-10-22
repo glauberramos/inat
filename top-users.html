@@ -532,7 +532,7 @@
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js?v=4"></script>
+    <script src="shared-utils.js?v=5"></script>
     <script src="autocomplete.js"></script>
     <script>
       // The observers endpoint hard-caps results at the first 500 rows
@@ -999,6 +999,20 @@
         if (!username) {
           showError("error", "Please enter your username");
           return;
+        }
+
+        // The place box can show a name while no place is picked; never drop that filter silently
+        const placeName = placeInput.value.trim();
+        if (placeName && !selectedPlaceId) {
+          const placeId = await resolvePlaceIdByName(placeName).catch(() => null);
+          if (!placeId) {
+            showError("error", `Place "${placeName}" not found. Please pick it from the suggestions list.`);
+            return;
+          }
+          selectedPlaceId = placeId;
+          selectedPlaceName = placeName;
+          savePlace(selectedPlaceId, selectedPlaceName);
+          updateUrlWithPlace(selectedPlaceId, selectedPlaceName);
         }
 
         saveUsername(username);

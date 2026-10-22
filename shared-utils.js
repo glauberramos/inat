@@ -251,6 +251,22 @@ async function fetchJSON(url, { retries = 4, baseDelayMs = 1500 } = {}) {
   }
 }
 
+// Find the place whose name is exactly the text in a place box. Covers the box
+// showing a name while no place id is picked (typed without clicking a
+// suggestion, or edited after the pick). Only exact names count: "United
+// State" must not quietly become "United States Minor Outlying Islands".
+// Resolves to the place id, or null when no place has that name.
+async function resolvePlaceIdByName(name) {
+  const wanted = name.trim().toLowerCase();
+  const data = await fetchJSON(
+    `${API_BASE}/places/autocomplete?q=${encodeURIComponent(name.trim())}&per_page=20`
+  );
+  const match = (data.results || []).find((place) =>
+    [place.display_name, place.name].some((n) => n && n.trim().toLowerCase() === wanted)
+  );
+  return match ? match.id : null;
+}
+
 // ===== HTML Helpers =====
 
 // Escape a value for safe interpolation into HTML (element content or
@@ -529,6 +545,7 @@ if (typeof module !== "undefined" && module.exports) {
     escapeHtml,
     sleep,
     fetchJSON,
+    resolvePlaceIdByName,
     fetchAllRecords,
     collectInfraspecificTaxa,
     hydrateTaxa,

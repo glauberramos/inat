@@ -114,6 +114,20 @@ document.addEventListener("DOMContentLoaded", function () {
   placeInput.addEventListener("input", (e) => {
     const query = e.target.value.trim();
 
+    // Editing the text drops the earlier pick (place, project or map area), so a search
+    // never uses a location the box no longer shows; focusout clears unpicked text
+    placeIdInput.value = "";
+    const mapBoundsInput = document.getElementById("mapBoundsInput");
+    if (mapBoundsInput) {
+      mapBoundsInput.value = "";
+    }
+    ["inatPlaceId", "inatPlaceName", "inatProject", "inatProjectId", "inatMapArea"].forEach((key) =>
+      localStorage.removeItem(key)
+    );
+    if (typeof updateUrlWithPlace === "function") {
+      updateUrlWithPlace(null, null);
+    }
+
     // Clear previous timeout
     if (placeSearchTimeout) {
       clearTimeout(placeSearchTimeout);

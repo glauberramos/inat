@@ -515,7 +515,7 @@
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js?v=4"></script>
+    <script src="shared-utils.js?v=5"></script>
     <script src="location-autocomplete.js?v=2"></script>
     <script>
       const locationInputA = document.getElementById("locationInputA");
@@ -831,10 +831,23 @@
       }
 
       async function compareSpecies() {
-        const placeA = placeIdA.value;
-        const placeB = placeIdB.value;
         const placeNameA = locationInputA.value.trim();
         const placeNameB = locationInputB.value.trim();
+
+        // A box can show a name while no place is picked; look the name up instead of ignoring it
+        for (const [name, idInput] of [[placeNameA, placeIdA], [placeNameB, placeIdB]]) {
+          if (name && !idInput.value) {
+            const id = await resolvePlaceIdByName(name).catch(() => null);
+            if (!id) {
+              showError(errorMessage, `Place "${name}" not found. Please pick it from the suggestions list.`);
+              return;
+            }
+            idInput.value = id;
+          }
+        }
+
+        const placeA = placeIdA.value;
+        const placeB = placeIdB.value;
         const taxonId = taxonIdInput.value || null;
         const username = usernameInput.value.trim();
 

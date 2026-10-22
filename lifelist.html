@@ -810,7 +810,7 @@
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js?v=4"></script>
+    <script src="shared-utils.js?v=5"></script>
     <script>
       let isSearching = false;
       let searchTimeout = null;
@@ -1054,13 +1054,15 @@
         clearTimeout(placeSearchTimeout);
         const query = e.target.value.trim();
 
+        // Editing the text drops the earlier pick, so a search never uses a place the box no longer shows
+        placeIdInput.value = "";
+        projectIdInput.value = "";
+
         if (query.length < 2) {
           placeAutocompleteEl.innerHTML = "";
           placeAutocompleteEl.classList.remove("active");
-          // Clear place/project ID, localStorage and URL if input is cleared
+          // Clear localStorage and URL if input is cleared
           if (query.length === 0) {
-            placeIdInput.value = "";
-            projectIdInput.value = "";
             localStorage.removeItem("inatPlaceId");
             localStorage.removeItem("inatPlaceName");
             localStorage.removeItem("inatProjectId");
@@ -1596,9 +1598,25 @@
         if (isSearching) return;
 
         const username = document.getElementById("username").value.trim() || null;
-        const placeId = placeIdInput.value || null;
+        let placeId = placeIdInput.value || null;
         const projectId = projectIdInput.value || null;
         const taxonId = taxonIdInput.value || null;
+
+        // The place box can show a name while nothing is picked; never drop that filter silently
+        const placeName = placeInput.value.trim();
+        if (placeName && !placeId && !projectId) {
+          placeId = await resolvePlaceIdByName(placeName).catch(() => null);
+          if (!placeId) {
+            showError("error", `Place "${placeName}" not found. Please pick it from the suggestions list.`);
+            return;
+          }
+          placeIdInput.value = placeId;
+          localStorage.setItem("inatPlaceId", placeId);
+          localStorage.setItem("inatPlaceName", placeName);
+          localStorage.removeItem("inatProjectId");
+          localStorage.removeItem("inatProjectName");
+          updateUrlWithPlace(placeId, placeName);
+        }
 
         if (!username && !placeId && !projectId) {
           showError("error", "Please enter a username or select a place/project");

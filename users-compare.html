@@ -499,7 +499,7 @@
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js?v=4"></script>
+    <script src="shared-utils.js?v=5"></script>
     <script src="location-autocomplete.js?v=2"></script>
     <script>
       const userInputA = document.getElementById("userInputA");
@@ -784,7 +784,7 @@
         const usernameA = userInputA.value.trim();
         const usernameB = userInputB.value.trim();
         const taxonId = taxonIdInput.value || null;
-        const placeId = placeIdInput.value || null;
+        const placeName = locationInput.value.trim();
 
         if (!usernameA || !usernameB) {
           showError(errorMessage, "Please enter both usernames");
@@ -817,6 +817,19 @@
             loading.style.display = "none";
             showError(errorMessage, `User "${usernameB}" not found`);
             return;
+          }
+
+          // The place box can show a name while its hidden id is empty; never drop that filter silently
+          let placeId = placeIdInput.value || null;
+          if (placeName && !placeId) {
+            loading.textContent = "Resolving place...";
+            placeId = await resolvePlaceIdByName(placeName);
+            if (!placeId) {
+              loading.style.display = "none";
+              showError(errorMessage, `Place "${placeName}" not found. Please pick it from the suggestions list.`);
+              return;
+            }
+            placeIdInput.value = placeId;
           }
 
           const finalUsernameA = userInputA.value.trim();

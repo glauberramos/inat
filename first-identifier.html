@@ -485,7 +485,7 @@
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js?v=4"></script>
+    <script src="shared-utils.js?v=5"></script>
     <script>
       const DELAY_MS = 50;
       const MIN_ROUND_MS = 2500;
@@ -973,6 +973,21 @@
         if (!username) {
           showError("error", "Please enter a username");
           return;
+        }
+
+        // The place box can show a name while no place is picked; never drop that filter silently
+        const placeName = placeInput.value.trim();
+        if (placeName && !selectedPlaceId) {
+          const placeId = await resolvePlaceIdByName(placeName).catch(() => null);
+          if (!placeId) {
+            showError("error", `Place "${placeName}" not found. Please pick it from the suggestions list.`);
+            return;
+          }
+          selectedPlaceId = placeId;
+          selectedPlaceName = placeName;
+          localStorage.setItem("inatPlaceId", selectedPlaceId);
+          localStorage.setItem("inatPlaceName", selectedPlaceName);
+          updateUrlWithPlace(selectedPlaceId, selectedPlaceName);
         }
 
         // Save username and update URL

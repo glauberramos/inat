@@ -29,6 +29,7 @@ const sharedGlobals = {
   initFeedbackButton: "readonly",
   registerServiceWorker: "readonly",
   fetchJSON: "readonly",
+  resolvePlaceIdByName: "readonly",
   escapeHtml: "readonly",
   sleep: "readonly",
   DATE_RANGE_PRESETS: "readonly",

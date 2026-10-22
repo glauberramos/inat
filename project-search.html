@@ -438,7 +438,7 @@
       </main>
     </div>
     <script src="constants.js"></script>
-    <script src="shared-utils.js?v=4"></script>
+    <script src="shared-utils.js?v=5"></script>
     <script src="location-autocomplete.js?v=2"></script>
     <script>
       let selectedLocation = null;
@@ -517,6 +517,21 @@
       // Fetch projects for a specific page (5 sequential API calls of 200 = 1000 per page)
       async function fetchProjects(page = 1) {
         const nameQuery = nameInput.value.trim();
+
+        // Follow what the location box shows: an edit since the pick drops it, a typed name is looked up
+        const locationName = locationInput.value.trim();
+        if (!locationName) {
+          selectedLocation = null;
+        } else if (!locationAutocompleteInstance.getPlaceId()) {
+          const placeId = await resolvePlaceIdByName(locationName).catch(() => null);
+          if (!placeId) {
+            showError(errorMessage, `Place "${locationName}" not found. Please pick it from the suggestions list.`);
+            locationInfo.classList.remove("show");
+            return;
+          }
+          locationAutocompleteInstance.setPlace(placeId, locationName);
+          selectedLocation = { id: placeId, name: locationName };
+        }
 
         if (!selectedLocation && !nameQuery) {
           showError(errorMessage, "Please enter a project name or select a location");
