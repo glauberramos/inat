@@ -486,6 +486,9 @@
       .quiz .rec {
         margin-top: 0;
       }
+      .quiz .rec-head:last-child {
+        margin-bottom: 0; /* before the answer there's no spectrogram below it */
+      }
       .quiz-options {
         margin-top: 14px;
         border-radius: 14px;
@@ -728,9 +731,8 @@
       // Recordings come from iNaturalist or the Macaulay Library (eBird/Merlin).
       function soundCredit(sound) {
         if (sound.source === "macaulay") {
-          const by = sound.recordist ? `${sound.recordist} · ` : "";
           return {
-            text: `${by}Macaulay Library ML${sound.ml}`,
+            text: [sound.recordist, sound.location, `Macaulay Library ML${sound.ml}`].filter(Boolean).join(" · "),
             href: `https://macaulaylibrary.org/asset/${sound.ml}`,
           };
         }
@@ -962,7 +964,7 @@
       const quizFeedback = document.getElementById("quizFeedback");
       const quizNext = document.getElementById("quizNext");
       let score = loadScore();
-      let round = null; // { bird, correctBtn, answered }
+      let round = null; // { bird, row, correctBtn, answered }
 
       function loadScore() {
         try {
@@ -1014,14 +1016,13 @@
         const sameFamily = shuffle(others.filter((b) => b.family === bird.family));
         const otherFamilies = shuffle(others.filter((b) => b.family !== bird.family));
         const choices = shuffle([bird, ...sameFamily.concat(otherFamilies).slice(0, CHOICES - 1)]);
-        round = { bird, answered: false };
-
+        // The spectrogram would give the answer away, so it only shows up once answered
         const row = makeRow(sound, "a gravação", "Espectrograma da gravação");
         row.el = el("div", { class: "rec" }, [
           el("div", { class: "rec-head" }, [row.btn, el("span", { class: "rec-title", text: "Ouça" }), row.time]),
-          row.spec,
         ]);
         quizSound.replaceChildren(row.el);
+        round = { bird, row, answered: false };
 
         quizOptions.replaceChildren(
           ...choices.map((choice) => {
@@ -1052,6 +1053,7 @@
 
         quizOptions.querySelectorAll(".quiz-option").forEach((option) => (option.disabled = true));
         round.correctBtn.classList.add("is-correct");
+        round.row.el.appendChild(round.row.spec);
         if (!right) btn.classList.add("is-wrong");
         quizFeedback.textContent = right ? "Acertou!" : `Errou. A resposta é ${round.bird.name}.`;
         quizFeedback.classList.add(right ? "is-right" : "is-wrong");
