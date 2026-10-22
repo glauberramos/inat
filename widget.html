@@ -750,6 +750,7 @@
               <input type="range" class="range-input" id="intervalRange" min="1" max="30" value="5" />
               <span class="range-value" id="intervalValue">5s</span>
             </div>
+            <label class="checkbox-label"><input type="checkbox" id="shuffleCheck" /> Random order</label>
           </div>
         </div>
 
@@ -977,6 +978,7 @@
         showNames: false,
         showCount: true,
         interval: 5,
+        shuffle: false,
         headerText: "",
         borderRadius: 12,
         padding: 16,
@@ -1202,6 +1204,11 @@
         intervalValue.textContent = `${state.interval}s`;
       });
       intervalRange.addEventListener("change", () => {
+        renderPreview();
+        updateEmbedCode();
+      });
+      document.getElementById("shuffleCheck").addEventListener("change", (e) => {
+        state.shuffle = e.target.checked;
         renderPreview();
         updateEmbedCode();
       });
@@ -1553,6 +1560,7 @@
           attrs.push(`data-inat-show-names="${state.showNames}"`);
         }
         if (isSlideshow && state.interval !== 5) attrs.push(`data-inat-interval="${state.interval}"`);
+        if (isSlideshow && state.shuffle) attrs.push(`data-inat-shuffle="true"`);
         if (isSpecies && !state.showCount) attrs.push(`data-inat-show-count="false"`);
         if (state.compact) attrs.push(`data-inat-compact="true"`);
         if (state.pagination && state.sourceType !== "observation" && !isSlideshow) attrs.push(`data-inat-pagination="true"`);
@@ -1614,6 +1622,7 @@
           params.set("show_names", String(state.showNames));
         }
         if (isSlideshow && state.interval !== 5) params.set("interval", state.interval);
+        if (isSlideshow && state.shuffle) params.set("shuffle", "true");
         if (isSpecies && !state.showCount) params.set("show_count", "false");
         if (state.compact) params.set("compact", "true");
         if (state.pagination && state.sourceType !== "observation" && !isSlideshow) params.set("pagination", "true");

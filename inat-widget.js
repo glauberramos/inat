@@ -67,6 +67,8 @@
       // Stretch a slideshow to the viewport, e.g. when the embed page is opened directly
       this.fill = isSlideshow && container.dataset.inatFill === "true";
       this.interval = Math.min(60, Math.max(1, parseInt(container.dataset.inatInterval) || 5));
+      // Play slides in random order instead of the API's order
+      this.shuffle = isSlideshow && container.dataset.inatShuffle === "true";
       this.slideTimer = null;
       this.searchTaxon = null;
       this.page = 1;
@@ -1129,6 +1131,23 @@
         this.observations = data.results || [];
         this.totalResults = data.total_results || 0;
 
+        // Random order shuffles everything up to the limit, so load the remaining pages first
+        if (this.shuffle) {
+          const total = Math.min(this.limit, this.totalResults);
+          const pages = [];
+          for (let p = 2; (p - 1) * perPage < total; p++) pages.push(p);
+          const more = await Promise.all(
+            pages.map((p) =>
+              fetch(this.listUrl(perPage, p))
+                .then((res) => (res.ok ? res.json() : {}))
+                // Play whatever loaded if a page fails
+                .catch(() => ({}))
+            )
+          );
+          more.forEach((d) => this.observations.push(...(d.results || [])));
+          this.observations = this.observations.slice(0, total);
+        }
+
         if (this.observations.length === 0) {
           const emptyMsg = isSpecies ? "No species found" : "No observations found";
           this.contentEl.innerHTML = `<div class="inat-w-error"><div class="inat-w-error-icon">&#x1F50D;</div><div>${emptyMsg}</div></div>`;
@@ -1611,7 +1630,10 @@
 
       // Only the first page is loaded up front; later pages load as the slideshow nears them
       const pageSize = Math.min(this.limit, API_MAX_PER_PAGE);
-      let total = Math.max(this.observations.length, Math.min(this.limit, this.totalResults));
+      // Random order has everything loaded already (see fetchObservations)
+      let total = this.shuffle
+        ? this.observations.length
+        : Math.max(this.observations.length, Math.min(this.limit, this.totalResults));
       const slideEls = [];
       let current = 0;
       let hovering = false;
@@ -1640,7 +1662,7 @@
         });
       };
 
-      addSlides(this.observations);
+      addSlides(this.shuffle ? this.shuffled(this.observations) : this.observations);
 
       if (total > 1) {
         wrap.insertAdjacentHTML(
@@ -1739,6 +1761,16 @@
         wrap.style.width = fitWidth("100dvh"); // ignored where dvh is unsupported
       }
       start();
+    }
+
+    // Fisher–Yates shuffle into a new array
+    shuffled(items) {
+      const result = items.slice();
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
     }
 
     getCommonName(obs) {
