@@ -1051,7 +1051,7 @@
       function updateNavBar() {
         navBar.classList.toggle("is-visible", largeTitle.getBoundingClientRect().bottom < navBar.offsetHeight);
       }
-      addEventListener("scroll", updateNavBar, { passive: true });
+      window.addEventListener("scroll", updateNavBar, { passive: true });
       updateNavBar();
 
       // Challenge: guess the bird from its recording. Endless; the score lives in localStorage.
@@ -1072,14 +1072,14 @@
         try {
           const saved = JSON.parse(localStorage.getItem(SCORE_KEY));
           if (saved && Number.isFinite(saved.right) && Number.isFinite(saved.wrong)) return saved;
-        } catch (e) {}
+        } catch {}
         return { right: 0, wrong: 0 };
       }
 
       function saveScore() {
         try {
           localStorage.setItem(SCORE_KEY, JSON.stringify(score));
-        } catch (e) {}
+        } catch {}
       }
 
       // ✓ 3  ✕ 1, read out as "3 acertos, 1 erro"
@@ -1114,7 +1114,7 @@
         try {
           const saved = JSON.parse(localStorage.getItem(DECK_KEY));
           if (Array.isArray(saved)) deck = saved.filter((id) => byId.has(id));
-        } catch (e) {}
+        } catch {}
         if (!deck.length) {
           deck = shuffle(playable.map((b) => b.inatTaxonId));
           if (deck.length > 1 && round && deck[0] === round.bird.inatTaxonId) deck.push(deck.shift());
@@ -1122,7 +1122,7 @@
         const bird = byId.get(deck.shift());
         try {
           localStorage.setItem(DECK_KEY, JSON.stringify(deck));
-        } catch (e) {}
+        } catch {}
         return bird;
       }
 
