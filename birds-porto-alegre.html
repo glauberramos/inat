@@ -1056,6 +1056,8 @@
 
       // Challenge: guess the bird from its recording. Endless; the score lives in localStorage.
       const SCORE_KEY = "birdsPortoAlegreChallenge";
+      // Birds still to come this lap, by iNat taxon id; every bird comes up once before any repeats
+      const DECK_KEY = "birdsPortoAlegreChallengeDeck";
       const CHOICES = 4; // birds to pick from each round, the right one included
       const quiz = document.getElementById("quiz");
       const quizScore = document.getElementById("quizScore");
@@ -1104,6 +1106,26 @@
         return out;
       }
 
+      // Next bird from the deck, reshuffled once it runs out (the bird just played doesn't open the new lap)
+      function drawBird() {
+        const playable = BIRDS.filter((b) => b.sounds.length);
+        const byId = new Map(playable.map((b) => [b.inatTaxonId, b]));
+        let deck = [];
+        try {
+          const saved = JSON.parse(localStorage.getItem(DECK_KEY));
+          if (Array.isArray(saved)) deck = saved.filter((id) => byId.has(id));
+        } catch (e) {}
+        if (!deck.length) {
+          deck = shuffle(playable.map((b) => b.inatTaxonId));
+          if (deck.length > 1 && round && deck[0] === round.bird.inatTaxonId) deck.push(deck.shift());
+        }
+        const bird = byId.get(deck.shift());
+        try {
+          localStorage.setItem(DECK_KEY, JSON.stringify(deck));
+        } catch (e) {}
+        return bird;
+      }
+
       function stopPlayback() {
         player.pause();
         deactivate();
@@ -1111,8 +1133,7 @@
 
       function newRound() {
         stopPlayback();
-        // Never the same bird twice in a row
-        const bird = pickOne(BIRDS.filter((b) => b.sounds.length && (!round || b !== round.bird)));
+        const bird = drawBird();
         const sound = pickOne(bird.sounds);
         // Wrong choices come from the same family first, which makes it harder; any left over are random
         const others = BIRDS.filter((b) => b !== bird);
