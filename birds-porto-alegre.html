@@ -468,7 +468,23 @@
       .quiz-score .is-wrong {
         color: var(--red);
       }
+      /* Zerar sits beside the score; it only shows once there's a score to clear */
+      .quiz .quiz-reset {
+        width: auto;
+        margin-left: 12px;
+        padding: 6px 0;
+        background: transparent;
+        color: var(--tint);
+        font-size: 15px;
+      }
+      .quiz .quiz-reset:hover {
+        background: transparent;
+      }
+      .quiz .quiz-reset[hidden] {
+        display: none;
+      }
       .quiz .quiz-close {
+        margin-left: auto;
         width: auto;
         padding: 6px 0;
         background: transparent;
@@ -759,6 +775,7 @@
     <dialog class="quiz" id="quiz" aria-labelledby="quizTitle">
       <div class="quiz-bar">
         <p class="quiz-score" id="quizScore"></p>
+        <button class="quiz-reset" id="quizReset" type="button" hidden>Zerar</button>
         <button class="quiz-close" id="quizClose" type="button">Fechar</button>
       </div>
       <div class="quiz-body">
@@ -1065,6 +1082,7 @@
       const quizOptions = document.getElementById("quizOptions");
       const quizFeedback = document.getElementById("quizFeedback");
       const quizNext = document.getElementById("quizNext");
+      const quizReset = document.getElementById("quizReset");
       let score = loadScore();
       let round = null; // { bird, row, correctBtn, answered }
 
@@ -1091,6 +1109,7 @@
             el("span", { class: "visually-hidden", text: ` ${word}${n === 1 ? "" : "s"}` }),
           ]);
         quizScore.replaceChildren(tally("is-right", "✓", score.right, "acerto"), tally("is-wrong", "✕", score.wrong, "erro"));
+        quizReset.hidden = score.right + score.wrong === 0;
       }
 
       function pickOne(list) {
@@ -1191,6 +1210,13 @@
       document.getElementById("challengeBtn").addEventListener("click", () => {
         quiz.showModal();
         newRound();
+      });
+      quizReset.addEventListener("click", () => {
+        if (!confirm("Zerar o placar?")) return;
+        score = { right: 0, wrong: 0 };
+        saveScore();
+        renderScore();
+        quizNext.focus(); // the button hides itself, so keep focus in the sheet
       });
       document.getElementById("quizClose").addEventListener("click", () => quiz.close());
       quizNext.addEventListener("click", newRound);
