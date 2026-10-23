@@ -414,6 +414,8 @@
 
       /* Challenge: a sheet with one mystery recording and four birds to pick from */
       .quiz {
+        --sheet: var(--bg);
+        --sheet-cell: var(--cell);
         margin: auto; /* styles.css zeroes every margin, which would pin the dialog to the corner */
         border: none;
         padding: 0;
@@ -421,11 +423,20 @@
         max-width: none;
         max-height: calc(100% - 32px);
         border-radius: 20px;
-        background: var(--bg);
+        background: var(--sheet);
         color: var(--label);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+      /* Like iOS, the sheet uses the raised grays in dark mode so it stands off the black page */
+      html.dark-mode .quiz {
+        --sheet: #1c1c1e;
+        --sheet-cell: #2c2c2e;
       }
       .quiz::backdrop {
-        background: rgba(0, 0, 0, 0.4);
+        background: rgba(0, 0, 0, 0.45);
+      }
+      html.dark-mode .quiz::backdrop {
+        background: rgba(0, 0, 0, 0.7);
       }
       .quiz[open] {
         animation: sheet-in 0.25s ease-out;
@@ -436,22 +447,28 @@
           transform: translateY(32px);
         }
       }
+      /* Score on the left, close on the right */
       .quiz-bar {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
+        display: flex;
         align-items: center;
+        justify-content: space-between;
         height: 52px;
-        padding: 0 16px;
+        padding: 0 16px 0 20px;
       }
-      .quiz .quiz-bar h2 {
-        grid-column: 2;
-        font-size: 17px;
+      .quiz-score {
+        display: flex;
+        gap: 14px;
+        font-size: 15px;
         font-weight: 600;
-        color: var(--label);
+        font-variant-numeric: tabular-nums;
+      }
+      .quiz-score .is-right {
+        color: var(--tint);
+      }
+      .quiz-score .is-wrong {
+        color: var(--red);
       }
       .quiz .quiz-close {
-        grid-column: 3;
-        justify-self: end;
         width: auto;
         padding: 6px 0;
         background: transparent;
@@ -464,34 +481,72 @@
       .quiz-body {
         padding: 0 16px 20px;
       }
-      .quiz-score {
-        display: flex;
-        justify-content: center;
-        gap: 16px;
-        font-size: 13px;
-        color: var(--label-2);
-        font-variant-numeric: tabular-nums;
-      }
-      .quiz-question {
-        margin: 14px 4px 8px;
-        font-size: 22px;
-        line-height: 28px;
+      .quiz .quiz-question {
+        margin: 0 4px 12px;
+        font-size: 26px;
+        line-height: 32px;
         font-weight: 700;
+        color: var(--label);
       }
+
+      /* The mystery recording: a big play button beside its spectrogram, which stays
+         covered until the answer (it would give the bird away) but still shows the playhead */
       .quiz-sound {
-        background: var(--cell);
-        border-radius: 14px;
+        background: var(--sheet-cell);
+        border-radius: 16px;
         padding: 12px;
       }
-      .quiz .rec {
+      .quiz .quiz-rec {
+        display: flex;
+        align-items: center;
+        gap: 12px;
         margin-top: 0;
       }
-      .quiz .rec-head:last-child {
-        margin-bottom: 0; /* before the answer there's no spectrogram below it */
+      .quiz-rec .play-btn {
+        width: 56px;
+        height: 56px;
       }
+      .quiz-rec .play-btn svg {
+        width: 22px;
+        height: 22px;
+      }
+      .quiz-rec .spec {
+        flex: 1;
+        height: 56px;
+      }
+      .quiz-rec .spec img {
+        transition: clip-path 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+      .quiz-rec .spec.is-concealed img {
+        clip-path: inset(0 100% 0 0); /* uncovers left to right, along the time axis */
+      }
+      .quiz-rec .spec.is-concealed::before {
+        content: "?";
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font-size: 26px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.3);
+      }
+      .quiz-rec .rec-time,
+      .quiz-rec.is-playing .rec-time {
+        position: absolute;
+        right: 6px;
+        bottom: 6px;
+        padding: 0 5px;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.6); /* stays legible over the spectrogram once uncovered */
+        font-size: 12px;
+        line-height: 18px;
+        color: #fff;
+        pointer-events: none;
+      }
+
       .quiz-options {
-        margin-top: 14px;
-        border-radius: 14px;
+        margin-top: 12px;
+        border-radius: 16px;
         overflow: hidden;
       }
       .quiz .quiz-option {
@@ -499,9 +554,9 @@
         align-items: center;
         gap: 12px;
         width: 100%;
-        padding: 8px 16px 8px 8px;
+        padding: 8px 14px 8px 8px;
         border-radius: 0;
-        background: var(--cell);
+        background: var(--sheet-cell);
         color: var(--label);
         font-size: 17px;
         text-align: left;
@@ -511,19 +566,25 @@
         border-top: 0.5px solid var(--separator);
       }
       .quiz .quiz-option:hover {
-        background: var(--cell) linear-gradient(var(--fill), var(--fill));
+        background: var(--sheet-cell) linear-gradient(var(--fill), var(--fill));
       }
       .quiz .quiz-option:focus-visible {
         outline: 3px solid var(--tint);
         outline-offset: -3px;
       }
       .quiz .quiz-option:disabled {
-        background: var(--cell);
+        background: var(--sheet-cell);
         color: var(--label);
         cursor: default;
       }
       .quiz .quiz-option:disabled:not(.is-correct):not(.is-wrong) {
-        opacity: 0.45;
+        opacity: 0.4;
+      }
+      .quiz .quiz-option.is-correct {
+        background: color-mix(in srgb, var(--tint) 18%, var(--sheet-cell));
+      }
+      .quiz .quiz-option.is-wrong {
+        background: color-mix(in srgb, var(--red) 16%, var(--sheet-cell));
       }
       .quiz-option img {
         flex: none;
@@ -535,23 +596,51 @@
       }
       .quiz-option-name {
         flex: 1;
+        font-weight: 500;
       }
       .quiz-mark {
-        font-size: 20px;
-        font-weight: 700;
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 800;
+      }
+      .quiz-option.is-correct .quiz-mark {
+        background: var(--tint);
       }
       .quiz-option.is-correct .quiz-mark::before {
         content: "✓";
-        color: var(--tint);
+      }
+      .quiz-option.is-wrong .quiz-mark {
+        background: var(--red);
       }
       .quiz-option.is-wrong .quiz-mark::before {
         content: "✕";
-        color: var(--red);
+      }
+
+      /* Hint or result on the left, Pular/Próxima on the right; always there, so nothing jumps */
+      .quiz-footer {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 46px;
+        margin-top: 16px;
       }
       .quiz-feedback {
-        min-height: 22px;
-        margin: 14px 4px 0;
+        flex: 1;
+        margin: 0 4px;
+        font-size: 15px;
+        line-height: 20px;
+        color: var(--label-2);
+      }
+      .quiz-feedback.is-right,
+      .quiz-feedback.is-wrong {
         font-size: 17px;
+        line-height: 22px;
         font-weight: 600;
       }
       .quiz-feedback.is-right {
@@ -561,10 +650,11 @@
         color: var(--red);
       }
       .quiz .quiz-next {
-        width: 100%;
-        margin-top: 12px;
-        padding: 14px;
-        border-radius: 14px;
+        flex: none;
+        width: auto;
+        min-width: 112px;
+        padding: 12px 22px;
+        border-radius: 999px;
         background: var(--tint);
         color: #fff;
         font-size: 17px;
@@ -573,6 +663,14 @@
       .quiz .quiz-next:hover,
       .quiz .quiz-next:active {
         background: var(--tint-pressed);
+      }
+      .quiz .quiz-next.is-skip {
+        background: var(--fill);
+        color: var(--tint);
+      }
+      .quiz .quiz-next.is-skip:hover,
+      .quiz .quiz-next.is-skip:active {
+        background: var(--fill) linear-gradient(var(--fill), var(--fill));
       }
       .quiz .quiz-next:focus-visible {
         outline: 3px solid var(--tint);
@@ -615,7 +713,8 @@
         .nav-bar,
         .nav-bar span,
         .rec .play-btn,
-        .quiz .quiz-option {
+        .quiz .quiz-option,
+        .quiz-rec .spec img {
           transition: none;
         }
         .quiz[open] {
@@ -659,16 +758,17 @@
 
     <dialog class="quiz" id="quiz" aria-labelledby="quizTitle">
       <div class="quiz-bar">
-        <h2 id="quizTitle">Desafio</h2>
+        <p class="quiz-score" id="quizScore"></p>
         <button class="quiz-close" id="quizClose" type="button">Fechar</button>
       </div>
       <div class="quiz-body">
-        <p class="quiz-score" id="quizScore"></p>
-        <p class="quiz-question">Que ave é essa?</p>
+        <h2 class="quiz-question" id="quizTitle">Que ave é essa?</h2>
         <div class="quiz-sound" id="quizSound"></div>
         <div class="quiz-options" id="quizOptions"></div>
-        <p class="quiz-feedback" id="quizFeedback" aria-live="polite"></p>
-        <button class="quiz-next" id="quizNext" type="button" hidden>Próxima</button>
+        <div class="quiz-footer">
+          <p class="quiz-feedback" id="quizFeedback" aria-live="polite"></p>
+          <button class="quiz-next" id="quizNext" type="button"></button>
+        </div>
       </div>
     </dialog>
 
@@ -980,12 +1080,15 @@
         } catch (e) {}
       }
 
+      // ✓ 3  ✕ 1, read out as "3 acertos, 1 erro"
       function renderScore() {
-        const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
-        quizScore.replaceChildren(
-          el("span", { text: plural(score.right, "acerto") }),
-          el("span", { text: plural(score.wrong, "erro") })
-        );
+        const tally = (cls, glyph, n, word) =>
+          el("span", { class: cls }, [
+            el("span", { "aria-hidden": "true", text: `${glyph} ` }),
+            document.createTextNode(n),
+            el("span", { class: "visually-hidden", text: ` ${word}${n === 1 ? "" : "s"}` }),
+          ]);
+        quizScore.replaceChildren(tally("is-right", "✓", score.right, "acerto"), tally("is-wrong", "✕", score.wrong, "erro"));
       }
 
       function pickOne(list) {
@@ -1016,11 +1119,11 @@
         const sameFamily = shuffle(others.filter((b) => b.family === bird.family));
         const otherFamilies = shuffle(others.filter((b) => b.family !== bird.family));
         const choices = shuffle([bird, ...sameFamily.concat(otherFamilies).slice(0, CHOICES - 1)]);
-        // The spectrogram would give the answer away, so it only shows up once answered
+        // The spectrogram would give the answer away, so it stays covered until answered
         const row = makeRow(sound, "a gravação", "Espectrograma da gravação");
-        row.el = el("div", { class: "rec" }, [
-          el("div", { class: "rec-head" }, [row.btn, el("span", { class: "rec-title", text: "Ouça" }), row.time]),
-        ]);
+        row.spec.classList.add("is-concealed");
+        row.spec.appendChild(row.time);
+        row.el = el("div", { class: "rec quiz-rec" }, [row.btn, row.spec]);
         quizSound.replaceChildren(row.el);
         round = { bird, row, answered: false };
 
@@ -1036,9 +1139,11 @@
             return btn;
           })
         );
-        quizFeedback.textContent = "";
+        quizFeedback.textContent = "Ouça e escolha uma ave.";
         quizFeedback.className = "quiz-feedback";
-        quizNext.hidden = true;
+        // Skipping doesn't count; handy when a recording won't load
+        quizNext.textContent = "Pular";
+        quizNext.classList.add("is-skip");
         renderScore();
         row.btn.focus();
       }
@@ -1053,11 +1158,12 @@
 
         quizOptions.querySelectorAll(".quiz-option").forEach((option) => (option.disabled = true));
         round.correctBtn.classList.add("is-correct");
-        round.row.el.appendChild(round.row.spec);
+        round.row.spec.classList.remove("is-concealed");
         if (!right) btn.classList.add("is-wrong");
         quizFeedback.textContent = right ? "Acertou!" : `Errou. A resposta é ${round.bird.name}.`;
         quizFeedback.classList.add(right ? "is-right" : "is-wrong");
-        quizNext.hidden = false;
+        quizNext.textContent = "Próxima";
+        quizNext.classList.remove("is-skip");
         quizNext.focus();
       }
 
