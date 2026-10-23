@@ -905,7 +905,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3017,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/466776975/medium.jpg",
     photoCredit: "(c) Birds of Gilgit-Baltistan, some rights reserved (CC BY-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // First four coos, about 4.5s of the 65s recording
+        source: "macaulay",
+        ml: 627104332,
+        recordist: "Celso Modesto Jr.",
+        location: "Araraquara, SP",
+        type: "song",
+        start: 0.2,
+        end: 4.7,
+        fmax: 1500, // the coo is very low
+      },
+    ],
   },
   {
     name: "Garça-branca-pequena",
@@ -914,7 +926,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4940,
     photo: "https://static.inaturalist.org/photos/107527504/medium.jpeg",
     photoCredit: "(c) Juan Miguel Artigas Azas, all rights reserved, uploaded by Juan Miguel Artigas Azas",
-    sounds: [],
+    sounds: [
+      {
+        // First croaks, about 3s of the 18s recording
+        source: "macaulay",
+        ml: 646217871,
+        recordist: "Vinícius Domingues",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 0,
+        end: 3.3,
+      },
+    ],
   },
   {
     name: "Alma-de-gato",
@@ -943,7 +966,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 201041,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/395917812/medium.jpeg",
     photoCredit: "(c) floris_heemskerk, some rights reserved (CC BY-NC), uploaded by floris_heemskerk",
-    sounds: [],
+    sounds: [
+      {
+        // First scream only; the full recording is 3m09s
+        source: "macaulay",
+        ml: 663063630,
+        recordist: "Guilherme Melo",
+        location: "Guaraqueçaba, PR",
+        type: "call",
+        start: 1.6,
+        end: 3.1,
+      },
+    ],
   },
   {
     name: "Sabiá-do-campo",
@@ -973,7 +1007,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1432779,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/677390581/medium.jpg",
     photoCredit: "(c) Manuel Raab, some rights reserved (CC BY-NC), uploaded by Manuel Raab",
-    sounds: [],
+    sounds: [
+      {
+        // First scream only; the full recording is 38s
+        source: "macaulay",
+        ml: 305067591,
+        recordist: "Ciro Albano / Brazil Birding Experts",
+        location: "Uruçuca, BA",
+        type: "call",
+        start: 0.6,
+        end: 2,
+      },
+    ],
   },
   {
     name: "Martim-pescador-verde",
@@ -982,7 +1027,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 2679,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/170123283/medium.jpeg",
     photoCredit: "(c) Estación Biológica Las Guacamayas, some rights reserved (CC BY-NC), uploaded by Estación Biológica Las Guacamayas",
-    sounds: [],
+    sounds: [
+      {
+        // Whistles and the start of the rattle, 3s of the 63s recording
+        source: "macaulay",
+        ml: 293310,
+        recordist: "Peter Boesman",
+        location: "Ubatuba, SP",
+        type: "song",
+        start: 29,
+        end: 32,
+      },
+    ],
   },
   {
     name: "Sanhaço-papa-laranja",
@@ -1090,6 +1146,131 @@ const BIRDS_PORTO_ALEGRE = [
         end: 4.8,
         fmin: 2000,
         fmax: 9000,
+      },
+    ],
+  },
+  {
+    name: "Saracura-três-potes",
+    scientificName: "Aramides cajaneus",
+    family: "Rallidae",
+    inatTaxonId: 513889,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/455464195/medium.jpg",
+    photoCredit: "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
+    sounds: [
+      {
+        // Opening note and eight pairs, about 8s of the 43s recording
+        source: "macaulay",
+        ml: 627800610,
+        recordist: "Arthur Gomes",
+        location: "Guaramiranga, CE",
+        type: "song",
+        start: 1.2,
+        end: 9.4,
+      },
+    ],
+  },
+  {
+    name: "Enferrujado",
+    scientificName: "Lathrotriccus euleri",
+    family: "Tyrannidae",
+    inatTaxonId: 17231,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/6863445/medium.jpg",
+    photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
+    sounds: [
+      {
+        // First four songs, about 7s of the 40s recording
+        source: "macaulay",
+        ml: 609094067,
+        recordist: "Luis Roberto da Silva",
+        location: "São Paulo, SP",
+        type: "song",
+        start: 0.3,
+        end: 7.6,
+        fmin: 1500, // drops low background noise
+      },
+    ],
+  },
+  {
+    name: "Peitica",
+    scientificName: "Empidonomus varius",
+    family: "Tyrannidae",
+    inatTaxonId: 17060,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/293335919/medium.jpeg",
+    photoCredit: "(c) Agustina Medina, some rights reserved (CC BY), uploaded by Agustina Medina",
+    sounds: [
+      {
+        // First two bouts of the 14s recording
+        source: "macaulay",
+        ml: 622578602,
+        recordist: "Guilherme Melo",
+        location: "Altamira, PA",
+        type: "call",
+        start: 1.2,
+        end: 5.6,
+        fmin: 2000, // drops low background noise
+      },
+    ],
+  },
+  {
+    name: "Pula-pula-assobiador",
+    scientificName: "Myiothlypis leucoblephara",
+    family: "Parulidae",
+    inatTaxonId: 201224,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/179298338/medium.jpg",
+    photoCredit: "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
+    sounds: [
+      {
+        // First song only, between calls; the full recording is 43s
+        source: "macaulay",
+        ml: 619502506,
+        recordist: "Guillermo Andreo",
+        location: "Porto Alegre, RS",
+        type: "song",
+        start: 21.4,
+        end: 25.12,
+        fmin: 2000,
+        fmax: 8000,
+      },
+    ],
+  },
+  {
+    name: "Quete-do-sul",
+    scientificName: "Microspingus cabanisi",
+    family: "Thraupidae",
+    inatTaxonId: 558562,
+    photo: "https://static.inaturalist.org/photos/93995721/medium.jpeg",
+    photoCredit: "(c) Arthur Alves, all rights reserved, uploaded by Arthur Alves",
+    sounds: [
+      {
+        // First two phrases of the first song; the full recording is 30s
+        source: "macaulay",
+        ml: 641361185,
+        recordist: "Ines Vasconcelos",
+        location: "Porto Alegre, RS",
+        type: "song",
+        start: 0.7,
+        end: 4.7,
+        fmin: 3000, // drops low background noise
+      },
+    ],
+  },
+  {
+    name: "Trinca-ferro",
+    scientificName: "Saltator similis",
+    family: "Thraupidae",
+    inatTaxonId: 9861,
+    photo: "https://static.inaturalist.org/photos/51081666/medium.jpg",
+    photoCredit: "(c) Mariano Ordoñez, all rights reserved, uploaded by Mariano Ordoñez",
+    sounds: [
+      {
+        // Second phrase only, the loudest; the full recording is 17s
+        source: "macaulay",
+        ml: 178085061,
+        recordist: "Pedro Ayres",
+        location: "Porto Alegre, RS",
+        type: "song",
+        start: 7.7,
+        end: 10.1,
       },
     ],
   },
