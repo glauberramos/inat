@@ -872,10 +872,9 @@
       player.preload = "none";
       let active = null; // recording row { sound, el, btn, spec, progress, time } currently loaded in the player
 
-      // Grouped by family in taxonomic order (the order of BIRD_FAMILIES); the sort is stable,
-      // so birds keep the data file's order within a family.
-      const FAMILY_ORDER = Object.keys(BIRD_FAMILIES);
-      const BIRDS = BIRDS_PORTO_ALEGRE.slice().sort((a, b) => FAMILY_ORDER.indexOf(a.family) - FAMILY_ORDER.indexOf(b.family));
+      // Grouped by family, families A-Z by their Portuguese name like the family filter; the sort
+      // is stable, so birds keep the data file's order within a family.
+      const BIRDS = BIRDS_PORTO_ALEGRE.slice().sort((a, b) => BIRD_FAMILIES[a.family].localeCompare(BIRD_FAMILIES[b.family], "pt"));
 
       function audioUrl(sound) {
         if (sound.source === "macaulay") {
