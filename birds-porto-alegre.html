@@ -1136,7 +1136,10 @@
 
       // Challenge: guess the bird from its recording. Endless; the score lives in localStorage.
       const SCORE_KEY = "birdsPortoAlegreChallenge";
-      // Birds still to come this lap, by iNat taxon id; every bird comes up once before any repeats
+      // Birds still to come this lap, by iNat taxon id; every bird comes up once (with any one of
+      // its sounds) before any repeats. The deck lives in memory and is saved to localStorage when
+      // the browser allows, so a lap carries over between visits but still works where storage is
+      // blocked (e.g. some browsers on file://), which used to reshuffle every round.
       const DECK_KEY = "birdsPortoAlegreChallengeDeck";
       const CHOICES = 4; // birds to pick from each round, the right one included
       const quiz = document.getElementById("quiz");
@@ -1147,6 +1150,7 @@
       const quizNext = document.getElementById("quizNext");
       const quizReset = document.getElementById("quizReset");
       let score = loadScore();
+      let deck = loadDeck();
       let round = null; // { bird, row, correctBtn, answered }
 
       function loadScore() {
@@ -1188,15 +1192,19 @@
         return out;
       }
 
+      function loadDeck() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(DECK_KEY));
+          if (Array.isArray(saved)) return saved;
+        } catch {}
+        return [];
+      }
+
       // Next bird from the deck, reshuffled once it runs out (the bird just played doesn't open the new lap)
       function drawBird() {
         const playable = BIRDS.filter((b) => b.sounds.length);
         const byId = new Map(playable.map((b) => [b.inatTaxonId, b]));
-        let deck = [];
-        try {
-          const saved = JSON.parse(localStorage.getItem(DECK_KEY));
-          if (Array.isArray(saved)) deck = saved.filter((id) => byId.has(id));
-        } catch {}
+        deck = deck.filter((id) => byId.has(id)); // drops birds no longer on the page
         if (!deck.length) {
           deck = shuffle(playable.map((b) => b.inatTaxonId));
           if (deck.length > 1 && round && deck[0] === round.bird.inatTaxonId) deck.push(deck.shift());
