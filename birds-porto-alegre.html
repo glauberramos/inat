@@ -468,7 +468,23 @@
       .quiz-score .is-wrong {
         color: var(--red);
       }
+      /* Zerar sits beside the score; it only shows once there's a score to clear */
+      .quiz .quiz-reset {
+        width: auto;
+        margin-left: 12px;
+        padding: 6px 0;
+        background: transparent;
+        color: var(--tint);
+        font-size: 15px;
+      }
+      .quiz .quiz-reset:hover {
+        background: transparent;
+      }
+      .quiz .quiz-reset[hidden] {
+        display: none;
+      }
       .quiz .quiz-close {
+        margin-left: auto;
         width: auto;
         padding: 6px 0;
         background: transparent;
@@ -687,16 +703,38 @@
           grid-template-columns: minmax(0, 1fr);
         }
       }
+      /* Only the phone bottom sheet shows the grabber */
+      .quiz-grabber {
+        display: none;
+      }
       @media (max-width: 480px) {
         .app {
           padding: 0 16px 40px;
         }
-        /* Bottom sheet on phones */
+        /* Bottom sheet on phones; drag the grabber or the bar down to close it */
         .quiz {
           width: 100%;
           margin: auto 0 0;
           border-radius: 20px 20px 0 0;
           padding-bottom: env(safe-area-inset-bottom);
+        }
+        .quiz-grabber {
+          display: block;
+          width: 36px;
+          height: 5px;
+          margin: 6px auto 0;
+          border-radius: 3px;
+          background: var(--label-3);
+        }
+        .quiz-grabber,
+        .quiz-bar {
+          touch-action: none; /* the drag is ours, not a scroll */
+        }
+        .quiz-bar {
+          height: 41px; /* the grabber takes the top 11px */
+        }
+        .quiz.is-settling {
+          transition: transform 0.25s ease-out;
         }
         .app-header .large-title {
           font-size: 30px;
@@ -719,6 +757,9 @@
         }
         .quiz[open] {
           animation: none;
+        }
+        .quiz.is-settling {
+          transition: none;
         }
       }
     </style>
@@ -757,8 +798,10 @@
     </div>
 
     <dialog class="quiz" id="quiz" aria-labelledby="quizTitle">
+      <div class="quiz-grabber" aria-hidden="true"></div>
       <div class="quiz-bar">
         <p class="quiz-score" id="quizScore"></p>
+        <button class="quiz-reset" id="quizReset" type="button" hidden>Zerar</button>
         <button class="quiz-close" id="quizClose" type="button">Fechar</button>
       </div>
       <div class="quiz-body">
@@ -1051,11 +1094,13 @@
       function updateNavBar() {
         navBar.classList.toggle("is-visible", largeTitle.getBoundingClientRect().bottom < navBar.offsetHeight);
       }
-      addEventListener("scroll", updateNavBar, { passive: true });
+      window.addEventListener("scroll", updateNavBar, { passive: true });
       updateNavBar();
 
       // Challenge: guess the bird from its recording. Endless; the score lives in localStorage.
       const SCORE_KEY = "birdsPortoAlegreChallenge";
+      // Birds still to come this lap, by iNat taxon id; every bird comes up once before any repeats
+      const DECK_KEY = "birdsPortoAlegreChallengeDeck";
       const CHOICES = 4; // birds to pick from each round, the right one included
       const quiz = document.getElementById("quiz");
       const quizScore = document.getElementById("quizScore");
@@ -1063,6 +1108,7 @@
       const quizOptions = document.getElementById("quizOptions");
       const quizFeedback = document.getElementById("quizFeedback");
       const quizNext = document.getElementById("quizNext");
+      const quizReset = document.getElementById("quizReset");
       let score = loadScore();
       let round = null; // { bird, row, correctBtn, answered }
 
@@ -1070,14 +1116,14 @@
         try {
           const saved = JSON.parse(localStorage.getItem(SCORE_KEY));
           if (saved && Number.isFinite(saved.right) && Number.isFinite(saved.wrong)) return saved;
-        } catch (e) {}
+        } catch {}
         return { right: 0, wrong: 0 };
       }
 
       function saveScore() {
         try {
           localStorage.setItem(SCORE_KEY, JSON.stringify(score));
-        } catch (e) {}
+        } catch {}
       }
 
       // ✓ 3  ✕ 1, read out as "3 acertos, 1 erro"
@@ -1089,6 +1135,7 @@
             el("span", { class: "visually-hidden", text: ` ${word}${n === 1 ? "" : "s"}` }),
           ]);
         quizScore.replaceChildren(tally("is-right", "✓", score.right, "acerto"), tally("is-wrong", "✕", score.wrong, "erro"));
+        quizReset.hidden = score.right + score.wrong === 0;
       }
 
       function pickOne(list) {
@@ -1104,6 +1151,26 @@
         return out;
       }
 
+      // Next bird from the deck, reshuffled once it runs out (the bird just played doesn't open the new lap)
+      function drawBird() {
+        const playable = BIRDS.filter((b) => b.sounds.length);
+        const byId = new Map(playable.map((b) => [b.inatTaxonId, b]));
+        let deck = [];
+        try {
+          const saved = JSON.parse(localStorage.getItem(DECK_KEY));
+          if (Array.isArray(saved)) deck = saved.filter((id) => byId.has(id));
+        } catch {}
+        if (!deck.length) {
+          deck = shuffle(playable.map((b) => b.inatTaxonId));
+          if (deck.length > 1 && round && deck[0] === round.bird.inatTaxonId) deck.push(deck.shift());
+        }
+        const bird = byId.get(deck.shift());
+        try {
+          localStorage.setItem(DECK_KEY, JSON.stringify(deck));
+        } catch {}
+        return bird;
+      }
+
       function stopPlayback() {
         player.pause();
         deactivate();
@@ -1111,8 +1178,7 @@
 
       function newRound() {
         stopPlayback();
-        // Never the same bird twice in a row
-        const bird = pickOne(BIRDS.filter((b) => b.sounds.length && (!round || b !== round.bird)));
+        const bird = drawBird();
         const sound = pickOne(bird.sounds);
         // Wrong choices come from the same family first, which makes it harder; any left over are random
         const others = BIRDS.filter((b) => b !== bird);
@@ -1171,12 +1237,61 @@
         quiz.showModal();
         newRound();
       });
+      quizReset.addEventListener("click", () => {
+        if (!confirm("Zerar o placar?")) return;
+        score = { right: 0, wrong: 0 };
+        saveScore();
+        renderScore();
+        quizNext.focus(); // the button hides itself, so keep focus in the sheet
+      });
       document.getElementById("quizClose").addEventListener("click", () => quiz.close());
       quizNext.addEventListener("click", newRound);
-      quiz.addEventListener("close", stopPlayback);
-      // Tapping the dimmed backdrop closes the sheet
+      quiz.addEventListener("close", () => {
+        stopPlayback();
+        quiz.classList.remove("is-settling");
+        quiz.style.transform = "";
+      });
+
+      // Swipe down to close the phone bottom sheet: drag from the grabber or the score bar.
+      // Past a quarter of its height, or a quick flick, closes it; otherwise it springs back.
+      const phoneSheet = window.matchMedia("(max-width: 480px)");
+      let drag = null; // { y, t, dy }
+      function startDrag(e) {
+        if (!phoneSheet.matches || e.target.closest("button")) return;
+        drag = { y: e.clientY, t: e.timeStamp, dy: 0 };
+        quiz.classList.remove("is-settling");
+        e.currentTarget.setPointerCapture(e.pointerId);
+      }
+      function moveDrag(e) {
+        if (!drag) return;
+        drag.dy = Math.max(0, e.clientY - drag.y);
+        quiz.style.transform = `translateY(${drag.dy}px)`;
+      }
+      function endDrag(e) {
+        if (!drag) return;
+        const { dy, t } = drag;
+        drag = null;
+        const flick = dy > 20 && dy / Math.max(1, e.timeStamp - t) > 0.5; // px per ms
+        quiz.classList.add("is-settling");
+        if (dy > quiz.offsetHeight / 4 || flick) {
+          quiz.style.transform = "translateY(100%)";
+          setTimeout(() => quiz.close(), 250);
+        } else {
+          quiz.style.transform = "";
+        }
+      }
+      for (const handle of [quiz.querySelector(".quiz-grabber"), quiz.querySelector(".quiz-bar")]) {
+        handle.addEventListener("pointerdown", startDrag);
+        handle.addEventListener("pointermove", moveDrag);
+        handle.addEventListener("pointerup", endDrag);
+        handle.addEventListener("pointercancel", endDrag);
+      }
+      // Tapping the dimmed backdrop closes the sheet. A press and release on different parts of the
+      // sheet also reports the dialog as the target, so check the tap actually landed outside it.
       quiz.addEventListener("click", (e) => {
-        if (e.target === quiz) quiz.close();
+        if (e.target !== quiz) return;
+        const r = quiz.getBoundingClientRect();
+        if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) quiz.close();
       });
     </script>
     <script defer data-domain="glauberramos.github.io/inat" src="https://plausible.io/js/script.js"></script>

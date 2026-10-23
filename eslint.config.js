@@ -41,6 +41,13 @@ const sharedGlobals = {
   initUsername: "readonly",
   initPlace: "readonly",
   initLanguage: "readonly",
+  fetchAllRecords: "readonly",
+  hydrateTaxa: "readonly",
+  collectInfraspecificTaxa: "readonly",
+  collectTaxonomyExtras: "readonly",
+  FOLDED_RANKS: "readonly",
+  fetchSpeciesCountPages: "readonly",
+  mapSpeciesCountTaxa: "readonly",
   // notifications.js
   CATEGORY_PRIORITY: "readonly",
   CATEGORY_LABELS: "readonly",
@@ -62,6 +69,7 @@ const sharedGlobals = {
   // calendar-modal.js / download.js / widgets
   initCalendarModal: "readonly",
   // birds-porto-alegre-data.js
+  BIRD_FAMILIES: "readonly",
   BIRDS_PORTO_ALEGRE: "readonly",
   INatWidget: "readonly",
   // third-party
@@ -101,6 +109,9 @@ const browserGlobals = {
   indexedDB: "readonly",
   L: "readonly",
   Blob: "readonly",
+  File: "readonly",
+  ClipboardItem: "readonly",
+  getComputedStyle: "readonly",
   FileReader: "readonly",
   crypto: "readonly",
   TextEncoder: "readonly",
