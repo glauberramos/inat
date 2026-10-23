@@ -151,7 +151,20 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11972,
     photo: "https://static.inaturalist.org/photos/526156654/medium.jpg",
     photoCredit: "(c) Laurent Rouschmeyer, all rights reserved, uploaded by Laurent Rouschmeyer",
-    sounds: [],
+    sounds: [
+      {
+        // Four rough 'brrt' calls, about 3.5s of the 18s recording
+        source: "macaulay",
+        ml: 644543182,
+        recordist: "Vinícius Domingues",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 8.85,
+        end: 12.25,
+        fmin: 1500,
+        fmax: 8000,
+      },
+    ],
   },
   {
     name: "Andorinha-de-sobre-branco",
@@ -160,7 +173,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11936,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/28096412/medium.jpeg",
     photoCredit: "(c) Diana Fuentes, some rights reserved (CC BY-SA), uploaded by Diana Fuentes",
-    sounds: [],
+    sounds: [
+      {
+        // First 1.75s only: four buzzy calls; the full recording is 11s
+        source: "macaulay",
+        ml: 295772,
+        recordist: "Peter Boesman",
+        location: "Mostardas, RS",
+        type: "call",
+        start: 0,
+        end: 1.75,
+      },
+      {
+        // Twittering song, about 3.5s of the 11s recording
+        source: "macaulay",
+        ml: 295772,
+        recordist: "Peter Boesman",
+        location: "Mostardas, RS",
+        type: "song",
+        start: 3,
+        end: 6.6,
+      },
+    ],
   },
   {
     name: "Andorinhão-do-temporal",
@@ -190,7 +224,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6597,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/12179299/medium.jpg",
     photoCredit: "(c) Arnold Wijker, some rights reserved (CC BY-NC), uploaded by Arnold Wijker",
-    sounds: [],
+    sounds: [
+      {
+        // A screeching flock passing, about 8s of the 57s recording
+        source: "macaulay",
+        ml: 272132261,
+        recordist: "Guilherme Melo",
+        location: "São Bento do Sul, SC",
+        type: "call",
+        start: 32.65,
+        end: 40.6,
+        fmin: 1000,
+      },
+    ],
   },
   {
     name: "Tachã",
@@ -241,7 +287,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 605123,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/28959565/medium.jpg",
     photoCredit: "(c) Josh van der Meulen, some rights reserved (CC BY-NC-ND), uploaded by Josh van der Meulen",
-    sounds: [],
+    sounds: [
+      {
+        // Three 'tsee-u-weet' song phrases, about 5s of the 28s recording
+        source: "macaulay",
+        ml: 612534473,
+        recordist: "Guillermo Andreo",
+        location: "Porto Alegre, RS",
+        type: "song",
+        start: 0.85,
+        end: 5.65,
+        fmin: 1500,
+      },
+    ],
   },
   {
     name: "Balança-rabo-de-máscara",
@@ -250,7 +308,30 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 7509,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/321464947/medium.jpeg",
     photoCredit: "(c) Gustavo Fernando Durán, some rights reserved (CC BY-NC-SA), uploaded by Gustavo Fernando Durán",
-    sounds: [],
+    sounds: [
+      {
+        // One song phrase of arched 'tsee' notes, about 2s of the 37s recording
+        source: "macaulay",
+        ml: 439537791,
+        recordist: "Ralph Hatt",
+        location: "Barra do Quaraí, RS",
+        type: "song",
+        start: 0.45,
+        end: 2.4,
+        fmin: 1500,
+        fmax: 8000,
+      },
+      {
+        // Four bursts of nasal scolding calls, about 3s of the 1m05s recording
+        source: "macaulay",
+        ml: 621850908,
+        recordist: "Filipe Bernardi",
+        location: "Barra do Quaraí, RS",
+        type: "call",
+        start: 0.4,
+        end: 3.4,
+      },
+    ],
   },
   {
     name: "Quero-quero",
@@ -353,7 +434,20 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6420,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/178158642/medium.jpg",
     photoCredit: "(c) Claudio Martins de Souza, some rights reserved (CC BY-NC), uploaded by Claudio Martins de Souza",
-    sounds: [],
+    sounds: [
+      {
+        // Four pairs of very high 'tsee' notes, about 2s of the 14s recording
+        source: "macaulay",
+        ml: 624697645,
+        recordist: "Diego Castelli",
+        location: "Rocha, Uruguai",
+        type: "call",
+        start: 10.5,
+        end: 12.7,
+        fmin: 4000,
+        fmax: 14000,
+      },
+    ],
   },
   {
     name: "Beija-flor-tesoura",
@@ -396,7 +490,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6521,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/182457798/medium.jpeg",
     photoCredit: "(c) Peter Taylor, some rights reserved (CC BY-NC), uploaded by Peter Taylor",
-    sounds: [],
+    sounds: [
+      {
+        // Two rhythmic song phrases, about 5s of the 1m24s recording
+        source: "macaulay",
+        ml: 19041,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 49.8,
+        end: 55.1,
+        fmax: 11000,
+      },
+    ],
   },
   {
     name: "Beija-flor-de-fronte-violeta",
@@ -405,7 +511,20 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5947,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/26314598/medium.jpeg",
     photoCredit: "(c) guyincognito, some rights reserved (CC BY-NC), uploaded by guyincognito",
-    sounds: [],
+    sounds: [
+      {
+        // About 4s of the steady 'tsip' song series; the full recording is 27s
+        source: "macaulay",
+        ml: 482629771,
+        recordist: "Marcos Eugênio (Birding Guide)",
+        location: "Gramado, RS",
+        type: "song",
+        start: 13.95,
+        end: 18.05,
+        fmin: 2000,
+        fmax: 11000,
+      },
+    ],
   },
   {
     name: "Beija-flor-de-veste-preta",
@@ -414,7 +533,20 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5807,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/219766479/medium.jpg",
     photoCredit: "(c) photokeen, some rights reserved (CC BY-NC-ND), uploaded by photokeen",
-    sounds: [],
+    sounds: [
+      {
+        // Six buzzy 'tsss' notes of the monotonous song, about 4s of the 56s recording
+        source: "macaulay",
+        ml: 614818086,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
+        type: "song",
+        start: 45.65,
+        end: 49.7,
+        fmin: 3000,
+        fmax: 11000,
+      },
+    ],
   },
   {
     name: "Beija-flor-de-topete-azul",
@@ -443,7 +575,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 13770,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/397446858/medium.jpg",
     photoCredit: "(c) David Barros Cardona, some rights reserved (CC BY-NC), uploaded by David Barros Cardona",
-    sounds: [],
+    sounds: [
+      {
+        // Flock chatter, about 4s of the 19s recording
+        source: "macaulay",
+        ml: 524280111,
+        recordist: "Luis Weymar Junior",
+        location: "Camaquã, RS",
+        type: "call",
+        start: 14.1,
+        end: 18.3,
+        fmin: 1000,
+      },
+    ],
   },
   {
     name: "Biguatinga",
@@ -452,7 +596,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5063,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/195512943/medium.jpg",
     photoCredit: "(c) Shiva Shenoy, some rights reserved (CC BY), uploaded by Shiva Shenoy",
-    sounds: [],
+    sounds: [
+      {
+        // Clicking, croaking rattle, about 3.5s of the 18s recording
+        source: "macaulay",
+        ml: 619942088,
+        recordist: "Marcelo da Rocha",
+        location: "Foz do Iguaçu, PR",
+        type: "call",
+        start: 13.35,
+        end: 17,
+        fmax: 5000,
+      },
+    ],
   },
   {
     name: "Carão",
@@ -520,7 +676,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 15758,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/11210811/medium.jpg",
     photoCredit: "(c) fabiomanfredini, some rights reserved (CC BY-NC), uploaded by fabiomanfredini",
-    sounds: [],
+    sounds: [
+      {
+        // One accelerating song, about 3s of the 43s recording
+        source: "macaulay",
+        ml: 34015,
+        recordist: "Ted Parker",
+        location: "São Francisco de Paula, RS",
+        type: "song",
+        start: 37,
+        end: 40.05,
+        fmax: 5000,
+      },
+    ],
   },
   {
     name: "Chupa-dente",
@@ -550,7 +718,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 7182,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/247800710/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // Two whistled 'tu-wee' calls, about 2s of the 5s recording
+        source: "macaulay",
+        ml: 295831,
+        recordist: "Peter Boesman",
+        location: "São Francisco de Paula, RS",
+        type: "call",
+        start: 0.9,
+        end: 3.1,
+        fmax: 8000,
+      },
+    ],
   },
   {
     name: "Marreca-de-coleira",
@@ -559,7 +739,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 7188,
     photo: "https://static.inaturalist.org/photos/265504465/medium.jpg",
     photoCredit: "(c) Mark Vidler, all rights reserved, uploaded by Mark Vidler",
-    sounds: [],
+    sounds: [
+      {
+        // One call; trims only the quiet edges of the 2s recording
+        source: "macaulay",
+        ml: 620601073,
+        recordist: "Luis Weymar Junior",
+        location: "Capão do Leão, RS",
+        type: "call",
+        start: 0.35,
+        end: 1.5,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Marreca-pardinha",
@@ -568,7 +760,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6947,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/452559360/medium.jpg",
     photoCredit: "(c) Gonzalo González Mora, some rights reserved (CC BY), uploaded by Gonzalo González Mora",
-    sounds: [],
+    sounds: [
+      {
+        // Male whistles from a flock, about 3s of the 58s recording
+        source: "macaulay",
+        ml: 458549321,
+        recordist: "Luiz Matos",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 15.58,
+        end: 18.45,
+      },
+      {
+        // Nine quacks, about 5s of the 1m07s recording
+        source: "macaulay",
+        ml: 603026151,
+        recordist: "Ana Luiza Catalano",
+        location: "Gramado, RS",
+        type: "call",
+        start: 4.72,
+        end: 9.95,
+      },
+    ],
   },
   {
     name: "Irerê",
@@ -577,7 +790,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6898,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/30515510/medium.jpeg",
     photoCredit: "(c) Bird Explorers, some rights reserved (CC BY-NC), uploaded by Bird Explorers",
-    sounds: [],
+    sounds: [
+      {
+        // Three whistled 'whi-whi-whew' phrases, about 4s of the 27s recording
+        source: "macaulay",
+        ml: 662992591,
+        recordist: "Guilherme Melo",
+        location: "Tavares, RS",
+        type: "call",
+        start: 6.3,
+        end: 10.2,
+        fmin: 1000,
+      },
+    ],
   },
   {
     name: "Marreca-cricri",
@@ -615,7 +840,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3759,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/369174108/medium.jpg",
     photoCredit: "(c) Ad Konings, some rights reserved (CC BY-NC), uploaded by Ad Konings",
-    sounds: [],
+    sounds: [
+      {
+        // Nine grunts, about 5s of the 7s recording
+        source: "macaulay",
+        ml: 634326217,
+        recordist: "Vinícius Domingues",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 0.88,
+        end: 5.5,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Colhereiro",
@@ -633,7 +870,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3766,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/9867600/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    sounds: [],
+    sounds: [
+      {
+        // Nearly the whole 5s recording: a pair's metallic 'kwa' calls
+        source: "macaulay",
+        ml: 604849461,
+        recordist: "Giselle Mangini",
+        location: "Gramado, RS",
+        type: "call",
+        start: 0,
+        end: 4.6,
+      },
+    ],
   },
   {
     name: "Urubu-preto",
@@ -775,7 +1023,29 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 20331,
     photo: "https://static.inaturalist.org/photos/538595668/medium.jpg",
     photoCredit: "(c) Eduardo Borges, all rights reserved, uploaded by Eduardo Borges",
-    sounds: [],
+    sounds: [
+      {
+        // One call, about 1s of the 26s recording; calls come every 6s
+        source: "macaulay",
+        ml: 626847167,
+        recordist: "Vinícius Domingues",
+        location: "São Francisco de Paula, RS",
+        type: "call",
+        start: 11.3,
+        end: 12.4,
+      },
+      {
+        // One call, about 1s of the 28s recording
+        source: "macaulay",
+        ml: 489145311,
+        recordist: "Marcelo Fernandes",
+        location: "Esteio, RS",
+        type: "call",
+        start: 10.4,
+        end: 11.4,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Corujinha-do-mato",
@@ -784,7 +1054,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 19788,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/460430074/medium.jpg",
     photoCredit: "(c) DavidLarson, some rights reserved (CC BY-NC), uploaded by DavidLarson",
-    sounds: [],
+    sounds: [
+      {
+        // One song, about 2s of the 27s recording
+        source: "macaulay",
+        ml: 187023351,
+        recordist: "Fábio Luís Mello",
+        location: "Arambaré, RS",
+        type: "song",
+        start: 21.35,
+        end: 22.95,
+        fmax: 3000,
+      },
+    ],
   },
   {
     name: "Gralha-picaça",
@@ -793,7 +1075,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 8484,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/234531093/medium.jpg",
     photoCredit: "(c) abelardomendesjr, some rights reserved (CC BY-NC), uploaded by abelardomendesjr",
-    sounds: [],
+    sounds: [
+      {
+        // Four 'chok' calls, about 5s of the 1m02s recording
+        source: "macaulay",
+        ml: 21493451,
+        recordist: "João Gava Just",
+        location: "Ernestina, RS",
+        type: "call",
+        start: 0.85,
+        end: 6.05,
+      },
+      {
+        // One bell-like rattle, about 2.5s of the 1m16s recording
+        source: "macaulay",
+        ml: 68469,
+        recordist: "Davis Finch",
+        location: "Derrubadas, RS",
+        type: "call",
+        start: 42.85,
+        end: 45.35,
+      },
+    ],
   },
   {
     name: "Anu-branco",
@@ -887,7 +1190,30 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1989,
     photo: "https://static.inaturalist.org/photos/502425111/medium.jpg",
     photoCredit: "(c) Allan Clé Porto, all rights reserved, uploaded by Allan Clé Porto",
-    sounds: [],
+    sounds: [
+      {
+        // One two-note 'sa-ci' whistle, about 1s of the 7s recording
+        source: "macaulay",
+        ml: 650144917,
+        recordist: "Guillermo Andreo",
+        location: "Viamão, RS",
+        type: "song",
+        start: 0.8,
+        end: 1.9,
+        fmax: 5000,
+      },
+      {
+        // Six rising whistles; drops the last note, which the 3s recording cuts off
+        source: "macaulay",
+        ml: 67402341,
+        recordist: "Cláudio Jorge De Castro Filho",
+        location: "Arroio Grande, RS",
+        type: "song",
+        start: 0.38,
+        end: 2.48,
+        fmax: 5000,
+      },
+    ],
   },
   {
     name: "Carcará",
@@ -926,7 +1252,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4665,
     photo: "https://static.inaturalist.org/photos/174574440/medium.jpg",
     photoCredit: "(c) Vincent O'Brien, all rights reserved, uploaded by Vincent O'Brien",
-    sounds: [],
+    sounds: [
+      {
+        // One 'klee-klee' series, about 4s of the 43s recording
+        source: "macaulay",
+        ml: 91064,
+        recordist: "Glayson Bencke",
+        location: "Rio Grande do Sul",
+        type: "call",
+        start: 19.75,
+        end: 23.6,
+      },
+    ],
   },
   {
     name: "Falcão-peregrino",
@@ -975,7 +1312,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1432781,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/240521909/medium.jpeg",
     photoCredit: "(c) graciela_gplp, some rights reserved (CC BY-NC)",
-    sounds: [],
+    sounds: [
+      {
+        // One long scream, about 2s of the 2m05s recording
+        source: "macaulay",
+        ml: 19051,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "call",
+        start: 44.35,
+        end: 45.95,
+      },
+      {
+        // A short scream and the long rattle after it, about 4s of the 24s recording
+        source: "macaulay",
+        ml: 203696601,
+        recordist: "Jeremy Minns",
+        location: "Barra do Quaraí, RS",
+        type: "call",
+        start: 13.08,
+        end: 16.8,
+      },
+    ],
   },
   {
     name: "Falcão-relógio",
@@ -984,7 +1342,30 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4698,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/394112373/medium.jpg",
     photoCredit: "(c) Alvaro Monter Pozos, some rights reserved (CC BY-NC), uploaded by Alvaro Monter Pozos",
-    sounds: [],
+    sounds: [
+      {
+        // One accelerating series ending in 'aow' notes, about 7s of the 53s recording
+        source: "macaulay",
+        ml: 666767955,
+        recordist: "Heron Jung",
+        location: "Farroupilha, RS",
+        type: "song",
+        start: 11.95,
+        end: 19.05,
+        fmax: 5000,
+      },
+      {
+        // Three single 'aahr' calls, about 7s of the 24s recording
+        source: "macaulay",
+        ml: 475838531,
+        recordist: "Guillermo Andreo",
+        location: "Maquiné, RS",
+        type: "song",
+        start: 7.35,
+        end: 14.3,
+        fmax: 4000,
+      },
+    ],
   },
   {
     name: "Trinta-réis-grande",
@@ -993,7 +1374,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4569,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/54870147/medium.jpeg",
     photoCredit: "(c) Eric Carpenter, some rights reserved (CC BY-NC), uploaded by Eric Carpenter",
-    sounds: [],
+    sounds: [
+      {
+        // Six nasal honks, about 5s of the 37s recording
+        source: "macaulay",
+        ml: 628183645,
+        recordist: "Luis Weymar Junior",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 11.45,
+        end: 16,
+      },
+      {
+        // Five calls, about 5s of the 7s recording
+        source: "macaulay",
+        ml: 646215442,
+        recordist: "Vinícius Domingues",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 1.15,
+        end: 6.6,
+      },
+    ],
   },
   {
     name: "Gaivota-maria-velha",
@@ -1002,7 +1404,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 144504,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2667918/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // Five long, harsh 'kraaar' calls, about 6s of the 1m31s recording
+        source: "macaulay",
+        ml: 662993711,
+        recordist: "Guilherme Melo",
+        location: "Tavares, RS",
+        type: "call",
+        start: 44.3,
+        end: 50.3,
+      },
+      {
+        // Four short, barking 'kek' calls, about 3s of the 1m31s recording
+        source: "macaulay",
+        ml: 662993711,
+        recordist: "Guilherme Melo",
+        location: "Tavares, RS",
+        type: "call",
+        start: 59.85,
+        end: 62.75,
+      },
+    ],
   },
   {
     name: "Gaivota-de-cabeça-cinza",
@@ -1011,7 +1434,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 144508,
     photo: "https://static.inaturalist.org/photos/66911159/medium.jpeg",
     photoCredit: "(c) Carlos N. G. Bocos, all rights reserved, uploaded by Carlos N. G. Bocos",
-    sounds: [],
+    sounds: [
+      {
+        // A burst of harsh, crow-like 'kraa' calls, about 5s of the 11s recording
+        source: "macaulay",
+        ml: 628183623,
+        recordist: "Luis Weymar Junior",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 0.6,
+        end: 5.75,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Gaivotão",
@@ -1020,7 +1455,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4388,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/227539170/medium.jpg",
     photoCredit: "(c) Finn Davey, some rights reserved (CC BY-NC), uploaded by Finn Davey",
-    sounds: [],
+    sounds: [
+      {
+        // Five loud 'kyow' calls, about 4s of the 34s recording
+        source: "macaulay",
+        ml: 202234151,
+        recordist: "Gabriel Leite",
+        location: "Tavares, RS",
+        type: "call",
+        start: 3.4,
+        end: 7.35,
+      },
+    ],
   },
   {
     name: "Talha-mar",
@@ -1029,7 +1475,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4496,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/227666105/medium.jpg",
     photoCredit: "(c) Scott, some rights reserved (CC BY-NC), uploaded by Scott",
-    sounds: [],
+    sounds: [
+      {
+        // Eight single dog-like barks after the flock settles, about 4s of the 1m00s recording
+        source: "macaulay",
+        ml: 662992589,
+        recordist: "Guilherme Melo",
+        location: "Tavares, RS",
+        type: "call",
+        start: 49.55,
+        end: 53.1,
+      },
+    ],
   },
   {
     name: "Saracura-do-mato",
@@ -1224,7 +1681,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 460,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/35204644/medium.jpeg",
     photoCredit: "(c) Gonzalo Roget, some rights reserved (CC BY), uploaded by Gonzalo Roget",
-    sounds: [],
+    sounds: [
+      {
+        // One loud chorus bout, about 4.5s of the 40s recording
+        source: "macaulay",
+        ml: 277010971,
+        recordist: "Leonildo Piovesan",
+        location: "Taquari, RS",
+        type: "song",
+        start: 5.42,
+        end: 9.9,
+      },
+    ],
   },
   {
     name: "Saracura-carijó",
@@ -1233,7 +1701,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 300,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/409308281/medium.jpeg",
     photoCredit: "(c) Yve Morrell, some rights reserved (CC BY-NC), uploaded by Yve Morrell",
-    sounds: [],
+    sounds: [
+      {
+        // Ten rhythmic grunting notes, about 5s of the 25s recording
+        source: "macaulay",
+        ml: 627988938,
+        recordist: "Luis Weymar Junior",
+        location: "Rio Grande, RS",
+        type: "song",
+        start: 6.18,
+        end: 11.4,
+      },
+      {
+        // Four loud screeches, about 4s of the 8s recording
+        source: "macaulay",
+        ml: 486677801,
+        recordist: "Mauricio Silvera",
+        location: "Montevideo, Uruguai",
+        type: "call",
+        start: 1.55,
+        end: 5.45,
+      },
+    ],
   },
   {
     name: "Galinha-doméstica",
@@ -1321,7 +1810,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5056,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/178484205/medium.jpg",
     photoCredit: "(c) Oswaldo Hernández, some rights reserved (CC BY-NC), uploaded by Oswaldo Hernández",
-    sounds: [],
+    sounds: [
+      {
+        // Four short, flat, piping whistles, about 3s of the 4s recording
+        source: "macaulay",
+        ml: 625585024,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
+        type: "call",
+        start: 0.76,
+        end: 3.75,
+      },
+    ],
   },
   {
     name: "Socozinho",
@@ -1351,7 +1851,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4952,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/150223557/medium.jpg",
     photoCredit: "(c) Paul Donahue, some rights reserved (CC BY-NC), uploaded by Paul Donahue",
-    sounds: [],
+    sounds: [
+      {
+        // Three harsh, broadband croaks, about 2s of the 12s recording
+        source: "macaulay",
+        ml: 242693201,
+        recordist: "Marcelo Fernandes",
+        location: "São José do Norte, RS",
+        type: "call",
+        start: 8.15,
+        end: 10.05,
+      },
+    ],
   },
   {
     name: "Garça-vaqueira",
@@ -1360,7 +1871,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 411086,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/278764160/medium.jpg",
     photoCredit: "(c) Алексей Сизов, some rights reserved (CC BY-NC), uploaded by Алексей Сизов",
-    sounds: [],
+    sounds: [
+      {
+        // Hoarse croaks over colony chatter, about 4.5s of the 7m05s recording
+        source: "macaulay",
+        ml: 200013391,
+        recordist: "Marcelo Jardim",
+        location: "Londrina, PR",
+        type: "call",
+        start: 108.75,
+        end: 113.2,
+      },
+    ],
   },
   {
     name: "Garça-azul",
@@ -1369,7 +1891,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4937,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/106796895/medium.jpg",
     photoCredit: "(c) MARMAR, some rights reserved (CC BY-NC), uploaded by MARMAR",
-    sounds: [],
+    sounds: [
+      {
+        // Four nasal croaks, about 3.5s of the 11s recording
+        source: "macaulay",
+        ml: 664829822,
+        recordist: "Vinícius Domingues",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 1.05,
+        end: 4.65,
+      },
+    ],
   },
   {
     name: "Socó-boi",
@@ -1420,7 +1953,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1289368,
     photo: "https://static.inaturalist.org/photos/258648797/medium.jpg",
     photoCredit: "(c) Gustavo Dallaqua, all rights reserved, uploaded by Gustavo Dallaqua",
-    sounds: [],
+    sounds: [
+      {
+        // One tinkling, jumbled song bout, about 3s of the 2m59s recording
+        source: "macaulay",
+        ml: 629866345,
+        recordist: "Guilherme Melo",
+        location: "Dom Feliciano, RS",
+        type: "song",
+        start: 56.88,
+        end: 60.1,
+      },
+    ],
   },
   {
     name: "Ferro-velho",
@@ -1429,7 +1973,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9296,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/76825/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // Two buzzy 'dzee-dzee-dzee' calls, about 5.5s of the 23s recording
+        source: "macaulay",
+        ml: 255027041,
+        recordist: "Marcelo Fernandes",
+        location: "Riozinho, RS",
+        type: "call",
+        start: 1.1,
+        end: 6.65,
+      },
+    ],
   },
   {
     name: "Gavião-carijó",
@@ -1468,7 +2023,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5097,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/112860673/medium.jpeg",
     photoCredit: "(c) Troy B, some rights reserved (CC BY), uploaded by Troy B",
-    sounds: [],
+    sounds: [
+      {
+        // Four upslurred 'kweeh' calls, about 4.5s of the 7s recording
+        source: "macaulay",
+        ml: 656063093,
+        recordist: "João Vitor Andriola | Brazil Birding Experts",
+        location: "São Francisco de Paula, RS",
+        type: "call",
+        start: 0.3,
+        end: 4.75,
+      },
+      {
+        // Three short, sharp 'kew' notes, about 2s of the 7s recording
+        source: "macaulay",
+        ml: 637335876,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
+        type: "call",
+        start: 2.05,
+        end: 4.4,
+      },
+    ],
   },
   {
     name: "Gavião-caramujeiro",
@@ -1477,7 +2053,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5349,
     photo: "https://static.inaturalist.org/photos/4438193/medium.jpg",
     photoCredit: "(c) Judd Patterson, all rights reserved, uploaded by Judd Patterson",
-    sounds: [],
+    sounds: [
+      {
+        // One dry, cackling rattle, about 2s of the 22s recording
+        source: "macaulay",
+        ml: 627920562,
+        recordist: "Luis Weymar Junior",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 5.8,
+        end: 7.95,
+      },
+    ],
   },
   {
     name: "Gavião-de-cauda-curta",
@@ -1486,7 +2073,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5186,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/102440509/medium.jpeg",
     photoCredit: "(c) Patricia Tiller, some rights reserved (CC BY-NC), uploaded by Patricia Tiller",
-    sounds: [],
+    sounds: [
+      {
+        // One long, thin, descending scream, about 2s of the 5s recording
+        source: "macaulay",
+        ml: 354640921,
+        recordist: "Guilherme Willrich",
+        location: "Florianópolis, SC",
+        type: "call",
+        start: 1.65,
+        end: 3.45,
+      },
+    ],
   },
   {
     name: "Gavião-do-banhado",
@@ -1495,7 +2093,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5177,
     photo: "https://static.inaturalist.org/photos/328148647/medium.jpg",
     photoCredit: "(c) Junior Aves, all rights reserved, uploaded by Junior Aves",
-    sounds: [],
+    sounds: [
+      {
+        // One chattering 'ke-ke-ke' series of about 15 notes, about 3s of the 1m23s recording
+        source: "macaulay",
+        ml: 613614215,
+        recordist: "Filipe Bernardi",
+        location: "São Francisco de Paula, RS",
+        type: "call",
+        start: 0.72,
+        end: 3.5,
+      },
+    ],
   },
   {
     name: "Gavião-caboclo",
@@ -1504,7 +2113,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5235,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/12999578/medium.jpg",
     photoCredit: "(c) Francesco Veronesi, some rights reserved (CC BY-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // One long descending scream, about 1.5s of the 4s recording
+        source: "macaulay",
+        ml: 196085711,
+        recordist: "Roberta Rödel",
+        location: "Santa Maria, RS",
+        type: "call",
+        start: 1.35,
+        end: 3,
+      },
+    ],
   },
   {
     name: "Sovi",
@@ -1513,7 +2133,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5415,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/603366621/medium.jpg",
     photoCredit: "(c) Ana Laura Campioto, some rights reserved (CC BY-NC), uploaded by Ana Laura Campioto",
-    sounds: [],
+    sounds: [
+      {
+        // One thin 'psee-oo' whistle, about 1s of the 37s recording
+        source: "macaulay",
+        ml: 417973131,
+        recordist: "Thiago Amaral",
+        location: "Tuneiras do Oeste, PR",
+        type: "call",
+        start: 27,
+        end: 28.1,
+      },
+    ],
   },
   {
     name: "Gavião-preto",
@@ -1522,7 +2153,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5238,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/56759119/medium.jpg",
     photoCredit: "(c) Allan Hopkins, some rights reserved (CC BY-NC-ND)",
-    sounds: [],
+    sounds: [
+      {
+        // One long whistled scream, about 3s of the 1m03s recording
+        source: "macaulay",
+        ml: 291458181,
+        recordist: "Leonildo Piovesan",
+        location: "Capela de Santana, RS",
+        type: "call",
+        start: 39.9,
+        end: 43,
+      },
+      {
+        // A series of short whistled notes, about 8s of the 25s recording
+        source: "macaulay",
+        ml: 625643072,
+        recordist: "Guilherme Melo",
+        location: "São Francisco de Paula, RS",
+        type: "call",
+        start: 8.35,
+        end: 16.2,
+      },
+    ],
   },
   {
     name: "Sabiá-do-campo",
@@ -1563,7 +2215,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 14885,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1913375/medium.jpg",
     photoCredit: "(c) Jorge Schlemmer, some rights reserved (CC BY-NC), uploaded by Jorge Schlemmer",
-    sounds: [],
+    sounds: [
+      {
+        // Two song phrases, about 5s of the 11s recording
+        source: "macaulay",
+        ml: 591003191,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
+        type: "song",
+        start: 0.8,
+        end: 5.47,
+      },
+      {
+        // Two harsh 'chaa' calls, about 3s of the 24s recording
+        source: "macaulay",
+        ml: 639303155,
+        recordist: "Guillermo Andreo",
+        location: "Cidreira, RS",
+        type: "call",
+        start: 4.05,
+        end: 6.7,
+      },
+    ],
   },
   {
     name: "Inhambuguaçu",
@@ -1572,7 +2245,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 20599,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/86359703/medium.jpg",
     photoCredit: "(c) Juan Diego Döke, some rights reserved (CC BY-NC), uploaded by Juan Diego Döke",
-    sounds: [],
+    sounds: [
+      {
+        // Last part of a song, as the whistles speed up, about 6.5s of the 27s recording
+        source: "macaulay",
+        ml: 623211847,
+        recordist: "Luiz Wittmann",
+        location: "Ivoti, RS",
+        type: "song",
+        start: 19.95,
+        end: 26.45,
+        fmax: 5000,
+      },
+    ],
   },
   {
     name: "Chupim",
@@ -1642,7 +2327,29 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 72954,
     photo: "https://static.inaturalist.org/photos/51260789/medium.jpg",
     photoCredit: "(c) Mariano Ordoñez, all rights reserved, uploaded by Mariano Ordoñez",
-    sounds: [],
+    sounds: [
+      {
+        // Two song phrases of clear whistles and buzzy notes, about 5.5s of the 20s recording
+        source: "macaulay",
+        ml: 646707303,
+        recordist: "Vinícius Domingues",
+        location: "Rio Grande, RS",
+        type: "song",
+        start: 14.2,
+        end: 19.65,
+      },
+      {
+        // One sharp 'tcheew' call, about 1s of the 21s recording
+        source: "macaulay",
+        ml: 635068037,
+        recordist: "Luis Weymar Junior",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 12.7,
+        end: 13.75,
+        fmax: 7000,
+      },
+    ],
   },
   {
     name: "Garibaldi",
@@ -1651,7 +2358,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 69696,
     photo: "https://static.inaturalist.org/photos/70821462/medium.jpg",
     photoCredit: "(c) Rodrigo Conte, all rights reserved",
-    sounds: [],
+    sounds: [
+      {
+        // One song, a quick descending series of notes, about 1.5s of the 9s recording
+        source: "macaulay",
+        ml: 622835512,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
+        type: "song",
+        start: 5.72,
+        end: 7.35,
+      },
+    ],
   },
   {
     name: "Cardeal-do-banhado",
@@ -1681,7 +2399,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10370,
     photo: "https://static.inaturalist.org/photos/7858823/medium.jpg",
     photoCredit: "(c) Jorge Schlemmer, all rights reserved",
-    sounds: [],
+    sounds: [
+      {
+        // One song: soft gurgles and an explosive high note, about 1.5s of the 8s recording
+        source: "macaulay",
+        ml: 300192291,
+        recordist: "Diego Castelli",
+        location: "San José, Uruguai",
+        type: "song",
+        start: 0.35,
+        end: 1.95,
+      },
+    ],
   },
   {
     name: "Polícia-inglesa-do-sul",
@@ -1690,7 +2419,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 793309,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/362293734/medium.jpg",
     photoCredit: "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
-    sounds: [],
+    sounds: [
+      {
+        // One whole song, short notes ending in a long buzz, about 3.5s of the 21s recording
+        source: "macaulay",
+        ml: 439569821,
+        recordist: "Ralph Hatt",
+        location: "Mostardas, RS",
+        type: "song",
+        start: 5,
+        end: 8.4,
+      },
+      {
+        // Four calls, a 'tsip' and a falling 'tseew' twice, about 5s of the 2m12s recording
+        source: "macaulay",
+        ml: 91027,
+        recordist: "Glayson Bencke",
+        location: "Rio Grande do Sul",
+        type: "call",
+        start: 5.7,
+        end: 10.65,
+      },
+    ],
   },
   {
     name: "Chupim-do-brejo",
@@ -1699,7 +2449,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10709,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/442402880/medium.jpg",
     photoCredit: "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    sounds: [],
+    sounds: [
+      {
+        // One song burst of loud slurred whistles, about 3.5s of the 47s recording
+        source: "macaulay",
+        ml: 266685081,
+        recordist: "Leonildo Piovesan",
+        location: "Viamão, RS",
+        type: "song",
+        start: 1.2,
+        end: 4.75,
+      },
+      {
+        // Two 'chek-wi' calls, about 3.5s of the 36s recording
+        source: "macaulay",
+        ml: 247328561,
+        recordist: "Marcelo Fernandes",
+        location: "Viamão, RS",
+        type: "call",
+        start: 16.65,
+        end: 20.1,
+      },
+    ],
   },
   {
     name: "Guaxe",
@@ -1708,7 +2479,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10357,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/648143/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // One 'chack' and one song phrase, gurgle, rising whistle and crash, about 2s of the 35s recording
+        source: "macaulay",
+        ml: 623911077,
+        recordist: "Guillermo Andreo",
+        location: "Maquiné, RS",
+        type: "song",
+        start: 12,
+        end: 14,
+      },
+      {
+        // Four loud 'chack' calls at a colony, about 3s of the 28s recording
+        source: "macaulay",
+        ml: 622415449,
+        recordist: "Guillermo Andreo",
+        location: "Nova Santa Rita, RS",
+        type: "call",
+        start: 21.2,
+        end: 24.35,
+      },
+    ],
   },
   {
     name: "Jaçanã",
@@ -1717,7 +2509,29 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4580,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/9867610/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    sounds: [],
+    sounds: [
+      {
+        // One harsh rattle, about 2.5s of the 30s recording
+        source: "macaulay",
+        ml: 629353528,
+        recordist: "Luis Weymar Junior",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 0.85,
+        end: 3.4,
+      },
+      {
+        // A run of chattering 'kek' notes, about 4s of the 33s recording
+        source: "macaulay",
+        ml: 659880886,
+        recordist: "Luis Weymar Junior",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 7.7,
+        end: 11.9,
+        fmax: 7500,
+      },
+    ],
   },
   {
     name: "João-de-Barro",
@@ -1809,7 +2623,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11364,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/565788/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // One whole rattling song, about 2.5s of the 3s recording
+        source: "macaulay",
+        ml: 622334238,
+        recordist: "Guillermo Andreo",
+        location: "Canoas, RS",
+        type: "song",
+        start: 0.4,
+        end: 2.85,
+      },
+    ],
   },
   {
     name: "Pi-puí",
@@ -1898,7 +2723,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11850,
     photo: "https://static.inaturalist.org/photos/462611413/medium.jpg",
     photoCredit: "(c) Aisse Gaertner, all rights reserved, uploaded by Aisse Gaertner",
-    sounds: [],
+    sounds: [
+      {
+        // One song: a few spaced notes speeding up into the loud run, about 3s of the 38s recording
+        source: "macaulay",
+        ml: 266685691,
+        recordist: "Leonildo Piovesan",
+        location: "Viamão, RS",
+        type: "song",
+        start: 19.3,
+        end: 22.06,
+      },
+    ],
   },
   {
     name: "Bichoita",
@@ -1907,7 +2743,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11821,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/107004052/medium.jpg",
     photoCredit: "(c) Martín Ferrari, some rights reserved (CC BY-NC), uploaded by Martín Ferrari",
-    sounds: [],
+    sounds: [
+      {
+        // One long descending chatter, about 3.5s of the 43s recording
+        source: "macaulay",
+        ml: 634245342,
+        recordist: "Luis Weymar Junior",
+        location: "Capão do Leão, RS",
+        type: "song",
+        start: 14.72,
+        end: 18.32,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "João-porca",
@@ -1916,7 +2764,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11114,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/35800662/medium.jpg",
     photoCredit: "(c) Guillermo Menéndez, some rights reserved (CC BY-NC), uploaded by Guillermo Menéndez",
-    sounds: [],
+    sounds: [
+      {
+        // One whole song, a rising trill that speeds up, about 3.5s of the 2m07s recording
+        source: "macaulay",
+        ml: 68290,
+        recordist: "Davis Finch",
+        location: "São Francisco de Paula, RS",
+        type: "song",
+        start: 99.4,
+        end: 102.95,
+        fmin: 2000,
+      },
+    ],
   },
   {
     name: "Arapaçu-escamoso-do-sul",
@@ -1925,7 +2785,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11579,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/253159/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // Four loud calls, about 4s of the 18s recording
+        source: "macaulay",
+        ml: 65088441,
+        recordist: "Cláudio Jorge De Castro Filho",
+        location: "Morro Redondo, RS",
+        type: "call",
+        start: 5,
+        end: 8.95,
+      },
+    ],
   },
   {
     name: "Narceja",
@@ -1934,7 +2805,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3927,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/23045173/medium.jpeg",
     photoCredit: "(c) Leonel Roget, some rights reserved (CC BY), uploaded by Leonel Roget",
-    sounds: [],
+    sounds: [
+      {
+        // Start of a long, even series of pulsed notes, about 4.5s of the 21s recording
+        source: "macaulay",
+        ml: 288268121,
+        recordist: "Nick Athanas",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 1.58,
+        end: 6.02,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Maçarico-pintado",
@@ -1943,7 +2826,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 72458,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/46532647/medium.jpg",
     photoCredit: "(c) Jason Headley, some rights reserved (CC BY-NC), uploaded by Jason Headley",
-    sounds: [],
+    sounds: [
+      {
+        // Two bursts of 'weet' calls, about 2s of the 9s recording
+        source: "macaulay",
+        ml: 660845577,
+        recordist: "Guilherme Melo",
+        location: "Tijucas, SC",
+        type: "call",
+        start: 1.78,
+        end: 4.05,
+      },
+    ],
   },
   {
     name: "Mariquita",
@@ -2090,7 +2984,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 2552,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/734984735/medium.jpg",
     photoCredit: "(c) Matt Blue, some rights reserved (CC BY-NC), uploaded by Matt Blue",
-    sounds: [],
+    sounds: [
+      {
+        // One harsh rattle, about 2.5s of the 1m07s recording
+        source: "macaulay",
+        ml: 632680773,
+        recordist: "Luis Weymar Junior",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 9.35,
+        end: 12,
+      },
+    ],
   },
   {
     name: "Martim-pescador-pequeno",
@@ -2099,7 +3004,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 2669,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/30793136/medium.jpg",
     photoCredit: "(c) José Antonio Linage Espinosa, some rights reserved (CC BY-NC), uploaded by José Antonio Linage Espinosa",
-    sounds: [],
+    sounds: [
+      {
+        // A run of dry 'tick' calls, many in pairs, about 4s of the 49s recording
+        source: "macaulay",
+        ml: 432877781,
+        recordist: "Miguel Angelo Biz",
+        location: "Pouso Redondo, SC",
+        type: "call",
+        start: 0.68,
+        end: 4.9,
+      },
+    ],
   },
   {
     name: "Aracuã-escamoso",
@@ -2228,7 +3144,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 19162,
     photo: "https://static.inaturalist.org/photos/235704689/medium.jpg",
     photoCredit: "(c) Paul, all rights reserved, uploaded by Paul",
-    sounds: [],
+    sounds: [
+      {
+        // A burst of flock screeches, then single harsh calls, about 3s of the 19s recording
+        source: "macaulay",
+        ml: 191951771,
+        recordist: "Pedro Ayres",
+        location: "Eldorado do Sul, RS",
+        type: "call",
+        start: 0.95,
+        end: 4.08,
+      },
+    ],
   },
   {
     name: "Pardal",
@@ -2258,7 +3185,30 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 464940,
     photo: "https://static.inaturalist.org/photos/445346031/medium.jpg",
     photoCredit: "(c) Eduardo Borges, all rights reserved, uploaded by Eduardo Borges",
-    sounds: [],
+    sounds: [
+      {
+        // A run of sharp 'kek' calls, about 4.5s of the 1m48s recording
+        source: "macaulay",
+        ml: 532020091,
+        recordist: "Filipe Bernardi",
+        location: "Butiá, RS",
+        type: "call",
+        start: 23.05,
+        end: 27.75,
+        fmax: 6000,
+      },
+      {
+        // Three longer arched 'kweek' calls (one short 'kek' between), about 5s of the 1m48s recording
+        source: "macaulay",
+        ml: 532020091,
+        recordist: "Filipe Bernardi",
+        location: "Butiá, RS",
+        type: "call",
+        start: 50.15,
+        end: 55.05,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Pica-pau-verde-barrado",
@@ -2347,7 +3297,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 18014,
     photo: "https://static.inaturalist.org/photos/28291417/medium.jpg",
     photoCredit: "(c) Mariano Ordoñez, all rights reserved, uploaded by Mariano Ordoñez",
-    sounds: [],
+    sounds: [
+      {
+        // One rising rattle, then a short 'ki-ki-ki', about 2.5s of the 54s recording
+        source: "macaulay",
+        ml: 34012,
+        recordist: "Ted Parker",
+        location: "São Francisco de Paula, RS",
+        type: "song",
+        start: 43.85,
+        end: 46.5,
+      },
+    ],
   },
   {
     name: "Tovaca-campainha",
@@ -2356,7 +3317,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9021,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/11210781/medium.jpg",
     photoCredit: "(c) fabiomanfredini, some rights reserved (CC BY-NC), uploaded by fabiomanfredini",
-    sounds: [],
+    sounds: [
+      {
+        // Last 8s of a song: the long run of hollow notes and its loud ending; the full song is about 11s, the recording 1m54s
+        source: "macaulay",
+        ml: 19274,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 38.7,
+        end: 46.85,
+        fmax: 4000,
+      },
+    ],
   },
   {
     name: "Avoante",
@@ -2527,7 +3500,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 20763,
     photo: "https://static.inaturalist.org/photos/50983553/medium.jpg",
     photoCredit: "(c) Mariano Ordoñez, all rights reserved, uploaded by Mariano Ordoñez",
-    sounds: [],
+    sounds: [
+      {
+        // One full series of about 16 'cow' notes, about 6s of the 9s recording
+        source: "macaulay",
+        ml: 656063969,
+        recordist: "João Vitor Andriola | Brazil Birding Experts",
+        location: "Rolante, RS",
+        type: "song",
+        start: 2.05,
+        end: 7.75,
+        fmax: 4000,
+      },
+    ],
   },
   {
     name: "Tico-tico",
@@ -2785,7 +3770,20 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 979964,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/118977504/medium.jpg",
     photoCredit: "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    sounds: [],
+    sounds: [
+      {
+        // Three bursts of high 'tsit' calls, about 4s of the 11s recording
+        source: "macaulay",
+        ml: 288474461,
+        recordist: "Nick Athanas",
+        location: "São Francisco de Paula, RS",
+        type: "call",
+        start: 4.75,
+        end: 8.35,
+        fmin: 4000,
+        fmax: 11000,
+      },
+    ],
   },
   {
     name: "Cavalaria",
@@ -2803,7 +3801,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10288,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/862024/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // Three 'ti-ziu' songs, about 7s of the 27s recording
+        source: "macaulay",
+        ml: 350892381,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
+        type: "song",
+        start: 9.65,
+        end: 16.35,
+        fmax: 11000,
+      },
+    ],
   },
   {
     name: "Saíra-viúva",
@@ -2812,7 +3822,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10711,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/14590974/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // Two songs, about 6s of the 2m33s recording
+        source: "macaulay",
+        ml: 19850,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 85.85,
+        end: 91.95,
+        fmin: 3000,
+      },
+    ],
   },
   {
     name: "Sanhaço-do-coqueiro",
@@ -2821,7 +3843,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10297,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2967027/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    sounds: [],
+    sounds: [
+      {
+        // One song, about 3s of the 27s recording
+        source: "macaulay",
+        ml: 616741477,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
+        type: "song",
+        start: 14.4,
+        end: 17.5,
+      },
+    ],
   },
   {
     name: "Tico-tico-rei",
@@ -2830,7 +3863,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10310,
     photo: "https://static.inaturalist.org/photos/37815353/medium.jpg",
     photoCredit: "(c) Jorge Schlemmer, all rights reserved",
-    sounds: [],
+    sounds: [
+      {
+        // Part of a long song bout, about 5s of the 49s recording
+        source: "macaulay",
+        ml: 20236,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 33.5,
+        end: 38.4,
+      },
+    ],
   },
   {
     name: "Tiê-preto",
@@ -2839,7 +3883,29 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10079,
     photo: "https://static.inaturalist.org/photos/301208967/medium.jpg",
     photoCredit: "(c) Ricardo Mitidieri, all rights reserved, uploaded by Ricardo Mitidieri",
-    sounds: [],
+    sounds: [
+      {
+        // Nine notes of a long steady series, about 5s of the 28s recording
+        source: "macaulay",
+        ml: 614812228,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
+        type: "song",
+        start: 0.3,
+        end: 5.3,
+        fmax: 8000,
+      },
+      {
+        // Six sharp 'chek' notes, about 6s of the 33s recording
+        source: "macaulay",
+        ml: 20224,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "call",
+        start: 24.4,
+        end: 30,
+      },
+    ],
   },
   {
     name: "Saí-azul",
@@ -2848,7 +3914,20 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10506,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/65613623/medium.jpg",
     photoCredit: "(c) Hudson Martins Soares, some rights reserved (CC BY-NC), uploaded by Hudson Martins Soares",
-    sounds: [],
+    sounds: [
+      {
+        // A series of high 'tsip' calls, about 6s of the 13s recording
+        source: "macaulay",
+        ml: 596162541,
+        recordist: "Guillermo Andreo",
+        location: "Maquiné, RS",
+        type: "call",
+        start: 0.35,
+        end: 6.55,
+        fmin: 4000,
+        fmax: 11000,
+      },
+    ],
   },
   {
     name: "Coleirinho",
@@ -2857,7 +3936,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9517,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/303058924/medium.jpeg",
     photoCredit: "(c) Palhas, some rights reserved (CC BY-NC), uploaded by Palhas",
-    sounds: [],
+    sounds: [
+      {
+        // One full song, about 3s of the 3m02s recording
+        source: "macaulay",
+        ml: 20237,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 175.05,
+        end: 177.65,
+      },
+    ],
   },
   {
     name: "Sanhaço-frade",
@@ -2866,7 +3956,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10706,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/51069292/medium.jpg",
     photoCredit: "(c) Sebastián Lescano, some rights reserved (CC BY-NC), uploaded by Sebastián Lescano",
-    sounds: [],
+    sounds: [
+      {
+        // One song phrase, about 3s of the 1m47s recording
+        source: "macaulay",
+        ml: 20186,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 13.85,
+        end: 16.65,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Sabiá-do-banhado",
@@ -2875,7 +3977,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10670,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/48721764/medium.jpeg",
     photoCredit: "(c) Pablo Balduvino, some rights reserved (CC BY-NC), uploaded by Pablo Balduvino",
-    sounds: [],
+    sounds: [
+      {
+        // Two songs, about 6s of the 1m01s recording
+        source: "macaulay",
+        ml: 247327651,
+        recordist: "Marcelo Fernandes",
+        location: "Viamão, RS",
+        type: "song",
+        start: 40,
+        end: 45.75,
+      },
+    ],
   },
   {
     name: "Saí-andorinha",
@@ -2884,7 +3997,32 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10607,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/226698613/medium.jpg",
     photoCredit: "(c) Oswaldo Hernández, some rights reserved (CC BY-NC), uploaded by Oswaldo Hernández",
-    sounds: [],
+    sounds: [
+      {
+        // Two sharp 'tsiu' calls, about 2.6s of the 11s recording
+        source: "macaulay",
+        ml: 625682597,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
+        type: "call",
+        start: 1,
+        end: 3.6,
+        fmin: 2000,
+        fmax: 11000,
+      },
+      {
+        // A burst of squeaky twittering song, about 8s of the 1m02s recording
+        source: "macaulay",
+        ml: 411675661,
+        recordist: "Guilherme Willrich",
+        location: "Brusque, SC",
+        type: "song",
+        start: 8.1,
+        end: 16.05,
+        fmin: 2000,
+        fmax: 11000,
+      },
+    ],
   },
   {
     name: "Tipio",
@@ -2893,7 +4031,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9869,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/33491763/medium.jpeg",
     photoCredit: "no rights reserved, uploaded by Diego Carús",
-    sounds: [],
+    sounds: [
+      {
+        // One buzzy trilled song phrase, about 2.7s of the 19s recording
+        source: "macaulay",
+        ml: 500404741,
+        recordist: "Marcelo Fernandes",
+        location: "Esteio, RS",
+        type: "song",
+        start: 8.45,
+        end: 11.1,
+        fmin: 1500,
+      },
+    ],
   },
   {
     name: "Bem-te-vi",
@@ -2998,7 +4148,20 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16714,
     photo: "https://static.inaturalist.org/photos/49009155/medium.jpeg",
     photoCredit: "(c) Rudy Gelis, all rights reserved, uploaded by Rudy Gelis",
-    sounds: [],
+    sounds: [
+      {
+        // Duet of harsh 'breer' and 'wi-dji' notes, about 4.4s of the 31s recording
+        source: "macaulay",
+        ml: 634245420,
+        recordist: "Luis Weymar Junior",
+        location: "Capão do Leão, RS",
+        type: "song",
+        start: 25.25,
+        end: 29.6,
+        fmin: 1000,
+        fmax: 9000,
+      },
+    ],
   },
   {
     name: "Tesourinha",
@@ -3007,7 +4170,30 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16793,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/596460001/medium.jpg",
     photoCredit: "(c) Guilherme Cameis Freda, some rights reserved (CC BY-SA), uploaded by Guilherme Cameis Freda",
-    sounds: [],
+    sounds: [
+      {
+        // One accelerating sputter of 'tik' notes ending in a trill, about 2.5s of the 2m08s recording
+        source: "macaulay",
+        ml: 19549,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "call",
+        start: 4.1,
+        end: 6.6,
+        fmin: 1500,
+      },
+      {
+        // A fast series of buzzy 'zit' notes, about 2s of the 2m08s recording
+        source: "macaulay",
+        ml: 19549,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "call",
+        start: 122.7,
+        end: 124.6,
+        fmin: 1500,
+      },
+    ],
   },
   {
     name: "Alegrinho",
@@ -3016,7 +4202,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17211,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/31262667/medium.jpg",
     photoCredit: "(c) marcelo_allende, some rights reserved (CC BY-NC), uploaded by marcelo_allende",
-    sounds: [],
+    sounds: [
+      {
+        // Two short song bursts of rapid 'tsi-ti-ti-ti' notes, about 3.6s of the 2m58s recording
+        source: "macaulay",
+        ml: 19595,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 162.95,
+        end: 166.55,
+        fmin: 1500,
+      },
+    ],
   },
   {
     name: "Tuque-pium",
@@ -3025,7 +4223,32 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16733,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/103260661/medium.jpg",
     photoCredit: "(c) Reinaldo de Oliveira Elias, some rights reserved (CC BY), uploaded by Reinaldo de Oliveira Elias",
-    sounds: [],
+    sounds: [
+      {
+        // Two song phrases (a wavy whistle, a rattle and a trill), about 4.6s of the 2m18s recording
+        source: "macaulay",
+        ml: 19552,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 8.75,
+        end: 13.35,
+        fmin: 1000,
+        fmax: 9000,
+      },
+      {
+        // Three calls: a 'tchew' and two buzzy 'zeew' notes, about 1.4s of the 2m29s recording
+        source: "macaulay",
+        ml: 19562,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "call",
+        start: 139.9,
+        end: 141.3,
+        fmin: 1000,
+        fmax: 9000,
+      },
+    ],
   },
   {
     name: "Suiriri-cavaleiro",
@@ -3034,7 +4257,20 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17289,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/60197023/medium.jpg",
     photoCredit: "(c) Ad Konings, some rights reserved (CC BY-NC), uploaded by Ad Konings",
-    sounds: [],
+    sounds: [
+      {
+        // Three thin high 'tseee' calls, about 2.3s of the 1m03s recording
+        source: "macaulay",
+        ml: 622835550,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
+        type: "call",
+        start: 37.85,
+        end: 40.12,
+        fmin: 3000,
+        fmax: 11000,
+      },
+    ],
   },
   {
     name: "Tororó",
@@ -3064,7 +4300,30 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16063,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/620371179/medium.jpg",
     photoCredit: "(c) Anthony Batista, some rights reserved (CC BY), uploaded by Anthony Batista",
-    sounds: [],
+    sounds: [
+      {
+        // Three song phrases, about 4s of the 2m29s recording
+        source: "macaulay",
+        ml: 69724,
+        recordist: "Paul A. Schwartz",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 120.85,
+        end: 124.85,
+        fmin: 1000,
+      },
+      {
+        // Three sharp 'kik' calls, about 4s of the 2m50s recording
+        source: "macaulay",
+        ml: 19546,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "call",
+        start: 143.3,
+        end: 147.45,
+        fmin: 1000,
+      },
+    ],
   },
   {
     name: "Suiriri-pequeno",
@@ -3073,7 +4332,20 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17345,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/241563790/medium.jpg",
     photoCredit: "no rights reserved, uploaded by Paulo Mascaretti",
-    sounds: [],
+    sounds: [
+      {
+        // Two soft rising 'wheet' calls, about 3s of the 18s recording
+        source: "macaulay",
+        ml: 644555749,
+        recordist: "Vinícius Domingues",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 2.1,
+        end: 5.3,
+        fmin: 1000,
+        fmax: 8000,
+      },
+    ],
   },
   {
     name: "Peitica",
@@ -3114,7 +4386,20 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16134,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1613677/medium.jpg",
     photoCredit: "(c) Lip Kee, some rights reserved (CC BY-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // Two soft upslurred whistles, about 1.3s of the 14s recording
+        source: "macaulay",
+        ml: 636965119,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
+        type: "call",
+        start: 2.15,
+        end: 3.4,
+        fmin: 1000,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Neinei",
@@ -3143,7 +4428,32 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 979710,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/280201570/medium.jpg",
     photoCredit: "(c) Josh van der Meulen, some rights reserved (CC BY-NC-ND), uploaded by Josh van der Meulen",
-    sounds: [],
+    sounds: [
+      {
+        // Three dawn-song phrases, about 7s of the 9m48s recording
+        source: "macaulay",
+        ml: 199170,
+        recordist: "Márcio Repenning",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 20.15,
+        end: 27.3,
+        fmin: 1000,
+        fmax: 9000,
+      },
+      {
+        // A series of harsh buzzy 'bzzz' calls, about 3.4s of the 5m07s recording
+        source: "macaulay",
+        ml: 179790,
+        recordist: "Ismael Franz",
+        location: "Rio Grande do Sul",
+        type: "call",
+        start: 107.87,
+        end: 111.25,
+        fmin: 1000,
+        fmax: 9000,
+      },
+    ],
   },
   {
     name: "Borboletinha-do-mato",
@@ -3152,7 +4462,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16948,
     photo: "https://static.inaturalist.org/photos/10203188/medium.jpg",
     photoCredit: "(c) Jorge Schlemmer, all rights reserved",
-    sounds: [],
+    sounds: [
+      {
+        // One song: a few ticks and a long dry trill, about 2.8s of the 3m25s recording
+        source: "macaulay",
+        ml: 19382,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 135.25,
+        end: 138.05,
+        fmin: 1500,
+      },
+    ],
   },
   {
     name: "Bico-chato-de-orelha-preta",
@@ -3181,7 +4503,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16447,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/13441277/medium.jpg",
     photoCredit: "(c) davy, some rights reserved (CC BY-NC), uploaded by davy",
-    sounds: [],
+    sounds: [
+      {
+        // Five song phrases, about 5s of the 7s recording
+        source: "macaulay",
+        ml: 199719301,
+        recordist: "Guilherme Melo",
+        location: "Barra do Quaraí, RS",
+        type: "song",
+        start: 0,
+        end: 5.1,
+        fmax: 8000,
+      },
+    ],
   },
   {
     name: "Irré",
@@ -3190,7 +4524,30 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16029,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/436950508/medium.jpeg",
     photoCredit: "(c) Christoph Moning, some rights reserved (CC BY), uploaded by Christoph Moning",
-    sounds: [],
+    sounds: [
+      {
+        // One dawn-song cycle (whistle, arched 'wheer', rolling note), about 4s of the 3m27s recording
+        source: "macaulay",
+        ml: 66538,
+        recordist: "Paul A. Schwartz",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 129.45,
+        end: 133.85,
+        fmax: 6000,
+      },
+      {
+        // Sharp 'whit' calls with rolling 'brrr' rattles, about 4s of the 1m09s recording
+        source: "macaulay",
+        ml: 19383,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "call",
+        start: 63.15,
+        end: 67.35,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Tuque",
@@ -3199,7 +4556,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16694,
     photo: "https://static.inaturalist.org/photos/11221261/medium.jpg",
     photoCredit: "(c) Henrique Raupp, all rights reserved, uploaded by Henrique Raupp",
-    sounds: [],
+    sounds: [
+      {
+        // Two song phrases ('tsi... tchk-djrrr'), about 4s of the 3m12s recording
+        source: "macaulay",
+        ml: 19576,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 95.6,
+        end: 99.5,
+        fmax: 8000,
+      },
+    ],
   },
   {
     name: "Enferrujado",
@@ -3242,7 +4611,28 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17210,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/164526641/medium.jpg",
     photoCredit: "(c) https://www.flickr.com/photos/dariosanches/, some rights reserved (CC BY-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // Ticks running into a dry rattle, about 3s of the 11s recording
+        source: "macaulay",
+        ml: 662993565,
+        recordist: "Guilherme Melo",
+        location: "Mostardas, RS",
+        type: "song",
+        start: 3,
+        end: 6.35,
+      },
+      {
+        // Three sharp 'tseeip' calls, about 4s of the 55s recording
+        source: "macaulay",
+        ml: 346064161,
+        recordist: "Arthur Gomes",
+        location: "Mostardas, RS",
+        type: "call",
+        start: 30.95,
+        end: 34.85,
+      },
+    ],
   },
   {
     name: "Papa-piri",
@@ -3251,7 +4641,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17174,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/327391616/medium.jpg",
     photoCredit: "(c) By.Ulises, some rights reserved (CC BY-NC), uploaded by By.Ulises",
-    sounds: [],
+    sounds: [
+      {
+        // Four short 'tic' notes, about 4s of the 13s recording
+        source: "macaulay",
+        ml: 655766811,
+        recordist: "Jayrson Oliveira",
+        location: "Mostardas, RS",
+        type: "call",
+        start: 9.3,
+        end: 12.95,
+      },
+    ],
   },
   {
     name: "Guaracava-grande",
@@ -3260,7 +4661,30 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16734,
     photo: "https://static.inaturalist.org/photos/222181710/medium.jpg",
     photoCredit: "(c) Gabriel Bonfa, all rights reserved, uploaded by Gabriel Bonfa",
-    sounds: [],
+    sounds: [
+      {
+        // Two burry 'wheeoo' calls, about 6s of the 3m07s recording
+        source: "macaulay",
+        ml: 19801,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "call",
+        start: 115.95,
+        end: 121.85,
+        fmax: 8000,
+      },
+      {
+        // Three dawn-song phrases, about 5s of the 3m13s recording
+        source: "macaulay",
+        ml: 19366,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 12.55,
+        end: 17.5,
+        fmax: 8000,
+      },
+    ],
   },
   {
     name: "Amarelinho-do-junco",
@@ -3269,7 +4693,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16594,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1811216/medium.jpg",
     photoCredit: "(c) Nicolas Olejnik, some rights reserved (CC BY), uploaded by Nicolas Olejnik",
-    sounds: [],
+    sounds: [
+      {
+        // One short song (a whistled intro and two squeaky notes), about 3s of the 1m10s recording
+        source: "macaulay",
+        ml: 625833184,
+        recordist: "Guilherme Melo",
+        location: "Balneário Gaivota, SC",
+        type: "song",
+        start: 33.25,
+        end: 36.1,
+        fmax: 8000,
+      },
+    ],
   },
   {
     name: "Sabiá-laranjeira",
@@ -3371,7 +4807,30 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 12746,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/415633664/medium.jpg",
     photoCredit: "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    sounds: [],
+    sounds: [
+      {
+        // One song phrase (three 'tiu' notes and a rising end note), about 2.5s of the 53s recording
+        source: "macaulay",
+        ml: 264712121,
+        recordist: "Leonildo Piovesan",
+        location: "Capela de Santana, RS",
+        type: "song",
+        start: 12.35,
+        end: 14.85,
+        fmax: 5000,
+      },
+      {
+        // One call (a soft note and a sharp 'tchk'), 1.3s of the 40s recording
+        source: "macaulay",
+        ml: 648605725,
+        recordist: "Guillermo Andreo",
+        location: "Gravataí, RS",
+        type: "call",
+        start: 1.55,
+        end: 2.85,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Sabiá-ferreiro",
@@ -3380,7 +4839,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 827407,
     photo: "https://static.inaturalist.org/photos/56589057/medium.jpg",
     photoCredit: "(c) E.E. Prodossimo, all rights reserved, uploaded by E.E. Prodossimo",
-    sounds: [],
+    sounds: [
+      {
+        // One song (a thin high 'seee' and four metallic 'tink' notes), about 3.5s of the 1m27s recording
+        source: "macaulay",
+        ml: 20096,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
+        type: "song",
+        start: 35.4,
+        end: 38.95,
+      },
+    ],
   },
   {
     name: "Tangará",
@@ -3419,7 +4889,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 19667,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/508102028/medium.jpg",
     photoCredit: "(c) Gabriel Delasala, some rights reserved (CC BY-NC), uploaded by Gabriel Delasala",
-    sounds: [],
+    sounds: [
+      {
+        // Whole descending song, about 5s of the 6s recording
+        source: "macaulay",
+        ml: 667172602,
+        recordist: "Felipe Seitenfus Brustulin",
+        location: "Farroupilha, RS",
+        type: "song",
+        start: 0.3,
+        end: 5.45,
+        fmax: 3000,
+      },
+    ],
   },
   {
     name: "Pitiguari",
@@ -3449,6 +4931,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 827395,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/510496062/medium.jpg",
     photoCredit: "(c) luizanjos, some rights reserved (CC BY-NC)",
-    sounds: [],
+    sounds: [
+      {
+        // Three song phrases, about 4s of the 1m09s recording
+        source: "macaulay",
+        ml: 293773051,
+        recordist: "Leonildo Piovesan",
+        location: "Sapiranga, RS",
+        type: "song",
+        start: 7.8,
+        end: 12.15,
+        fmax: 8000,
+      },
+    ],
   },
 ];

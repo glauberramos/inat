@@ -66,20 +66,21 @@ def render(src, dst, sound):
         trim += ["-ss", str(sound["start"])]
     if "end" in sound:
         trim += ["-to", str(sound["end"])]
-    pcm = subprocess.run(
-        ["ffmpeg", "-v", "error", *trim, "-i", src, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"],
-        capture_output=True, check=True,
-    ).stdout
-    y = np.frombuffer(pcm, np.float32)
     # fmin/fmax zoom in on the bird's pitch range; low ranges get a longer
     # window to keep enough frequency detail
     fmin, fmax = sound.get("fmin", 0), sound.get("fmax", FMAX)
+    sr = SR if fmax <= SR / 2 else 44100  # voices above 11 kHz (e.g. some hummingbirds) need more
+    pcm = subprocess.run(
+        ["ffmpeg", "-v", "error", *trim, "-i", src, "-ac", "1", "-ar", str(sr), "-f", "f32le", "-"],
+        capture_output=True, check=True,
+    ).stdout
+    y = np.frombuffer(pcm, np.float32)
     n, hop = (1024 if fmax > 3000 else 2048), 128
     if len(y) < n:
         y = np.pad(y, (0, n - len(y)))
     frames = np.lib.stride_tricks.sliding_window_view(y, n)[::hop] * np.hanning(n)
     spec = np.abs(np.fft.rfft(frames, axis=1)) ** 2
-    spec = spec[:, int(fmin * n / SR) : int(fmax * n / SR)]
+    spec = spec[:, int(fmin * n / sr) : int(fmax * n / sr)]
     db = 10 * np.log10(spec + 1e-12)
     # Squeeze the whole recording into W columns; max keeps short notes visible
     edges = np.linspace(0, db.shape[0], W + 1).astype(int)
