@@ -412,7 +412,7 @@
         color: inherit;
       }
 
-      /* Challenge: a sheet with one mystery recording and four birds to pick from, centered on every screen size */
+      /* Challenge: a sheet with one mystery recording and four birds to pick from */
       .quiz {
         --sheet: var(--bg);
         --sheet-cell: var(--cell);
@@ -703,9 +703,38 @@
           grid-template-columns: minmax(0, 1fr);
         }
       }
+      /* Only the phone bottom sheet shows the grabber */
+      .quiz-grabber {
+        display: none;
+      }
       @media (max-width: 480px) {
         .app {
           padding: 0 16px 40px;
+        }
+        /* Bottom sheet on phones; drag the grabber or the bar down to close it */
+        .quiz {
+          width: 100%;
+          margin: auto 0 0;
+          border-radius: 20px 20px 0 0;
+          padding-bottom: env(safe-area-inset-bottom);
+        }
+        .quiz-grabber {
+          display: block;
+          width: 36px;
+          height: 5px;
+          margin: 6px auto 0;
+          border-radius: 3px;
+          background: var(--label-3);
+        }
+        .quiz-grabber,
+        .quiz-bar {
+          touch-action: none; /* the drag is ours, not a scroll */
+        }
+        .quiz-bar {
+          height: 41px; /* the grabber takes the top 11px */
+        }
+        .quiz.is-settling {
+          transition: transform 0.25s ease-out;
         }
         .app-header .large-title {
           font-size: 30px;
@@ -728,6 +757,9 @@
         }
         .quiz[open] {
           animation: none;
+        }
+        .quiz.is-settling {
+          transition: none;
         }
       }
     </style>
@@ -766,6 +798,7 @@
     </div>
 
     <dialog class="quiz" id="quiz" aria-labelledby="quizTitle">
+      <div class="quiz-grabber" aria-hidden="true"></div>
       <div class="quiz-bar">
         <p class="quiz-score" id="quizScore"></p>
         <button class="quiz-reset" id="quizReset" type="button" hidden>Zerar</button>
@@ -1213,10 +1246,52 @@
       });
       document.getElementById("quizClose").addEventListener("click", () => quiz.close());
       quizNext.addEventListener("click", newRound);
-      quiz.addEventListener("close", stopPlayback);
-      // Tapping the dimmed backdrop closes the sheet
+      quiz.addEventListener("close", () => {
+        stopPlayback();
+        quiz.classList.remove("is-settling");
+        quiz.style.transform = "";
+      });
+
+      // Swipe down to close the phone bottom sheet: drag from the grabber or the score bar.
+      // Past a quarter of its height, or a quick flick, closes it; otherwise it springs back.
+      const phoneSheet = window.matchMedia("(max-width: 480px)");
+      let drag = null; // { y, t, dy }
+      function startDrag(e) {
+        if (!phoneSheet.matches || e.target.closest("button")) return;
+        drag = { y: e.clientY, t: e.timeStamp, dy: 0 };
+        quiz.classList.remove("is-settling");
+        e.currentTarget.setPointerCapture(e.pointerId);
+      }
+      function moveDrag(e) {
+        if (!drag) return;
+        drag.dy = Math.max(0, e.clientY - drag.y);
+        quiz.style.transform = `translateY(${drag.dy}px)`;
+      }
+      function endDrag(e) {
+        if (!drag) return;
+        const { dy, t } = drag;
+        drag = null;
+        const flick = dy > 20 && dy / Math.max(1, e.timeStamp - t) > 0.5; // px per ms
+        quiz.classList.add("is-settling");
+        if (dy > quiz.offsetHeight / 4 || flick) {
+          quiz.style.transform = "translateY(100%)";
+          setTimeout(() => quiz.close(), 250);
+        } else {
+          quiz.style.transform = "";
+        }
+      }
+      for (const handle of [quiz.querySelector(".quiz-grabber"), quiz.querySelector(".quiz-bar")]) {
+        handle.addEventListener("pointerdown", startDrag);
+        handle.addEventListener("pointermove", moveDrag);
+        handle.addEventListener("pointerup", endDrag);
+        handle.addEventListener("pointercancel", endDrag);
+      }
+      // Tapping the dimmed backdrop closes the sheet. A press and release on different parts of the
+      // sheet also reports the dialog as the target, so check the tap actually landed outside it.
       quiz.addEventListener("click", (e) => {
-        if (e.target === quiz) quiz.close();
+        if (e.target !== quiz) return;
+        const r = quiz.getBoundingClientRect();
+        if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) quiz.close();
       });
     </script>
     <script defer data-domain="glauberramos.github.io/inat" src="https://plausible.io/js/script.js"></script>
