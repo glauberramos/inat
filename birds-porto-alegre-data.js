@@ -24,8 +24,8 @@ const BIRD_FAMILIES = {
   Phasianidae: "Galinhas, faisões e afins", // iNaturalist's "codornizes" is the European Portuguese name
   Columbidae: "Pombos, rolas e rolinhas",
   Cuculidae: "Cucos e afins",
-  Nyctibiidae: "Urutaus",
   Caprimulgidae: "Bacuraus e curiangos", // iNaturalist's name adds "noitibós", the European Portuguese name
+  Nyctibiidae: "Urutaus",
   Apodidae: "Andorinhões",
   Trochilidae: "Beija-flores",
   Rallidae: "Galinhas-d'água e afins",
@@ -38,8 +38,8 @@ const BIRD_FAMILIES = {
   Ciconiidae: "Cegonhas",
   Anhingidae: "Biguatingas", // iNaturalist's "Anhingas" is the genus name
   Phalacrocoracidae: "Cormorões e biguás",
-  Ardeidae: "Garças e socós",
   Threskiornithidae: "Colhereiros, íbises e afins",
+  Ardeidae: "Garças e socós",
   Cathartidae: "Condores e urubus",
   Accipitridae: "Gaviões, águias e afins", // iNaturalist's "Milhafres" is the European Portuguese name
   Strigidae: "Corujas típicas",
@@ -59,8 +59,8 @@ const BIRD_FAMILIES = {
   Hirundinidae: "Andorinhas",
   Polioptilidae: "Balança-rabos e bicos-assovelados",
   Troglodytidae: "Corruíras", // iNaturalist's "Carriças" is the European Portuguese name
-  Turdidae: "Tordos, sabiás e afins",
   Mimidae: "Imitadores",
+  Turdidae: "Tordos, sabiás e afins",
   Estrildidae: "Bicos-de-lacre e afins", // iNaturalist's name lists many Old World waxbills and finches
   Passeridae: "Pardais",
   Fringillidae: "Gaturamos, pintassilgos e afins", // iNaturalist's name lists European finches (tentilhões)
