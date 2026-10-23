@@ -55,14 +55,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Robin James, all rights reserved, uploaded by Robin James",
     sounds: [
       {
-        // Duet, first bout only; the full recording is 18s
+        // First steady run of about 15 notes, about 4s of the 21s recording
         source: "macaulay",
-        ml: 663531498,
-        recordist: "Jayrson Oliveira",
-        location: "Taquaral de Goiás, GO",
+        ml: 646723979,
+        recordist: "Vinícius Domingues",
+        location: "Rio Grande, RS",
         type: "song",
-        start: 0.6,
-        end: 9.6,
+        start: 0.1,
+        end: 4.15,
       },
       {
         // Nine spaced alarm calls, about 6s of the 1m06s recording
@@ -86,14 +86,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Nigel Voaden, some rights reserved (CC BY)",
     sounds: [
       {
-        // First bout only; the full recording is 2m46s
+        // One song bout, about 5s of the 2m48s recording
         source: "macaulay",
-        ml: 666858535,
-        recordist: "Fernanda Fernandex",
-        location: "Brasília, DF",
+        ml: 20007,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
         type: "song",
-        start: 2,
-        end: 16,
+        start: 33.25,
+        end: 38.5,
         fmax: 5000,
       },
       {
@@ -137,13 +137,15 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Ron Knight, some rights reserved (CC BY)",
     sounds: [
       {
+        // Whole song, about 4s of the 9s recording
         source: "macaulay",
-        ml: 264299561,
-        recordist: "Luiz Matos",
-        location: "Pompéu, MG",
+        ml: 659880891,
+        recordist: "Luis Weymar Junior",
+        location: "Rio Grande, RS",
         type: "song",
-        start: 1,
-        end: 6.8,
+        start: 2.95,
+        end: 7.3,
+        fmax: 8000,
       },
       {
         // Seven calls, about 7s of the 2m03s recording
@@ -166,24 +168,24 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Juan Emilio, some rights reserved (CC BY-SA)",
     sounds: [
       {
-        // Skips the spoken intro; keeps ~6s of the 28s recording
+        // One burst of flock chatter, about 3s of the 6s recording
         source: "macaulay",
-        ml: 35592,
-        recordist: "Ted Parker",
-        location: "Mato Grosso",
+        ml: 623469519,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
         type: "call",
-        start: 4,
-        end: 9.9,
+        start: 0.85,
+        end: 3.45,
       },
       {
-        // One bout of squawks, about 7s of the 35s recording
+        // Opening run of about a dozen squawks, about 6s of the 11s recording
         source: "macaulay",
-        ml: 643548272,
-        recordist: "Ralph Hatt",
-        location: "Rancharia, SP",
+        ml: 640493700,
+        recordist: "Fabricio Grigolin",
+        location: "Pelotas, RS",
         type: "call",
-        start: 9.05,
-        end: 15.9,
+        start: 0.45,
+        end: 6.22,
       },
     ],
   },
@@ -218,13 +220,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
     sounds: [
       {
+        // Three phrases, about 5.5s of the 17s recording
         source: "macaulay",
-        ml: 535378771,
-        recordist: "Pedro Diniz",
-        location: "Brasília, DF",
+        ml: 181532601,
+        recordist: "Pedro Ayres",
+        location: "Porto Alegre, RS",
         type: "song",
-        start: 0.7,
-        end: 4.2,
+        start: 1.95,
+        end: 7.45,
       },
       {
         // First three calls only; the full recording is 24s
@@ -319,14 +322,14 @@ const BIRDS_PORTO_ALEGRE = [
         end: 11.4,
       },
       {
-        // First phrase only; the full recording is 18s
+        // Second song, about 4s of the 18s recording
         source: "macaulay",
-        ml: 373826921,
-        recordist: "Arthur Gomes",
-        location: "Campinas, SP",
+        ml: 273288491,
+        recordist: "Leonildo Piovesan",
+        location: "Capela de Santana, RS",
         type: "song",
-        start: 2.5,
-        end: 6.3,
+        start: 10.45,
+        end: 14.8,
       },
     ],
   },
@@ -372,14 +375,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Juan Cruzado Cortés, some rights reserved (CC BY), uploaded by Juan Cruzado Cortés",
     sounds: [
       {
-        // First 6s of calls; the full recording is 53s
+        // Nearly the whole 5.6s recording: a series of harsh calls
         source: "macaulay",
-        ml: 484166891,
-        recordist: "Victor Antonelli",
-        location: "Botucatu, SP",
+        ml: 638718638,
+        recordist: "Igor Santos",
+        location: "Triunfo, RS",
         type: "call",
-        start: 0.55,
-        end: 6.5,
+        start: 0.1,
+        end: 5.55,
       },
       {
         // The full rattle series; drops the last three notes of the 8s recording
@@ -402,13 +405,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Alejandro  Bayer Tamayo, some rights reserved (CC BY-SA)",
     sounds: [
       {
+        // Last song phrase, about 2s of the 16s recording
         source: "macaulay",
-        ml: 612608911,
-        recordist: "Fernanda Fernandex",
-        location: "Brasília, DF",
+        ml: 180187481,
+        recordist: "Pedro Ayres",
+        location: "Porto Alegre, RS",
         type: "song",
-        start: 3,
-        end: 8,
+        start: 12.65,
+        end: 14.85,
       },
       {
         // Second song bout only; skips the spoken intro and the rest of the 1m00s recording
@@ -431,14 +435,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Eden Fontes, all rights reserved, uploaded by Eden Fontes",
     sounds: [
       {
-        // First ~5s of the song; the full recording is 1m53s
+        // 5s of the 24s duet chorus
         source: "macaulay",
-        ml: 408793251,
-        recordist: "Luiz Matos",
-        location: "Rio Acima, MG",
+        ml: 162056781,
+        recordist: "Pedro Ayres",
+        location: "Porto Alegre, RS",
         type: "song",
-        start: 2.35,
-        end: 7.45,
+        start: 1.85,
+        end: 6.85,
         fmax: 4000,
       },
       {
@@ -463,24 +467,24 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Mason Maron, all rights reserved, uploaded by Mason Maron",
     sounds: [
       {
-        // First song only; skips the spoken intro and the rest of the 3m40s recording
+        // First song (two intro notes and the buzzy trill), about 4s of the 10s recording
         source: "macaulay",
-        ml: 110066,
-        recordist: "Matthew D. Medler",
-        location: "Mato Grosso",
+        ml: 627556280,
+        recordist: "Guillermo Andreo",
+        location: "Nova Santa Rita, RS",
         type: "song",
-        start: 9.15,
-        end: 10.95,
+        start: 0.45,
+        end: 4.35,
       },
       {
-        // First nine calls; the full recording is 20s
+        // Five high 'tsip' calls, about 7.5s of the 1m03s recording
         source: "macaulay",
-        ml: 296707781,
-        recordist: "Ricardo Mitidieri",
-        location: "Niterói, RJ",
+        ml: 245096491,
+        recordist: "Marcelo Fernandes",
+        location: "Sapucaia do Sul, RS",
         type: "call",
-        start: 0.3,
-        end: 5.35,
+        start: 48.9,
+        end: 56.4,
         fmin: 4000,
         fmax: 11000,
       },
@@ -496,14 +500,14 @@ const BIRDS_PORTO_ALEGRE = [
       "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
     sounds: [
       {
-        // First song only; the full recording is 2m12s
+        // One song phrase, about 2.7s of the 1m23s recording
         source: "macaulay",
-        ml: 354049511,
-        recordist: "Guilherme Willrich",
-        location: "Florianópolis, SC",
+        ml: 608560079,
+        recordist: "Filipe Bernardi",
+        location: "Caxias do Sul, RS",
         type: "song",
-        start: 1.55,
-        end: 4.6,
+        start: 11.92,
+        end: 14.6,
       },
       {
         // One rattle, about 1.5s of the 49s recording
@@ -662,14 +666,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Pablo Balduvino, some rights reserved (CC BY-NC), uploaded by Pablo Balduvino",
     sounds: [
       {
-        // Opening coo and the first two phrases; the full recording is 58s
+        // Three song phrases, nearly the whole 6s recording
         source: "macaulay",
-        ml: 246823981,
-        recordist: "Rodrigo Dela Rosa",
-        location: "São José dos Campos, SP",
+        ml: 198261081,
+        recordist: "Pedro Ayres",
+        location: "Porto Alegre, RS",
         type: "song",
-        start: 1.75,
-        end: 7.55,
+        start: 0.1,
+        end: 5.8,
         fmax: 1200,
       },
       {
@@ -694,24 +698,24 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Paulo Barradas, some rights reserved (CC BY)",
     sounds: [
       {
-        // First four calls; the full recording is 19s
+        // Four call bouts; the full recording is 5s
         source: "macaulay",
-        ml: 203897291,
-        recordist: "Josep del Hoyo",
-        location: "Lagoa da Confusão, TO",
+        ml: 619503209,
+        recordist: "Guillermo Andreo",
+        location: "Porto Alegre, RS",
         type: "call",
-        start: 1.15,
-        end: 6.8,
+        start: 0.55,
+        end: 4.9,
       },
       {
-        // About 7s of flock chatter from the 35s recording
+        // About 4s of flock chatter from the 40s recording
         source: "macaulay",
-        ml: 308717581,
-        recordist: "Carlos Otávio Gussoni",
-        location: "Rio Claro, SP",
+        ml: 614283260,
+        recordist: "Rafael Juchem",
+        location: "Porto Alegre, RS",
         type: "call",
-        start: 24.1,
-        end: 31.4,
+        start: 14.7,
+        end: 18.85,
       },
     ],
   },
@@ -724,14 +728,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Matt Blue, some rights reserved (CC BY-NC), uploaded by Matt Blue",
     sounds: [
       {
-        // First section only; skips the spoken intro and the rest of the 4m56s recording
+        // About 5s of squawks from the 43s recording
         source: "macaulay",
-        ml: 103200,
-        recordist: "Matthew D. Medler",
-        location: "Mato Grosso",
+        ml: 621505463,
+        recordist: "Luis Weymar Junior",
+        location: "Porto Alegre, RS",
         type: "call",
-        start: 6.2,
-        end: 9.3,
+        start: 5.1,
+        end: 9.85,
       },
       {
         // Whistled chatter and squawks of a passing flock, 3.5s to 10.9s of the 12s recording
@@ -754,16 +758,16 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Steven Mlodinow, some rights reserved (CC BY-NC), uploaded by Steven Mlodinow",
     sounds: [
       {
-        // First complete phrase (the recording opens mid-phrase); the full recording is 3m38s
+        // First complete twittering phrase; the full recording is 7s
         source: "macaulay",
-        ml: 484562401,
-        recordist: "Fernanda Fernandex",
-        location: "Brasília, DF",
+        ml: 614778969,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
         type: "call",
-        start: 1.3,
-        end: 3.1,
+        start: 0.8,
+        end: 2.95,
         fmin: 3500,
-        fmax: 7500,
+        fmax: 8500,
       },
       {
         // Two short calls, about 3s of the 35s recording
@@ -808,13 +812,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Steve Foss, some rights reserved (CC BY-NC), uploaded by Steve Foss",
     sounds: [
       {
-        // First 5.5s; the full recording is 54s
+        // First song only; the full recording is 13s
         source: "macaulay",
-        ml: 152822611,
-        recordist: "Marcelo Feliti",
-        location: "Brotas, SP",
+        ml: 263425611,
+        recordist: "Pedro Ayres",
+        location: "Porto Alegre, RS",
         type: "song",
-        end: 5.5,
+        start: 0,
+        end: 2.45,
       },
       {
         // One bout of twittering calls, about 3s of the 23s recording
@@ -838,14 +843,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) elhoffa, some rights reserved (CC BY-NC)",
     sounds: [
       {
-        // First full song; skips the spoken intro and the rest of the 2m40s recording
+        // One song; the full recording is 36s
         source: "macaulay",
-        ml: 127497,
-        recordist: "Curtis Marantz",
-        location: "Amazonas",
+        ml: 266685551,
+        recordist: "Leonildo Piovesan",
+        location: "Viamão, RS",
         type: "song",
-        start: 8.4,
-        end: 11.25,
+        start: 20.7,
+        end: 24,
       },
       {
         // One song; the full recording is 14s
@@ -868,13 +873,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
     sounds: [
       {
-        // First 2.5s of harsh calls; the full recording is 1m23s
+        // One burst of harsh calls; the full recording is 18s
         source: "macaulay",
-        ml: 244630151,
-        recordist: "Ciro Albano / Brazil Birding Experts",
-        location: "Lençóis, BA",
+        ml: 216284821,
+        recordist: "Pedro Ayres",
+        location: "Porto Alegre, RS",
         type: "call",
-        end: 2.5,
+        start: 11,
+        end: 12.55,
       },
       {
         // First 4s of whistles; the full recording is 45s
@@ -936,14 +942,14 @@ const BIRDS_PORTO_ALEGRE = [
         end: 7.5,
       },
       {
-        // One group chorus, about 6s of the 1m03s recording
+        // One 6s stretch of the group chatter; the full recording is 18s
         source: "macaulay",
-        ml: 650497238,
-        recordist: "Lucas Figueiredo Irion",
-        location: "Florianópolis, SC",
+        ml: 642214068,
+        recordist: "Guillermo Andreo",
+        location: "Porto Alegre, RS",
         type: "song",
-        start: 47.95,
-        end: 54.25,
+        start: 7.3,
+        end: 13.4,
       },
     ],
   },
@@ -956,13 +962,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
     sounds: [
       {
-        // First 5s of the 9.6s recording
+        // First two song phrases, about 4s of the 44s recording
         source: "macaulay",
-        ml: 297074321,
-        recordist: "LAERTE CARDIM",
-        location: "Salesópolis, SP",
+        ml: 246087831,
+        recordist: "Marcelo Fernandes",
+        location: "Porto Alegre, RS",
         type: "song",
-        end: 5,
+        start: 0.7,
+        end: 4.6,
         fmax: 6000,
       },
       {
@@ -1047,14 +1054,15 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
     sounds: [
       {
+        // The whole 3.5s trill; trims the quiet edges of the 7.5s recording
         source: "macaulay",
-        ml: 616490414,
-        recordist: "Simon Mitchell",
-        location: "Poconé, MT",
+        ml: 642110105,
+        recordist: "Guillermo Andreo",
+        location: "Canoas, RS",
         type: "song",
-        start: 0.75,
-        end: 4.65,
-        fmax: 5000,
+        start: 2.2,
+        end: 5.8,
+        fmax: 6000,
       },
       {
         // Last two calls; the full recording is 18s
@@ -1099,15 +1107,15 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Christoph Moning, some rights reserved (CC BY), uploaded by Christoph Moning",
     sounds: [
       {
-        // Three coos, 4s to 13.5s of the 16s recording
+        // One coo; the bird repeats it every 8s in the 18s recording
         source: "macaulay",
-        ml: 203897401,
-        recordist: "Josep del Hoyo",
-        location: "Lagoa da Confusão, TO",
+        ml: 183872581,
+        recordist: "Pedro Ayres",
+        location: "Porto Alegre, RS",
         type: "song",
-        start: 4,
-        end: 13.5,
-        fmin: 200, // drops a low hum
+        start: 8.35,
+        end: 9.8,
+        fmin: 200,
         fmax: 1200,
       },
     ],
@@ -1194,14 +1202,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
     sounds: [
       {
-        // First four calls only; the full recording is 1m24s
+        // Three harsh calls, about 2.3s of the 8s recording
         source: "macaulay",
-        ml: 332027481,
-        recordist: "Fernando Farias | Brazil Birding Experts",
-        location: "Florianópolis, SC",
+        ml: 175022221,
+        recordist: "Fábio Luís Mello",
+        location: "São Leopoldo, RS",
         type: "call",
-        start: 0.3,
-        end: 3.3,
+        start: 1.5,
+        end: 3.84,
       },
       {
         // First two bursts of the chorus, about 5s of the 10s recording
@@ -1224,15 +1232,15 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Birds of Gilgit-Baltistan, some rights reserved (CC BY-SA)",
     sounds: [
       {
-        // First four coos, about 4.5s of the 65s recording
+        // One cooing bout, about 4s of the 17.5s recording
         source: "macaulay",
-        ml: 627104332,
-        recordist: "Celso Modesto Jr.",
-        location: "Araraquara, SP",
+        ml: 616742702,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
         type: "song",
-        start: 0.2,
-        end: 4.7,
-        fmax: 1500, // the coo is very low
+        start: 4.7,
+        end: 9,
+        fmax: 1500,
       },
     ],
   },
@@ -1265,14 +1273,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Roberto González, some rights reserved (CC BY-NC), uploaded by Roberto González",
     sounds: [
       {
-        // First six notes, about 5s of the 24s recording
+        // First seven notes of the song; the full song runs about 17s
         source: "macaulay",
-        ml: 276788081,
-        recordist: "Ricardo Mitidieri",
-        location: "Niterói, RJ",
+        ml: 625926897,
+        recordist: "Filipe Bernardi",
+        location: "Caxias do Sul, RS",
         type: "song",
-        start: 0.2,
-        end: 5.1,
+        start: 2,
+        end: 7.95,
       },
       {
         // Two calls, about 4s of the 28s recording
@@ -1296,14 +1304,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) floris_heemskerk, some rights reserved (CC BY-NC), uploaded by floris_heemskerk",
     sounds: [
       {
-        // First scream only; the full recording is 3m09s
+        // One scream from the 1m42s recording
         source: "macaulay",
-        ml: 663063630,
-        recordist: "Guilherme Melo",
-        location: "Guaraqueçaba, PR",
+        ml: 18849,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
         type: "call",
-        start: 1.6,
-        end: 3.1,
+        start: 26.45,
+        end: 28.2,
       },
       {
         // One laughing series, about 4.5s of the 44s recording
@@ -1358,14 +1366,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Manuel Raab, some rights reserved (CC BY-NC), uploaded by Manuel Raab",
     sounds: [
       {
-        // First scream only; the full recording is 38s
+        // One scream from the 65s recording
         source: "macaulay",
-        ml: 305067591,
-        recordist: "Ciro Albano / Brazil Birding Experts",
-        location: "Uruçuca, BA",
+        ml: 174763211,
+        recordist: "Paulo Krieser",
+        location: "Porto Alegre, RS",
         type: "call",
-        start: 0.6,
-        end: 2,
+        start: 23,
+        end: 24.4,
       },
     ],
   },
@@ -1519,14 +1527,14 @@ const BIRDS_PORTO_ALEGRE = [
         fmax: 9500,
       },
       {
-        // One song, under 2s of the 1m53s recording
+        // One song from the 2m41s recording
         source: "macaulay",
-        ml: 488981051,
-        recordist: "Mateus Gonçalves",
-        location: "Vitória da Conquista, BA",
+        ml: 20035,
+        recordist: "William Belton",
+        location: "Rio Grande do Sul",
         type: "song",
-        start: 12.8,
-        end: 14.5,
+        start: 72.2,
+        end: 75,
         fmin: 2000,
       },
     ],
@@ -1574,14 +1582,14 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
     sounds: [
       {
-        // Opening note and eight pairs, about 8s of the 43s recording
+        // About 7s of the pair's duet; the full recording is 1m23s
         source: "macaulay",
-        ml: 627800610,
-        recordist: "Arthur Gomes",
-        location: "Guaramiranga, CE",
+        ml: 350893651,
+        recordist: "Luis Weymar Junior",
+        location: "Pelotas, RS",
         type: "song",
-        start: 1.2,
-        end: 9.4,
+        start: 56.7,
+        end: 63.62,
       },
       {
         // Bursts of harsh 'kek' calls, the first 6s of the 10s recording
@@ -1604,15 +1612,16 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
     sounds: [
       {
-        // First four songs, about 7s of the 40s recording
+        // Two song phrases (3 and 4 burry notes); the full recording is 21s
         source: "macaulay",
-        ml: 609094067,
-        recordist: "Luis Roberto da Silva",
-        location: "São Paulo, SP",
+        ml: 647711841,
+        recordist: "Luis Weymar Junior",
+        location: "Capão do Leão, RS",
         type: "song",
-        start: 0.3,
-        end: 7.6,
-        fmin: 1500, // drops low background noise
+        start: 2.45,
+        end: 7.7,
+        fmin: 1500,
+        fmax: 8000,
       },
       {
         // One call, 1.5s of the 52s recording
