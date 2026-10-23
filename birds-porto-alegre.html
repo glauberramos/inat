@@ -412,7 +412,7 @@
         color: inherit;
       }
 
-      /* Challenge: a sheet with one mystery recording and four birds to pick from */
+      /* Challenge: a sheet with one mystery recording and four birds to pick from, centered on every screen size */
       .quiz {
         --sheet: var(--bg);
         --sheet-cell: var(--cell);
@@ -706,13 +706,6 @@
       @media (max-width: 480px) {
         .app {
           padding: 0 16px 40px;
-        }
-        /* Bottom sheet on phones */
-        .quiz {
-          width: 100%;
-          margin: auto 0 0;
-          border-radius: 20px 20px 0 0;
-          padding-bottom: env(safe-area-inset-bottom);
         }
         .app-header .large-title {
           font-size: 30px;
