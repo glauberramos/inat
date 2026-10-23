@@ -211,12 +211,31 @@
       .bird[hidden] {
         display: none; /* display: flex above would otherwise override [hidden], which the family filter uses */
       }
+      /* Every card shows a 3:2 frame. Photos close to that fill it; any other shape (portraits, square
+         or very wide shots) is shown whole, on a blurred copy of itself, so the bird is never cut off. */
       .bird-photo {
+        position: relative;
+        aspect-ratio: 3 / 2;
+        overflow: hidden;
+        background: var(--fill);
+      }
+      .bird-photo img {
+        position: relative;
         display: block;
         width: 100%;
-        aspect-ratio: 3 / 2;
+        height: 100%;
         object-fit: cover;
-        background: var(--fill);
+      }
+      .bird-photo.is-whole img {
+        object-fit: contain;
+      }
+      .bird-photo.is-whole::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: var(--photo) center / cover;
+        filter: blur(24px) saturate(1.2) brightness(0.85);
+        transform: scale(1.2); /* hides the blur's soft edge */
       }
       .bird-body {
         padding: 14px 16px 16px;
@@ -1036,7 +1055,7 @@
         });
 
         return el("article", { class: "bird" }, [
-          el("img", { class: "bird-photo", src: bird.photo, alt: bird.name, title: bird.photoCredit, loading: "lazy" }),
+          renderPhoto(bird),
           el("div", { class: "bird-body" }, [
             el("p", { class: "bird-family", text: BIRD_FAMILIES[bird.family] }),
             el("h2", { class: "bird-name", text: bird.name }),
@@ -1044,6 +1063,24 @@
             ...sounds,
           ]),
         ]);
+      }
+
+      // How far a photo's shape can stray from the 3:2 frame and still fill it; a 4:3 photo would lose
+      // a tenth of its height, enough to cut off a head or tail
+      const PHOTO_FILL_MIN = 1.4;
+      const PHOTO_FILL_MAX = 1.65;
+
+      function renderPhoto(bird) {
+        const img = el("img", { src: bird.photo, alt: bird.name, title: bird.photoCredit, loading: "lazy" });
+        const frame = el("div", { class: "bird-photo" }, [img]);
+        img.addEventListener("load", () => {
+          const ratio = img.naturalWidth / img.naturalHeight;
+          if (ratio >= PHOTO_FILL_MIN && ratio <= PHOTO_FILL_MAX) return;
+          // Set only once loaded, so the backdrop reuses the cached photo instead of loading every one up front
+          frame.style.setProperty("--photo", `url("${bird.photo}")`);
+          frame.classList.add("is-whole");
+        });
+        return frame;
       }
 
       function renderCredits(bird) {
