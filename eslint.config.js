@@ -61,6 +61,8 @@ const sharedGlobals = {
   initLocationAutocomplete: "readonly",
   // calendar-modal.js / download.js / widgets
   initCalendarModal: "readonly",
+  // birds-porto-alegre-data.js
+  BIRDS_PORTO_ALEGRE: "readonly",
   INatWidget: "readonly",
   // third-party
   $crisp: "readonly",
@@ -140,6 +142,7 @@ module.exports = [
       "autocomplete.js",
       "location-autocomplete.js",
       "calendar-modal.js",
+      "birds-porto-alegre-data.js",
     ],
     rules: { "no-redeclare": "off", "no-unused-vars": "off" },
   },
