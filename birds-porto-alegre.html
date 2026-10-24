@@ -39,6 +39,7 @@
         --bar: rgba(242, 242, 247, 0.8);
         --summer: #c93400;
         --winter: #0040dd;
+        --introduced: #8944ab;
       }
       html.dark-mode {
         --bg: #000000;
@@ -54,6 +55,7 @@
         --bar: rgba(22, 22, 24, 0.8);
         --summer: #ffb340;
         --winter: #409cff;
+        --introduced: #da8fff;
       }
 
       body.birds-page,
@@ -150,13 +152,13 @@
         stroke-width: 2;
         stroke-linecap: round;
       }
-      /* Family filter: a native menu dressed as a pill, with its own chevron */
-      .family-filter {
+      /* Family and label filters: native menus dressed as pills, with their own chevron */
+      .pill-filter {
         position: relative;
         min-width: 0;
         max-width: 100%;
       }
-      .header-actions .family-filter select {
+      .header-actions .pill-filter select {
         -webkit-appearance: none;
         appearance: none;
         field-sizing: content; /* as wide as the chosen family, where supported */
@@ -173,11 +175,11 @@
         text-overflow: ellipsis;
         cursor: pointer;
       }
-      .header-actions .family-filter select:focus-visible {
+      .header-actions .pill-filter select:focus-visible {
         outline: 3px solid var(--tint);
         outline-offset: 2px;
       }
-      .family-filter::after {
+      .pill-filter::after {
         content: "";
         position: absolute;
         right: 15px;
@@ -255,12 +257,20 @@
         font-style: italic;
         color: var(--label-2);
       }
-      /* Migratory birds: when they're in Porto Alegre, with a warm dot for summer and a cool one for winter */
-      .bird-migration {
+      /* Labels under the name: migration (a warm dot for birds here in summer, a cool one for winter),
+         conservation status and introduced species */
+      .bird-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+        padding: 0;
+        list-style: none;
+      }
+      .bird-tag {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        margin-top: 8px;
         padding: 3px 10px;
         border-radius: 999px;
         background: var(--fill);
@@ -268,19 +278,25 @@
         line-height: 18px;
         color: var(--label);
       }
-      .bird-migration::before {
+      .bird-tag::before {
         content: "";
         width: 7px;
         height: 7px;
         border-radius: 50%;
         background: var(--label-2);
       }
-      .bird-migration.is-summer::before {
+      .bird-tag.is-summer::before,
+      .bird-tag.is-north::before {
         background: var(--summer);
       }
-      .bird-migration.is-winter::before,
-      .bird-migration.is-north::before {
+      .bird-tag.is-winter::before {
         background: var(--winter);
+      }
+      .bird-tag.is-threat::before {
+        background: var(--red);
+      }
+      .bird-tag.is-introduced::before {
+        background: var(--introduced);
       }
       /* The page is ordered by family; the label above the name shows which one */
       .bird-family {
@@ -918,10 +934,16 @@
             </svg>
             Desafio
           </button>
-          <label class="family-filter">
+          <label class="pill-filter">
             <span class="visually-hidden">Filtrar por família</span>
             <select id="familyFilter">
               <option value="">Todas as famílias</option>
+            </select>
+          </label>
+          <label class="pill-filter">
+            <span class="visually-hidden">Filtrar por etiqueta</span>
+            <select id="tagFilter">
+              <option value="">Todas as aves</option>
             </select>
           </label>
         </div>
@@ -1256,26 +1278,49 @@
             el("p", { class: "bird-family", text: BIRD_FAMILIES[bird.family] }),
             el("h2", { class: "bird-name", text: bird.name }),
             el("p", { class: "bird-sci", text: bird.scientificName }),
-            ...(bird.migration ? [renderMigration(bird.migration)] : []),
+            ...renderTags(bird),
             ...sounds,
           ]),
         ]);
       }
 
-      // "Migratória de verão · set–fev": what kind of migrant, and when it's in Porto Alegre
+      // "Migrante de verão · set–fev": what kind of migrant, and when it's in Porto Alegre
       const MIGRATION = {
-        summer: "Migratória de verão",
-        winter: "Migratória de inverno",
-        passage: "Migratória de passagem",
-        north: "Migratória do Hemisfério Norte",
+        summer: { text: "Migrante de verão", title: "Chega na primavera, se reproduz no RS e vai embora no outono" },
+        winter: { text: "Visitante de inverno", title: "Vem do sul só para passar o inverno" },
+        north: { text: "Visitante da América do Norte", title: "Reproduz-se na América do Norte e passa aqui o inverno de lá, que é o nosso verão" },
       };
 
-      function renderMigration({ season, months }) {
-        return el("p", {
-          class: `bird-migration is-${season}`,
-          title: `Em Porto Alegre aparece em: ${months} (eBird)`,
-          text: `${MIGRATION[season]} · ${months}`,
-        });
+      // "Quase ameaçada · IUCN": a conservation status and the list that gives it
+      const THREAT = { CR: "Criticamente em perigo", EN: "Em perigo", VU: "Vulnerável", NT: "Quase ameaçada" };
+      const THREAT_LISTS = {
+        IUCN: "Lista Vermelha da IUCN (global)",
+        Brasil: "Lista nacional de espécies ameaçadas (MMA)",
+        RS: "Lista de espécies ameaçadas do Rio Grande do Sul",
+      };
+
+      // The labels under a bird's name, or nothing when it has none
+      function renderTags(bird) {
+        const tags = [];
+        if (bird.migration) {
+          const { type, months } = bird.migration;
+          const { text, title } = MIGRATION[type];
+          tags.push(
+            el("li", {
+              class: `bird-tag is-${type}`,
+              title: months ? `${title}. Em Porto Alegre aparece em: ${months} (eBird)` : title,
+              text: months ? `${text} · ${months}` : text,
+            }),
+          );
+        }
+        if (bird.conservation) {
+          const { status, list } = bird.conservation;
+          tags.push(el("li", { class: "bird-tag is-threat", title: THREAT_LISTS[list], text: `${THREAT[status]} · ${list}` }));
+        }
+        if (bird.introduced) {
+          tags.push(el("li", { class: "bird-tag is-introduced", title: "Espécie exótica, trazida ao Brasil por pessoas", text: "Introduzida" }));
+        }
+        return tags.length ? [el("ul", { class: "bird-tags" }, tags)] : [];
       }
 
       // How far a photo's shape can stray from the 3:2 frame and still fill it; a 4:3 photo would lose
@@ -1323,7 +1368,22 @@
       [...new Set(BIRDS.map((b) => b.family))]
         .sort((a, b) => BIRD_FAMILIES[a].localeCompare(BIRD_FAMILIES[b], "pt"))
         .forEach((family) => familyFilter.appendChild(el("option", { value: family, text: `${BIRD_FAMILIES[family]} (${family})` })));
-      // Species total in the subtitle; with a family picked, how many of the total are shown.
+      // Label filter: one option per kind of label that some bird has, with how many have it.
+      const TAG_FILTERS = {
+        migratory: { text: "Migratórias", test: (b) => Boolean(b.migration) },
+        summer: { text: "Migrantes de verão", test: (b) => (b.migration || {}).type === "summer" },
+        winter: { text: "Visitantes de inverno", test: (b) => (b.migration || {}).type === "winter" },
+        north: { text: "Visitantes da América do Norte", test: (b) => (b.migration || {}).type === "north" },
+        conservation: { text: "Ameaçadas ou quase ameaçadas", test: (b) => Boolean(b.conservation) },
+        introduced: { text: "Introduzidas", test: (b) => Boolean(b.introduced) },
+      };
+      const tagFilter = document.getElementById("tagFilter");
+      for (const [key, { text, test }] of Object.entries(TAG_FILTERS)) {
+        const n = BIRDS.filter(test).length;
+        if (n) tagFilter.appendChild(el("option", { value: key, text: `${text} (${n})` }));
+      }
+
+      // Species total in the subtitle; with a filter picked, how many of the total are shown.
       const speciesCount = document.getElementById("speciesCount");
       function updateCount() {
         const shown = cards.filter(({ card }) => !card.hidden).length;
@@ -1332,12 +1392,16 @@
       }
       updateCount();
 
-      familyFilter.addEventListener("change", () => {
+      // The two filters combine: a bird shows when it matches both
+      function applyFilters() {
         const family = familyFilter.value;
-        cards.forEach(({ bird, card }) => (card.hidden = Boolean(family) && bird.family !== family));
+        const tag = TAG_FILTERS[tagFilter.value];
+        cards.forEach(({ bird, card }) => (card.hidden = (Boolean(family) && bird.family !== family) || (Boolean(tag) && !tag.test(bird))));
         if (active && active.el.closest(".bird[hidden]")) stopPlayback();
         updateCount();
-      });
+      }
+      familyFilter.addEventListener("change", applyFilters);
+      tagFilter.addEventListener("change", applyFilters);
 
       // Like an iOS navigation bar: the compact title shows once the large one scrolls under the bar.
       const navBar = document.getElementById("navBar");

@@ -15,10 +15,17 @@
 // the length before it plays,
 // and optional fmin/fmax (Hz, default 0 and 10000) to zoom the spectrogram in on the bird's pitch range.
 //
-// Migratory birds also have migration: { season, months }: season is "summer" (arrives in spring, leaves in
-// autumn), "winter" (comes for the winter), "passage" (passes through on migration) or "north" (a Northern
-// Hemisphere bird here for the northern winter); months is when it shows up in Porto Alegre, read from eBird's
-// bar chart for the city (https://ebird.org/barchart?r=BR-RS-328&bmo=1&emo=12&byr=1900&eyr=2026).
+// Migratory birds have migration: { type, months? }. type comes from the literature, not from eBird: "summer" arrives
+// in spring, breeds and leaves in autumn ("summer resident" in Belton, Birds of Rio Grande do Sul, 1984–85); "winter"
+// comes from farther south only for the winter (Belton; "visitante sazonal do sul" in the CBRO 2021 list); "north" comes
+// from North America and spends our summer here ("visitante do norte" in CBRO 2021). months is when eBird shows it in
+// Porto Alegre (https://ebird.org/barchart?r=BR-RS-328&bmo=1&emo=12&byr=1900&eyr=2026), left out when eBird shows no
+// clear season there.
+// Birds on a red list have conservation: { status: "CR" | "EN" | "VU" | "NT", list: "IUCN" | "Brasil" | "RS" }.
+// Checked in 2026: none of these 200 is on Rio Grande do Sul's list (Decreto 51.797/2014, including its
+// near-threatened and data-deficient annexes) or threatened globally (IUCN, via iNaturalist); only the
+// Papagaio-verdadeiro is near threatened (IUCN). Brazil's national list (MMA) wasn't checked.
+// Species brought to Brazil by people have introduced: true (iNaturalist's establishment means for Brazil and RS).
 //
 // Spectrograms live in images/birds-porto-alegre/ (<iNat sound id>.webp or xc<XC number>.webp).
 // After adding sounds, run: python3 scripts/bird-spectrograms.py
@@ -110,7 +117,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11870,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1082378/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    migration: { season: "summer", months: "set–fev" },
+    migration: { type: "summer", months: "set–fev" },
     sounds: [
       {
         // The whole 41s recording: two bursts of gurgling song, then single calls
@@ -133,7 +140,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11872,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/172076738/medium.jpeg",
     photoCredit: "(c) Esteban Poveda, some rights reserved (CC BY), uploaded by Esteban Poveda",
-    migration: { season: "summer", months: "set–fev" },
+    migration: { type: "summer", months: "set–fev" },
     sounds: [
       {
         // Gurgling chatter of a group, about 19s of the 34s recording
@@ -157,7 +164,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11972,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/663372181/medium.jpg",
     photoCredit: "(c) Donald Davesne, some rights reserved (CC BY), uploaded by Donald Davesne",
-    migration: { season: "summer", months: "set–jan" },
+    migration: { type: "summer", months: "set–jan" },
     sounds: [
       {
         // The whole 8s recording: a run of rough 'brrt' notes
@@ -203,7 +210,7 @@ const BIRDS_PORTO_ALEGRE = [
     // large: the medium size of this portrait photo is only 333px wide
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/31261952/large.jpg",
     photoCredit: "(c) marcelo_allende, some rights reserved (CC BY-NC), uploaded by marcelo_allende",
-    migration: { season: "summer", months: "set–abr" },
+    migration: { type: "summer", months: "set–abr" },
     sounds: [
       {
         // A passing flock's twittering, about 19s of the 40s recording
@@ -388,7 +395,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6085,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/32687025/medium.jpeg",
     photoCredit: "(c) Nicolas Olejnik, some rights reserved (CC BY), uploaded by Nicolas Olejnik",
-    migration: { season: "summer", months: "ago–mar" },
     sounds: [
       {
         // A run of dry chip calls, about 12s of the 32s recording
@@ -412,7 +418,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6420,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/178158642/medium.jpg",
     photoCredit: "(c) Claudio Martins de Souza, some rights reserved (CC BY-NC), uploaded by Claudio Martins de Souza",
-    migration: { season: "winter", months: "jun–ago" },
     sounds: [
       {
         // A steady series of high 'tsip' calls, about 16s of the 17s recording
@@ -459,7 +464,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6521,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/182457798/medium.jpeg",
     photoCredit: "(c) Peter Taylor, some rights reserved (CC BY-NC), uploaded by Peter Taylor",
-    migration: { season: "winter", months: "jun–ago" },
     sounds: [
       {
         // The whole 21s recording: rhythmic song phrases
@@ -550,6 +554,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 13770,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/397446858/medium.jpg",
     photoCredit: "(c) David Barros Cardona, some rights reserved (CC BY-NC), uploaded by David Barros Cardona",
+    introduced: true,
     sounds: [
       {
         // Flock chatter, about 9s of the 32s recording
@@ -621,7 +626,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4742,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/87252334/medium.jpg",
     photoCredit: "(c) chezasaurus, some rights reserved (CC BY-NC), uploaded by chezasaurus",
-    migration: { season: "summer", months: "nov–fev" },
+    migration: { type: "summer", months: "nov–fev" },
     sounds: [
       {
         // A young bird's begging calls at the nest, the first 6s of the 28s recording
@@ -1269,7 +1274,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4647,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/212499566/medium.jpg",
     photoCredit: "(c) nautiboy, some rights reserved (CC BY-NC)",
-    migration: { season: "north", months: "nov–abr" },
+    migration: { type: "north", months: "nov–abr" },
     sounds: [
       {
         // Four harsh 'kak' calls, 2s of the 6s recording
@@ -1359,7 +1364,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4569,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/54870147/medium.jpeg",
     photoCredit: "(c) Eric Carpenter, some rights reserved (CC BY-NC), uploaded by Eric Carpenter",
-    migration: { season: "winter", months: "abr–ago" },
     sounds: [
       {
         // Harsh honking calls of a group, about 9s of the 10s recording
@@ -1383,7 +1387,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 144504,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2667918/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    migration: { season: "winter", months: "mai–ago" },
     sounds: [
       {
         // Harsh 'kraar' calls from a few gulls, about 10s of the 35s recording
@@ -1407,7 +1410,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 144508,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/4183449/medium.jpg",
     photoCredit: "(c) John Beetham, some rights reserved (CC BY-NC-SA)",
-    migration: { season: "winter", months: "mai–ago" },
     sounds: [
       {
         // Three harsh 'kraa' calls over surf, about 10s of the 31s recording
@@ -1431,7 +1433,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4388,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/227539170/medium.jpg",
     photoCredit: "(c) Finn Davey, some rights reserved (CC BY-NC), uploaded by Finn Davey",
-    migration: { season: "winter", months: "mar–ago" },
     sounds: [
       {
         // About a dozen loud 'kyow' calls, about 13.5s of the 34s recording
@@ -1455,7 +1456,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4496,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/227666105/medium.jpg",
     photoCredit: "(c) Scott, some rights reserved (CC BY-NC), uploaded by Scott",
-    migration: { season: "summer", months: "dez–mar" },
     sounds: [
       {
         // A colony's yapping barks, about 11s of the 45s recording
@@ -1659,6 +1659,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 505478,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/274681663/medium.jpg",
     photoCredit: "(c) Svklimkin, some rights reserved (CC BY-SA)",
+    introduced: true,
     sounds: [
       {
         // One rooster crow, about 3s of the 16s recording
@@ -1770,7 +1771,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 62528,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/360776243/medium.jpeg",
     photoCredit: "(c) Bill Levine, some rights reserved (CC BY), uploaded by Bill Levine",
-    migration: { season: "summer", months: "set–abr" },
+    migration: { type: "summer", months: "set–abr" },
     sounds: [
       {
         // The whole 12s recording: six sharp 'kek' calls
@@ -1815,7 +1816,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 411086,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/278764160/medium.jpg",
     photoCredit: "(c) Алексей Сизов, some rights reserved (CC BY-NC), uploaded by Алексей Сизов",
-    migration: { season: "summer", months: "ago–mar" },
     sounds: [
       {
         // The whole 12s recording: chattering calls at a colony
@@ -1838,7 +1838,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4937,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/106796895/medium.jpg",
     photoCredit: "(c) MARMAR, some rights reserved (CC BY-NC), uploaded by MARMAR",
-    migration: { season: "summer", months: "set–fev" },
     sounds: [
       {
         // A run of harsh, nasal croaks, about 10s of the 17s recording
@@ -1908,7 +1907,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1289368,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/489966317/medium.jpg",
     photoCredit: "(c) Augusto Matheus dos Santos, some rights reserved (CC BY-NC)",
-    migration: { season: "winter", months: "abr–ago" },
     sounds: [
       {
         // Eight plaintive two-toned 'pee-u' calls, about 14s of the 38s recording
@@ -1933,7 +1931,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9296,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/76825/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    migration: { season: "winter", months: "mar–ago" },
     sounds: [
       {
         // Five buzzy 'dzee-dzee' call bursts, about 8.5s of the 23s recording
@@ -2003,7 +2000,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5349,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/361425135/medium.jpg",
     photoCredit: "(c) Victor, some rights reserved (CC BY-NC-ND)",
-    migration: { season: "summer", months: "set–dez" },
     sounds: [
       {
         // One dry 'ka-ka-ka' rattle, about 2s of the 9s recording
@@ -2095,7 +2091,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5415,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/603366621/medium.jpg",
     photoCredit: "(c) Ana Laura Campioto, some rights reserved (CC BY-NC), uploaded by Ana Laura Campioto",
-    migration: { season: "summer", months: "set–fev" },
+    migration: { type: "summer", months: "set–fev" },
     sounds: [
       {
         // Three thin, descending whistled calls, about 13s of the 34s recording
@@ -2164,7 +2160,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 14885,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1913375/medium.jpg",
     photoCredit: "(c) Jorge Schlemmer, some rights reserved (CC BY-NC), uploaded by Jorge Schlemmer",
-    migration: { season: "winter", months: "mai–set" },
+    migration: { type: "winter", months: "mai–set" },
     sounds: [
       {
         // Two song phrases of repeated 'check-mark' notes, about 11s of the 44s recording
@@ -2716,7 +2712,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3927,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/23045173/medium.jpeg",
     photoCredit: "(c) Leonel Roget, some rights reserved (CC BY), uploaded by Leonel Roget",
-    migration: { season: "winter", months: "mai–out" },
     sounds: [
       {
         // The whole 6s recording: a burst of pulsed notes slowing down
@@ -2739,7 +2734,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 72458,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/46532647/medium.jpg",
     photoCredit: "(c) Jason Headley, some rights reserved (CC BY-NC), uploaded by Jason Headley",
-    migration: { season: "north", months: "set–abr" },
+    migration: { type: "north", months: "set–abr" },
     sounds: [
       {
         // A steady series of sharp 'weet' calls, about 13s of the 29s recording
@@ -2990,6 +2985,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 18978,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/751910048/medium.jpg",
     photoCredit: "(c) Matt Blue, some rights reserved (CC BY-NC), uploaded by Matt Blue",
+    conservation: { status: "NT", list: "IUCN" },
     sounds: [
       {
         // Raucous double squawks with pauses, about 12s of the 1m21s recording
@@ -3036,6 +3032,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 13858,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/4608133/medium.jpg",
     photoCredit: "(c) Ximo Galarza, some rights reserved (CC BY-NC-SA)",
+    introduced: true,
     sounds: [
       {
         // A flock's steady chirping, the whole 11s recording
@@ -3215,6 +3212,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3017,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/466776975/medium.jpg",
     photoCredit: "(c) Birds of Gilgit-Baltistan, some rights reserved (CC BY-SA)",
+    introduced: true,
     sounds: [
       {
         // A steady series of nine soft coos, about 11s of the 27s recording
@@ -3638,7 +3636,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10288,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/862024/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    migration: { season: "summer", months: "out–fev" },
     sounds: [
       {
         // The whole 24s recording: repeated buzzy 'ti-ziu' display songs, with other males farther off
@@ -3662,7 +3659,6 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10711,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/14590974/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    migration: { season: "winter", months: "jul–ago" },
     sounds: [
       {
         // Three song phrases, about 13s of the 14s recording
@@ -3847,6 +3843,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10607,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/226698613/medium.jpg",
     photoCredit: "(c) Oswaldo Hernández, some rights reserved (CC BY-NC), uploaded by Oswaldo Hernández",
+    migration: { type: "summer" },
     sounds: [
       {
         // The whole 13s recording: five buzzy calls
@@ -3914,7 +3911,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16787,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/254986834/medium.jpg",
     photoCredit: "(c) Steven Mlodinow, some rights reserved (CC BY-NC), uploaded by Steven Mlodinow",
-    migration: { season: "summer", months: "out–mar" },
+    migration: { type: "summer", months: "out–mar" },
     sounds: [
       {
         // Four twittering call series, about 16s of the 32s recording
@@ -3983,7 +3980,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16793,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/596460001/medium.jpg",
     photoCredit: "(c) Guilherme Cameis Freda, some rights reserved (CC BY-SA), uploaded by Guilherme Cameis Freda",
-    migration: { season: "summer", months: "set–fev" },
+    migration: { type: "summer", months: "set–fev" },
     sounds: [
       {
         // The whole 27s recording: long bouts of sputtering chatter
@@ -4030,7 +4027,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16733,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/103260661/medium.jpg",
     photoCredit: "(c) Reinaldo de Oliveira Elias, some rights reserved (CC BY), uploaded by Reinaldo de Oliveira Elias",
-    migration: { season: "summer", months: "set–jan" },
+    migration: { type: "summer", months: "set–jan" },
     sounds: [
       {
         // Six song phrases, about 14s of the 28s recording
@@ -4101,7 +4098,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16063,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/620371179/medium.jpg",
     photoCredit: "(c) Anthony Batista, some rights reserved (CC BY), uploaded by Anthony Batista",
-    migration: { season: "summer", months: "out–fev" },
+    migration: { type: "summer", months: "out–fev" },
     sounds: [
       {
         // The whole 38s recording: sharp 'pik' calls and soft 'chup' notes, with two fast call series
@@ -4149,7 +4146,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17060,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/293335919/medium.jpeg",
     photoCredit: "(c) Agustina Medina, some rights reserved (CC BY), uploaded by Agustina Medina",
-    migration: { season: "summer", months: "out–fev" },
+    migration: { type: "summer", months: "out–fev" },
     sounds: [
       {
         // The whole 5s recording: a few thin, high descending calls
@@ -4195,6 +4192,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16737,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/33899382/medium.jpg",
     photoCredit: "(c) iturriagal, some rights reserved (CC BY-NC-ND), uploaded by iturriagal",
+    migration: { type: "summer" },
     sounds: [
       {
         // Two bursts of the harsh, nasal call: the first 4.9s of the 5s recording
@@ -4288,7 +4286,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16447,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/13441277/medium.jpg",
     photoCredit: "(c) davy, some rights reserved (CC BY-NC), uploaded by davy",
-    migration: { season: "passage", months: "abr, set–out" },
+    migration: { type: "summer", months: "abr, set–out" },
     sounds: [
       {
         // A run of display-song phrases, about 9s of the 20s recording
@@ -4313,7 +4311,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16029,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/436950508/medium.jpeg",
     photoCredit: "(c) Christoph Moning, some rights reserved (CC BY), uploaded by Christoph Moning",
-    migration: { season: "summer", months: "out–mar" },
+    migration: { type: "summer", months: "out–mar" },
     sounds: [
       {
         // Dawn song: whistled 'whit' and 'wheer' notes, about 17s of the 2m26s recording
@@ -4338,7 +4336,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16694,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/169802538/medium.jpeg",
     photoCredit: "(c) Guille Ivan Spajic, some rights reserved (CC BY-NC)",
-    migration: { season: "summer", months: "set–nov" },
+    migration: { type: "summer", months: "set–nov" },
     sounds: [
       {
         // Burry calls and sharp notes, nearly all of the 11s recording
@@ -4363,7 +4361,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17231,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/6863445/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    migration: { season: "summer", months: "set–dez" },
+    migration: { type: "summer", months: "set–dez" },
     sounds: [
       {
         // The whole 20s recording: five burry song phrases
@@ -4411,7 +4409,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17174,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/327391616/medium.jpg",
     photoCredit: "(c) By.Ulises, some rights reserved (CC BY-NC), uploaded by By.Ulises",
-    migration: { season: "winter", months: "mai–jul" },
+    migration: { type: "winter", months: "mai–jul" },
     sounds: [
       {
         // The whole 29s recording: a steady series of 'tic' calls
@@ -4435,7 +4433,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16734,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/14148886/medium.jpg",
     photoCredit: "(c) João Vitor Andriola, some rights reserved (CC BY-NC), uploaded by João Vitor Andriola",
-    migration: { season: "summer", months: "nov–dez" },
+    migration: { type: "summer", months: "nov–dez" },
     sounds: [
       {
         // The whole 18s recording: six burry calls
@@ -4459,7 +4457,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16594,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1811216/medium.jpg",
     photoCredit: "(c) Nicolas Olejnik, some rights reserved (CC BY), uploaded by Nicolas Olejnik",
-    migration: { season: "winter", months: "mai–jul" },
+    migration: { type: "winter", months: "mai–jul" },
     sounds: [
       {
         // Two song bouts of ticks ending in a short warble, about 9s of the 14s recording
@@ -4579,7 +4577,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 827407,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/5901302/medium.jpg",
     photoCredit: "(c) fabiomanfredini, some rights reserved (CC BY-NC), uploaded by fabiomanfredini",
-    migration: { season: "summer", months: "out–nov" },
+    migration: { type: "summer", months: "out–nov" },
     sounds: [
       {
         // Metallic song phrases with high whistles, about 19s of the 29s recording
@@ -4674,7 +4672,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 827395,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/510496062/medium.jpg",
     photoCredit: "(c) luizanjos, some rights reserved (CC BY-NC)",
-    migration: { season: "summer", months: "set–jan" },
+    migration: { type: "summer", months: "set–jan" },
     sounds: [
       {
         // A series of short song phrases, about 15s of the 29s recording
