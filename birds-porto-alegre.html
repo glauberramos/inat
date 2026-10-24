@@ -37,6 +37,8 @@
         --tint-pressed: #3f7500;
         --red: #d70015;
         --bar: rgba(242, 242, 247, 0.8);
+        --summer: #c93400;
+        --winter: #0040dd;
       }
       html.dark-mode {
         --bg: #000000;
@@ -50,6 +52,8 @@
         --tint-pressed: #4c8c00;
         --red: #ff6961;
         --bar: rgba(22, 22, 24, 0.8);
+        --summer: #ffb340;
+        --winter: #409cff;
       }
 
       body.birds-page,
@@ -250,6 +254,33 @@
         font-size: 15px;
         font-style: italic;
         color: var(--label-2);
+      }
+      /* Migratory birds: when they're in Porto Alegre, with a warm dot for summer and a cool one for winter */
+      .bird-migration {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: var(--fill);
+        font-size: 13px;
+        line-height: 18px;
+        color: var(--label);
+      }
+      .bird-migration::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--label-2);
+      }
+      .bird-migration.is-summer::before {
+        background: var(--summer);
+      }
+      .bird-migration.is-winter::before,
+      .bird-migration.is-north::before {
+        background: var(--winter);
       }
       /* The page is ordered by family; the label above the name shows which one */
       .bird-family {
@@ -1221,9 +1252,26 @@
             el("p", { class: "bird-family", text: BIRD_FAMILIES[bird.family] }),
             el("h2", { class: "bird-name", text: bird.name }),
             el("p", { class: "bird-sci", text: bird.scientificName }),
+            ...(bird.migration ? [renderMigration(bird.migration)] : []),
             ...sounds,
           ]),
         ]);
+      }
+
+      // "Migratória de verão · set–fev": what kind of migrant, and when it's in Porto Alegre
+      const MIGRATION = {
+        summer: "Migratória de verão",
+        winter: "Migratória de inverno",
+        passage: "Migratória de passagem",
+        north: "Migratória do Hemisfério Norte",
+      };
+
+      function renderMigration({ season, months }) {
+        return el("p", {
+          class: `bird-migration is-${season}`,
+          title: `Em Porto Alegre aparece em: ${months} (eBird)`,
+          text: `${MIGRATION[season]} · ${months}`,
+        });
       }
 
       // How far a photo's shape can stray from the 3:2 frame and still fill it; a 4:3 photo would lose
