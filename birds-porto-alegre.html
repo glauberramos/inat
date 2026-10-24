@@ -1416,6 +1416,12 @@
         return [];
       }
 
+      function saveDeck() {
+        try {
+          localStorage.setItem(DECK_KEY, JSON.stringify(deck));
+        } catch {}
+      }
+
       // Next bird from the deck, reshuffled once it runs out (the bird just played doesn't open the new lap)
       function drawBird() {
         const playable = BIRDS.filter((b) => b.sounds.length);
@@ -1426,9 +1432,7 @@
           if (deck.length > 1 && round && deck[0] === round.bird.inatTaxonId) deck.push(deck.shift());
         }
         const bird = byId.get(deck.shift());
-        try {
-          localStorage.setItem(DECK_KEY, JSON.stringify(deck));
-        } catch {}
+        saveDeck();
         return bird;
       }
 
@@ -1521,9 +1525,12 @@
       document.getElementById("quizResultBack").addEventListener("click", showMenu);
       document.getElementById("quizAgain").addEventListener("click", startRoundOf20);
       quizReset.addEventListener("click", () => {
-        if (!confirm("Zerar o placar?")) return;
+        if (!confirm("Zerar o placar e sortear as aves de novo?")) return;
         score = { right: 0, wrong: 0 };
         saveScore();
+        // Starting over also starts a new lap in a new order, instead of finishing the old one
+        deck = [];
+        saveDeck();
         renderScore();
         quizNext.focus(); // the button hides itself, so keep focus in the sheet
       });
