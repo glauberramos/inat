@@ -6,8 +6,6 @@
 //   { source: "inaturalist", audio: <file URL>, recordist: <the name in the sound's "(c)" attribution>,
 //     license: <a Creative Commons code, e.g. "cc-by-nc"; never "all rights reserved">, observation: <observation id>,
 //     location: <where it was recorded: "City, UF"> }
-//   { source: "macaulay", ml: <ML number>, recordist: <the "©" name on the asset page>,
-//     location: <where it was recorded, from the asset page: "City, UF", or just the state when that's all it gives> }
 //   { source: "xenocanto", xc: <XC number>, audio: <the mp3 file linked from the recording page>, recordist,
 //     license: <e.g. "cc-by-nc-sa">, licenseVersion: <"2.5", "3.0" or "4.0", from the recording's license link>,
 //     location }; that file, unlike https://xeno-canto.org/<xc>/download, lets the player seek to start
@@ -21,10 +19,8 @@
 // autumn), "winter" (comes for the winter), "passage" (passes through on migration) or "north" (a Northern
 // Hemisphere bird here for the northern winter); months is when it shows up in Porto Alegre, read from eBird's
 // bar chart for the city (https://ebird.org/barchart?r=BR-RS-328&bmo=1&emo=12&byr=1900&eyr=2026).
-// Macaulay Library (eBird/Merlin) audio is streamed from
-// https://cdn.download.ams.birds.cornell.edu/api/v1/asset/<ml>/audio
 //
-// Spectrograms live in images/birds-porto-alegre/ (<iNat sound id>.webp, ml<ML number>.webp or xc<XC number>.webp).
+// Spectrograms live in images/birds-porto-alegre/ (<iNat sound id>.webp or xc<XC number>.webp).
 // After adding sounds, run: python3 scripts/bird-spectrograms.py
 
 // Portuguese names for each bird's family (from iNaturalist), A-Z by name. The page groups
@@ -628,14 +624,18 @@ const BIRDS_PORTO_ALEGRE = [
     migration: { season: "summer", months: "nov–fev" },
     sounds: [
       {
-        // Begging calls from a nesting colony, about 5s of the 2m18s recording
-        source: "macaulay",
-        ml: 179834,
-        recordist: "Ted Parker",
-        location: "Mato Grosso",
+        // A young bird's begging calls at the nest, the first 6s of the 28s recording
+        source: "xenocanto",
+        xc: 197030,
+        audio: "https://xeno-canto.org/sounds/uploaded/WOEAFQRMUD/XC197030-Mycteria%20americana140905_T1197.mp3",
+        recordist: "Dan Lane",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Beni, Bolívia",
         type: "call",
-        start: 4.4,
-        end: 9.5,
+        start: 0,
+        end: 6.3,
+        fmax: 6000,
       },
     ],
   },
@@ -4174,16 +4174,17 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Lip Kee, some rights reserved (CC BY-SA)",
     sounds: [
       {
-        // Two soft upslurred whistles, about 1.3s of the 14s recording
-        source: "macaulay",
-        ml: 636965119,
-        recordist: "Luis Weymar Junior",
-        location: "Pelotas, RS",
-        type: "call",
-        start: 2.15,
-        end: 3.4,
-        fmin: 1000,
-        fmax: 6000,
+        // Seven soft two-note whistles, about 18s of the 54s recording
+        source: "xenocanto",
+        xc: 46683,
+        audio: "https://xeno-canto.org/sounds/uploaded/BYLLSJRVDZ/Xolmis%20irupero_White%20Monjita_Reserva%20El%20Bagual_Formosa_Argentina_Bernabe%20Lopez-Lanus.mp3",
+        recordist: "Bernabe Lopez-Lanus",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Formosa, Argentina",
+        type: "song",
+        start: 3.3,
+        end: 21.4,
       },
     ],
   },
@@ -4533,14 +4534,17 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
     sounds: [
       {
-        // One burst of harsh calls; the full recording is 18s
-        source: "macaulay",
-        ml: 216284821,
-        recordist: "Pedro Ayres",
-        location: "Porto Alegre, RS",
-        type: "call",
-        start: 11,
-        end: 12.55,
+        // Four song phrases, about 16s of the 2m05s recording
+        source: "xenocanto",
+        xc: 384757,
+        audio: "https://xeno-canto.org/sounds/uploaded/ORPKXJRFDZ/XC384757-sabi%C3%A1%20barranco.mp3",
+        recordist: "Luiz C. Silva",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Campo Mourão, PR",
+        type: "song",
+        start: 0.1,
+        end: 16.6,
       },
     ],
   },

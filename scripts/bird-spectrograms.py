@@ -40,14 +40,10 @@ def load_birds():
 
 
 def audio_url(sound):
-    if sound["source"] == "macaulay":
-        return f"https://cdn.download.ams.birds.cornell.edu/api/v1/asset/{sound['ml']}/audio"
     return sound["audio"]
 
 
 def spec_name(sound):
-    if sound["source"] == "macaulay":
-        return f"ml{sound['ml']}"
     if sound["source"] == "xenocanto":
         return f"xc{sound['xc']}"
     return sound["audio"].rsplit("/", 1)[1].rsplit(".", 1)[0]
