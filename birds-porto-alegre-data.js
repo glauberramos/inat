@@ -639,7 +639,18 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4742,
     photo: "https://static.inaturalist.org/photos/108641164/medium.jpg",
     photoCredit: "(c) Jeff Stauffer, all rights reserved, uploaded by Jeff Stauffer",
-    sounds: [],
+    sounds: [
+      {
+        // Begging calls from a nesting colony, about 5s of the 2m18s recording
+        source: "macaulay",
+        ml: 179834,
+        recordist: "Ted Parker",
+        location: "Mato Grosso",
+        type: "call",
+        start: 4.4,
+        end: 9.5,
+      },
+    ],
   },
   {
     name: "Maguari",
@@ -648,7 +659,20 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4740,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/14171302/medium.jpg",
     photoCredit: "(c) João Vitor Andriola, some rights reserved (CC BY-NC), uploaded by João Vitor Andriola",
-    sounds: [],
+    sounds: [
+      {
+        // Hissing calls of young birds, the first 5s of the 11s recording
+        source: "xenocanto",
+        xc: 50307,
+        audio: "https://xeno-canto.org/sounds/uploaded/FKVINBDVIO/STORK%20Maguari_02_Puente%20Barral_Saladillo_Buenos%20Aires_AR_27OCT85_young_Miguel%20Angel%20Roda.mp3",
+        recordist: "Miguel Angel Roda",
+        license: "cc-by-nc-nd",
+        location: "Saladillo, Argentina",
+        type: "call",
+        start: 0,
+        end: 5.3,
+      },
+    ],
   },
   {
     name: "Choca-da-mata",
@@ -877,7 +901,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 62529,
     photo: "https://static.inaturalist.org/photos/32776247/medium.jpg",
     photoCredit: "(c) drdad, all rights reserved",
-    sounds: [],
+    sounds: [
+      {
+        // A run of about 14 low grunts in a mixed heronry, 2s of the 31s recording
+        source: "macaulay",
+        ml: 304510821,
+        recordist: "Arthur Gomes",
+        location: "Campinas, SP",
+        type: "call",
+        start: 2.6,
+        end: 4.7,
+        fmax: 4000,
+      },
+    ],
   },
   {
     name: "Curicaca",
@@ -1747,7 +1783,19 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 505478,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/274681663/medium.jpg",
     photoCredit: "(c) Svklimkin, some rights reserved (CC BY-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // One crow, about 2s of the 25s recording
+        source: "macaulay",
+        ml: 34849,
+        recordist: "Rob Bierregaard",
+        location: "Mato Grosso",
+        type: "song",
+        start: 14.4,
+        end: 16.6,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Garça-branca-grande",
