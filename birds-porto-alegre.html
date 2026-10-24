@@ -372,16 +372,18 @@
         border-left: 2px solid #fff;
         pointer-events: none;
       }
-      .rec-credit,
-      html.dark-mode body .rec-credit {
-        display: block;
+      .rec-credit {
         margin-top: 6px;
         font-size: 12px;
         color: var(--label-2);
         line-height: 16px;
+      }
+      .rec-credit a,
+      html.dark-mode body .rec-credit a {
+        color: inherit;
         text-decoration: none;
       }
-      .rec-credit:hover {
+      .rec-credit a:hover {
         text-decoration: underline;
       }
 
@@ -429,6 +431,11 @@
       .credits a,
       html.dark-mode body .credits a {
         color: inherit;
+      }
+      .credits-note {
+        font-size: 13px;
+        color: var(--label-2);
+        padding: 8px 4px 0;
       }
 
       /* Challenge: a sheet with one mystery recording and four birds to pick from */
@@ -895,6 +902,7 @@
       <details class="credits">
         <summary>Créditos das fotos e sons</summary>
         <ul id="birdsCredits"></ul>
+        <p class="credits-note">Espectrogramas gerados por este site a partir das gravações.</p>
       </details>
     </div>
 
@@ -959,6 +967,11 @@
         "cc-by-nc-nd": "CC BY-NC-ND",
       };
 
+      // The license text the credit links to; iNaturalist licenses its content under version 4.0
+      function inatLicenseUrl(code) {
+        return code === "cc0" ? "https://creativecommons.org/publicdomain/zero/1.0/" : `https://creativecommons.org/licenses/${code.slice(3)}/4.0/`;
+      }
+
       // Recording name per sound type; sounds without a type are songs.
       const SOUND_TYPES = { song: "Canto", call: "Chamado" };
 
@@ -1022,9 +1035,18 @@
           };
         }
         return {
-          text: `${sound.recordist} · ${LICENSES[sound.license] || sound.license}`,
+          text: [`© ${sound.recordist}`, sound.location, "iNaturalist"].filter(Boolean).join(" · "),
           href: `https://www.inaturalist.org/observations/${sound.observation}`,
+          license: { text: LICENSES[sound.license] || sound.license, href: inatLicenseUrl(sound.license) },
         };
+      }
+
+      // The credit's links: the recording, then its license when there's one to link
+      function creditLinks(credit, prefix) {
+        const link = (href, text) => el("a", { href, target: "_blank", rel: "noopener", text });
+        const out = [link(credit.href, prefix + credit.text)];
+        if (credit.license) out.push(document.createTextNode(" · "), link(credit.license.href, credit.license.text));
+        return out;
       }
 
       // m:ss
@@ -1162,7 +1184,7 @@
         row.el = el("div", { class: "rec" }, [
           el("div", { class: "rec-head" }, [row.btn, el("span", { class: "rec-title", text: name }), row.time]),
           row.spec,
-          el("a", { class: "rec-credit", href: credit.href, target: "_blank", rel: "noopener", text: `Gravação: ${credit.text}` }),
+          el("p", { class: "rec-credit" }, creditLinks(credit, "Gravação: ")),
         ]);
         return row.el;
       }
@@ -1212,8 +1234,7 @@
         li.appendChild(document.createTextNode(`foto ${bird.photoCredit}${bird.sounds.length ? "; cantos " : ""}`));
         bird.sounds.forEach((s, j) => {
           if (j) li.appendChild(document.createTextNode(", "));
-          const credit = soundCredit(s);
-          li.appendChild(el("a", { href: credit.href, target: "_blank", rel: "noopener", text: credit.text }));
+          li.append(...creditLinks(soundCredit(s), ""));
         });
         return li;
       }

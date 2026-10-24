@@ -3,7 +3,9 @@
 // Birds are listed by family, in the order of BIRD_FAMILIES, as the page shows them; within a
 // family, the ones eBird checklists in Porto Alegre report most often come first.
 // Each sound is either:
-//   { source: "inaturalist", audio: <file URL>, recordist, license, observation: <observation id> }
+//   { source: "inaturalist", audio: <file URL>, recordist: <the name in the sound's "(c)" attribution>,
+//     license: <a Creative Commons code, e.g. "cc-by-nc"; never "all rights reserved">, observation: <observation id>,
+//     location: <where it was recorded: "City, UF"> }
 //   { source: "macaulay", ml: <ML number>, recordist: <the "©" name on the asset page>,
 //     location: <where it was recorded, from the asset page: "City, UF", or just the state when that's all it gives> }
 //   { source: "xenocanto", xc: <XC number>, audio: <the mp3 file linked from the recording page>, recordist, license,
@@ -3244,15 +3246,15 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Ximo Galarza, some rights reserved (CC BY-NC-SA)",
     sounds: [
       {
-        // Steady chirping, the first 4.5s of the 15s recording
+        // A flock's steady chirping, the whole 11s recording (end only lets the card show its length before playing)
         source: "inaturalist",
-        audio: "https://static.inaturalist.org/sounds/1385596.mp3",
-        recordist: "Antonio Silveira",
-        license: "all rights reserved",
-        observation: 271841788,
+        audio: "https://static.inaturalist.org/sounds/138328.m4a",
+        recordist: "Eliara Solange Müller",
+        license: "cc-by-nc",
+        observation: 60711716,
+        location: "Chapecó, SC",
         type: "song",
-        start: 0,
-        end: 4.5,
+        end: 11.1,
       },
     ],
   },
