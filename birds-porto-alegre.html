@@ -524,6 +524,88 @@
         color: var(--label);
       }
 
+      /* Mode picker: one grouped cell per mode, like the answer options */
+      .quiz-modes {
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      .quiz .quiz-mode {
+        display: block;
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 0;
+        background: var(--sheet-cell);
+        color: var(--label);
+        text-align: left;
+      }
+      .quiz .quiz-mode + .quiz-mode {
+        border-top: 0.5px solid var(--separator);
+      }
+      .quiz .quiz-mode:hover {
+        background: var(--sheet-cell) linear-gradient(var(--fill), var(--fill));
+      }
+      .quiz .quiz-mode:focus-visible {
+        outline: 3px solid var(--tint);
+        outline-offset: -3px;
+      }
+      .quiz-mode-name {
+        display: block;
+        font-size: 17px;
+        font-weight: 600;
+      }
+      .quiz-mode-desc {
+        display: block;
+        margin-top: 2px;
+        font-size: 15px;
+        line-height: 20px;
+        color: var(--label-2);
+      }
+      /* Ver histórico / Voltar: plain tinted text buttons */
+      .quiz .quiz-link {
+        width: auto;
+        margin-top: 16px;
+        padding: 6px 4px;
+        background: transparent;
+        color: var(--tint);
+        font-size: 17px;
+      }
+      .quiz .quiz-link:hover {
+        background: transparent;
+      }
+      .quiz-footer .quiz-link {
+        margin: 0 auto 0 0;
+      }
+      .quiz-text {
+        margin: 0 4px;
+        font-size: 17px;
+        line-height: 24px;
+      }
+      .quiz-history-head {
+        margin: 16px 4px 4px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--label-2);
+      }
+      .quiz-history-list {
+        list-style: none;
+        margin: 8px 0 0;
+        padding: 0;
+        max-height: 40vh;
+        overflow-y: auto;
+        border-radius: 16px;
+      }
+      .quiz-history-list li {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 16px;
+        background: var(--sheet-cell);
+        font-size: 15px;
+        font-variant-numeric: tabular-nums;
+      }
+      .quiz-history-list li + li {
+        border-top: 0.5px solid var(--separator);
+      }
+
       /* The mystery recording: a big play button beside its spectrogram, which stays
          covered until the answer (it would give the bird away) but still shows the playhead */
       .quiz-sound {
@@ -816,14 +898,28 @@
       </details>
     </div>
 
-    <dialog class="quiz" id="quiz" aria-labelledby="quizTitle">
+    <dialog class="quiz" id="quiz" aria-labelledby="quizMenuTitle">
       <div class="quiz-grabber" aria-hidden="true"></div>
       <div class="quiz-bar">
         <p class="quiz-score" id="quizScore"></p>
         <button class="quiz-reset" id="quizReset" type="button" hidden>Zerar</button>
         <button class="quiz-close" id="quizClose" type="button">Fechar</button>
       </div>
-      <div class="quiz-body">
+      <div class="quiz-body" id="quizMenu">
+        <h2 class="quiz-question" id="quizMenuTitle">Desafio</h2>
+        <div class="quiz-modes">
+          <button class="quiz-mode" id="modeEndless" type="button">
+            <span class="quiz-mode-name">Infinito</span>
+            <span class="quiz-mode-desc">Uma ave atrás da outra, sem fim. Todas aparecem antes de repetir.</span>
+          </button>
+          <button class="quiz-mode" id="modeRound" type="button">
+            <span class="quiz-mode-name">Rodada de 20</span>
+            <span class="quiz-mode-desc">20 aves diferentes e uma nota no fim.</span>
+          </button>
+        </div>
+        <button class="quiz-link" id="quizHistoryBtn" type="button">Ver histórico</button>
+      </div>
+      <div class="quiz-body" id="quizPlay" hidden>
         <h2 class="quiz-question" id="quizTitle">Que ave é essa?</h2>
         <div class="quiz-sound" id="quizSound"></div>
         <div class="quiz-options" id="quizOptions"></div>
@@ -831,6 +927,23 @@
           <p class="quiz-feedback" id="quizFeedback" aria-live="polite"></p>
           <button class="quiz-next" id="quizNext" type="button"></button>
         </div>
+      </div>
+      <div class="quiz-body" id="quizResult" hidden>
+        <h2 class="quiz-question" id="quizResultTitle">Fim da rodada</h2>
+        <p class="quiz-text" id="quizResultText"></p>
+        <div class="quiz-footer">
+          <button class="quiz-link" id="quizResultBack" type="button">Voltar</button>
+          <button class="quiz-next" id="quizAgain" type="button">Nova rodada</button>
+        </div>
+      </div>
+      <div class="quiz-body" id="quizHistory" hidden>
+        <h2 class="quiz-question" id="quizHistoryTitle">Histórico</h2>
+        <h3 class="quiz-history-head">Infinito</h3>
+        <p class="quiz-text" id="historyEndless"></p>
+        <h3 class="quiz-history-head">Rodada de 20</h3>
+        <p class="quiz-text" id="historyRoundsSummary"></p>
+        <ol class="quiz-history-list" id="historyRounds"></ol>
+        <button class="quiz-link" id="quizHistoryBack" type="button">Voltar</button>
       </div>
     </dialog>
 
@@ -1144,8 +1257,11 @@
       window.addEventListener("scroll", updateNavBar, { passive: true });
       updateNavBar();
 
-      // Challenge: guess the bird from its recording. Endless; the score lives in localStorage.
+      // Challenge: guess the bird from its recording, endlessly (Infinito) or in rounds of 20 birds
+      // (Rodada de 20). The endless score and the finished rounds live in localStorage.
       const SCORE_KEY = "birdsPortoAlegreChallenge";
+      const ROUNDS_KEY = "birdsPortoAlegreChallengeRounds"; // finished rounds of 20, oldest first: [{ date, right, total }]
+      const ROUND_SIZE = 20;
       // Birds still to come this lap, by iNat taxon id; every bird comes up once (with any one of
       // its sounds) before any repeats. The deck lives in memory and is saved to localStorage when
       // the browser allows, so a lap carries over between visits but still works where storage is
@@ -1159,9 +1275,13 @@
       const quizFeedback = document.getElementById("quizFeedback");
       const quizNext = document.getElementById("quizNext");
       const quizReset = document.getElementById("quizReset");
+      const quizViews = { menu: "quizMenu", play: "quizPlay", result: "quizResult", history: "quizHistory" };
       let score = loadScore();
+      let rounds = loadRounds();
       let deck = loadDeck();
-      let round = null; // { bird, row, correctBtn, answered }
+      let mode = "endless"; // "endless" (Infinito) or "round" (Rodada de 20)
+      let run = null; // the round of 20 being played: { queue, right, wrong }; dropped if the sheet closes
+      let round = null; // the current question: { bird, row, correctBtn, answered }
 
       function loadScore() {
         try {
@@ -1177,7 +1297,21 @@
         } catch {}
       }
 
-      // ✓ 3  ✕ 1, read out as "3 acertos, 1 erro"
+      function loadRounds() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(ROUNDS_KEY));
+          if (Array.isArray(saved)) return saved.filter((r) => r && Number.isFinite(r.right) && Number.isFinite(r.total));
+        } catch {}
+        return [];
+      }
+
+      function saveRounds() {
+        try {
+          localStorage.setItem(ROUNDS_KEY, JSON.stringify(rounds));
+        } catch {}
+      }
+
+      // ✓ 3  ✕ 1, read out as "3 acertos, 1 erro"; a round of 20 also shows which bird of the 20 this is
       function renderScore() {
         const tally = (cls, glyph, n, word) =>
           el("span", { class: cls }, [
@@ -1185,8 +1319,80 @@
             document.createTextNode(n),
             el("span", { class: "visually-hidden", text: ` ${word}${n === 1 ? "" : "s"}` }),
           ]);
+        if (mode === "round") {
+          const answered = run.right + run.wrong;
+          const current = Math.min(answered + (round && round.answered ? 0 : 1), ROUND_SIZE);
+          quizScore.replaceChildren(
+            el("span", { text: `${current}/${ROUND_SIZE}` }),
+            tally("is-right", "✓", run.right, "acerto"),
+            tally("is-wrong", "✕", run.wrong, "erro")
+          );
+          quizReset.hidden = true;
+          return;
+        }
         quizScore.replaceChildren(tally("is-right", "✓", score.right, "acerto"), tally("is-wrong", "✕", score.wrong, "erro"));
         quizReset.hidden = score.right + score.wrong === 0;
+      }
+
+      // One view of the sheet at a time: the mode picker, a question, a round's result or the history
+      function showView(name) {
+        for (const [key, id] of Object.entries(quizViews)) document.getElementById(id).hidden = key !== name;
+        quiz.setAttribute("aria-labelledby", document.querySelector(`#${quizViews[name]} h2`).id);
+        if (name !== "play") {
+          stopPlayback();
+          quizScore.replaceChildren();
+          quizReset.hidden = true;
+        }
+      }
+
+      function showMenu() {
+        run = null;
+        showView("menu");
+        document.getElementById(mode === "round" ? "modeRound" : "modeEndless").focus();
+      }
+
+      function startEndless() {
+        mode = "endless";
+        run = null;
+        showView("play");
+        newRound();
+      }
+
+      // 20 different birds; skipping one brings in another, so a round always has 20 answers
+      function startRoundOf20() {
+        mode = "round";
+        run = { queue: shuffle(BIRDS.filter((b) => b.sounds.length)), right: 0, wrong: 0 };
+        showView("play");
+        newRound();
+      }
+
+      function showResult() {
+        document.getElementById("quizResultText").textContent = `Você acertou ${run.right} de ${ROUND_SIZE}.`;
+        showView("result");
+        document.getElementById("quizAgain").focus();
+      }
+
+      function showHistory() {
+        const answered = score.right + score.wrong;
+        document.getElementById("historyEndless").textContent = answered
+          ? `${score.right} ${score.right === 1 ? "acerto" : "acertos"} e ${score.wrong} ${score.wrong === 1 ? "erro" : "erros"} (${Math.round((score.right / answered) * 100)}% de acertos).`
+          : "Você ainda não respondeu nenhuma ave.";
+        document.getElementById("historyRoundsSummary").textContent = rounds.length
+          ? `Você completou ${rounds.length} ${rounds.length === 1 ? "rodada" : "rodadas"}.`
+          : "Você ainda não completou nenhuma rodada.";
+        document.getElementById("historyRounds").replaceChildren(
+          ...rounds
+            .slice()
+            .reverse()
+            .map((r) =>
+              el("li", {}, [
+                el("span", { text: new Date(r.date).toLocaleDateString("pt-BR") }),
+                el("span", { text: `${r.right} de ${r.total}` }),
+              ])
+            )
+        );
+        showView("history");
+        document.getElementById("quizHistoryBack").focus();
       }
 
       function pickOne(list) {
@@ -1231,9 +1437,15 @@
         deactivate();
       }
 
+      function nextBird() {
+        if (mode !== "round") return drawBird();
+        if (!run.queue.length) run.queue = shuffle(BIRDS.filter((b) => b.sounds.length)); // only after many skips
+        return run.queue.shift();
+      }
+
       function newRound() {
         stopPlayback();
-        const bird = drawBird();
+        const bird = nextBird();
         const sound = pickOne(bird.sounds);
         // Wrong choices come from the same family first, which makes it harder; any left over are random
         const others = BIRDS.filter((b) => b !== bird);
@@ -1273,8 +1485,18 @@
         if (round.answered) return;
         round.answered = true;
         const right = choice === round.bird;
-        score[right ? "right" : "wrong"] += 1;
-        saveScore();
+        const finished = mode === "round" && run.right + run.wrong + 1 === ROUND_SIZE;
+        if (mode === "round") {
+          run[right ? "right" : "wrong"] += 1;
+          // Saved as soon as the 20th answer is in, so closing the sheet now doesn't lose it
+          if (finished) {
+            rounds.push({ date: new Date().toISOString(), right: run.right, total: ROUND_SIZE });
+            saveRounds();
+          }
+        } else {
+          score[right ? "right" : "wrong"] += 1;
+          saveScore();
+        }
         renderScore();
 
         quizOptions.querySelectorAll(".quiz-option").forEach((option) => (option.disabled = true));
@@ -1283,15 +1505,21 @@
         if (!right) btn.classList.add("is-wrong");
         quizFeedback.textContent = right ? "Acertou!" : `Errou. A resposta é ${round.bird.name}.`;
         quizFeedback.classList.add(right ? "is-right" : "is-wrong");
-        quizNext.textContent = "Próxima";
+        quizNext.textContent = finished ? "Ver resultado" : "Próxima";
         quizNext.classList.remove("is-skip");
         quizNext.focus();
       }
 
       document.getElementById("challengeBtn").addEventListener("click", () => {
         quiz.showModal();
-        newRound();
+        showMenu();
       });
+      document.getElementById("modeEndless").addEventListener("click", startEndless);
+      document.getElementById("modeRound").addEventListener("click", startRoundOf20);
+      document.getElementById("quizHistoryBtn").addEventListener("click", showHistory);
+      document.getElementById("quizHistoryBack").addEventListener("click", showMenu);
+      document.getElementById("quizResultBack").addEventListener("click", showMenu);
+      document.getElementById("quizAgain").addEventListener("click", startRoundOf20);
       quizReset.addEventListener("click", () => {
         if (!confirm("Zerar o placar?")) return;
         score = { right: 0, wrong: 0 };
@@ -1300,9 +1528,13 @@
         quizNext.focus(); // the button hides itself, so keep focus in the sheet
       });
       document.getElementById("quizClose").addEventListener("click", () => quiz.close());
-      quizNext.addEventListener("click", newRound);
+      quizNext.addEventListener("click", () => {
+        if (mode === "round" && run.right + run.wrong === ROUND_SIZE) showResult();
+        else newRound();
+      });
       quiz.addEventListener("close", () => {
         stopPlayback();
+        run = null; // a round left unfinished is dropped
         quiz.classList.remove("is-settling");
         quiz.style.transform = "";
       });
