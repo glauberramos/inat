@@ -6,13 +6,15 @@
 //   { source: "inaturalist", audio: <file URL>, recordist, license, observation: <observation id> }
 //   { source: "macaulay", ml: <ML number>, recordist: <the "©" name on the asset page>,
 //     location: <where it was recorded, from the asset page: "City, UF", or just the state when that's all it gives> }
+//   { source: "xenocanto", xc: <XC number>, audio: <the mp3 file linked from the recording page>, recordist, license,
+//     location }; that file, unlike https://xeno-canto.org/<xc>/download, lets the player seek to start
 // plus an optional type: "song" (Canto, the default) or "call" (Chamado),
 // optional start/end (seconds) to play and draw only part of the recording,
 // and optional fmin/fmax (Hz, default 0 and 10000) to zoom the spectrogram in on the bird's pitch range.
 // Macaulay Library (eBird/Merlin) audio is streamed from
 // https://cdn.download.ams.birds.cornell.edu/api/v1/asset/<ml>/audio
 //
-// Spectrograms live in images/birds-porto-alegre/ (<iNat sound id>.webp or ml<ML number>.webp).
+// Spectrograms live in images/birds-porto-alegre/ (<iNat sound id>.webp, ml<ML number>.webp or xc<XC number>.webp).
 // After adding sounds, run: python3 scripts/bird-spectrograms.py
 
 // Portuguese names for each bird's family (from iNaturalist), A-Z by name. The page groups
@@ -811,7 +813,21 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 558431,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/166959095/medium.jpeg",
     photoCredit: "(c) Bryan Caro San Martin, some rights reserved (CC BY-NC), uploaded by Bryan Caro San Martin",
-    sounds: [],
+    sounds: [
+      {
+        // A run of nasal calls, most of the 4s recording
+        source: "xenocanto",
+        xc: 686845,
+        audio: "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC686845-09-11-2021%207e39%20Marreca%20cricri%20MOSTARDAS.mp3",
+        recordist: "Jayrson Araujo de Oliveira",
+        license: "cc-by-nc-sa",
+        location: "Mostardas, RS",
+        type: "call",
+        start: 0.35,
+        end: 3.8,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Tapicuru",
@@ -1910,8 +1926,22 @@ const BIRDS_PORTO_ALEGRE = [
     family: "Ardeidae",
     inatTaxonId: 5048,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/21359/medium.jpg",
-    photoCredit: "(c) ClÃ¡udio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    sounds: [],
+    photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
+    sounds: [
+      {
+        // Flight calls, the first 3.5s of the 7s recording
+        source: "xenocanto",
+        xc: 176913,
+        audio: "https://xeno-canto.org/sounds/uploaded/MNENFHYTAE/XC176913-Cracidae_Penelope_superciliaris_23_03_2012_H06_41_Macaco_Vidal_Ramos.mp3",
+        recordist: "Douglas Meyer",
+        license: "cc-by-nc-sa",
+        location: "Vidal Ramos, SC",
+        type: "call",
+        start: 0,
+        end: 3.4,
+        fmax: 5000,
+      },
+    ],
   },
   {
     name: "Fim-fim",
@@ -3792,7 +3822,20 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10257,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/9854276/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    sounds: [],
+    sounds: [
+      {
+        // One phrase of slurred notes and a sharp call, about 2s of the 30s recording
+        source: "xenocanto",
+        xc: 838743,
+        audio: "https://xeno-canto.org/sounds/uploaded/VKQHDAFQDZ/XC838743-Cardenilla-%28Call%29.mp3",
+        recordist: "Pedro Rinaldi",
+        license: "cc-by-nc-sa",
+        location: "Salto, Uruguai",
+        type: "call",
+        start: 6.3,
+        end: 8,
+      },
+    ],
   },
   {
     name: "Tiziu",

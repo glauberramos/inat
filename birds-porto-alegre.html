@@ -885,16 +885,27 @@
 
       // Pre-rendered by scripts/bird-spectrograms.py
       function specUrl(sound) {
-        const name = sound.source === "macaulay" ? `ml${sound.ml}` : sound.audio.split("/").pop().replace(/\.\w+$/, "");
+        const name =
+          sound.source === "macaulay"
+            ? `ml${sound.ml}`
+            : sound.source === "xenocanto"
+              ? `xc${sound.xc}`
+              : sound.audio.split("/").pop().replace(/\.\w+$/, "");
         return `images/birds-porto-alegre/${name}.webp`;
       }
 
-      // Recordings come from iNaturalist or the Macaulay Library (eBird/Merlin).
+      // Recordings come from iNaturalist, the Macaulay Library (eBird/Merlin) or xeno-canto.
       function soundCredit(sound) {
         if (sound.source === "macaulay") {
           return {
             text: [sound.recordist, sound.location, `Macaulay Library ML${sound.ml}`].filter(Boolean).join(" · "),
             href: `https://macaulaylibrary.org/asset/${sound.ml}`,
+          };
+        }
+        if (sound.source === "xenocanto") {
+          return {
+            text: [sound.recordist, sound.location, `xeno-canto XC${sound.xc}`, LICENSES[sound.license] || sound.license].join(" · "),
+            href: `https://xeno-canto.org/${sound.xc}`,
           };
         }
         return {

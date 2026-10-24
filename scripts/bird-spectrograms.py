@@ -48,6 +48,8 @@ def audio_url(sound):
 def spec_name(sound):
     if sound["source"] == "macaulay":
         return f"ml{sound['ml']}"
+    if sound["source"] == "xenocanto":
+        return f"xc{sound['xc']}"
     return sound["audio"].rsplit("/", 1)[1].rsplit(".", 1)[0]
 
 
