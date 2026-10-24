@@ -1000,14 +1000,27 @@
         "cc-by-nc-nd": "CC BY-NC-ND",
       };
 
-      // The license the credit names and links to. xeno-canto recordings carry their version
-      // (2.5, 3.0 or 4.0); iNaturalist licenses everything under 4.0.
-      function soundLicense(sound) {
-        const version = sound.licenseVersion || "4.0";
-        if (sound.license === "cc0") return { text: "CC0", href: "https://creativecommons.org/publicdomain/zero/1.0/" };
+      // The license a credit names and links to. xeno-canto recordings carry their version
+      // (2.5, 3.0 or 4.0); iNaturalist licenses its photos and sounds under 4.0.
+      function ccLicense(code, version = "4.0") {
+        if (code === "cc0") return { text: "CC0", href: "https://creativecommons.org/publicdomain/zero/1.0/" };
         return {
-          text: `${LICENSES[sound.license] || sound.license} ${version}`,
-          href: `https://creativecommons.org/licenses/${sound.license.slice(3)}/${version}/`,
+          text: `${LICENSES[code] || code} ${version}`,
+          href: `https://creativecommons.org/licenses/${code.slice(3)}/${version}/`,
+        };
+      }
+
+      // Photos come from iNaturalist with its credit line: "(c) Name, some rights reserved (CC BY-NC), uploaded
+      // by Name", or "no rights reserved, uploaded by Name" for CC0. The credit links to the photo's page and its license.
+      function photoCredit(bird) {
+        const owner = bird.photoCredit.match(/^\(c\) (.+?), some rights reserved/);
+        const uploader = bird.photoCredit.match(/uploaded by (.+)$/);
+        const cc = bird.photoCredit.match(/\((CC [^)]+)\)/);
+        const code = cc ? cc[1].toLowerCase().replace(/ /g, "-") : "cc0";
+        return {
+          text: owner ? `© ${owner[1]}` : uploader ? uploader[1] : bird.photoCredit,
+          href: `https://www.inaturalist.org/photos/${bird.photo.match(/photos\/(\d+)\//)[1]}`,
+          license: ccLicense(code),
         };
       }
 
@@ -1075,21 +1088,25 @@
           return {
             text: [`© ${sound.recordist}`, sound.location, `xeno-canto XC${sound.xc}`].filter(Boolean).join(" · "),
             href: `https://xeno-canto.org/${sound.xc}`,
-            license: soundLicense(sound),
+            license: ccLicense(sound.license, sound.licenseVersion),
           };
         }
         return {
           text: [`© ${sound.recordist}`, sound.location, "iNaturalist"].filter(Boolean).join(" · "),
           href: `https://www.inaturalist.org/observations/${sound.observation}`,
-          license: soundLicense(sound),
+          license: ccLicense(sound.license, sound.licenseVersion),
         };
+      }
+
+      // Credits open their source in a new tab
+      function link(href, text) {
+        return el("a", { href, target: "_blank", rel: "noopener", text });
       }
 
       // The credit's links: the recording, then its license when there's one to link.
       // On a card it reads "Gravação (trecho): ..." for a trimmed clip; in the credits list, "... (trecho)".
       function creditLinks(sound, onCard) {
         const credit = soundCredit(sound);
-        const link = (href, text) => el("a", { href, target: "_blank", rel: "noopener", text });
         const prefix = onCard ? `Gravação${isTrimmed(sound) ? " (trecho)" : ""}: ` : "";
         const out = [link(credit.href, prefix + credit.text)];
         if (credit.license) out.push(document.createTextNode(" · "), link(credit.license.href, credit.license.text));
@@ -1295,7 +1312,9 @@
       function renderCredits(bird) {
         const li = el("li");
         li.appendChild(el("strong", { text: `${bird.name}: ` }));
-        li.appendChild(document.createTextNode(`foto ${bird.photoCredit}${bird.sounds.length ? "; cantos " : ""}`));
+        const photo = photoCredit(bird);
+        li.append("foto ", link(photo.href, photo.text), " · ", link(photo.license.href, photo.license.text));
+        if (bird.sounds.length) li.append("; cantos ");
         bird.sounds.forEach((s, j) => {
           if (j) li.appendChild(document.createTextNode(", "));
           li.append(...creditLinks(s, false));

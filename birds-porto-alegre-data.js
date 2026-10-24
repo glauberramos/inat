@@ -159,8 +159,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Stelgidopteryx ruficollis",
     family: "Hirundinidae",
     inatTaxonId: 11972,
-    photo: "https://static.inaturalist.org/photos/526156654/medium.jpg",
-    photoCredit: "(c) Laurent Rouschmeyer, all rights reserved, uploaded by Laurent Rouschmeyer",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/663372181/medium.jpg",
+    photoCredit: "(c) Donald Davesne, some rights reserved (CC BY), uploaded by Donald Davesne",
     migration: { season: "summer", months: "set–jan" },
     sounds: [
       {
@@ -341,8 +341,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Vanellus chilensis",
     family: "Charadriidae",
     inatTaxonId: 4867,
-    photo: "https://static.inaturalist.org/photos/601222938/medium.jpg",
-    photoCredit: "(c) Robin James, all rights reserved, uploaded by Robin James",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/366729434/medium.jpg",
+    photoCredit: "(c) joakosbirdlife, some rights reserved (CC BY-NC)",
     sounds: [
       {
         // A steady run of calls ending in four loud notes, about 6s of the 58s recording
@@ -386,8 +386,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Chlorostilbon lucidus",
     family: "Trochilidae",
     inatTaxonId: 6085,
-    photo: "https://static.inaturalist.org/photos/251801157/medium.jpg",
-    photoCredit: "(c) Alenilson, all rights reserved, uploaded by Alenilson",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/32687025/medium.jpeg",
+    photoCredit: "(c) Nicolas Olejnik, some rights reserved (CC BY), uploaded by Nicolas Olejnik",
     migration: { season: "summer", months: "ago–mar" },
     sounds: [
       {
@@ -614,8 +614,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Mycteria americana",
     family: "Ciconiidae",
     inatTaxonId: 4742,
-    photo: "https://static.inaturalist.org/photos/108641164/medium.jpg",
-    photoCredit: "(c) Jeff Stauffer, all rights reserved, uploaded by Jeff Stauffer",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/87252334/medium.jpg",
+    photoCredit: "(c) chezasaurus, some rights reserved (CC BY-NC), uploaded by chezasaurus",
     migration: { season: "summer", months: "nov–fev" },
     sounds: [
       {
@@ -749,8 +749,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Callonetta leucophrys",
     family: "Anatidae",
     inatTaxonId: 7188,
-    photo: "https://static.inaturalist.org/photos/265504465/medium.jpg",
-    photoCredit: "(c) Mark Vidler, all rights reserved, uploaded by Mark Vidler",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/329671116/medium.jpeg",
+    photoCredit: "(c) Martin Arregui, some rights reserved (CC BY-NC), uploaded by Martin Arregui",
     sounds: [
       {
         // Three nasal calls, 4s of the 21s recording
@@ -887,8 +887,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Platalea ajaja",
     family: "Threskiornithidae",
     inatTaxonId: 62529,
-    photo: "https://static.inaturalist.org/photos/32776247/medium.jpg",
-    photoCredit: "(c) drdad, all rights reserved",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2069153/medium.jpg",
+    photoCredit: "(c) Nigel Voaden, some rights reserved (CC BY)",
     sounds: [
       {
         // Four bouts of low grunting, about 16s of the 52s recording
@@ -965,9 +965,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Nannopterum brasilianum",
     family: "Phalacrocoracidae",
     inatTaxonId: 1289601,
-    photo: "https://static.inaturalist.org/photos/48364706/medium.jpg",
-    photoCredit:
-      "(c) Luis Mauricio Mena Páramo, all rights reserved, uploaded by Luis Mauricio Mena Páramo",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/23856507/medium.jpg",
+    photoCredit: "(c) Kala Murphy King, some rights reserved (CC BY-NC-ND), uploaded by Kala Murphy King",
     sounds: [
       {
         // The whole 6s recording: guttural grunting display
@@ -1034,8 +1033,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Athene cunicularia",
     family: "Strigidae",
     inatTaxonId: 19975,
-    photo: "https://static.inaturalist.org/photos/57747291/medium.jpg",
-    photoCredit: "(c) Jason Penney, all rights reserved",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/271464379/medium.jpg",
+    photoCredit: "(c) Steven Mlodinow, some rights reserved (CC BY-NC), uploaded by Steven Mlodinow",
     sounds: [
       {
         // The whole 23s recording: three alarm bouts, a screech then a chatter of 'kek' notes
@@ -1056,8 +1055,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Asio stygius",
     family: "Strigidae",
     inatTaxonId: 20331,
-    photo: "https://static.inaturalist.org/photos/538595668/medium.jpg",
-    photoCredit: "(c) Eduardo Borges, all rights reserved, uploaded by Eduardo Borges",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1119324/medium.jpg",
+    photoCredit: "(c) Aldo Ortíz Reyes, some rights reserved (CC BY-NC), uploaded by Aldo Ortíz Reyes",
     sounds: [
       {
         // Five 'nyek' calls, about 11s of the 1m00s recording
@@ -1194,8 +1193,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Tapera naevia",
     family: "Cuculidae",
     inatTaxonId: 1989,
-    photo: "https://static.inaturalist.org/photos/502425111/medium.jpg",
-    photoCredit: "(c) Allan Clé Porto, all rights reserved, uploaded by Allan Clé Porto",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/123443099/medium.jpeg",
+    photoCredit: "(c) ggroitman, some rights reserved (CC BY-NC), uploaded by ggroitman",
     sounds: [
       {
         // The whole 13s recording: three 'sa-ci' whistled songs
@@ -1237,8 +1236,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Falco sparverius",
     family: "Falconidae",
     inatTaxonId: 4665,
-    photo: "https://static.inaturalist.org/photos/174574440/medium.jpg",
-    photoCredit: "(c) Vincent O'Brien, all rights reserved, uploaded by Vincent O'Brien",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/23121348/medium.jpg",
+    photoCredit: "(c) Josh van der Meulen, some rights reserved (CC BY-NC-ND), uploaded by Josh van der Meulen",
     sounds: [
       {
         // The whole 16s recording: 'killy-killy' series, a whine and a loud 'klee-klee' run
@@ -1397,8 +1396,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Chroicocephalus cirrocephalus",
     family: "Laridae",
     inatTaxonId: 144508,
-    photo: "https://static.inaturalist.org/photos/66911159/medium.jpeg",
-    photoCredit: "(c) Carlos N. G. Bocos, all rights reserved, uploaded by Carlos N. G. Bocos",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/4183449/medium.jpg",
+    photoCredit: "(c) John Beetham, some rights reserved (CC BY-NC-SA)",
     migration: { season: "winter", months: "mai–ago" },
     sounds: [
       {
@@ -1469,8 +1468,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Aramides saracura",
     family: "Rallidae",
     inatTaxonId: 458,
-    photo: "https://static.inaturalist.org/photos/38306077/medium.jpg",
-    photoCredit: "(c) Eden Fontes, all rights reserved, uploaded by Eden Fontes",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/8460677/medium.jpeg",
+    photoCredit: "(c) Nelson Wisnik, some rights reserved (CC BY-NC), uploaded by Nelson Wisnik",
     sounds: [
       {
         // The pair's rhythmic duet chorus, about 13s of the 31s recording
@@ -1710,8 +1709,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Egretta thula",
     family: "Ardeidae",
     inatTaxonId: 4940,
-    photo: "https://static.inaturalist.org/photos/107527504/medium.jpeg",
-    photoCredit: "(c) Juan Miguel Artigas Azas, all rights reserved, uploaded by Juan Miguel Artigas Azas",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2415351/medium.jpg",
+    photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
     sounds: [
       {
         // The whole 21s recording: three croaks, a long pause, then two more
@@ -1892,8 +1891,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Chlorophonia cyanocephala",
     family: "Fringillidae",
     inatTaxonId: 1289368,
-    photo: "https://static.inaturalist.org/photos/258648797/medium.jpg",
-    photoCredit: "(c) Gustavo Dallaqua, all rights reserved, uploaded by Gustavo Dallaqua",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/489966317/medium.jpg",
+    photoCredit: "(c) Augusto Matheus dos Santos, some rights reserved (CC BY-NC)",
     migration: { season: "winter", months: "abr–ago" },
     sounds: [
       {
@@ -1987,8 +1986,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Rostrhamus sociabilis",
     family: "Accipitridae",
     inatTaxonId: 5349,
-    photo: "https://static.inaturalist.org/photos/4438193/medium.jpg",
-    photoCredit: "(c) Judd Patterson, all rights reserved, uploaded by Judd Patterson",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/361425135/medium.jpg",
+    photoCredit: "(c) Victor, some rights reserved (CC BY-NC-ND)",
     migration: { season: "summer", months: "set–dez" },
     sounds: [
       {
@@ -2034,8 +2033,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Circus buffoni",
     family: "Accipitridae",
     inatTaxonId: 5177,
-    photo: "https://static.inaturalist.org/photos/328148647/medium.jpg",
-    photoCredit: "(c) Junior Aves, all rights reserved, uploaded by Junior Aves",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/210653314/medium.jpg",
+    photoCredit: "(c) Hugo, some rights reserved (CC BY-NC), uploaded by Hugo",
     sounds: [
       {
         // The whole 10s recording: two chattering 'ke-ke-ke' series
@@ -2239,8 +2238,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Icterus pyrrhopterus",
     family: "Icteridae",
     inatTaxonId: 72954,
-    photo: "https://static.inaturalist.org/photos/51260789/medium.jpg",
-    photoCredit: "(c) Mariano Ordoñez, all rights reserved, uploaded by Mariano Ordoñez",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/114288120/medium.jpeg",
+    photoCredit: "(c) Tim Hirsch, some rights reserved (CC BY), uploaded by Tim Hirsch",
     sounds: [
       {
         // Two song phrases of clear whistles and buzzy notes, about 16s of the 32s recording
@@ -2262,8 +2261,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Chrysomus ruficapillus",
     family: "Icteridae",
     inatTaxonId: 69696,
-    photo: "https://static.inaturalist.org/photos/70821462/medium.jpg",
-    photoCredit: "(c) Rodrigo Conte, all rights reserved",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/28034/medium.jpg",
+    photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
     sounds: [
       {
         // Colony chorus with a quick descending series of song notes, about 5s of the 26s recording
@@ -2307,8 +2306,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Molothrus rufoaxillaris",
     family: "Icteridae",
     inatTaxonId: 10370,
-    photo: "https://static.inaturalist.org/photos/7858823/medium.jpg",
-    photoCredit: "(c) Jorge Schlemmer, all rights reserved",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/249037827/medium.jpg",
+    photoCredit: "(c) Ariel Cabrera Foix, some rights reserved (CC BY-NC-SA), uploaded by Ariel Cabrera Foix",
     sounds: [
       {
         // Several songs of soft gurgles and explosive high notes, about 12s of the 2m22s recording
@@ -2442,8 +2441,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Cranioleuca obsoleta",
     family: "Furnariidae",
     inatTaxonId: 11254,
-    photo: "https://static.inaturalist.org/photos/88417321/medium.jpeg",
-    photoCredit: "(c) Maicon Molina, all rights reserved, uploaded by Maicon Molina",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/221333003/medium.jpg",
+    photoCredit: "no rights reserved, uploaded by Nina Wenóli",
     sounds: [
       {
         // A steady run of short buzzy calls, about 12s of the 24s recording
@@ -2510,8 +2509,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Synallaxis cinerascens",
     family: "Furnariidae",
     inatTaxonId: 10974,
-    photo: "https://static.inaturalist.org/photos/540077338/medium.jpg",
-    photoCredit: "(c) Gustavo Dallaqua, all rights reserved, uploaded by Gustavo Dallaqua",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1718802/medium.jpg",
+    photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
     sounds: [
       {
         // Four songs (a rising note, then a short note), about 9.5s of the 1m35s recording
@@ -2555,8 +2554,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Syndactyla rufosuperciliata",
     family: "Furnariidae",
     inatTaxonId: 11472,
-    photo: "https://static.inaturalist.org/photos/179819376/medium.jpg",
-    photoCredit: "(c) Luiz Fernando Matos, all rights reserved, uploaded by Luiz Fernando Matos",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/225009370/medium.jpeg",
+    photoCredit: "(c) silviolamothe, some rights reserved (CC BY-NC), uploaded by silviolamothe",
     sounds: [
       {
         // The whole 7s recording: one full song between harsh calls
@@ -2577,8 +2576,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Sclerurus scansor",
     family: "Furnariidae",
     inatTaxonId: 11653,
-    photo: "https://static.inaturalist.org/photos/242707779/medium.jpg",
-    photoCredit: "(c) Allan Clé Porto, all rights reserved, uploaded by Allan Clé Porto",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/457840576/medium.jpeg",
+    photoCredit: "(c) Don Marsille, some rights reserved (CC BY-NC), uploaded by Don Marsille",
     sounds: [
       {
         // Eight sharp calls, about 14s of the 31s recording
@@ -2600,8 +2599,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Anumbius annumbi",
     family: "Furnariidae",
     inatTaxonId: 11850,
-    photo: "https://static.inaturalist.org/photos/462611413/medium.jpg",
-    photoCredit: "(c) Aisse Gaertner, all rights reserved, uploaded by Aisse Gaertner",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/31184030/medium.jpg",
+    photoCredit: "(c) marcelo_allende, some rights reserved (CC BY-NC), uploaded by marcelo_allende",
     sounds: [
       {
         // The whole 10s recording: accelerating song phrases one after another
@@ -2786,8 +2785,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Basileuterus culicivorus",
     family: "Parulidae",
     inatTaxonId: 10023,
-    photo: "https://static.inaturalist.org/photos/113525254/medium.jpg",
-    photoCredit: "(c) jodiboe, all rights reserved, uploaded by jodiboe",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/594042080/medium.jpg",
+    photoCredit: "(c) Paulo Henrique da Silva, some rights reserved (CC BY-NC), uploaded by Paulo Henrique da Silva",
     sounds: [
       {
         // The whole 23s recording: four songs with call notes between
@@ -2984,8 +2983,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Pyrrhura frontalis",
     family: "Psittacidae",
     inatTaxonId: 19162,
-    photo: "https://static.inaturalist.org/photos/235704689/medium.jpg",
-    photoCredit: "(c) Paul, all rights reserved, uploaded by Paul",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/158992021/medium.jpg",
+    photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
     sounds: [
       {
         // A flock's burst of screeches, then single harsh calls, about 10s of the 15s recording
@@ -3028,8 +3027,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Himantopus mexicanus melanurus",
     family: "Recurvirostridae",
     inatTaxonId: 464940,
-    photo: "https://static.inaturalist.org/photos/445346031/medium.jpg",
-    photoCredit: "(c) Eduardo Borges, all rights reserved, uploaded by Eduardo Borges",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/12159782/medium.jpeg",
+    photoCredit: "no rights reserved, uploaded by Kahio Tiberio Mazon",
     sounds: [
       {
         // The whole 15s recording: two long runs of sharp 'kek' calls
@@ -3115,8 +3114,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Veniliornis spilogaster",
     family: "Picidae",
     inatTaxonId: 18014,
-    photo: "https://static.inaturalist.org/photos/28291417/medium.jpg",
-    photoCredit: "(c) Mariano Ordoñez, all rights reserved, uploaded by Mariano Ordoñez",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/14148819/medium.jpg",
+    photoCredit: "(c) João Vitor Andriola, some rights reserved (CC BY-NC), uploaded by João Vitor Andriola",
     sounds: [
       {
         // Four sharp 'kik' calls at their natural pace, about 15s of the 3m28s recording
@@ -3325,8 +3324,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Trogon surrucura",
     family: "Trogonidae",
     inatTaxonId: 20763,
-    photo: "https://static.inaturalist.org/photos/50983553/medium.jpg",
-    photoCredit: "(c) Mariano Ordoñez, all rights reserved, uploaded by Mariano Ordoñez",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/544527120/medium.jpg",
+    photoCredit: "(c) Victor Kenzo F. Tanaka, some rights reserved (CC BY-NC)",
     sounds: [
       {
         // The whole 29s recording: two long series of 'cow' notes
@@ -3372,8 +3371,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Coereba flaveola",
     family: "Thraupidae",
     inatTaxonId: 10199,
-    photo: "https://static.inaturalist.org/photos/207544720/medium.jpg",
-    photoCredit: "(c) Mason Maron, all rights reserved, uploaded by Mason Maron",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/58407889/medium.jpeg",
+    photoCredit: "(c) subhashc, some rights reserved (CC BY-NC)",
     sounds: [
       {
         // Two song bouts, about 9s of the 53s recording
@@ -3488,8 +3487,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Microspingus cabanisi",
     family: "Thraupidae",
     inatTaxonId: 558562,
-    photo: "https://static.inaturalist.org/photos/93995721/medium.jpeg",
-    photoCredit: "(c) Arthur Alves, all rights reserved, uploaded by Arthur Alves",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/102043623/medium.jpg",
+    photoCredit: "(c) Norton Santos, some rights reserved (CC BY-NC), uploaded by Norton Santos",
     sounds: [
       {
         // The whole 9s recording: eight loud song notes
@@ -3511,8 +3510,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Saltator similis",
     family: "Thraupidae",
     inatTaxonId: 9861,
-    photo: "https://static.inaturalist.org/photos/51081666/medium.jpg",
-    photoCredit: "(c) Mariano Ordoñez, all rights reserved, uploaded by Mariano Ordoñez",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/102158323/medium.jpg",
+    photoCredit: "(c) Norton Santos, some rights reserved (CC BY-NC), uploaded by Norton Santos",
     sounds: [
       {
         // Three song phrases, about 17s of the 30s recording
@@ -3677,8 +3676,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Coryphospingus cucullatus",
     family: "Thraupidae",
     inatTaxonId: 10310,
-    photo: "https://static.inaturalist.org/photos/37815353/medium.jpg",
-    photoCredit: "(c) Jorge Schlemmer, all rights reserved",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/26408652/medium.jpeg",
+    photoCredit: "no rights reserved, uploaded by Diego Carús",
     sounds: [
       {
         // Two song bouts, about 13s of the 26s recording
@@ -3700,8 +3699,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Tachyphonus coronatus",
     family: "Thraupidae",
     inatTaxonId: 10079,
-    photo: "https://static.inaturalist.org/photos/301208967/medium.jpg",
-    photoCredit: "(c) Ricardo Mitidieri, all rights reserved, uploaded by Ricardo Mitidieri",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/5643289/medium.jpeg",
+    photoCredit: "(c) Claudia Komesu, some rights reserved (CC BY-NC), uploaded by Claudia Komesu",
     sounds: [
       {
         // A steady run of 'chep' song notes, about 11s of the 13s recording
@@ -3904,8 +3903,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Camptostoma obsoletum",
     family: "Tyrannidae",
     inatTaxonId: 16972,
-    photo: "https://static.inaturalist.org/photos/28180172/medium.jpg",
-    photoCredit: "(c) Marcio Fontana, all rights reserved, uploaded by Marcio Fontana",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/158365591/medium.jpg",
+    photoCredit: "(c) Oswaldo Hernández, some rights reserved (CC BY-NC), uploaded by Oswaldo Hernández",
     sounds: [
       {
         // The whole 14s recording: three song phrases
@@ -3926,8 +3925,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Elaenia flavogaster",
     family: "Tyrannidae",
     inatTaxonId: 16714,
-    photo: "https://static.inaturalist.org/photos/49009155/medium.jpeg",
-    photoCredit: "(c) Rudy Gelis, all rights reserved, uploaded by Rudy Gelis",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/664960111/medium.jpg",
+    photoCredit: "(c) Marcelo Okamoto, some rights reserved (CC BY-NC)",
     sounds: [
       {
         // The whole 12s recording: a long series of burry song notes
@@ -4200,8 +4199,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Phylloscartes ventralis",
     family: "Tyrannidae",
     inatTaxonId: 16948,
-    photo: "https://static.inaturalist.org/photos/10203188/medium.jpg",
-    photoCredit: "(c) Jorge Schlemmer, all rights reserved",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/11319747/medium.jpg",
+    photoCredit: "(c) Arnold Wijker, some rights reserved (CC BY-NC), uploaded by Arnold Wijker",
     sounds: [
       {
         // A long series of sharp song notes, about 14s of the 54s recording
@@ -4293,8 +4292,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Elaenia mesoleuca",
     family: "Tyrannidae",
     inatTaxonId: 16694,
-    photo: "https://static.inaturalist.org/photos/11221261/medium.jpg",
-    photoCredit: "(c) Henrique Raupp, all rights reserved, uploaded by Henrique Raupp",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/169802538/medium.jpeg",
+    photoCredit: "(c) Guille Ivan Spajic, some rights reserved (CC BY-NC)",
     migration: { season: "summer", months: "set–nov" },
     sounds: [
       {
@@ -4390,8 +4389,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Elaenia spectabilis",
     family: "Tyrannidae",
     inatTaxonId: 16734,
-    photo: "https://static.inaturalist.org/photos/222181710/medium.jpg",
-    photoCredit: "(c) Gabriel Bonfa, all rights reserved, uploaded by Gabriel Bonfa",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/14148886/medium.jpg",
+    photoCredit: "(c) João Vitor Andriola, some rights reserved (CC BY-NC), uploaded by João Vitor Andriola",
     migration: { season: "summer", months: "nov–dez" },
     sounds: [
       {
@@ -4463,8 +4462,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Turdus amaurochalinus",
     family: "Turdidae",
     inatTaxonId: 12710,
-    photo: "https://static.inaturalist.org/photos/49252238/medium.jpg",
-    photoCredit: "(c) Mariano Ordoñez, all rights reserved, uploaded by Mariano Ordoñez",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/262803778/medium.jpg",
+    photoCredit: "(c) Nicolas Mazzini, some rights reserved (CC BY-NC), uploaded by Nicolas Mazzini",
     sounds: [
       {
         // Continuous song, about 9s of the 38s recording
@@ -4531,8 +4530,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Turdus subalaris",
     family: "Turdidae",
     inatTaxonId: 827407,
-    photo: "https://static.inaturalist.org/photos/56589057/medium.jpg",
-    photoCredit: "(c) E.E. Prodossimo, all rights reserved, uploaded by E.E. Prodossimo",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/5901302/medium.jpg",
+    photoCredit: "(c) fabiomanfredini, some rights reserved (CC BY-NC), uploaded by fabiomanfredini",
     migration: { season: "summer", months: "out–nov" },
     sounds: [
       {
@@ -4556,8 +4555,8 @@ const BIRDS_PORTO_ALEGRE = [
     scientificName: "Chiroxiphia caudata",
     family: "Pipridae",
     inatTaxonId: 14306,
-    photo: "https://static.inaturalist.org/photos/454884916/medium.jpg",
-    photoCredit: "(c) Aisse Gaertner, all rights reserved",
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/543496196/medium.jpg",
+    photoCredit: "(c) drbrachydactyl, some rights reserved (CC BY-NC)",
     sounds: [
       {
         // The whole 14s recording: a series of song notes
