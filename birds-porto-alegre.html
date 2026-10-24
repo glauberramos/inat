@@ -643,8 +643,7 @@
       }
       .quiz-rec .spec.is-concealed img {
         clip-path: inset(0 100% 0 0); /* uncovers left to right, along the time axis */
-      }
-      .quiz-rec .spec.is-concealed::before {
+      }      .quiz-rec .spec.is-concealed::before {
         content: "?";
         position: absolute;
         inset: 0;
@@ -902,7 +901,10 @@
       <details class="credits">
         <summary>Créditos das fotos e sons</summary>
         <ul id="birdsCredits"></ul>
-        <p class="credits-note">Espectrogramas gerados por este site a partir das gravações.</p>
+        <p class="credits-note">
+          Espectrogramas gerados por este site a partir das gravações e compartilhados sob a mesma licença de cada uma. Gravações cuja licença não
+          permite obras derivadas (ND) tocam inteiras, sem cortes.
+        </p>
       </details>
     </div>
 
@@ -967,11 +969,21 @@
         "cc-by-nc-nd": "CC BY-NC-ND",
       };
 
-      // The license text the credit links to; iNaturalist licenses its content under version 4.0
-      function inatLicenseUrl(code) {
-        return code === "cc0" ? "https://creativecommons.org/publicdomain/zero/1.0/" : `https://creativecommons.org/licenses/${code.slice(3)}/4.0/`;
+      // The license the credit names and links to. xeno-canto recordings carry their version
+      // (2.5, 3.0 or 4.0); iNaturalist licenses everything under 4.0.
+      function soundLicense(sound) {
+        const version = sound.licenseVersion || "4.0";
+        if (sound.license === "cc0") return { text: "CC0", href: "https://creativecommons.org/publicdomain/zero/1.0/" };
+        return {
+          text: `${LICENSES[sound.license] || sound.license} ${version}`,
+          href: `https://creativecommons.org/licenses/${sound.license.slice(3)}/${version}/`,
+        };
       }
 
+      // Playing only part of a recording is a change the CC licenses ask credits to mention
+      function isTrimmed(sound) {
+        return sound.start !== undefined || sound.end !== undefined;
+      }
       // Recording name per sound type; sounds without a type are songs.
       const SOUND_TYPES = { song: "Canto", call: "Chamado" };
 
@@ -1030,22 +1042,27 @@
         }
         if (sound.source === "xenocanto") {
           return {
-            text: [sound.recordist, sound.location, `xeno-canto XC${sound.xc}`, LICENSES[sound.license] || sound.license].join(" · "),
+            text: [`© ${sound.recordist}`, sound.location, `xeno-canto XC${sound.xc}`].filter(Boolean).join(" · "),
             href: `https://xeno-canto.org/${sound.xc}`,
+            license: soundLicense(sound),
           };
         }
         return {
           text: [`© ${sound.recordist}`, sound.location, "iNaturalist"].filter(Boolean).join(" · "),
           href: `https://www.inaturalist.org/observations/${sound.observation}`,
-          license: { text: LICENSES[sound.license] || sound.license, href: inatLicenseUrl(sound.license) },
+          license: soundLicense(sound),
         };
       }
 
-      // The credit's links: the recording, then its license when there's one to link
-      function creditLinks(credit, prefix) {
+      // The credit's links: the recording, then its license when there's one to link.
+      // On a card it reads "Gravação (trecho): ..." for a trimmed clip; in the credits list, "... (trecho)".
+      function creditLinks(sound, onCard) {
+        const credit = soundCredit(sound);
         const link = (href, text) => el("a", { href, target: "_blank", rel: "noopener", text });
+        const prefix = onCard ? `Gravação${isTrimmed(sound) ? " (trecho)" : ""}: ` : "";
         const out = [link(credit.href, prefix + credit.text)];
         if (credit.license) out.push(document.createTextNode(" · "), link(credit.license.href, credit.license.text));
+        if (!onCard && isTrimmed(sound)) out.push(document.createTextNode(" (trecho)"));
         return out;
       }
 
@@ -1163,7 +1180,7 @@
       // Play button, time and spectrogram for one recording; the cards and the challenge both use it.
       function makeRow(sound, name, alt) {
         // Trimmed sounds know their length up front; others show it once played.
-        const length = sound.end ? clock(sound.end - (sound.start || 0)) : "";
+        const length = sound.end ? clock(sound.end - (sound.start || 0)) : sound.duration ? clock(sound.duration) : "";
         const row = { sound, name, length, src: audioUrl(sound) };
         row.btn = el("button", { class: "play-btn", type: "button", "aria-label": `Ouvir ${name}` });
         row.btn.innerHTML = PLAY_ICONS;
@@ -1180,11 +1197,10 @@
 
       function renderSound(bird, sound, name) {
         const row = makeRow(sound, name, `Espectrograma: ${bird.name}, ${name.toLowerCase()}`);
-        const credit = soundCredit(sound);
         row.el = el("div", { class: "rec" }, [
           el("div", { class: "rec-head" }, [row.btn, el("span", { class: "rec-title", text: name }), row.time]),
           row.spec,
-          el("p", { class: "rec-credit" }, creditLinks(credit, "Gravação: ")),
+          el("p", { class: "rec-credit" }, creditLinks(sound, true)),
         ]);
         return row.el;
       }
@@ -1234,7 +1250,7 @@
         li.appendChild(document.createTextNode(`foto ${bird.photoCredit}${bird.sounds.length ? "; cantos " : ""}`));
         bird.sounds.forEach((s, j) => {
           if (j) li.appendChild(document.createTextNode(", "));
-          li.append(...creditLinks(soundCredit(s), ""));
+          li.append(...creditLinks(s, false));
         });
         return li;
       }
