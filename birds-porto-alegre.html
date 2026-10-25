@@ -1592,6 +1592,26 @@
         Rara: "Muito difícil de encontrar, normalmente em menos de 10% das saídas",
         Acidental: "Encontrada só em circunstâncias excepcionais e imprevisíveis",
       };
+      // Birds the COA list doesn't have get a frequency estimated from eBird: their share of Porto Alegre checklists,
+      // averaged over the year's weeks, against these floors. Each sits between the medians of two neighbouring COA
+      // categories (geometric mean), measured on the COA birds; no eBird record at all counts as Acidental.
+      const EBIRD_FREQUENCY_FLOORS = [
+        ["Muito comum", 11],
+        ["Comum", 1.7],
+        ["Pouco comum", 0.3],
+        ["Incomum", 0.09],
+        ["Rara", 0.022],
+      ];
+
+      // { frequency, estimated }: the COA list's category, or one estimated from eBird
+      function frequencyOf(bird) {
+        if (bird.coa) return { frequency: bird.coa.frequency, estimated: false };
+        const weeks = BIRD_EBIRD_WEEKS[bird.inatTaxonId];
+        const mean = weeks ? weeks.reduce((a, b) => a + b, 0) / weeks.length / 10 : 0; // weeks are in tenths of a percent
+        const floor = EBIRD_FREQUENCY_FLOORS.find(([, min]) => mean >= min);
+        return { frequency: floor ? floor[0] : "Acidental", estimated: true };
+      }
+
       // When it's in Porto Alegre; "Todo o ano" gets no label. The dot is warm for spring and summer, cool for autumn and winter.
       const SEASONS = {
         "Todo o ano": null,
@@ -1613,17 +1633,21 @@
       // The labels under a bird's name, or nothing when it has none
       function renderTags(bird) {
         const tags = [];
+        const { frequency, estimated } = frequencyOf(bird);
+        const expanding = bird.coa && bird.coa.expanding;
+        const common = frequency === "Muito comum" || frequency === "Comum";
+        tags.push(
+          el("li", {
+            class: `bird-tag${common ? " is-common" : ""}`,
+            title:
+              `${FREQUENCIES[frequency]} ` +
+              (estimated ? "(estimada pela presença no eBird; a ave não está na lista do COA)" : "(COA)") +
+              (expanding ? ". Em expansão na região, tende a ficar mais comum" : ""),
+            text: expanding ? `${frequency} · em expansão` : frequency,
+          })
+        );
         if (bird.coa) {
-          const { frequency, season, expanding } = bird.coa;
-          const common = frequency === "Muito comum" || frequency === "Comum";
-          tags.push(
-            el("li", {
-              class: `bird-tag${common ? " is-common" : ""}`,
-              title: `${FREQUENCIES[frequency]} (COA)` + (expanding ? ". Em expansão na região, tende a ficar mais comum" : ""),
-              text: expanding ? `${frequency} · em expansão` : frequency,
-            })
-          );
-          const s = SEASONS[season];
+          const s = SEASONS[bird.coa.season];
           if (s) tags.push(el("li", { class: `bird-tag ${s.cls}`.trim(), title: "Quando aparece em Porto Alegre (COA)", text: s.text }));
         }
         if (bird.conservation) {
@@ -1732,12 +1756,11 @@
       [...new Set(BIRDS.map((b) => b.family))]
         .sort((a, b) => BIRD_FAMILIES[a].localeCompare(BIRD_FAMILIES[b], "pt"))
         .forEach((family) => familyFilter.appendChild(el("option", { value: family, text: `${BIRD_FAMILIES[family]} (${family})` })));
-      // Rarity filter: the COA list's categories, in its order, with how many birds are in each;
-      // the birds it doesn't have come last.
+      // Rarity filter: the COA list's categories, in its order, with how many birds are in each
+      // (estimated from eBird for the birds the list doesn't have)
       const RARITY_FILTERS = {
-        ...Object.fromEntries(Object.keys(FREQUENCIES).map((f) => [f, { text: f, test: (b) => b.coa && b.coa.frequency === f }])),
+        ...Object.fromEntries(Object.keys(FREQUENCIES).map((f) => [f, { text: f, test: (b) => frequencyOf(b).frequency === f }])),
         expanding: { text: "Raras em expansão", test: (b) => b.coa && b.coa.expanding },
-        none: { text: "Fora da lista do COA", test: (b) => !b.coa },
       };
       // Season and label filter: the COA list's seasons, then introduced and threatened birds
       const TAG_FILTERS = {

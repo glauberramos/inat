@@ -24,7 +24,7 @@
 // find on a normal outing: "Muito comum", "Comum", "Pouco comum", "Incomum", "Rara" or "Acidental"; expanding: true is
 // its "#", a rare bird spreading in the region. season is when it's in Porto Alegre: "Todo o ano", "Primavera/verão",
 // "Outono/inverno", "Primavera", "Outono" or "Indeterminada". The 23 WikiAves species the COA list doesn't have
-// (records since 2020, or vagrants) have no coa. The COA list names some birds as they were before a split:
+// (records since 2020, or vagrants) have no coa; the page estimates their frequency from eBird. The COA list names some birds as they were before a split:
 // its Geothlypis aequinoctialis and Elaenia obscura are the Pia-cobra (G. velata) and Tucão (E. sordida) here.
 // Birds on a red list have conservation: { status: "CR" | "EN" | "VU" | "NT", list: "IUCN" | "Brasil" | "RS" }.
 // Checked in 2026 against Rio Grande do Sul's list (Decreto 51.797/2014, including its near-threatened annex) and
