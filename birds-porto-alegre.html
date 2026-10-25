@@ -304,9 +304,6 @@
         margin: 14px 0 0;
       }
       .presence-head {
-        display: flex;
-        justify-content: space-between;
-        gap: 8px;
         font-size: 13px;
         line-height: 18px;
         color: var(--label-2);
@@ -1380,10 +1377,6 @@
         return today.getMonth() * 4 + Math.min(3, Math.floor((today.getDate() - 1) / 7));
       })();
 
-      function percent(tenths) {
-        return `${(tenths / 10).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
-      }
-
       function svg(tag, attrs) {
         const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
         Object.entries(attrs).forEach(([k, v]) => node.setAttribute(k, v));
@@ -1412,16 +1405,13 @@
         // The month it's reported most, for screen readers and the tooltip
         const byMonth = MONTHS.map((_, m) => weeks.slice(m * 4, m * 4 + 4).reduce((a, b) => a + b, 0));
         const best = MONTHS[byMonth.indexOf(Math.max(...byMonth))];
-        const summary = `Presença em Porto Alegre segundo o eBird: mais registrada em ${best}, em até ${percent(peak)} das listas de uma semana.`;
+        const summary = `Presença em Porto Alegre segundo o eBird: mais registrada em ${best}.`;
 
         return [
           el("figure", { class: "presence", role: "img", "aria-label": summary, title: summary }, [
             el("div", { class: "presence-head" }, [
-              el("span", {}, [
-                document.createTextNode("Presença no "),
-                el("a", { href: EBIRD_CHART_URL, target: "_blank", rel: "noopener", text: "eBird" }),
-              ]),
-              el("span", { text: `até ${percent(peak)} das listas` }),
+              document.createTextNode("Presença no "),
+              el("a", { href: EBIRD_CHART_URL, target: "_blank", rel: "noopener", text: "eBird" }),
             ]),
             chart,
             el("div", { class: "presence-months", "aria-hidden": "true" }, MONTHS.map((m) => el("span", { text: m[0].toUpperCase() }))),
