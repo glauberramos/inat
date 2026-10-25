@@ -266,9 +266,9 @@
         font-style: italic;
         color: var(--label-2);
       }
-      /* Labels under the name, from the COA list: how easy the bird is to find (a green dot when it's common),
-         its season (a warm dot for spring and summer, a cool one for autumn and winter) and whether it was
-         introduced; plus its conservation status */
+      /* Labels under the name: rarity from eBird (a green dot when it's common), the COA list's season (a warm dot
+         for spring and summer, a cool one for autumn and winter) and whether it was introduced, and the
+         conservation status */
       .bird-tags {
         display: flex;
         flex-wrap: wrap;
@@ -1215,7 +1215,7 @@
         <p class="credits-note">
           Lista de espécies:
           <a href="https://www.wikiaves.com.br/especies.php?&amp;t=c&amp;c=4314902" target="_blank" rel="noopener">WikiAves, espécies em Porto Alegre</a>
-          (outubro de 2026). Raridade, época do ano e espécies introduzidas:
+          (outubro de 2026). Raridade: presença nas listas do eBird (abaixo). Época do ano e espécies introduzidas:
           <a href="https://coapoa.org/aves-de-porto-alegre-2/" target="_blank" rel="noopener">Aves de Porto Alegre</a>, de Glayson Ariel Bencke e Eduardo
           Chiarani, Clube de Observadores de Aves de Porto Alegre (COA-POA), 31 de agosto de 2020. Espécies ameaçadas: Decreto estadual 51.797/2014 (RS) e
           Lista Vermelha da IUCN.
@@ -1583,33 +1583,22 @@
         ]);
       }
 
-      // The COA list's categories, in its order, with its legend for the tooltip
-      const FREQUENCIES = {
-        "Muito comum": "Muito fácil de observar, em praticamente todas as saídas",
-        Comum: "Fácil de observar, em bem mais da metade das saídas",
-        "Pouco comum": "Razoavelmente fácil de observar, em cerca de metade das saídas",
-        Incomum: "Pouca chance de encontrar, normalmente em bem menos da metade das saídas",
-        Rara: "Muito difícil de encontrar, normalmente em menos de 10% das saídas",
-        Acidental: "Encontrada só em circunstâncias excepcionais e imprevisíveis",
-      };
-      // Birds the COA list doesn't have get a frequency estimated from eBird: their share of Porto Alegre checklists,
-      // averaged over the year's weeks, against these floors. Each sits between the medians of two neighbouring COA
-      // categories (geometric mean), measured on the COA birds; no eBird record at all counts as Acidental.
-      const EBIRD_FREQUENCY_FLOORS = [
-        ["Muito comum", 11],
-        ["Comum", 1.7],
-        ["Pouco comum", 0.3],
-        ["Incomum", 0.09],
-        ["Rara", 0.022],
+      // Rarity, from eBird: the share of Porto Alegre checklists that report the bird, averaged over its 12 best
+      // weeks (the time of year it's here, so a summer migrant isn't counted rare for being away in winter),
+      // against these floors. Below the last, or with no eBird record, it's Muito rara.
+      const RARITIES = [
+        { name: "Comum", min: 15, title: "Registrada em 15% ou mais das listas do eBird em Porto Alegre, na época em que aparece" },
+        { name: "Pouco comum", min: 3, title: "Registrada em 3% a 15% das listas do eBird em Porto Alegre, na época em que aparece" },
+        { name: "Rara", min: 0.5, title: "Registrada em 0,5% a 3% das listas do eBird em Porto Alegre, na época em que aparece" },
+        { name: "Muito rara", min: 0, title: "Registrada em menos de 0,5% das listas do eBird em Porto Alegre, ou nunca" },
       ];
+      const PEAK_WEEKS = 12;
 
-      // The COA list's category, or one estimated from eBird
-      function frequencyOf(bird) {
-        if (bird.coa) return bird.coa.frequency;
-        const weeks = BIRD_EBIRD_WEEKS[bird.inatTaxonId];
-        const mean = weeks ? weeks.reduce((a, b) => a + b, 0) / weeks.length / 10 : 0; // weeks are in tenths of a percent
-        const floor = EBIRD_FREQUENCY_FLOORS.find(([, min]) => mean >= min);
-        return floor ? floor[0] : "Acidental";
+      function rarityOf(bird) {
+        const weeks = BIRD_EBIRD_WEEKS[bird.inatTaxonId] || [];
+        const best = [...weeks].sort((a, b) => b - a).slice(0, PEAK_WEEKS);
+        const peak = best.reduce((a, b) => a + b, 0) / PEAK_WEEKS / 10; // weeks are in tenths of a percent
+        return RARITIES.find((r) => peak >= r.min);
       }
 
       // When it's in Porto Alegre; "Todo o ano" gets no label. The dot is warm for spring and summer, cool for autumn and winter.
@@ -1633,16 +1622,8 @@
       // The labels under a bird's name, or nothing when it has none
       function renderTags(bird) {
         const tags = [];
-        const frequency = frequencyOf(bird);
-        const expanding = bird.coa && bird.coa.expanding;
-        const common = frequency === "Muito comum" || frequency === "Comum";
-        tags.push(
-          el("li", {
-            class: `bird-tag${common ? " is-common" : ""}`,
-            title: FREQUENCIES[frequency] + (expanding ? ". Em expansão na região, tende a ficar mais comum" : ""),
-            text: expanding ? `${frequency} · em expansão` : frequency,
-          })
-        );
+        const rarity = rarityOf(bird);
+        tags.push(el("li", { class: `bird-tag${rarity === RARITIES[0] ? " is-common" : ""}`, title: rarity.title, text: rarity.name }));
         if (bird.coa) {
           const s = SEASONS[bird.coa.season];
           if (s) tags.push(el("li", { class: `bird-tag ${s.cls}`.trim(), title: "Quando aparece em Porto Alegre (COA)", text: s.text }));
@@ -1753,12 +1734,8 @@
       [...new Set(BIRDS.map((b) => b.family))]
         .sort((a, b) => BIRD_FAMILIES[a].localeCompare(BIRD_FAMILIES[b], "pt"))
         .forEach((family) => familyFilter.appendChild(el("option", { value: family, text: `${BIRD_FAMILIES[family]} (${family})` })));
-      // Rarity filter: the COA list's categories, in its order, with how many birds are in each
-      // (estimated from eBird for the birds the list doesn't have)
-      const RARITY_FILTERS = {
-        ...Object.fromEntries(Object.keys(FREQUENCIES).map((f) => [f, { text: f, test: (b) => frequencyOf(b) === f }])),
-        expanding: { text: "Raras em expansão", test: (b) => b.coa && b.coa.expanding },
-      };
+      // Rarity filter: one option per level, commonest first, with how many birds are in each
+      const RARITY_FILTERS = Object.fromEntries(RARITIES.map((r) => [r.name, { text: r.name, test: (b) => rarityOf(b) === r }]));
       // Season and label filter: the COA list's seasons, then introduced and threatened birds
       const TAG_FILTERS = {
         ...Object.fromEntries(
