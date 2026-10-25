@@ -128,8 +128,8 @@
         width: auto; /* styles.css makes buttons full width on phones */
         display: inline-flex;
         align-items: center;
-        gap: 7px;
-        padding: 8px 16px 8px 13px;
+        gap: 8px;
+        padding: 5px 16px 5px 5px;
         border-radius: 999px;
         background: var(--tint);
         color: #fff;
@@ -144,9 +144,25 @@
         outline: 3px solid var(--tint);
         outline-offset: 2px;
       }
+      /* The headphones in a lighter circle, and the round record once there is one */
+      .challenge-icon {
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.22);
+      }
+      .challenge-record {
+        padding: 1px 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.22);
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+      }
       .challenge-btn svg {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
         fill: none;
         stroke: currentColor;
         stroke-width: 2;
@@ -621,10 +637,20 @@
         border-radius: 16px;
         overflow: hidden;
       }
+      .quiz-intro {
+        margin: -6px 4px 14px;
+        font-size: 15px;
+        line-height: 20px;
+        color: var(--label-2);
+      }
+      /* Icon, name and description, then a chevron, like an iOS settings row */
       .quiz .quiz-mode {
-        display: block;
+        display: flex;
+        align-items: center;
+        gap: 14px;
         width: 100%;
-        padding: 14px 16px;
+        padding: 14px 36px 14px 14px;
+        position: relative;
         border-radius: 0;
         background: var(--sheet-cell);
         color: var(--label);
@@ -639,6 +665,42 @@
       .quiz .quiz-mode:focus-visible {
         outline: 3px solid var(--tint);
         outline-offset: -3px;
+      }
+      .quiz .quiz-mode::after {
+        content: "";
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        width: 8px;
+        height: 8px;
+        margin-top: -4px;
+        border-top: 2px solid var(--label-3);
+        border-right: 2px solid var(--label-3);
+        transform: rotate(45deg);
+      }
+      .quiz-mode-icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
+        color: #fff;
+        font-size: 19px;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+      }
+      .quiz-mode-icon.is-round {
+        background: var(--tint);
+      }
+      .quiz-mode-icon.is-endless {
+        background: var(--summer);
+        font-size: 28px;
+        font-weight: 600;
+      }
+      .quiz-mode-text {
+        flex: 1;
+        min-width: 0;
       }
       .quiz-mode-name {
         display: block;
@@ -1094,12 +1156,15 @@
         <p class="subtitle"><span id="speciesCount"></span>. Toque para ouvir o canto.</p>
         <div class="header-actions">
           <button class="challenge-btn" id="challengeBtn" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 15v-3a8 8 0 0 1 16 0v3" />
-              <rect x="3" y="14" width="4.5" height="7" rx="2" />
-              <rect x="16.5" y="14" width="4.5" height="7" rx="2" />
-            </svg>
+            <span class="challenge-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 15v-3a8 8 0 0 1 16 0v3" />
+                <rect x="3" y="14" width="4.5" height="7" rx="2" />
+                <rect x="16.5" y="14" width="4.5" height="7" rx="2" />
+              </svg>
+            </span>
             Desafio
+            <span class="challenge-record" id="challengeRecord" hidden></span>
           </button>
           <label class="pill-filter">
             <span class="visually-hidden">Filtrar por família</span>
@@ -1142,15 +1207,23 @@
       </div>
       <div class="quiz-body" id="quizMenu">
         <h2 class="quiz-question" id="quizMenuTitle">Desafio</h2>
+        <p class="quiz-intro">Ouça um canto e escolha a ave certa entre quatro.</p>
         <div class="quiz-modes">
-          <button class="quiz-mode" id="modeEndless" type="button">
-            <span class="quiz-mode-name">Infinito</span>
-            <span class="quiz-mode-desc">Uma ave atrás da outra, sem fim. Todas aparecem antes de repetir.</span>
-          </button>
           <button class="quiz-mode" id="modeRound" type="button">
-            <span class="quiz-mode-name">Rodada de 15</span>
-            <span class="quiz-mode-desc">15 aves diferentes e uma nota no fim.</span>
-            <span class="quiz-mode-record" id="modeRoundRecord" hidden></span>
+            <span class="quiz-mode-icon is-round" aria-hidden="true">15</span>
+            <span class="quiz-mode-text">
+              <span class="quiz-mode-name">Rodada de 15</span>
+              <span class="quiz-mode-desc">15 aves diferentes e uma nota no fim.</span>
+              <span class="quiz-mode-record" id="modeRoundRecord" hidden></span>
+            </span>
+          </button>
+          <button class="quiz-mode" id="modeEndless" type="button">
+            <span class="quiz-mode-icon is-endless" aria-hidden="true">∞</span>
+            <span class="quiz-mode-text">
+              <span class="quiz-mode-name">Infinito</span>
+              <span class="quiz-mode-desc">Uma ave atrás da outra, sem fim. Todas aparecem antes de repetir.</span>
+              <span class="quiz-mode-record" id="modeEndlessRecord" hidden></span>
+            </span>
           </button>
         </div>
         <button class="quiz-link" id="quizHistoryBtn" type="button">Ver histórico</button>
@@ -1665,7 +1738,7 @@
       let score = loadScore();
       let rounds = loadRounds();
       let deck = loadDeck();
-      let mode = "endless"; // "endless" (Infinito) or "round" (Rodada de 15)
+      let mode = "round"; // "round" (Rodada de 15, first in the menu) or "endless" (Infinito)
       let run = null; // the round being played: { queue, right, wrong }; dropped if the sheet closes
       let round = null; // the current question: { bird, sound, row, correctBtn, answered }
       let streak = 0; // right answers in a row since the sheet opened or the mode started
@@ -1754,12 +1827,36 @@
         return full.length ? Math.max(...full.map((r) => r.right)) : null;
       }
 
+      // Each mode's record in the menu: the best round, and Infinito's hit rate and best streak
+      function renderRecords() {
+        const best = bestRound();
+        const roundRecord = document.getElementById("modeRoundRecord");
+        roundRecord.hidden = best === null;
+        if (best !== null) roundRecord.textContent = `Recorde: ${best} de ${ROUND_SIZE}`;
+        const answered = score.right + score.wrong;
+        const endlessRecord = document.getElementById("modeEndlessRecord");
+        endlessRecord.hidden = !answered;
+        if (answered) {
+          const rate = `${Math.round((score.right / answered) * 100)}% de acertos`;
+          endlessRecord.textContent = score.bestStreak >= 2 ? `${rate} · ${score.bestStreak} seguidas no máximo` : rate;
+        }
+        renderChallengeRecord();
+      }
+
+      // The header button shows the best round once there is one
+      function renderChallengeRecord() {
+        const best = bestRound();
+        const chip = document.getElementById("challengeRecord");
+        chip.hidden = best === null;
+        if (best !== null) {
+          chip.textContent = `${best}/${ROUND_SIZE}`;
+          chip.title = `Seu recorde: ${best} de ${ROUND_SIZE}`;
+        }
+      }
+
       function showMenu() {
         run = null;
-        const best = bestRound();
-        const record = document.getElementById("modeRoundRecord");
-        record.hidden = best === null;
-        if (best !== null) record.textContent = `Recorde: ${best} de ${ROUND_SIZE}`;
+        renderRecords();
         showView("menu");
         document.getElementById(mode === "round" ? "modeRound" : "modeEndless").focus();
       }
@@ -1949,6 +2046,7 @@
             run.prevBest = bestRound();
             rounds.push({ date: new Date().toISOString(), right: run.right, total: ROUND_SIZE });
             saveRounds();
+            renderChallengeRecord();
           }
         } else {
           score[right ? "right" : "wrong"] += 1;
@@ -1968,6 +2066,7 @@
         quizNext.focus();
       }
 
+      renderChallengeRecord();
       document.getElementById("challengeBtn").addEventListener("click", () => {
         quiz.showModal();
         showMenu();
