@@ -1,7 +1,9 @@
 // Aves de Porto Alegre: data for birds-porto-alegre.html.
 //
 // The species are WikiAves's list for Porto Alegre (https://www.wikiaves.com.br/especies.php?&t=c&c=4314902,
-// 286 species in October 2026), named as iNaturalist names them today. Birds without sounds have sounds: [].
+// 286 species in October 2026), named as iNaturalist names them today and grouped in WikiAves's families (the CBRO's,
+// which split some of iNaturalist's: the arapaçus, vira-folhas, patinhos, borboletinhas and papa-piri have their own).
+// Birds without sounds have sounds: [].
 // Birds are listed by family, in the order of BIRD_FAMILIES, as the page shows them; within a
 // family, the ones eBird checklists in Porto Alegre report most often come first.
 // Each sound is either:
@@ -33,14 +35,15 @@
 // Spectrograms live in images/birds-porto-alegre/ (<iNat sound id>.webp or xc<XC number>.webp).
 // After adding sounds, run: python3 scripts/bird-spectrograms.py
 
-// Portuguese names for each bird's family (from iNaturalist), A-Z by name. The page groups
-// birds by family and sorts the families by these names.
+// Portuguese names for each bird's family (from iNaturalist, or the COA list for the CBRO's own families),
+// A-Z by name. The page groups birds by family and sorts the families by these names.
 const BIRD_FAMILIES = {
   Pandionidae: "Águias-pescadoras",
   Tityridae: "Anambés e caneleiros",
   Hirundinidae: "Andorinhas",
   Apodidae: "Andorinhões",
   Anhimidae: "Anhumas e tachãs",
+  Dendrocolaptidae: "Arapaçus",
   Cardinalidae: "Azulões e afins", // iNaturalist's name lists North American cardinals and grosbeaks
   Caprimulgidae: "Bacuraus e curiangos", // iNaturalist's name adds "noitibós", the European Portuguese name
   Polioptilidae: "Balança-rabos e bicos-assovelados",
@@ -48,6 +51,7 @@ const BIRD_FAMILIES = {
   Trochilidae: "Beija-flores",
   Estrildidae: "Bicos-de-lacre e afins", // iNaturalist's name lists many Old World waxbills and finches
   Anhingidae: "Biguatingas", // iNaturalist's "Anhingas" is the genus name
+  Rhynchocyclidae: "Borboletinhas, ferreirinhos e bicos-chatos",
   Motacillidae: "Caminheiros", // iNaturalist's name is the European Portuguese "petinhas, alvéolas"
   Aramidae: "Carãos",
   Ciconiidae: "Cegonhas",
@@ -67,7 +71,6 @@ const BIRD_FAMILIES = {
   Fregatidae: "Fragatas",
   Laridae: "Gaivotas, trinta-réis, talha-mares e afins",
   Rallidae: "Galinhas-d'água e afins",
-  Phasianidae: "Galinhas, faisões e afins", // iNaturalist's "codornizes" is the European Portuguese name
   Ardeidae: "Garças e socós",
   Fringillidae: "Gaturamos, pintassilgos e afins", // iNaturalist's name lists European finches (tentilhões)
   Accipitridae: "Gaviões, águias e afins", // iNaturalist's "Milhafres" is the European Portuguese name
@@ -75,14 +78,16 @@ const BIRD_FAMILIES = {
   Tinamidae: "Inhambus e afins",
   Icteridae: "Iraúnas, graúnas, chupins e afins",
   Jacanidae: "Jaçanãs",
-  Furnariidae: "Joãos-de-barro, arapaçus e afins",
+  Furnariidae: "Joãos-de-barro e afins",
   Scolopacidae: "Maçaricos, narcejas e afins",
   Parulidae: "Mariquitas e pula-pulas",
   Alcedinidae: "Martins-pescadores",
   Podicipedidae: "Mergulhões",
   Cracidae: "Mutuns, jacus e aracuãs",
+  Tachurisidae: "Papa-piris",
   Psittacidae: "Papagaios e periquitos",
   Passeridae: "Pardais",
+  Platyrinchidae: "Patinhos",
   Recurvirostridae: "Pernilongos e afins", // iNaturalist's name adds "alfaiates", the European Portuguese name for avocets
   Picidae: "Pica-paus",
   Formicariidae: "Pintos-do-mato e afins",
@@ -96,6 +101,7 @@ const BIRD_FAMILIES = {
   Ramphastidae: "Tucanos e araçaris",
   Pipridae: "Uirapurus e afins",
   Nyctibiidae: "Urutaus",
+  Scleruridae: "Vira-folhas",
   Vireonidae: "Vite-vites, juruviaras e afins",
 };
 
@@ -335,6 +341,66 @@ const BIRDS_PORTO_ALEGRE = [
         fmax: 6000,
       },
     ],
+  },
+  {
+    name: "Arapaçu-verde",
+    scientificName: "Sittasomus griseicapillus",
+    family: "Dendrocolaptidae",
+    inatTaxonId: 11511,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/245961193/medium.jpg",
+    photoCredit:
+      "(c) Tomaz Nascimento de Melo, some rights reserved (CC BY-NC-ND), uploaded by Tomaz Nascimento de Melo",
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
+    sounds: [
+      {
+        // The whole 9s recording: a steady series of rising 'fweep' notes
+        source: "inaturalist",
+        audio: "https://static.inaturalist.org/sounds/1613661.mp3",
+        recordist: "amandapmarcon",
+        license: "cc-by-nc",
+        observation: 308531696,
+        location: "Getúlio Vargas, RS",
+        type: "call",
+        duration: 8.98,
+        fmax: 8000,
+      },
+    ],
+  },
+  {
+    name: "Arapaçu-escamoso-do-sul",
+    scientificName: "Lepidocolaptes falcinellus",
+    family: "Dendrocolaptidae",
+    inatTaxonId: 11579,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/253159/medium.jpg",
+    photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
+    coa: { frequency: "Incomum", season: "Todo o ano" },
+    sounds: [
+      {
+        // Six loud down-slurred notes and a softer one, about 13s of the 24s recording
+        source: "xenocanto",
+        xc: 407112,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC407112-Arapacu%20escamado%20do%20sul%20%28Lepidocolaptes%20falcinellus-OK%29.mp3",
+        recordist: "Jayrson Araujo de Oliveira",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "São Francisco de Paula, RS",
+        type: "song",
+        start: 1.85,
+        end: 15,
+      },
+    ],
+  },
+  {
+    name: "Arapaçu-grande",
+    scientificName: "Dendrocolaptes platyrostris",
+    family: "Dendrocolaptidae",
+    inatTaxonId: 11122,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/278377638/medium.jpg",
+    photoCredit:
+      "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
+    coa: { frequency: "Incomum", season: "Todo o ano" },
+    sounds: [],
   },
   {
     name: "Azulinho",
@@ -798,6 +864,101 @@ const BIRDS_PORTO_ALEGRE = [
         fmax: 6000,
       },
     ],
+  },
+  {
+    name: "Tororó",
+    scientificName: "Poecilotriccus plumbeiceps",
+    family: "Rhynchocyclidae",
+    inatTaxonId: 17050,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/118442274/medium.jpg",
+    photoCredit:
+      "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
+    coa: { frequency: "Comum", season: "Todo o ano" },
+    sounds: [
+      {
+        // The whole 12s recording: three low dry trills
+        source: "xenocanto",
+        xc: 422205,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC422205-Tororo%20%28Poecilotriccus%20plumbeiceps-OK-OK%29.mp3",
+        recordist: "Jayrson Araujo de Oliveira",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Canela, RS",
+        type: "song",
+        duration: 12.01,
+        fmax: 5000,
+      },
+    ],
+  },
+  {
+    name: "Borboletinha-do-mato",
+    scientificName: "Phylloscartes ventralis",
+    family: "Rhynchocyclidae",
+    inatTaxonId: 16948,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/11319747/medium.jpg",
+    photoCredit: "(c) Arnold Wijker, some rights reserved (CC BY-NC), uploaded by Arnold Wijker",
+    coa: { frequency: "Comum", season: "Todo o ano" },
+    sounds: [
+      {
+        // A long series of sharp song notes, about 14s of the 54s recording
+        source: "xenocanto",
+        xc: 409866,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC409866-Borboletinha%20do%20mato%20%28Phylloscartes%20ventralis-OK%29.mp3",
+        recordist: "Jayrson Araujo de Oliveira",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Canela, RS",
+        type: "song",
+        start: 0.15,
+        end: 14.62,
+      },
+    ],
+  },
+  {
+    name: "Bico-chato-de-orelha-preta",
+    scientificName: "Tolmomyias sulphurescens",
+    family: "Rhynchocyclidae",
+    inatTaxonId: 16567,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/130260728/medium.jpg",
+    photoCredit: "(c) Sergio R Porto, some rights reserved (CC BY-NC), uploaded by Sergio R Porto",
+    coa: { frequency: "Comum", season: "Todo o ano" },
+    sounds: [
+      {
+        // Four sharp, rising song notes, about 5s of the 25s recording
+        source: "xenocanto",
+        xc: 81742,
+        audio: "https://xeno-canto.org/sounds/uploaded/DGVLLRYDXS/TOLSUL34.mp3",
+        recordist: "Jeremy Minns",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "São Francisco de Paula, RS",
+        type: "song",
+        start: 18.05,
+        end: 23.4,
+      },
+    ],
+  },
+  {
+    name: "Ferreirinho-relógio",
+    scientificName: "Todirostrum cinereum",
+    family: "Rhynchocyclidae",
+    inatTaxonId: 17148,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/369307358/medium.jpg",
+    photoCredit: "(c) terence zahner, some rights reserved (CC BY-NC), uploaded by terence zahner",
+    coa: { frequency: "Rara", season: "Indeterminada", expanding: true },
+    sounds: [],
+  },
+  {
+    name: "Cabeçudo",
+    scientificName: "Leptopogon amaurocephalus",
+    family: "Rhynchocyclidae",
+    inatTaxonId: 16371,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/77930/medium.jpg",
+    photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
+    coa: { frequency: "Rara", season: "Todo o ano" },
+    sounds: [],
   },
   {
     name: "Caminheiro-zumbidor",
@@ -3237,30 +3398,6 @@ const BIRDS_PORTO_ALEGRE = [
     ],
   },
   {
-    name: "Arapaçu-verde",
-    scientificName: "Sittasomus griseicapillus",
-    family: "Furnariidae",
-    inatTaxonId: 11511,
-    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/245961193/medium.jpg",
-    photoCredit:
-      "(c) Tomaz Nascimento de Melo, some rights reserved (CC BY-NC-ND), uploaded by Tomaz Nascimento de Melo",
-    coa: { frequency: "Pouco comum", season: "Todo o ano" },
-    sounds: [
-      {
-        // The whole 9s recording: a steady series of rising 'fweep' notes
-        source: "inaturalist",
-        audio: "https://static.inaturalist.org/sounds/1613661.mp3",
-        recordist: "amandapmarcon",
-        license: "cc-by-nc",
-        observation: 308531696,
-        location: "Getúlio Vargas, RS",
-        type: "call",
-        duration: 8.98,
-        fmax: 8000,
-      },
-    ],
-  },
-  {
     name: "Trepador-quiete",
     scientificName: "Syndactyla rufosuperciliata",
     family: "Furnariidae",
@@ -3280,31 +3417,6 @@ const BIRDS_PORTO_ALEGRE = [
         location: "São Francisco de Paula, RS",
         type: "song",
         duration: 7.22,
-      },
-    ],
-  },
-  {
-    name: "Vira-folha",
-    scientificName: "Sclerurus scansor",
-    family: "Furnariidae",
-    inatTaxonId: 11653,
-    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/457840576/medium.jpeg",
-    photoCredit: "(c) Don Marsille, some rights reserved (CC BY-NC), uploaded by Don Marsille",
-    coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [
-      {
-        // Eight sharp calls, about 14s of the 31s recording
-        source: "xenocanto",
-        xc: 174533,
-        audio:
-          "https://xeno-canto.org/sounds/uploaded/RIVNLYTULO/XC174533-VIRA%20FOLHA%20-%20SALVADOR%20DO%20SUL%20-%2027-03-13.mp3",
-        recordist: "João Antônio de B. Vitto",
-        license: "cc-by-nc-sa",
-        licenseVersion: "4.0",
-        location: "Salvador do Sul, RS",
-        type: "call",
-        start: 5.7,
-        end: 19.8,
       },
     ],
   },
@@ -3387,48 +3499,12 @@ const BIRDS_PORTO_ALEGRE = [
     ],
   },
   {
-    name: "Arapaçu-escamoso-do-sul",
-    scientificName: "Lepidocolaptes falcinellus",
-    family: "Furnariidae",
-    inatTaxonId: 11579,
-    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/253159/medium.jpg",
-    photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [
-      {
-        // Six loud down-slurred notes and a softer one, about 13s of the 24s recording
-        source: "xenocanto",
-        xc: 407112,
-        audio:
-          "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC407112-Arapacu%20escamado%20do%20sul%20%28Lepidocolaptes%20falcinellus-OK%29.mp3",
-        recordist: "Jayrson Araujo de Oliveira",
-        license: "cc-by-nc-sa",
-        licenseVersion: "4.0",
-        location: "São Francisco de Paula, RS",
-        type: "song",
-        start: 1.85,
-        end: 15,
-      },
-    ],
-  },
-  {
     name: "Pichororé",
     scientificName: "Synallaxis ruficapilla",
     family: "Furnariidae",
     inatTaxonId: 10943,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/327548198/medium.jpg",
     photoCredit: "(c) Alan Hentz, some rights reserved (CC BY-NC), uploaded by Alan Hentz",
-    coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
-  },
-  {
-    name: "Arapaçu-grande",
-    scientificName: "Dendrocolaptes platyrostris",
-    family: "Furnariidae",
-    inatTaxonId: 11122,
-    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/278377638/medium.jpg",
-    photoCredit:
-      "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
     coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
@@ -3757,6 +3833,30 @@ const BIRDS_PORTO_ALEGRE = [
     ],
   },
   {
+    name: "Papa-piri",
+    scientificName: "Tachuris rubrigastra",
+    family: "Tachurisidae",
+    inatTaxonId: 17174,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/327391616/medium.jpg",
+    photoCredit: "(c) By.Ulises, some rights reserved (CC BY-NC), uploaded by By.Ulises",
+    coa: { frequency: "Rara", season: "Indeterminada" },
+    sounds: [
+      {
+        // The whole 29s recording: a steady series of 'tic' calls
+        source: "xenocanto",
+        xc: 22303,
+        audio: "https://xeno-canto.org/sounds/uploaded/MHHPJBCUXC/Tachuris%20rubrigastra5.mp3",
+        recordist: "Fernando Jacobs",
+        license: "cc-by-nc-nd",
+        licenseVersion: "2.5",
+        location: "Pelotas, RS",
+        type: "call",
+        duration: 29.33,
+        fmax: 8000,
+      },
+    ],
+  },
+  {
     name: "Caturrita",
     scientificName: "Myiopsitta monachus",
     family: "Psittacidae",
@@ -3878,6 +3978,16 @@ const BIRDS_PORTO_ALEGRE = [
         duration: 11.1,
       },
     ],
+  },
+  {
+    name: "Patinho",
+    scientificName: "Platyrinchus mystaceus",
+    family: "Platyrinchidae",
+    inatTaxonId: 16230,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/77933/medium.jpg",
+    photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
+    coa: { frequency: "Rara", season: "Todo o ano" },
+    sounds: [],
   },
   {
     name: "Pernilongo-de-costas-brancas",
@@ -5104,32 +5214,6 @@ const BIRDS_PORTO_ALEGRE = [
     ],
   },
   {
-    name: "Tororó",
-    scientificName: "Poecilotriccus plumbeiceps",
-    family: "Tyrannidae",
-    inatTaxonId: 17050,
-    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/118442274/medium.jpg",
-    photoCredit:
-      "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    coa: { frequency: "Comum", season: "Todo o ano" },
-    sounds: [
-      {
-        // The whole 12s recording: three low dry trills
-        source: "xenocanto",
-        xc: 422205,
-        audio:
-          "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC422205-Tororo%20%28Poecilotriccus%20plumbeiceps-OK-OK%29.mp3",
-        recordist: "Jayrson Araujo de Oliveira",
-        license: "cc-by-nc-sa",
-        licenseVersion: "4.0",
-        location: "Canela, RS",
-        type: "song",
-        duration: 12.01,
-        fmax: 5000,
-      },
-    ],
-  },
-  {
     name: "Bem-te-vi-rajado",
     scientificName: "Myiodynastes maculatus",
     family: "Tyrannidae",
@@ -5279,55 +5363,6 @@ const BIRDS_PORTO_ALEGRE = [
     ],
   },
   {
-    name: "Borboletinha-do-mato",
-    scientificName: "Phylloscartes ventralis",
-    family: "Tyrannidae",
-    inatTaxonId: 16948,
-    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/11319747/medium.jpg",
-    photoCredit: "(c) Arnold Wijker, some rights reserved (CC BY-NC), uploaded by Arnold Wijker",
-    coa: { frequency: "Comum", season: "Todo o ano" },
-    sounds: [
-      {
-        // A long series of sharp song notes, about 14s of the 54s recording
-        source: "xenocanto",
-        xc: 409866,
-        audio:
-          "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC409866-Borboletinha%20do%20mato%20%28Phylloscartes%20ventralis-OK%29.mp3",
-        recordist: "Jayrson Araujo de Oliveira",
-        license: "cc-by-nc-sa",
-        licenseVersion: "4.0",
-        location: "Canela, RS",
-        type: "song",
-        start: 0.15,
-        end: 14.62,
-      },
-    ],
-  },
-  {
-    name: "Bico-chato-de-orelha-preta",
-    scientificName: "Tolmomyias sulphurescens",
-    family: "Tyrannidae",
-    inatTaxonId: 16567,
-    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/130260728/medium.jpg",
-    photoCredit: "(c) Sergio R Porto, some rights reserved (CC BY-NC), uploaded by Sergio R Porto",
-    coa: { frequency: "Comum", season: "Todo o ano" },
-    sounds: [
-      {
-        // Four sharp, rising song notes, about 5s of the 25s recording
-        source: "xenocanto",
-        xc: 81742,
-        audio: "https://xeno-canto.org/sounds/uploaded/DGVLLRYDXS/TOLSUL34.mp3",
-        recordist: "Jeremy Minns",
-        license: "cc-by-nc-sa",
-        licenseVersion: "3.0",
-        location: "São Francisco de Paula, RS",
-        type: "song",
-        start: 18.05,
-        end: 23.4,
-      },
-    ],
-  },
-  {
     name: "Irré",
     scientificName: "Myiarchus swainsoni",
     family: "Tyrannidae",
@@ -5456,30 +5491,6 @@ const BIRDS_PORTO_ALEGRE = [
     ],
   },
   {
-    name: "Papa-piri",
-    scientificName: "Tachuris rubrigastra",
-    family: "Tyrannidae",
-    inatTaxonId: 17174,
-    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/327391616/medium.jpg",
-    photoCredit: "(c) By.Ulises, some rights reserved (CC BY-NC), uploaded by By.Ulises",
-    coa: { frequency: "Rara", season: "Indeterminada" },
-    sounds: [
-      {
-        // The whole 29s recording: a steady series of 'tic' calls
-        source: "xenocanto",
-        xc: 22303,
-        audio: "https://xeno-canto.org/sounds/uploaded/MHHPJBCUXC/Tachuris%20rubrigastra5.mp3",
-        recordist: "Fernando Jacobs",
-        license: "cc-by-nc-nd",
-        licenseVersion: "2.5",
-        location: "Pelotas, RS",
-        type: "call",
-        duration: 29.33,
-        fmax: 8000,
-      },
-    ],
-  },
-  {
     name: "Guaracava-grande",
     scientificName: "Elaenia spectabilis",
     family: "Tyrannidae",
@@ -5552,16 +5563,6 @@ const BIRDS_PORTO_ALEGRE = [
     sounds: [],
   },
   {
-    name: "Ferreirinho-relógio",
-    scientificName: "Todirostrum cinereum",
-    family: "Tyrannidae",
-    inatTaxonId: 17148,
-    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/369307358/medium.jpg",
-    photoCredit: "(c) terence zahner, some rights reserved (CC BY-NC), uploaded by terence zahner",
-    coa: { frequency: "Rara", season: "Indeterminada", expanding: true },
-    sounds: [],
-  },
-  {
     name: "Maria-preta-de-bico-azulado",
     scientificName: "Knipolegus cyanirostris",
     family: "Tyrannidae",
@@ -5623,16 +5624,6 @@ const BIRDS_PORTO_ALEGRE = [
     sounds: [],
   },
   {
-    name: "Patinho",
-    scientificName: "Platyrinchus mystaceus",
-    family: "Tyrannidae",
-    inatTaxonId: 16230,
-    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/77933/medium.jpg",
-    photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { frequency: "Rara", season: "Todo o ano" },
-    sounds: [],
-  },
-  {
     name: "Viuvinha-de-óculos",
     scientificName: "Hymenops perspicillatus",
     family: "Tyrannidae",
@@ -5640,16 +5631,6 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/386914/medium.jpg",
     photoCredit: "(c) Lip Kee, some rights reserved (CC BY-SA)",
     coa: { frequency: "Incomum", season: "Indeterminada" },
-    sounds: [],
-  },
-  {
-    name: "Cabeçudo",
-    scientificName: "Leptopogon amaurocephalus",
-    family: "Tyrannidae",
-    inatTaxonId: 16371,
-    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/77930/medium.jpg",
-    photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -5892,6 +5873,31 @@ const BIRDS_PORTO_ALEGRE = [
         start: 2.8,
         end: 7.2,
         fmax: 3000,
+      },
+    ],
+  },
+  {
+    name: "Vira-folha",
+    scientificName: "Sclerurus scansor",
+    family: "Scleruridae",
+    inatTaxonId: 11653,
+    photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/457840576/medium.jpeg",
+    photoCredit: "(c) Don Marsille, some rights reserved (CC BY-NC), uploaded by Don Marsille",
+    coa: { frequency: "Incomum", season: "Todo o ano" },
+    sounds: [
+      {
+        // Eight sharp calls, about 14s of the 31s recording
+        source: "xenocanto",
+        xc: 174533,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/RIVNLYTULO/XC174533-VIRA%20FOLHA%20-%20SALVADOR%20DO%20SUL%20-%2027-03-13.mp3",
+        recordist: "João Antônio de B. Vitto",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Salvador do Sul, RS",
+        type: "call",
+        start: 5.7,
+        end: 19.8,
       },
     ],
   },
