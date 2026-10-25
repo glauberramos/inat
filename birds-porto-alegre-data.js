@@ -5,7 +5,7 @@
 // which split some of iNaturalist's: the arapaçus, vira-folhas, patinhos, borboletinhas and papa-piri have their own).
 // Birds without sounds have sounds: [].
 // Birds are listed by family, in the order of BIRD_FAMILIES; within a family, the ones eBird checklists in
-// Porto Alegre report most often come first. The page shows them all commonest first, by eBird presence.
+// Porto Alegre report most often come first. The page shows them all commonest first: by rarity, then eBird presence.
 // Each sound is either:
 //   { source: "inaturalist", audio: <file URL>, recordist: <the name in the sound's "(c)" attribution>,
 //     license: <a Creative Commons code, e.g. "cc-by-nc"; never "all rights reserved">, observation: <observation id>,
@@ -20,11 +20,12 @@
 // and optional fmin/fmax (Hz, default 0 and 10000) to zoom the spectrogram in on the bird's pitch range.
 //
 // Birds on COA-POA's list (Aves de Porto Alegre, Bencke & Chiarani, 31 Aug 2020; https://coapoa.org/aves-de-porto-alegre-2/)
-// have coa: { season }, when the list says the bird is in Porto Alegre: "Todo o ano", "Primavera/verão",
-// "Outono/inverno", "Primavera", "Outono" or "Indeterminada". The 23 WikiAves species the COA list doesn't have
-// (records since 2020, or vagrants) have no coa. The COA list names some birds as they were before a split:
-// its Geothlypis aequinoctialis and Elaenia obscura are the Pia-cobra (G. velata) and Tucão (E. sordida) here.
-// (The page works out each bird's rarity from its eBird presence, in birds-porto-alegre-ebird.js.)
+// have coa: { frequency, season }, its categories as written there. frequency is how easy the bird is to find on a
+// normal outing: "Muito comum", "Comum", "Pouco comum", "Incomum", "Rara" or "Acidental" (the page joins these into
+// four rarity levels). season is when it's in Porto Alegre: "Todo o ano", "Primavera/verão", "Outono/inverno",
+// "Primavera", "Outono" or "Indeterminada". The 23 WikiAves species the COA list doesn't have (records since 2020, or
+// vagrants) have no coa. The COA list names some birds as they were before a split: its Geothlypis aequinoctialis
+// and Elaenia obscura are the Pia-cobra (G. velata) and Tucão (E. sordida) here.
 // Birds on a red list have conservation: { status: "CR" | "EN" | "VU" | "NT", list: "IUCN" | "Brasil" | "RS" }.
 // Checked in 2026 against Rio Grande do Sul's list (Decreto 51.797/2014, including its near-threatened annex) and
 // globally (IUCN, via iNaturalist); a bird on both would show the RS status, but none is. Brazil's national list
@@ -112,7 +113,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 116999,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/6903515/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Rara", season: "Primavera/verão" },
     sounds: [],
   },
   {
@@ -122,7 +123,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 8711,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/237484813/medium.jpg",
     photoCredit: "no rights reserved, uploaded by Paulo Mascaretti",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -132,7 +133,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 8716,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/84283/medium.jpg",
     photoCredit: "(c) Dominic Sherony, some rights reserved (CC BY-SA)",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Incomum", season: "Primavera/verão" },
     sounds: [],
   },
   {
@@ -142,7 +143,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 68826,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/267351662/medium.jpg",
     photoCredit: "(c) Steve Foss, some rights reserved (CC BY-NC), uploaded by Steve Foss",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 13s recording: a run of buzzy, down-slurred song notes
@@ -166,7 +167,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11870,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1082378/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Comum", season: "Primavera/verão" },
     sounds: [
       {
         // The whole 41s recording: two bursts of gurgling song, then single calls
@@ -189,7 +190,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11872,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/172076738/medium.jpeg",
     photoCredit: "(c) Esteban Poveda, some rights reserved (CC BY), uploaded by Esteban Poveda",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Comum", season: "Primavera/verão" },
     sounds: [
       {
         // Gurgling chatter of a group, about 19s of the 34s recording
@@ -214,7 +215,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11972,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/663372181/medium.jpg",
     photoCredit: "(c) Donald Davesne, some rights reserved (CC BY), uploaded by Donald Davesne",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Pouco comum", season: "Primavera/verão" },
     sounds: [
       {
         // The whole 8s recording: a run of rough 'brrt' notes
@@ -238,7 +239,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11936,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/28096412/medium.jpeg",
     photoCredit: "(c) Diana Fuentes, some rights reserved (CC BY-SA), uploaded by Diana Fuentes",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 7s recording: buzzy and liquid calls of a small flock
@@ -273,7 +274,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/31261952/large.jpg",
     photoCredit:
       "(c) marcelo_allende, some rights reserved (CC BY-NC), uploaded by marcelo_allende",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Muito comum", season: "Primavera/verão" },
     sounds: [
       {
         // A passing flock's twittering, about 19s of the 40s recording
@@ -298,7 +299,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6597,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/12179299/medium.jpg",
     photoCredit: "(c) Arnold Wijker, some rights reserved (CC BY-NC), uploaded by Arnold Wijker",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 12s recording: a flock screaming as it passes
@@ -322,7 +323,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/249989101/medium.jpg",
     photoCredit:
       "(c) Antonino Gonçalves Medina, some rights reserved (CC BY-NC), uploaded by Antonino Gonçalves Medina",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Five bouts of loud honking alarm calls, about 15s of the 31s recording
@@ -349,7 +350,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/245961193/medium.jpg",
     photoCredit:
       "(c) Tomaz Nascimento de Melo, some rights reserved (CC BY-NC-ND), uploaded by Tomaz Nascimento de Melo",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 9s recording: a steady series of rising 'fweep' notes
@@ -372,7 +373,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11579,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/253159/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // Six loud down-slurred notes and a softer one, about 13s of the 24s recording
@@ -398,7 +399,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/278377638/medium.jpg",
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -409,7 +410,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/66731977/medium.jpg",
     photoCredit:
       "(c) Javier González, some rights reserved (CC BY-NC), uploaded by Javier González",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 17s recording: two warbled songs with call notes between
@@ -452,7 +453,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/396726768/medium.jpg",
     photoCredit:
       "(c) Manequinho Correia, some rights reserved (CC BY-NC), uploaded by Manequinho Correia",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -463,7 +464,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/28959565/medium.jpg",
     photoCredit:
       "(c) Josh van der Meulen, some rights reserved (CC BY-NC-ND), uploaded by Josh van der Meulen",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Eight thin, U-shaped song notes, about 16s of the 49s recording
@@ -490,7 +491,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 19565,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/151522305/medium.jpg",
     photoCredit: "(c) eneaschr, some rights reserved (CC BY-NC)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -500,7 +501,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 19661,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/150819319/medium.jpg",
     photoCredit: "(c) Paul Donahue, some rights reserved (CC BY-NC), uploaded by Paul Donahue",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Rara", season: "Primavera/verão" },
     sounds: [],
   },
   {
@@ -529,7 +530,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/182555778/medium.jpg",
     photoCredit:
       "(c) Lilian Tomazelli, some rights reserved (CC BY-NC), uploaded by Lilian Tomazelli",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -540,7 +541,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/321464947/medium.jpeg",
     photoCredit:
       "(c) Gustavo Fernando Durán, some rights reserved (CC BY-NC-SA), uploaded by Gustavo Fernando Durán",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Five song phrases of arched 'tsee' notes, about 19s of the 3m01s recording
@@ -565,7 +566,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4867,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/366729434/medium.jpg",
     photoCredit: "(c) joakosbirdlife, some rights reserved (CC BY-NC)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // A steady run of calls ending in four loud notes, about 6s of the 58s recording
@@ -588,7 +589,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1505645,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/37910349/medium.jpg",
     photoCredit: "(c) pedro vargas, some rights reserved (CC BY-NC), uploaded by pedro vargas",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -599,7 +600,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/407947064/medium.jpg",
     photoCredit:
       "(c) Leonardo Quintana, some rights reserved (CC BY-NC), uploaded by Leonardo Quintana",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // Two long buzzy song trills with chip notes between, about 14s of the 28s recording
@@ -624,7 +625,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6085,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/32687025/medium.jpeg",
     photoCredit: "(c) Nicolas Olejnik, some rights reserved (CC BY), uploaded by Nicolas Olejnik",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Comum", season: "Primavera/verão" },
     sounds: [
       {
         // A run of dry chip calls, about 12s of the 32s recording
@@ -650,7 +651,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/178158642/medium.jpg",
     photoCredit:
       "(c) Claudio Martins de Souza, some rights reserved (CC BY-NC), uploaded by Claudio Martins de Souza",
-    coa: { season: "Outono/inverno" },
+    coa: { frequency: "Pouco comum", season: "Outono/inverno" },
     sounds: [
       {
         // A steady series of high 'tsip' calls, about 16s of the 17s recording
@@ -678,7 +679,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/586765879/medium.jpg",
     photoCredit:
       "(c) Mauricio Mercadante, some rights reserved (CC BY-NC-SA), uploaded by Mauricio Mercadante",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [
       {
         // The whole 6s recording: a steady series of sharp ticks
@@ -700,7 +701,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6521,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/182457798/medium.jpeg",
     photoCredit: "(c) Peter Taylor, some rights reserved (CC BY-NC), uploaded by Peter Taylor",
-    coa: { season: "Outono/inverno" },
+    coa: { frequency: "Incomum", season: "Outono/inverno" },
     sounds: [
       {
         // The whole 21s recording: rhythmic song phrases
@@ -723,7 +724,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5947,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/26314598/medium.jpeg",
     photoCredit: "(c) guyincognito, some rights reserved (CC BY-NC), uploaded by guyincognito",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 24s recording: a steady 'tsip' song series
@@ -747,7 +748,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5807,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/219766479/medium.jpg",
     photoCredit: "(c) photokeen, some rights reserved (CC BY-NC-ND), uploaded by photokeen",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Rara", season: "Primavera/verão" },
     sounds: [
       {
         // A steady series of sharp 'tsick' notes, about 16s of the 23s recording
@@ -773,7 +774,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 513980,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/168812870/medium.jpg",
     photoCredit: "no rights reserved, uploaded by Frank Thomas Sautter",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 22s recording: the high squeaky song repeated
@@ -797,7 +798,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5868,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/419072263/medium.jpg",
     photoCredit: "(c) Lindolfo Souto, some rights reserved (CC BY), uploaded by Lindolfo Souto",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Acidental", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -808,7 +809,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/244361576/medium.jpg",
     photoCredit:
       "(c) Tomaz Nascimento de Melo, some rights reserved (CC BY-NC-ND), uploaded by Tomaz Nascimento de Melo",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -819,7 +820,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/397446858/medium.jpg",
     photoCredit:
       "(c) David Barros Cardona, some rights reserved (CC BY-NC), uploaded by David Barros Cardona",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     introduced: true,
     sounds: [
       {
@@ -845,7 +846,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5063,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/195512943/medium.jpg",
     photoCredit: "(c) Shiva Shenoy, some rights reserved (CC BY), uploaded by Shiva Shenoy",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [
       {
         // Three rattling calls, about 11s of the 33s recording
@@ -872,7 +873,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/118442274/medium.jpg",
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 12s recording: three low dry trills
@@ -897,7 +898,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16948,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/11319747/medium.jpg",
     photoCredit: "(c) Arnold Wijker, some rights reserved (CC BY-NC), uploaded by Arnold Wijker",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // A long series of sharp song notes, about 14s of the 54s recording
@@ -922,7 +923,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16567,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/130260728/medium.jpg",
     photoCredit: "(c) Sergio R Porto, some rights reserved (CC BY-NC), uploaded by Sergio R Porto",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Four sharp, rising song notes, about 5s of the 25s recording
@@ -946,7 +947,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17148,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/369307358/medium.jpg",
     photoCredit: "(c) terence zahner, some rights reserved (CC BY-NC), uploaded by terence zahner",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -956,7 +957,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16371,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/77930/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -967,7 +968,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/581440670/medium.jpg",
     photoCredit:
       "(c) Enéas V. Gouvêa Junior, some rights reserved (CC BY-SA), uploaded by Enéas V. Gouvêa Junior",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -977,7 +978,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 7,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/161521395/medium.jpg",
     photoCredit: "(c) David Monroy R, some rights reserved (CC BY-NC), uploaded by David Monroy R",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Nine wailing 'carrao' calls, about 11s of the 25s recording
@@ -1003,7 +1004,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4742,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/87252334/medium.jpg",
     photoCredit: "(c) chezasaurus, some rights reserved (CC BY-NC), uploaded by chezasaurus",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Incomum", season: "Primavera/verão" },
     sounds: [
       {
         // A young bird's begging calls at the nest, the first 6s of the 28s recording
@@ -1030,7 +1031,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/14171302/medium.jpg",
     photoCredit:
       "(c) João Vitor Andriola, some rights reserved (CC BY-NC), uploaded by João Vitor Andriola",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Hissing calls of young birds, the whole 11s recording (its license doesn't allow cutting it)
@@ -1063,7 +1064,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 15757,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/210204427/medium.jpeg",
     photoCredit: "(c) joseluisblazquez, some rights reserved (CC BY-NC)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 14s recording: repeated nasal 'nyah' calls
@@ -1089,7 +1090,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/11210811/medium.jpg",
     photoCredit:
       "(c) fabiomanfredini, some rights reserved (CC BY-NC), uploaded by fabiomanfredini",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Three accelerating songs, about 14s of the 28s recording
@@ -1116,7 +1117,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/66271126/medium.jpg",
     photoCredit:
       "(c) Hudson Martins Soares, some rights reserved (CC BY-NC), uploaded by Hudson Martins Soares",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -1126,7 +1127,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 578313,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/730663816/medium.jpg",
     photoCredit: "(c) Don Marsille, some rights reserved (CC BY-NC), uploaded by Don Marsille",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // Nine sneezy 'chiff' calls, about 17s of the 44s recording
@@ -1151,7 +1152,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 7182,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/247800710/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 5s recording: two calls
@@ -1175,7 +1176,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 7188,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/329671116/medium.jpeg",
     photoCredit: "(c) Martin Arregui, some rights reserved (CC BY-NC), uploaded by Martin Arregui",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // Three nasal calls, 4s of the 21s recording
@@ -1201,7 +1202,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/452559360/medium.jpg",
     photoCredit:
       "(c) Gonzalo González Mora, some rights reserved (CC BY), uploaded by Gonzalo González Mora",
-    coa: { season: "Outono/inverno" },
+    coa: { frequency: "Rara", season: "Outono/inverno" },
     sounds: [
       {
         // A long series of harsh flight calls, about 13s of the 27s recording
@@ -1225,7 +1226,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6898,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/30515510/medium.jpeg",
     photoCredit: "(c) Bird Explorers, some rights reserved (CC BY-NC), uploaded by Bird Explorers",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 12s recording: a flock whistling
@@ -1249,7 +1250,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/166959095/medium.jpeg",
     photoCredit:
       "(c) Bryan Caro San Martin, some rights reserved (CC BY-NC), uploaded by Bryan Caro San Martin",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // A run of nasal calls, most of the 4s recording
@@ -1276,7 +1277,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/411123026/medium.jpg",
     photoCredit:
       "(c) cello caruso-turiello, some rights reserved (CC BY), uploaded by cello caruso-turiello",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -1286,7 +1287,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6899,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/91528685/medium.jpg",
     photoCredit: "(c) Tom Benson, some rights reserved (CC BY-NC-ND)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -1306,7 +1307,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 6988,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/177332894/medium.jpeg",
     photoCredit: "(c) markus lilje, some rights reserved (CC BY-NC-ND), uploaded by markus lilje",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -1316,7 +1317,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 7166,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/160405251/medium.jpg",
     photoCredit: "(c) Ninosca Angel, some rights reserved (CC BY-NC), uploaded by Ninosca Angel",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -1345,7 +1346,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3736,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/417897827/medium.jpg",
     photoCredit: "(c) Bernard DUPONT, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 20s recording: four bursts of hoarse grunting calls
@@ -1370,7 +1371,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3759,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/369174108/medium.jpg",
     photoCredit: "(c) Ad Konings, some rights reserved (CC BY-NC), uploaded by Ad Konings",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // A flock's nasal flight calls, about 11s of the 18s recording
@@ -1395,7 +1396,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 62529,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2069153/medium.jpg",
     photoCredit: "(c) Nigel Voaden, some rights reserved (CC BY)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [
       {
         // Four bouts of low grunting, about 16s of the 52s recording
@@ -1421,7 +1422,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3766,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/9867600/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [
       {
         // The whole 20s recording: a pair's loud honking duet, fading out
@@ -1445,7 +1446,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3770,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/739170999/medium.jpg",
     photoCredit: "(c) Matt Blue, some rights reserved (CC BY-NC), uploaded by Matt Blue",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Acidental", season: "Indeterminada" },
     conservation: { status: "NT", list: "RS" },
     sounds: [],
   },
@@ -1457,7 +1458,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/176419188/medium.jpg",
     photoCredit:
       "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 13s recording: a run of huffing hisses, then one long hiss
@@ -1481,7 +1482,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4756,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/52277010/medium.jpg",
     photoCredit: "(c) Seig, some rights reserved (CC BY), uploaded by Seig",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -1491,7 +1492,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4761,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/260941303/medium.jpg",
     photoCredit: "(c) Anthony Batista, some rights reserved (CC BY), uploaded by Anthony Batista",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -1502,7 +1503,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/23856507/medium.jpg",
     photoCredit:
       "(c) Kala Murphy King, some rights reserved (CC BY-NC-ND), uploaded by Kala Murphy King",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 6s recording: guttural grunting display
@@ -1527,7 +1528,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1578442,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2074835/medium.jpg",
     photoCredit: "(c) elhoffa, some rights reserved (CC BY-NC)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // One full song, about 4s of the 14s recording
@@ -1552,7 +1553,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 558468,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/466424122/medium.jpg",
     photoCredit: "(c) poli782003, some rights reserved (CC BY-NC)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // One whistled 'wheeyoo' call, 2s of the 34s recording
@@ -1576,7 +1577,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/271464379/medium.jpg",
     photoCredit:
       "(c) Steven Mlodinow, some rights reserved (CC BY-NC), uploaded by Steven Mlodinow",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 23s recording: three alarm bouts, a screech then a chatter of 'kek' notes
@@ -1601,7 +1602,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1119324/medium.jpg",
     photoCredit:
       "(c) Aldo Ortíz Reyes, some rights reserved (CC BY-NC), uploaded by Aldo Ortíz Reyes",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // Five 'nyek' calls, about 11s of the 1m00s recording
@@ -1625,7 +1626,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 19788,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/460430074/medium.jpg",
     photoCredit: "(c) DavidLarson, some rights reserved (CC BY-NC), uploaded by DavidLarson",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Two trilled songs, about 9s of the 46s recording
@@ -1653,7 +1654,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/14549085/large.jpg",
     photoCredit:
       "(c) Paul G. Johnson, some rights reserved (CC BY-NC-SA), uploaded by Paul G. Johnson",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -1665,7 +1666,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/117550780/large.jpg",
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -1675,7 +1676,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 72674,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/774636/medium.jpg",
     photoCredit: "(c) dominic sherony, some rights reserved (CC BY-SA)",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Acidental", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -1686,7 +1687,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/234531093/medium.jpg",
     photoCredit:
       "(c) abelardomendesjr, some rights reserved (CC BY-NC), uploaded by abelardomendesjr",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [
       {
         // Repeated 'chok' calls with flock chatter, about 14s of the 1m02s recording
@@ -1711,7 +1712,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 8884,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2510145/medium.jpg",
     photoCredit: "(c) Francesco Veronesi, some rights reserved (CC BY-SA)",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Acidental", season: "Indeterminada" },
     conservation: { status: "VU", list: "RS" },
     sounds: [],
   },
@@ -1723,7 +1724,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/23659730/medium.jpg",
     photoCredit:
       "(c) Josh van der Meulen, some rights reserved (CC BY-NC-ND), uploaded by Josh van der Meulen",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 12s recording: a group's rattling calls
@@ -1747,7 +1748,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/59994525/medium.jpg",
     photoCredit:
       "(c) Roberto González, some rights reserved (CC BY-NC), uploaded by Roberto González",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // A long run of rising 'kweep' notes, 15s of the 28s recording
@@ -1771,7 +1772,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1971,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/114342665/medium.jpeg",
     photoCredit: "(c) Esteban Poveda, some rights reserved (CC BY), uploaded by Esteban Poveda",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Four whining 'oo-leek' calls, about 7s of the 26s recording
@@ -1794,7 +1795,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1989,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/123443099/medium.jpeg",
     photoCredit: "(c) ggroitman, some rights reserved (CC BY-NC), uploaded by ggroitman",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 13s recording: three 'sa-ci' whistled songs
@@ -1817,7 +1818,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1966,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/17537/medium.jpg",
     photoCredit: "(c) Edwin Harvey, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Rara", season: "Primavera/verão" },
     sounds: [],
   },
   {
@@ -1828,7 +1829,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/65334465/medium.jpg",
     photoCredit:
       "(c) Hudson Martins Soares, some rights reserved (CC BY-NC), uploaded by Hudson Martins Soares",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     conservation: { status: "VU", list: "RS" },
     sounds: [],
   },
@@ -1840,7 +1841,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/344678876/medium.jpeg",
     photoCredit:
       "(c) Juan Cruzado Cortés, some rights reserved (CC BY), uploaded by Juan Cruzado Cortés",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 6s recording: harsh 'krak' calls, mostly in pairs
@@ -1863,7 +1864,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/23121348/medium.jpg",
     photoCredit:
       "(c) Josh van der Meulen, some rights reserved (CC BY-NC-ND), uploaded by Josh van der Meulen",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 16s recording: 'killy-killy' series, a whine and a loud 'klee-klee' run
@@ -1887,7 +1888,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4647,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/212499566/medium.jpg",
     photoCredit: "(c) nautiboy, some rights reserved (CC BY-NC)",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Rara", season: "Primavera/verão" },
     sounds: [
       {
         // Four harsh 'kak' calls, 2s of the 6s recording
@@ -1912,7 +1913,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1432779,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/677390581/medium.jpg",
     photoCredit: "(c) Manuel Raab, some rights reserved (CC BY-NC), uploaded by Manuel Raab",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Seven harsh screams, about 7.5s of the 15s recording
@@ -1935,7 +1936,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1432781,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/240521909/medium.jpeg",
     photoCredit: "(c) graciela_gplp, some rights reserved (CC BY-NC)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 5s recording: a short chatter, then one long scream
@@ -1960,7 +1961,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/394112373/medium.jpg",
     photoCredit:
       "(c) Alvaro Monter Pozos, some rights reserved (CC BY-NC), uploaded by Alvaro Monter Pozos",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [
       {
         // Three loud 'aow' calls, about 8s of the 24s recording
@@ -1993,7 +1994,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/448910145/medium.jpg",
     photoCredit:
       "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -2004,7 +2005,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/134157343/medium.jpg",
     photoCredit:
       "(c) Sebastián Lescano, some rights reserved (CC BY-NC), uploaded by Sebastián Lescano",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Acidental", season: "Indeterminada" },
     conservation: { status: "NT", list: "IUCN" },
     sounds: [],
   },
@@ -2025,7 +2026,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4569,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/54870147/medium.jpeg",
     photoCredit: "(c) Eric Carpenter, some rights reserved (CC BY-NC), uploaded by Eric Carpenter",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Harsh honking calls of a group, about 9s of the 10s recording
@@ -2050,7 +2051,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 144504,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2667918/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // Harsh 'kraar' calls from a few gulls, about 10s of the 35s recording
@@ -2075,7 +2076,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 144508,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/4183449/medium.jpg",
     photoCredit: "(c) John Beetham, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Incomum", season: "Indeterminada" },
     sounds: [
       {
         // Three harsh 'kraa' calls over surf, about 10s of the 31s recording
@@ -2100,7 +2101,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4388,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/227539170/medium.jpg",
     photoCredit: "(c) Finn Davey, some rights reserved (CC BY-NC), uploaded by Finn Davey",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // About a dozen loud 'kyow' calls, about 13.5s of the 34s recording
@@ -2125,7 +2126,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4496,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/227666105/medium.jpg",
     photoCredit: "(c) Scott, some rights reserved (CC BY-NC), uploaded by Scott",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Incomum", season: "Primavera/verão" },
     sounds: [
       {
         // A colony's yapping barks, about 11s of the 45s recording
@@ -2150,7 +2151,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 458,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/8460677/medium.jpeg",
     photoCredit: "(c) Nelson Wisnik, some rights reserved (CC BY-NC), uploaded by Nelson Wisnik",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The pair's rhythmic duet chorus, about 13s of the 31s recording
@@ -2173,7 +2174,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 144479,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/30905992/medium.jpg",
     photoCredit: "(c) uzun, some rights reserved (CC BY-NC), uploaded by uzun",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 17s recording: two cackling 'kek-kek-kek' series
@@ -2198,7 +2199,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/532685404/medium.jpg",
     photoCredit:
       "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Several loud song phrases from a pair, about 9s of the 1m02s recording
@@ -2223,7 +2224,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 329,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/922856/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Two long descending trills, about 12s of the 49s recording
@@ -2249,7 +2250,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/455464195/medium.jpg",
     photoCredit:
       "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The pair's 'three-pots' duet, about 9s of the 50s recording
@@ -2274,7 +2275,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 290,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/353619975/medium.jpeg",
     photoCredit: "(c) Ben Lyle Bedard, some rights reserved (CC BY), uploaded by Ben Lyle Bedard",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 22s recording: two bouts of squealing song
@@ -2298,7 +2299,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 460,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/35204644/medium.jpeg",
     photoCredit: "(c) Gonzalo Roget, some rights reserved (CC BY), uploaded by Gonzalo Roget",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // A loud chorus, about 8s of the 21s recording
@@ -2321,7 +2322,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 300,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/409308281/medium.jpeg",
     photoCredit: "(c) Yve Morrell, some rights reserved (CC BY-NC), uploaded by Yve Morrell",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [
       {
         // The whole 8s recording: six rhythmic grunts
@@ -2345,7 +2346,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 507881,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/7582/medium.jpg",
     photoCredit: "(c) ClÃ¡udio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -2365,7 +2366,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 519,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/246710060/medium.jpg",
     photoCredit: "(c) Bert Filemyr, some rights reserved (CC BY-NC), uploaded by Bert Filemyr",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Rara", season: "Primavera/verão" },
     sounds: [],
   },
   {
@@ -2375,7 +2376,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 144455,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/56653891/medium.jpg",
     photoCredit: "(c) daverowe, some rights reserved (CC BY-NC)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 12s recording: a series of harsh alarm croaks
@@ -2400,7 +2401,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4981,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/49357930/medium.jpg",
     photoCredit: "no rights reserved, uploaded by Kyle Nessen",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 4s recording: two 'quok' barks
@@ -2423,7 +2424,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4940,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2415351/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 21s recording: three croaks, a long pause, then two more
@@ -2448,7 +2449,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/178484205/medium.jpg",
     photoCredit:
       "(c) Oswaldo Hernández, some rights reserved (CC BY-NC), uploaded by Oswaldo Hernández",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 5s recording: five flat piping whistles
@@ -2472,7 +2473,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 62528,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/360776243/medium.jpeg",
     photoCredit: "(c) Bill Levine, some rights reserved (CC BY), uploaded by Bill Levine",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Comum", season: "Primavera/verão" },
     sounds: [
       {
         // The whole 12s recording: six sharp 'kek' calls
@@ -2496,7 +2497,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4952,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/150223557/medium.jpg",
     photoCredit: "(c) Paul Donahue, some rights reserved (CC BY-NC), uploaded by Paul Donahue",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 8s recording: four harsh croaks
@@ -2519,7 +2520,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 411086,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/278764160/medium.jpg",
     photoCredit: "(c) Алексей Сизов, some rights reserved (CC BY-NC), uploaded by Алексей Сизов",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 12s recording: chattering calls at a colony
@@ -2543,7 +2544,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4937,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/106796895/medium.jpg",
     photoCredit: "(c) MARMAR, some rights reserved (CC BY-NC), uploaded by MARMAR",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [
       {
         // A run of harsh, nasal croaks, about 10s of the 17s recording
@@ -2568,7 +2569,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5048,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/21359/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Flight calls, the first 3.5s of the 7s recording
@@ -2595,7 +2596,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/170656458/medium.jpeg",
     photoCredit:
       "(c) Bryan Caro San Martin, some rights reserved (CC BY-NC), uploaded by Bryan Caro San Martin",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Acidental", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -2605,7 +2606,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9292,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/176773163/medium.jpg",
     photoCredit: "(c) Egon Fink, some rights reserved (CC BY)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // Four groups of clear 'dee-dee-dee' calls, about 11s of the 36s recording
@@ -2628,7 +2629,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1289368,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/489966317/medium.jpg",
     photoCredit: "(c) Augusto Matheus dos Santos, some rights reserved (CC BY-NC)",
-    coa: { season: "Outono/inverno" },
+    coa: { frequency: "Comum", season: "Outono/inverno" },
     sounds: [
       {
         // Eight plaintive two-toned 'pee-u' calls, about 14s of the 38s recording
@@ -2653,7 +2654,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9296,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/76825/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Five buzzy 'dzee-dzee' call bursts, about 8.5s of the 23s recording
@@ -2687,7 +2688,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/395917812/medium.jpeg",
     photoCredit:
       "(c) floris_heemskerk, some rights reserved (CC BY-NC), uploaded by floris_heemskerk",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // A nasal scream, a series of 'kee-kee' calls and another scream, about 10s of the 45s recording
@@ -2711,7 +2712,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5097,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/112860673/medium.jpeg",
     photoCredit: "(c) Troy B, some rights reserved (CC BY), uploaded by Troy B",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Five upslurred 'kweeh' calls, about 4.5s of the 7s recording
@@ -2735,7 +2736,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5349,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/361425135/medium.jpg",
     photoCredit: "(c) Victor, some rights reserved (CC BY-NC-ND)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // One dry 'ka-ka-ka' rattle, about 2s of the 9s recording
@@ -2760,7 +2761,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/102440509/medium.jpeg",
     photoCredit:
       "(c) Patricia Tiller, some rights reserved (CC BY-NC), uploaded by Patricia Tiller",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Two long, thin, descending screams 13s apart, about 15s of the 30s recording
@@ -2784,7 +2785,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5177,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/210653314/medium.jpg",
     photoCredit: "(c) Hugo, some rights reserved (CC BY-NC), uploaded by Hugo",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 10s recording: two chattering 'ke-ke-ke' series
@@ -2808,7 +2809,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5235,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/12999578/medium.jpg",
     photoCredit: "(c) Francesco Veronesi, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // One long, drawn-out scream, about 2s of the 20s recording
@@ -2834,7 +2835,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/603366621/medium.jpg",
     photoCredit:
       "(c) Ana Laura Campioto, some rights reserved (CC BY-NC), uploaded by Ana Laura Campioto",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Rara", season: "Primavera/verão" },
     sounds: [
       {
         // Three thin, descending whistled calls, about 13s of the 34s recording
@@ -2860,7 +2861,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5238,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/56759119/medium.jpg",
     photoCredit: "(c) Allan Hopkins, some rights reserved (CC BY-NC-ND)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [
       {
         // The whole 5s recording: a series of about 11 whistled notes
@@ -2919,7 +2920,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5301,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/21518168/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Rara", season: "Primavera/verão" },
     sounds: [],
   },
   {
@@ -2930,7 +2931,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/197389027/medium.jpg",
     photoCredit:
       "(c) Quentin Vandemoortele, some rights reserved (CC BY-NC), uploaded by Quentin Vandemoortele",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Four song phrases, each a low whistle followed by harsh 'chek' notes, about 14s of the 33s recording
@@ -2956,7 +2957,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1913375/medium.jpg",
     photoCredit:
       "(c) Jorge Schlemmer, some rights reserved (CC BY-NC), uploaded by Jorge Schlemmer",
-    coa: { season: "Outono/inverno" },
+    coa: { frequency: "Rara", season: "Outono/inverno" },
     sounds: [
       {
         // Two song phrases of repeated 'check-mark' notes, about 11s of the 44s recording
@@ -2981,7 +2982,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/86359703/medium.jpg",
     photoCredit:
       "(c) Juan Diego Döke, some rights reserved (CC BY-NC), uploaded by Juan Diego Döke",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // The whole song, whistles speeding up into a continuous run, about 10s of the 14s recording
@@ -3007,7 +3008,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/103997991/medium.jpeg",
     photoCredit:
       "(c) Diego Caballero, some rights reserved (CC BY-NC), uploaded by Diego Caballero",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -3018,7 +3019,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/158695164/medium.jpg",
     photoCredit:
       "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 5s recording: one song of gurgles and squeaky whistles
@@ -3042,7 +3043,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 516244,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/9004519/medium.jpeg",
     photoCredit: "(c) markus lilje, some rights reserved (CC BY-NC-ND), uploaded by markus lilje",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Four descending two-toned whistles with soft clicks between, about 9s of the 1m48s recording
@@ -3068,7 +3069,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 72954,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/114288120/medium.jpeg",
     photoCredit: "(c) Tim Hirsch, some rights reserved (CC BY), uploaded by Tim Hirsch",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Two song phrases of clear whistles and buzzy notes, about 16s of the 32s recording
@@ -3093,7 +3094,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 69696,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/28034/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Colony chorus with a quick descending series of song notes, about 5s of the 26s recording
@@ -3119,7 +3120,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/59361562/medium.jpeg",
     photoCredit:
       "(c) Adrian Braidotti, some rights reserved (CC BY-NC), uploaded by Adrian Braidotti",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 5s recording: one song, a rolling trill and a whistled 'cleer'
@@ -3142,7 +3143,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/249037827/medium.jpg",
     photoCredit:
       "(c) Ariel Cabrera Foix, some rights reserved (CC BY-NC-SA), uploaded by Ariel Cabrera Foix",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Several songs of soft gurgles and explosive high notes, about 12s of the 2m22s recording
@@ -3168,7 +3169,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/362293734/medium.jpg",
     photoCredit:
       "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // Two songs, short notes and then the long buzz, with call notes between; about 13s of the 24s recording
@@ -3194,7 +3195,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/442402880/medium.jpg",
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // Three loud slurred whistles among gurgling 'chek' notes, about 10s of the 34s recording
@@ -3219,7 +3220,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10357,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/648143/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [
       {
         // Colony song: low gurgles and 'chack' notes with four rising whistles ending in a crash, nearly the whole 15s recording
@@ -3246,7 +3247,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/210327137/medium.jpg",
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -3256,7 +3257,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4580,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/9867610/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 11s recording: a series of harsh 'kek' calls, then softer ones
@@ -3281,7 +3282,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11275,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/182076045/medium.jpg",
     photoCredit: "(c) Ron Knight, some rights reserved (CC BY)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 6s recording: a pair's loud duet
@@ -3305,7 +3306,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11254,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/221333003/medium.jpg",
     photoCredit: "no rights reserved, uploaded by Nina Wenóli",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // A steady run of short buzzy calls, about 12s of the 24s recording
@@ -3330,7 +3331,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/274670794/medium.jpeg",
     photoCredit:
       "(c) Enéas V. Gouvêa Junior, some rights reserved (CC BY-SA), uploaded by Enéas V. Gouvêa Junior",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Five song phrases, about 8.5s of the 10s recording
@@ -3354,7 +3355,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11364,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/565788/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 7s recording: one long rattling song
@@ -3378,7 +3379,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10974,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1718802/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Four songs (a rising note, then a short note), about 9.5s of the 1m35s recording
@@ -3403,7 +3404,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11472,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/225009370/medium.jpeg",
     photoCredit: "(c) silviolamothe, some rights reserved (CC BY-NC), uploaded by silviolamothe",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 7s recording: one full song between harsh calls
@@ -3427,7 +3428,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/31184030/medium.jpg",
     photoCredit:
       "(c) marcelo_allende, some rights reserved (CC BY-NC), uploaded by marcelo_allende",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 10s recording: accelerating song phrases one after another
@@ -3452,7 +3453,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11821,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/107004052/medium.jpg",
     photoCredit: "(c) Martín Ferrari, some rights reserved (CC BY-NC), uploaded by Martín Ferrari",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Three chattering songs, about 9s of the 12s recording
@@ -3479,7 +3480,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/35800662/medium.jpg",
     photoCredit:
       "(c) Guillermo Menéndez, some rights reserved (CC BY-NC), uploaded by Guillermo Menéndez",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 39s recording: six rising trills
@@ -3504,7 +3505,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10943,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/327548198/medium.jpg",
     photoCredit: "(c) Alan Hentz, some rights reserved (CC BY-NC), uploaded by Alan Hentz",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -3515,7 +3516,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/110395172/medium.jpg",
     photoCredit:
       "(c) mauriciofreitas, some rights reserved (CC BY-NC), uploaded by mauriciofreitas",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -3535,7 +3536,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3927,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/23045173/medium.jpeg",
     photoCredit: "(c) Leonel Roget, some rights reserved (CC BY), uploaded by Leonel Roget",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 6s recording: a burst of pulsed notes slowing down
@@ -3559,7 +3560,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 72458,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/46532647/medium.jpg",
     photoCredit: "(c) Jason Headley, some rights reserved (CC BY-NC), uploaded by Jason Headley",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Rara", season: "Primavera/verão" },
     sounds: [
       {
         // A steady series of sharp 'weet' calls, about 13s of the 29s recording
@@ -3584,7 +3585,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3893,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/260887463/medium.jpg",
     photoCredit: "(c) Jonathan Irons, some rights reserved (CC BY-NC), uploaded by Jonathan Irons",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Rara", season: "Primavera/verão" },
     conservation: { status: "VU", list: "IUCN" },
     sounds: [],
   },
@@ -3596,7 +3597,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/25135180/medium.jpg",
     photoCredit:
       "(c) Robin Gwen Agarwal, some rights reserved (CC BY-NC), uploaded by Robin Gwen Agarwal",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Incomum", season: "Primavera/verão" },
     sounds: [],
   },
   {
@@ -3607,7 +3608,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/115454163/medium.jpg",
     photoCredit:
       "(c) Oswaldo Hernández, some rights reserved (CC BY-NC), uploaded by Oswaldo Hernández",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 15s recording: two songs
@@ -3634,7 +3635,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/179298338/medium.jpg",
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // A few calls, then the long descending whistled song, about 9s of the 1m02s recording
@@ -3662,7 +3663,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/594042080/medium.jpg",
     photoCredit:
       "(c) Paulo Henrique da Silva, some rights reserved (CC BY-NC), uploaded by Paulo Henrique da Silva",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 23s recording: four songs with call notes between
@@ -3687,7 +3688,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/57668973/medium.jpg",
     photoCredit:
       "(c) Alexander Viduetsky, some rights reserved (CC BY-NC), uploaded by Alexander Viduetsky",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 15s recording: four songs
@@ -3712,7 +3713,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/170123283/medium.jpeg",
     photoCredit:
       "(c) Estación Biológica Las Guacamayas, some rights reserved (CC BY-NC), uploaded by Estación Biológica Las Guacamayas",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 6s recording: one long rattle
@@ -3736,7 +3737,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 2552,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/734984735/medium.jpg",
     photoCredit: "(c) Matt Blue, some rights reserved (CC BY-NC), uploaded by Matt Blue",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // A soft rattle, then one long harsh rattle, about 7.5s of the 13s recording
@@ -3760,7 +3761,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/30793136/medium.jpg",
     photoCredit:
       "(c) José Antonio Linage Espinosa, some rights reserved (CC BY-NC), uploaded by José Antonio Linage Espinosa",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // A long run of dry 'tick' calls, about 14s of the 49s recording
@@ -3785,7 +3786,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4251,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/103739937/medium.jpg",
     photoCredit: "(c) Luciano Massa, some rights reserved (CC BY), uploaded by Luciano Massa",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -3795,7 +3796,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4246,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/117828251/medium.jpg",
     photoCredit: "(c) Ad Konings, some rights reserved (CC BY-NC), uploaded by Ad Konings",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -3805,7 +3806,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4229,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/4901168/medium.jpg",
     photoCredit: "(c) Daniele Colombo, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -3815,7 +3816,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 339586,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1718628/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Two bouts of the harsh group chorus, about 9s of the 45s recording
@@ -3838,7 +3839,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17174,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/327391616/medium.jpg",
     photoCredit: "(c) By.Ulises, some rights reserved (CC BY-NC), uploaded by By.Ulises",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [
       {
         // The whole 29s recording: a steady series of 'tic' calls
@@ -3862,7 +3863,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 19349,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/101224790/medium.jpg",
     photoCredit: "(c) Juan Emilio, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // A series of harsh 'kweek' calls, about 9s of the 11s recording
@@ -3887,7 +3888,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 19215,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/157600886/medium.jpg",
     photoCredit: "(c) Paulo Barradas, some rights reserved (CC BY)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     introduced: true,
     sounds: [
       {
@@ -3911,7 +3912,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/751910048/medium.jpg",
     photoCredit: "(c) Matt Blue, some rights reserved (CC BY-NC), uploaded by Matt Blue",
     conservation: { status: "NT", list: "IUCN" },
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     introduced: true,
     sounds: [
       {
@@ -3937,7 +3938,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 19162,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/158992021/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     introduced: true,
     sounds: [
       {
@@ -3962,7 +3963,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 13858,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/4608133/medium.jpg",
     photoCredit: "(c) Ximo Galarza, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     introduced: true,
     sounds: [
       {
@@ -3985,7 +3986,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16230,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/77933/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -3995,7 +3996,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 464940,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/12159782/medium.jpeg",
     photoCredit: "no rights reserved, uploaded by Kahio Tiberio Mazon",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 15s recording: two long runs of sharp 'kek' calls
@@ -4020,7 +4021,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/171007754/medium.jpeg",
     photoCredit:
       "(c) Gustavo Fernando Durán, some rights reserved (CC BY-NC-SA), uploaded by Gustavo Fernando Durán",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 6s recording: one song, a run of loud notes
@@ -4044,7 +4045,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 18262,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/169149980/medium.jpg",
     photoCredit: "(c) Dave Curtis, some rights reserved (CC BY-NC-ND)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 15s recording: bursts of loud 'kwik' notes
@@ -4068,7 +4069,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 18183,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/3172895/medium.jpg",
     photoCredit: "(c) Kent Miller, some rights reserved (CC BY-ND), uploaded by Kent Miller",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 6s recording: two harsh, descending 'krreer' calls
@@ -4091,7 +4092,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/14148819/medium.jpg",
     photoCredit:
       "(c) João Vitor Andriola, some rights reserved (CC BY-NC), uploaded by João Vitor Andriola",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Four sharp 'kik' calls at their natural pace, about 15s of the 3m28s recording
@@ -4116,7 +4117,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/24551368/medium.jpeg",
     photoCredit:
       "(c) visionsamazoniennes, some rights reserved (CC BY-NC), uploaded by visionsamazoniennes",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -4127,7 +4128,7 @@ const BIRDS_PORTO_ALEGRE = [
     // large: the medium size of this portrait photo is only 333px wide
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/12204993/large.jpg",
     photoCredit: "(c) Gustavo Lazarini Forreque, some rights reserved (CC BY)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -4138,7 +4139,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/11210781/medium.jpg",
     photoCredit:
       "(c) fabiomanfredini, some rights reserved (CC BY-NC), uploaded by fabiomanfredini",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [
       {
         // One full song: the long run of hollow notes and its loud ending, about 10s of the 37s recording
@@ -4165,7 +4166,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/85633474/medium.jpeg",
     photoCredit:
       "(c) Diego Caballero, some rights reserved (CC BY-NC), uploaded by Diego Caballero",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 18s recording: two coo phrases
@@ -4189,7 +4190,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3017,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/466776975/medium.jpg",
     photoCredit: "(c) Birds of Gilgit-Baltistan, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     introduced: true,
     sounds: [
       {
@@ -4217,7 +4218,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/48616256/medium.jpeg",
     photoCredit:
       "(c) Pablo Balduvino, some rights reserved (CC BY-NC), uploaded by Pablo Balduvino",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 12s recording: one full song, a run of deep coos
@@ -4243,7 +4244,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/402007805/medium.jpg",
     photoCredit:
       "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Fourteen coos from a long series, about 12s of the 2m07s recording
@@ -4269,7 +4270,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3280,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/268175748/medium.jpeg",
     photoCredit: "(c) Christoph Moning, some rights reserved (CC BY), uploaded by Christoph Moning",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 22s recording: three two-part coos, about 8s apart
@@ -4296,7 +4297,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/553885334/medium.jpg",
     photoCredit:
       "(c) Pablo Edgardo Lucconi Grisolia, some rights reserved (CC BY-NC), uploaded by Pablo Edgardo Lucconi Grisolia",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // A series of six coos, about 4s of the 12s recording
@@ -4322,7 +4323,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 3302,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/5643258/medium.jpeg",
     photoCredit: "(c) Claudia Komesu, some rights reserved (CC BY-NC), uploaded by Claudia Komesu",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // Five coos, about 18s of the 44s recording
@@ -4348,7 +4349,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/103695544/medium.jpg",
     photoCredit:
       "(c) Andria E. Hernandez, some rights reserved (CC BY-NC), uploaded by Andria E. Hernandez",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -4358,7 +4359,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 20763,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/544527120/medium.jpg",
     photoCredit: "(c) Victor Kenzo F. Tanaka, some rights reserved (CC BY-NC)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [
       {
         // The whole 29s recording: two long series of 'cow' notes
@@ -4382,7 +4383,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9183,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/112061150/medium.jpeg",
     photoCredit: "(c) Esteban Poveda, some rights reserved (CC BY), uploaded by Esteban Poveda",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // Two songs, about 11s of the 23s recording
@@ -4409,7 +4410,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/88171938/medium.jpeg",
     photoCredit:
       "(c) Diego Caballero, some rights reserved (CC BY-NC), uploaded by Diego Caballero",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -4419,7 +4420,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10199,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/58407889/medium.jpeg",
     photoCredit: "(c) subhashc, some rights reserved (CC BY-NC)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // Two song bouts, about 9s of the 53s recording
@@ -4442,7 +4443,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10293,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/9892758/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // Four song phrases, nearly all of the 20s recording
@@ -4466,7 +4467,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9864,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/220765971/medium.jpg",
     photoCredit: "(c) Alejandro  Bayer Tamayo, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // Several song phrases, about 13s of the 29s recording
@@ -4491,7 +4492,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/313854459/medium.jpg",
     photoCredit:
       "(c) GUSTAVO PASCUAS, some rights reserved (CC BY-NC), uploaded by GUSTAVO PASCUAS",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // A long run of song phrases, about 14s of the 27s recording
@@ -4517,7 +4518,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1289360,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/169931554/medium.jpeg",
     photoCredit: "(c) Esteban Poveda, some rights reserved (CC BY), uploaded by Esteban Poveda",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Two bursts of the fast squeaky song, about 10s of the 42s recording
@@ -4542,7 +4543,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 558562,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/102043623/medium.jpg",
     photoCredit: "(c) Norton Santos, some rights reserved (CC BY-NC), uploaded by Norton Santos",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 9s recording: eight loud song notes
@@ -4567,7 +4568,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9861,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/102158323/medium.jpg",
     photoCredit: "(c) Norton Santos, some rights reserved (CC BY-NC), uploaded by Norton Santos",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Three song phrases, about 17s of the 30s recording
@@ -4592,7 +4593,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 890970,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/177234831/medium.jpg",
     photoCredit: "(c) joseluisblazquez, some rights reserved (CC BY-NC)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Two song bouts, about 14s of the 38s recording
@@ -4618,7 +4619,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/118977504/medium.jpg",
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 8s recording: three calls
@@ -4644,7 +4645,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10288,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/862024/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Pouco comum", season: "Indeterminada" },
     sounds: [
       {
         // The whole 24s recording: repeated buzzy 'ti-ziu' display songs, with other males farther off
@@ -4669,7 +4670,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10257,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/9854276/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     introduced: true,
     sounds: [
       {
@@ -4695,7 +4696,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10297,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2967027/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // Two song phrases, about 13s of the 55s recording
@@ -4721,7 +4722,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10711,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/14590974/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Three song phrases, about 13s of the 14s recording
@@ -4746,7 +4747,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10310,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/26408652/medium.jpeg",
     photoCredit: "no rights reserved, uploaded by Diego Carús",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Two song bouts, about 13s of the 26s recording
@@ -4771,7 +4772,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10079,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/5643289/medium.jpeg",
     photoCredit: "(c) Claudia Komesu, some rights reserved (CC BY-NC), uploaded by Claudia Komesu",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // A steady run of 'chep' song notes, about 11s of the 13s recording
@@ -4795,7 +4796,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9517,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/303058924/medium.jpeg",
     photoCredit: "(c) Palhas, some rights reserved (CC BY-NC), uploaded by Palhas",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 16s recording: three song phrases
@@ -4820,7 +4821,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/65613623/medium.jpg",
     photoCredit:
       "(c) Hudson Martins Soares, some rights reserved (CC BY-NC), uploaded by Hudson Martins Soares",
-    coa: { season: "Outono/inverno" },
+    coa: { frequency: "Incomum", season: "Outono/inverno" },
     sounds: [
       {
         // The whole 10s recording: a twittering song burst followed by thin calls
@@ -4845,7 +4846,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/51069292/medium.jpg",
     photoCredit:
       "(c) Sebastián Lescano, some rights reserved (CC BY-NC), uploaded by Sebastián Lescano",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // Two song phrases, about 15s of the 31s recording
@@ -4871,7 +4872,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/48721764/medium.jpeg",
     photoCredit:
       "(c) Pablo Balduvino, some rights reserved (CC BY-NC), uploaded by Pablo Balduvino",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 13s recording: three song phrases
@@ -4896,7 +4897,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/226698613/medium.jpg",
     photoCredit:
       "(c) Oswaldo Hernández, some rights reserved (CC BY-NC), uploaded by Oswaldo Hernández",
-    coa: { season: "Outono" },
+    coa: { frequency: "Incomum", season: "Outono" },
     sounds: [
       {
         // The whole 13s recording: five buzzy calls
@@ -4919,7 +4920,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9869,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/33491763/medium.jpeg",
     photoCredit: "no rights reserved, uploaded by Diego Carús",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // A song trill then a group chorus of trills, about 16s of the 1m13s recording
@@ -4944,7 +4945,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9516,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/32567696/medium.jpg",
     photoCredit: "(c) RAP, some rights reserved (CC BY), uploaded by RAP",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     conservation: { status: "NT", list: "RS" },
     sounds: [],
   },
@@ -4956,7 +4957,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/109203635/medium.jpeg",
     photoCredit:
       "(c) Frederico Acaz Sonntag, some rights reserved (CC BY-NC), uploaded by Frederico Acaz Sonntag",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -4967,7 +4968,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/545970146/medium.jpg",
     photoCredit:
       "(c) Agustín Gabriel Álvarez, some rights reserved (CC BY-NC), uploaded by Agustín Gabriel Álvarez",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -4977,7 +4978,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10556,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/555212/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Rara", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -4997,7 +4998,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 9282,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1507236/medium.jpg",
     photoCredit: "(c) Nigel Voaden, some rights reserved (CC BY)",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Acidental", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -5008,7 +5009,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/27445973/medium.jpg",
     photoCredit:
       "(c) João Paulo Rosa, some rights reserved (CC BY-NC), uploaded by João Paulo Rosa",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Incomum", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -5018,7 +5019,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16956,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1766279/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 12s recording: three 'bem-te-vi' phrases
@@ -5042,7 +5043,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/254986834/medium.jpg",
     photoCredit:
       "(c) Steven Mlodinow, some rights reserved (CC BY-NC), uploaded by Steven Mlodinow",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Muito comum", season: "Primavera/verão" },
     sounds: [
       {
         // Four twittering call series, about 16s of the 32s recording
@@ -5067,7 +5068,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/158365591/medium.jpg",
     photoCredit:
       "(c) Oswaldo Hernández, some rights reserved (CC BY-NC), uploaded by Oswaldo Hernández",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 14s recording: three song phrases
@@ -5091,7 +5092,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16714,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/664960111/medium.jpg",
     photoCredit: "(c) Marcelo Okamoto, some rights reserved (CC BY-NC)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 12s recording: a long series of burry song notes
@@ -5117,7 +5118,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/596460001/medium.jpg",
     photoCredit:
       "(c) Guilherme Cameis Freda, some rights reserved (CC BY-SA), uploaded by Guilherme Cameis Freda",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Comum", season: "Primavera/verão" },
     sounds: [
       {
         // The whole 27s recording: long bouts of sputtering chatter
@@ -5143,7 +5144,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/31262667/medium.jpg",
     photoCredit:
       "(c) marcelo_allende, some rights reserved (CC BY-NC), uploaded by marcelo_allende",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Three call bursts and a soft trill, about 11s of the 1m44s recording
@@ -5169,7 +5170,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/103260661/medium.jpg",
     photoCredit:
       "(c) Reinaldo de Oliveira Elias, some rights reserved (CC BY), uploaded by Reinaldo de Oliveira Elias",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Muito comum", season: "Primavera/verão" },
     sounds: [
       {
         // Six song phrases, about 14s of the 28s recording
@@ -5194,7 +5195,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17289,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/60197023/medium.jpg",
     photoCredit: "(c) Ad Konings, some rights reserved (CC BY-NC), uploaded by Ad Konings",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Two phrases of a thin high 'tseee' and squeaky twitters, about 12s of the 42s recording
@@ -5219,7 +5220,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16063,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/620371179/medium.jpg",
     photoCredit: "(c) Anthony Batista, some rights reserved (CC BY), uploaded by Anthony Batista",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Pouco comum", season: "Primavera/verão" },
     sounds: [
       {
         // The whole 38s recording: sharp 'pik' calls and soft 'chup' notes, with two fast call series
@@ -5244,7 +5245,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17345,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/241563790/medium.jpg",
     photoCredit: "no rights reserved, uploaded by Paulo Mascaretti",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Four soft calls, about 14s of the 28s recording
@@ -5270,7 +5271,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17060,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/293335919/medium.jpeg",
     photoCredit: "(c) Agustina Medina, some rights reserved (CC BY), uploaded by Agustina Medina",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Comum", season: "Primavera/verão" },
     sounds: [
       {
         // The whole 5s recording: a few thin, high descending calls
@@ -5293,7 +5294,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16134,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1613677/medium.jpg",
     photoCredit: "(c) Lip Kee, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Seven soft two-note whistles, about 18s of the 54s recording
@@ -5318,7 +5319,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16737,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/33899382/medium.jpg",
     photoCredit: "(c) iturriagal, some rights reserved (CC BY-NC-ND), uploaded by iturriagal",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // Two bursts of the harsh, nasal call: the first 4.9s of the 5s recording
@@ -5342,7 +5343,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/280201570/medium.jpg",
     photoCredit:
       "(c) Josh van der Meulen, some rights reserved (CC BY-NC-ND), uploaded by Josh van der Meulen",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Seven burry call phrases, about 13s of the 30s recording
@@ -5368,7 +5369,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16029,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/436950508/medium.jpeg",
     photoCredit: "(c) Christoph Moning, some rights reserved (CC BY), uploaded by Christoph Moning",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Pouco comum", season: "Primavera/verão" },
     sounds: [
       {
         // Dawn song: whistled 'whit' and 'wheer' notes, about 17s of the 2m26s recording
@@ -5393,7 +5394,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16447,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/13441277/medium.jpg",
     photoCredit: "(c) davy, some rights reserved (CC BY-NC), uploaded by davy",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Incomum", season: "Primavera/verão" },
     sounds: [
       {
         // A run of display-song phrases, about 9s of the 20s recording
@@ -5419,7 +5420,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16694,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/169802538/medium.jpeg",
     photoCredit: "(c) Guille Ivan Spajic, some rights reserved (CC BY-NC)",
-    coa: { season: "Primavera" },
+    coa: { frequency: "Pouco comum", season: "Primavera" },
     sounds: [
       {
         // Burry calls and sharp notes, nearly all of the 11s recording
@@ -5445,7 +5446,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17210,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/164526641/medium.jpg",
     photoCredit: "(c) https://www.flickr.com/photos/dariosanches/, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // One song bout by a duetting pair, about 5s of the 9s recording
@@ -5471,7 +5472,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17231,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/6863445/medium.jpg",
     photoCredit: "(c) Cláudio Dias Timm, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Pouco comum", season: "Primavera/verão" },
     sounds: [
       {
         // The whole 20s recording: five burry song phrases
@@ -5497,7 +5498,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/14148886/medium.jpg",
     photoCredit:
       "(c) João Vitor Andriola, some rights reserved (CC BY-NC), uploaded by João Vitor Andriola",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Rara", season: "Primavera/verão" },
     sounds: [
       {
         // The whole 18s recording: six burry calls
@@ -5522,7 +5523,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16594,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1811216/medium.jpg",
     photoCredit: "(c) Nicolas Olejnik, some rights reserved (CC BY), uploaded by Nicolas Olejnik",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [
       {
         // Two song bouts of ticks ending in a short warble, about 9s of the 14s recording
@@ -5558,7 +5559,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16862,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/77937/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Pouco comum", season: "Primavera/verão" },
     sounds: [],
   },
   {
@@ -5568,7 +5569,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16828,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/26406838/medium.jpeg",
     photoCredit: "no rights reserved, uploaded by Diego Carús",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -5578,7 +5579,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16892,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2077595/medium.jpg",
     photoCredit: "(c) Nigel Voaden, some rights reserved (CC BY)",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Rara", season: "Primavera/verão" },
     sounds: [],
   },
   {
@@ -5588,7 +5589,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17333,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/279432/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [],
   },
   {
@@ -5598,7 +5599,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 16396,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/565889/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -5608,7 +5609,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 1289528,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1718631/medium.jpg",
     photoCredit: "(c) Mauricio Mercadante, some rights reserved (CC BY-NC-SA)",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -5619,7 +5620,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2229701/medium.jpg",
     photoCredit:
       "(c) Jorge Schlemmer, some rights reserved (CC BY-NC), uploaded by Jorge Schlemmer",
-    coa: { season: "Outono/inverno" },
+    coa: { frequency: "Rara", season: "Outono/inverno" },
     sounds: [],
   },
   {
@@ -5629,7 +5630,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17253,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/386914/medium.jpg",
     photoCredit: "(c) Lip Kee, some rights reserved (CC BY-SA)",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Incomum", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -5640,7 +5641,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/432771775/medium.jpg",
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Rara", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -5660,7 +5661,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/462584928/medium.jpg",
     photoCredit:
       "(c) Cristóbal Costoya, some rights reserved (CC BY-NC), uploaded by Cristóbal Costoya",
-    coa: { season: "Outono/inverno" },
+    coa: { frequency: "Rara", season: "Outono/inverno" },
     sounds: [],
   },
   {
@@ -5670,7 +5671,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 12738,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1507197/medium.jpg",
     photoCredit: "(c) Nigel Voaden, some rights reserved (CC BY)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Muito comum", season: "Todo o ano" },
     sounds: [
       {
         // Continuous song, about 15s of the 1m23s recording
@@ -5696,7 +5697,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/262803778/medium.jpg",
     photoCredit:
       "(c) Nicolas Mazzini, some rights reserved (CC BY-NC), uploaded by Nicolas Mazzini",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Continuous song, about 9s of the 38s recording
@@ -5723,7 +5724,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/416376009/medium.jpg",
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Four song phrases, about 16s of the 2m05s recording
@@ -5749,7 +5750,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/415633664/medium.jpg",
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // Two runs of song phrases, about 13s of the 48s recording
@@ -5776,7 +5777,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/5901302/medium.jpg",
     photoCredit:
       "(c) fabiomanfredini, some rights reserved (CC BY-NC), uploaded by fabiomanfredini",
-    coa: { season: "Primavera" },
+    coa: { frequency: "Incomum", season: "Primavera" },
     sounds: [
       {
         // Metallic song phrases with high whistles, about 19s of the 29s recording
@@ -5802,7 +5803,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 73542,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/276384930/medium.jpeg",
     photoCredit: "(c) Júlio Castellain, some rights reserved (CC BY), uploaded by Júlio Castellain",
-    coa: { season: "Indeterminada" },
+    coa: { frequency: "Acidental", season: "Indeterminada" },
     sounds: [],
   },
   {
@@ -5831,7 +5832,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 14306,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/543496196/medium.jpg",
     photoCredit: "(c) drbrachydactyl, some rights reserved (CC BY-NC)",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Pouco comum", season: "Todo o ano" },
     sounds: [
       {
         // The whole 14s recording: a series of song notes
@@ -5857,7 +5858,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/508102028/medium.jpg",
     photoCredit:
       "(c) Gabriel Delasala, some rights reserved (CC BY-NC), uploaded by Gabriel Delasala",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Incomum", season: "Primavera/verão" },
     sounds: [
       {
         // One descending song, about 4s of the 10s recording
@@ -5882,7 +5883,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11653,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/457840576/medium.jpeg",
     photoCredit: "(c) Don Marsille, some rights reserved (CC BY-NC), uploaded by Don Marsille",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Incomum", season: "Todo o ano" },
     sounds: [
       {
         // Eight sharp calls, about 14s of the 31s recording
@@ -5908,7 +5909,7 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/71632226/medium.jpg",
     photoCredit:
       "(c) Oswaldo Hernández, some rights reserved (CC BY-NC), uploaded by Oswaldo Hernández",
-    coa: { season: "Todo o ano" },
+    coa: { frequency: "Comum", season: "Todo o ano" },
     sounds: [
       {
         // Four song phrases, about 16s of the 20s recording
@@ -5932,7 +5933,7 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 827395,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/510496062/medium.jpg",
     photoCredit: "(c) luizanjos, some rights reserved (CC BY-NC)",
-    coa: { season: "Primavera/verão" },
+    coa: { frequency: "Incomum", season: "Primavera/verão" },
     sounds: [
       {
         // A series of short song phrases, about 15s of the 29s recording
