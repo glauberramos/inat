@@ -649,6 +649,16 @@
         color: var(--label);
         text-align: left;
       }
+      /* The history reuses the rows as plain summaries: no chevron, no hover */
+      .quiz .quiz-mode.is-static {
+        padding-right: 14px;
+      }
+      .quiz .quiz-mode.is-static::after {
+        content: none;
+      }
+      .quiz .quiz-mode.is-static:hover {
+        background: var(--sheet-cell);
+      }
       .quiz .quiz-mode + .quiz-mode {
         border-top: 0.5px solid var(--separator);
       }
@@ -836,16 +846,39 @@
         overflow-y: auto;
         border-radius: 16px;
       }
-      .quiz-history-list li {
+      /* Date, the round's segments and its score */
+      .quiz-history-list > li {
         display: flex;
-        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
         padding: 10px 16px;
         background: var(--sheet-cell);
         font-size: 15px;
         font-variant-numeric: tabular-nums;
       }
-      .quiz-history-list li + li {
+      .quiz-history-list > li + li {
         border-top: 0.5px solid var(--separator);
+      }
+      .quiz-history-date,
+      .quiz-history-score {
+        flex: none;
+        white-space: nowrap;
+      }
+      .quiz-history-date {
+        width: 80px;
+      }
+      .quiz-history-score {
+        width: 60px;
+        text-align: right;
+      }
+      .quiz-history-list .quiz-progress {
+        flex: 1;
+        gap: 2px;
+        margin: 0;
+      }
+      .quiz-history-list .quiz-progress li {
+        height: 4px;
+        border-radius: 2px;
       }
 
       /* The mystery recording: a big play button beside its spectrogram, which stays
@@ -1235,10 +1268,23 @@
       </div>
       <div class="quiz-body" id="quizHistory" hidden>
         <h2 class="quiz-question" id="quizHistoryTitle">Histórico</h2>
-        <h3 class="quiz-history-head">Infinito</h3>
-        <p class="quiz-text" id="historyEndless"></p>
-        <h3 class="quiz-history-head">Rodada de 15</h3>
-        <p class="quiz-text" id="historyRoundsSummary"></p>
+        <div class="quiz-modes">
+          <div class="quiz-mode is-static">
+            <span class="quiz-mode-icon is-round" aria-hidden="true">15</span>
+            <span class="quiz-mode-text">
+              <span class="quiz-mode-name">Rodada de 15</span>
+              <span class="quiz-mode-desc" id="historyRoundsSummary"></span>
+            </span>
+          </div>
+          <div class="quiz-mode is-static">
+            <span class="quiz-mode-icon is-endless" aria-hidden="true">∞</span>
+            <span class="quiz-mode-text">
+              <span class="quiz-mode-name">Infinito</span>
+              <span class="quiz-mode-desc" id="historyEndless"></span>
+            </span>
+          </div>
+        </div>
+        <h3 class="quiz-history-head" id="historyRoundsHead">Rodadas</h3>
         <ol class="quiz-history-list" id="historyRounds"></ol>
         <button class="quiz-link" id="quizHistoryBack" type="button">Voltar</button>
       </div>
@@ -1783,9 +1829,9 @@
       }
 
       // One segment per bird of the round; with asking, the next unanswered one shows as current
-      function renderProgress(list, answers, asking) {
+      function renderProgress(list, answers, asking, size = ROUND_SIZE) {
         list.replaceChildren(
-          ...Array.from({ length: ROUND_SIZE }, (_, i) => {
+          ...Array.from({ length: size }, (_, i) => {
             const a = answers[i];
             const cls = a ? (a.right ? "is-right" : "is-wrong") : asking && i === answers.length ? "is-current" : "";
             return el("li", { class: cls });
@@ -1873,25 +1919,37 @@
       }
 
       function showHistory() {
+        // One summary line per mode, in the menu's rows
         const answered = score.right + score.wrong;
         const bestStreak = score.bestStreak || 0;
         document.getElementById("historyEndless").textContent = answered
-          ? `${score.right} ${score.right === 1 ? "acerto" : "acertos"} e ${score.wrong} ${score.wrong === 1 ? "erro" : "erros"} (${Math.round((score.right / answered) * 100)}% de acertos).` +
-            (bestStreak >= 2 ? ` Maior sequência: ${bestStreak} seguidas.` : "")
-          : "Você ainda não respondeu nenhuma ave.";
+          ? [
+              `${score.right} ${score.right === 1 ? "acerto" : "acertos"} de ${answered}`,
+              `${Math.round((score.right / answered) * 100)}%`,
+              ...(bestStreak >= 2 ? [`${bestStreak} seguidas no máximo`] : []),
+            ].join(" · ")
+          : "Nenhuma ave respondida ainda.";
+        const best = bestRound();
         document.getElementById("historyRoundsSummary").textContent = rounds.length
-          ? `Você completou ${rounds.length} ${rounds.length === 1 ? "rodada" : "rodadas"}.`
-          : "Você ainda não completou nenhuma rodada.";
-        document.getElementById("historyRounds").replaceChildren(
+          ? [`${rounds.length} ${rounds.length === 1 ? "rodada" : "rodadas"}`, ...(best !== null ? [`recorde ${best} de ${ROUND_SIZE}`] : [])].join(" · ")
+          : "Nenhuma rodada completa ainda.";
+        // Each round, newest first, with its score as segments (right ones first; the order wasn't kept)
+        document.getElementById("historyRoundsHead").hidden = !rounds.length;
+        const list = document.getElementById("historyRounds");
+        list.hidden = !rounds.length;
+        list.replaceChildren(
           ...rounds
             .slice()
             .reverse()
-            .map((r) =>
-              el("li", {}, [
-                el("span", { text: new Date(r.date).toLocaleDateString("pt-BR") }),
-                el("span", { text: `${r.right} de ${r.total}` }),
-              ])
-            )
+            .map((r) => {
+              const bar = el("ol", { class: "quiz-progress", "aria-hidden": "true" });
+              renderProgress(bar, Array.from({ length: r.total }, (_, i) => ({ right: i < r.right })), false, r.total);
+              return el("li", {}, [
+                el("span", { class: "quiz-history-date", text: new Date(r.date).toLocaleDateString("pt-BR", { day: "numeric", month: "short" }) }),
+                bar,
+                el("span", { class: "quiz-history-score", text: `${r.right} de ${r.total}` }),
+              ]);
+            })
         );
         showView("history");
         document.getElementById("quizHistoryBack").focus();
