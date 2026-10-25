@@ -633,6 +633,43 @@
         border-radius: 16px;
         overflow: hidden;
       }
+      /* Rarity toggles: tinted when the level is in the game */
+      .quiz-rarities {
+        margin: 0 0 16px;
+      }
+      .quiz-rarities .quiz-history-head {
+        margin-top: 0;
+      }
+      .quiz-rarity-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .quiz .quiz-rarity {
+        width: auto;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: var(--sheet-cell);
+        color: var(--label);
+        font-size: 15px;
+        font-variant-numeric: tabular-nums;
+      }
+      .quiz .quiz-rarity:hover {
+        background: var(--sheet-cell) linear-gradient(var(--fill), var(--fill));
+      }
+      .quiz .quiz-rarity[aria-pressed="true"] {
+        background: var(--tint);
+        color: #fff;
+      }
+      .quiz .quiz-rarity:focus-visible {
+        outline: 3px solid var(--tint);
+        outline-offset: 2px;
+      }
+      .quiz-rarity-count {
+        margin-left: 4px;
+        opacity: 0.7;
+      }
       .quiz-intro {
         margin: -6px 4px 14px;
         font-size: 15px;
@@ -1243,6 +1280,10 @@
       <div class="quiz-body" id="quizMenu">
         <h2 class="quiz-question" id="quizMenuTitle">Desafio</h2>
         <p class="quiz-intro">Ouça um canto e escolha a ave certa entre quatro.</p>
+        <div class="quiz-rarities" role="group" aria-labelledby="quizRaritiesLabel">
+          <h3 class="quiz-history-head" id="quizRaritiesLabel">Raridades no jogo</h3>
+          <div class="quiz-rarity-chips" id="quizRarities"></div>
+        </div>
         <div class="quiz-modes">
           <button class="quiz-mode" id="modeRound" type="button">
             <span class="quiz-mode-icon is-round" aria-hidden="true">15</span>
@@ -1794,13 +1835,14 @@
       // Challenge: guess the bird from its recording, endlessly (Infinito) or in rounds of 15 birds
       // (Rodada de 15). The endless score and the finished rounds live in localStorage.
       const SCORE_KEY = "birdsPortoAlegreChallenge";
-      const ROUNDS_KEY = "birdsPortoAlegreChallengeRounds"; // finished rounds, oldest first: [{ date, right, total }]; total keeps each round's size, which has changed
+      const ROUNDS_KEY = "birdsPortoAlegreChallengeRounds"; // finished rounds, oldest first: [{ date, right, total, rarities? }]; total keeps each round's size, which has changed
       const ROUND_SIZE = 15;
       // Birds still to come this lap, by iNat taxon id; every bird comes up once (with any one of
       // its sounds) before any repeats. The deck lives in memory and is saved to localStorage when
       // the browser allows, so a lap carries over between visits but still works where storage is
       // blocked (e.g. some browsers on file://), which used to reshuffle every round.
       const DECK_KEY = "birdsPortoAlegreChallengeDeck";
+      const RARITY_KEY = "birdsPortoAlegreChallengeRarities"; // the rarity levels in the game, by name
       const CHOICES = 4; // birds to pick from each round, the right one included
       const quiz = document.getElementById("quiz");
       const quizScore = document.getElementById("quizScore");
@@ -1813,6 +1855,7 @@
       let score = loadScore();
       let rounds = loadRounds();
       let deck = loadDeck();
+      let rarities = loadRarities();
       let mode = "round"; // "round" (Rodada de 15, first in the menu) or "endless" (Infinito)
       let run = null; // the round being played: { queue, right, wrong }; dropped if the sheet closes
       let round = null; // the current question: { bird, sound, row, correctBtn, answered }
@@ -1896,14 +1939,67 @@
         }
       }
 
-      // The best round so far, among rounds of the current size
+      // The levels in the game, all by default; rounds saved before the choice existed played them all
+      function loadRarities() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(RARITY_KEY));
+          const known = Array.isArray(saved) ? RARITIES.map((r) => r.name).filter((n) => saved.includes(n)) : [];
+          if (known.length) return known;
+        } catch {}
+        return RARITIES.map((r) => r.name);
+      }
+
+      function saveRarities() {
+        try {
+          localStorage.setItem(RARITY_KEY, JSON.stringify(rarities));
+        } catch {}
+      }
+
+      function inGame(bird) {
+        return rarities.includes(rarityOf(bird).name);
+      }
+
+      // The birds that can be asked: those with a sound, in the chosen levels
+      function playableBirds() {
+        return BIRDS.filter((b) => b.sounds.length && inGame(b));
+      }
+
+      function sameRarities(round) {
+        const played = round.rarities || RARITIES.map((r) => r.name);
+        return played.length === rarities.length && played.every((n) => rarities.includes(n));
+      }
+
+      // One toggle per level, with how many birds it adds; at least one stays on
+      function renderRarities() {
+        document.getElementById("quizRarities").replaceChildren(
+          ...RARITIES.map((r) => {
+            const n = BIRDS.filter((b) => b.sounds.length && rarityOf(b) === r).length;
+            const on = rarities.includes(r.name);
+            const btn = el("button", { class: "quiz-rarity", type: "button", "aria-pressed": String(on), "aria-label": `${r.name}, ${n} aves`, title: r.title }, [
+              document.createTextNode(r.name),
+              el("span", { class: "quiz-rarity-count", text: n }),
+            ]);
+            btn.addEventListener("click", () => {
+              if (on && rarities.length === 1) return;
+              rarities = RARITIES.map((x) => x.name).filter((name) => (name === r.name ? !on : rarities.includes(name)));
+              saveRarities();
+              renderRarities();
+              document.querySelectorAll(".quiz-rarity")[RARITIES.indexOf(r)].focus();
+            });
+            return btn;
+          })
+        );
+      }
+
+      // The best round so far, among rounds of the current size played with the same rarities
       function bestRound() {
-        const full = rounds.filter((r) => r.total === ROUND_SIZE);
+        const full = rounds.filter((r) => r.total === ROUND_SIZE && sameRarities(r));
         return full.length ? Math.max(...full.map((r) => r.right)) : null;
       }
 
       function showMenu() {
         run = null;
+        renderRarities();
         showView("menu");
         document.getElementById(mode === "round" ? "modeRound" : "modeEndless").focus();
       }
@@ -1919,7 +2015,7 @@
       // ROUND_SIZE different birds; skipping one brings in another, so a round always has ROUND_SIZE answers
       function startRound() {
         mode = "round";
-        run = { queue: shuffle(BIRDS.filter((b) => b.sounds.length)), right: 0, wrong: 0, answers: [] };
+        run = { queue: shuffle(playableBirds()), right: 0, wrong: 0, answers: [] };
         streak = 0;
         showView("play");
         newRound();
@@ -1941,9 +2037,14 @@
         renderProgress(document.getElementById("quizResultProgress"), run.answers, false);
         const record = document.getElementById("quizResultRecord");
         const isNew = prevBest !== null && right > prevBest;
+        const scope = rarities.length < RARITIES.length ? " com estas raridades" : "";
         record.classList.toggle("is-new", isNew);
         record.textContent =
-          prevBest === null ? "Sua primeira rodada completa." : isNew ? "Novo recorde!" : `Seu recorde: ${prevBest} de ${ROUND_SIZE}.`;
+          prevBest === null
+            ? `Sua primeira rodada completa${scope}.`
+            : isNew
+              ? `Novo recorde${scope}!`
+              : `Seu recorde${scope}: ${prevBest} de ${ROUND_SIZE}.`;
         // The birds missed, each once, with the recording that was asked, to hear again
         const missed = [...new Map(run.answers.filter((a) => !a.right).map((a) => [a.bird, a])).values()];
         document.getElementById("quizReviewHead").hidden = !missed.length;
@@ -1990,7 +2091,8 @@
             .map((r) => {
               const bar = el("ol", { class: "quiz-progress", "aria-hidden": "true" });
               renderProgress(bar, Array.from({ length: r.total }, (_, i) => ({ right: i < r.right })), false, r.total);
-              return el("li", {}, [
+              const played = r.rarities && r.rarities.length < RARITIES.length ? r.rarities.join(", ") : "todas";
+              return el("li", { title: `Raridades: ${played}` }, [
                 el("span", { class: "quiz-history-date", text: new Date(r.date).toLocaleDateString("pt-BR", { day: "numeric", month: "short" }) }),
                 bar,
                 el("span", { class: "quiz-history-score", text: `${r.right} de ${r.total}` }),
@@ -2030,9 +2132,9 @@
 
       // Next bird from the deck, reshuffled once it runs out (the bird just played doesn't open the new lap)
       function drawBird() {
-        const playable = BIRDS.filter((b) => b.sounds.length);
+        const playable = playableBirds();
         const byId = new Map(playable.map((b) => [b.inatTaxonId, b]));
-        deck = deck.filter((id) => byId.has(id)); // drops birds no longer on the page
+        deck = deck.filter((id) => byId.has(id)); // drops birds no longer on the page or out of the chosen rarities
         if (!deck.length) {
           deck = shuffle(playable.map((b) => b.inatTaxonId));
           if (deck.length > 1 && round && deck[0] === round.bird.inatTaxonId) deck.push(deck.shift());
@@ -2049,7 +2151,7 @@
 
       function nextBird() {
         if (mode !== "round") return drawBird();
-        if (!run.queue.length) run.queue = shuffle(BIRDS.filter((b) => b.sounds.length)); // only after many skips
+        if (!run.queue.length) run.queue = shuffle(playableBirds()); // only after many skips
         return run.queue.shift();
       }
 
@@ -2057,8 +2159,9 @@
         stopPlayback();
         const bird = nextBird();
         const sound = pickOne(bird.sounds);
-        // Wrong choices come from the same family first, which makes it harder; any left over are random
-        const others = BIRDS.filter((b) => b !== bird);
+        // Wrong choices come from the chosen rarities too, from the same family first, which makes it harder;
+        // any left over are random
+        const others = BIRDS.filter((b) => b !== bird && inGame(b));
         const sameFamily = shuffle(others.filter((b) => b.family === bird.family));
         const otherFamilies = shuffle(others.filter((b) => b.family !== bird.family));
         const choices = shuffle([bird, ...sameFamily.concat(otherFamilies).slice(0, CHOICES - 1)]);
@@ -2103,7 +2206,7 @@
           // Saved as soon as the last answer is in, so closing the sheet now doesn't lose it
           if (finished) {
             run.prevBest = bestRound();
-            rounds.push({ date: new Date().toISOString(), right: run.right, total: ROUND_SIZE });
+            rounds.push({ date: new Date().toISOString(), right: run.right, total: ROUND_SIZE, rarities });
             saveRounds();
           }
         } else {
