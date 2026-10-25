@@ -652,6 +652,108 @@
         line-height: 20px;
         color: var(--label-2);
       }
+      .quiz-mode-record {
+        display: block;
+        margin-top: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--tint);
+      }
+      /* A round's 15 birds as segments: green right, red wrong, gray the one being asked */
+      .quiz-progress {
+        display: flex;
+        gap: 4px;
+        margin: 0 4px 14px;
+        padding: 0;
+        list-style: none;
+      }
+      .quiz-progress[hidden] {
+        display: none; /* display: flex above would otherwise override [hidden]; Infinito has no progress */
+      }
+      .quiz-progress li {
+        flex: 1;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--fill);
+        transition: background-color 0.2s;
+      }
+      .quiz-progress .is-current {
+        background: var(--label-3);
+      }
+      .quiz-progress .is-right {
+        background: var(--tint);
+      }
+      .quiz-progress .is-wrong {
+        background: var(--red);
+      }
+      /* "4 seguidas": right answers in a row, shown from the second one */
+      .quiz-streak {
+        padding: 0 8px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--summer) 14%, transparent);
+        color: var(--summer);
+        font-size: 13px;
+        line-height: 22px;
+      }
+      /* Result: the verdict as the title, then the score large */
+      .quiz-result-score {
+        margin: 0 4px;
+        font-size: 56px;
+        line-height: 60px;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+      }
+      .quiz-result-score small {
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--label-2);
+      }
+      #quizResultProgress {
+        margin-top: 14px;
+      }
+      .quiz-result-record {
+        margin: 0 4px;
+        font-size: 15px;
+        color: var(--label-2);
+      }
+      .quiz-result-record.is-new {
+        color: var(--tint);
+        font-weight: 600;
+      }
+      /* Missed birds, to hear again */
+      .quiz-review {
+        list-style: none;
+        margin: 8px 0 0;
+        padding: 0;
+        max-height: 36vh;
+        overflow-y: auto;
+        border-radius: 16px;
+      }
+      .quiz-review .rec {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0;
+        padding: 8px 14px 8px 8px;
+        border: none;
+        background: var(--sheet-cell);
+      }
+      .quiz-review .rec + .rec {
+        padding-top: 8px;
+        border-top: 0.5px solid var(--separator);
+      }
+      .quiz-review img {
+        flex: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: var(--fill);
+      }
+      .quiz-review-name {
+        flex: 1;
+        font-size: 17px;
+      }
       /* Ver histórico / Voltar: plain tinted text buttons */
       .quiz .quiz-link {
         width: auto;
@@ -819,6 +921,28 @@
       }
       .quiz-option.is-correct .quiz-mark {
         background: var(--tint);
+        animation: mark-pop 0.35s ease-out;
+      }
+      .quiz .quiz-option.is-wrong {
+        animation: option-shake 0.35s ease-in-out;
+      }
+      @keyframes mark-pop {
+        0% {
+          transform: scale(0);
+        }
+        60% {
+          transform: scale(1.25);
+        }
+      }
+      @keyframes option-shake {
+        20%,
+        60% {
+          transform: translateX(-5px);
+        }
+        40%,
+        80% {
+          transform: translateX(5px);
+        }
       }
       .quiz-option.is-correct .quiz-mark::before {
         content: "✓";
@@ -947,8 +1071,13 @@
         .quiz-rec .spec img {
           transition: none;
         }
-        .quiz[open] {
+        .quiz[open],
+        .quiz .quiz-option.is-wrong,
+        .quiz-option.is-correct .quiz-mark {
           animation: none;
+        }
+        .quiz-progress li {
+          transition: none;
         }
         .quiz.is-settling {
           transition: none;
@@ -1021,11 +1150,13 @@
           <button class="quiz-mode" id="modeRound" type="button">
             <span class="quiz-mode-name">Rodada de 15</span>
             <span class="quiz-mode-desc">15 aves diferentes e uma nota no fim.</span>
+            <span class="quiz-mode-record" id="modeRoundRecord" hidden></span>
           </button>
         </div>
         <button class="quiz-link" id="quizHistoryBtn" type="button">Ver histórico</button>
       </div>
       <div class="quiz-body" id="quizPlay" hidden>
+        <ol class="quiz-progress" id="quizProgress" aria-hidden="true" hidden></ol>
         <h2 class="quiz-question" id="quizTitle">Que ave é essa?</h2>
         <div class="quiz-sound" id="quizSound"></div>
         <div class="quiz-options" id="quizOptions"></div>
@@ -1036,7 +1167,11 @@
       </div>
       <div class="quiz-body" id="quizResult" hidden>
         <h2 class="quiz-question" id="quizResultTitle">Fim da rodada</h2>
-        <p class="quiz-text" id="quizResultText"></p>
+        <p class="quiz-result-score"><span id="quizResultRight"></span> <small>de 15</small></p>
+        <ol class="quiz-progress" id="quizResultProgress" aria-hidden="true"></ol>
+        <p class="quiz-result-record" id="quizResultRecord"></p>
+        <h3 class="quiz-history-head" id="quizReviewHead">Para revisar</h3>
+        <ul class="quiz-review" id="quizReview"></ul>
         <div class="quiz-footer">
           <button class="quiz-link" id="quizResultBack" type="button">Voltar</button>
           <button class="quiz-next" id="quizAgain" type="button">Nova rodada</button>
@@ -1532,7 +1667,8 @@
       let deck = loadDeck();
       let mode = "endless"; // "endless" (Infinito) or "round" (Rodada de 15)
       let run = null; // the round being played: { queue, right, wrong }; dropped if the sheet closes
-      let round = null; // the current question: { bird, row, correctBtn, answered }
+      let round = null; // the current question: { bird, sound, row, correctBtn, answered }
+      let streak = 0; // right answers in a row since the sheet opened or the mode started
 
       function loadScore() {
         try {
@@ -1570,19 +1706,35 @@
             document.createTextNode(n),
             el("span", { class: "visually-hidden", text: ` ${word}${n === 1 ? "" : "s"}` }),
           ]);
+        const streakChip = streak >= 2 ? [el("span", { class: "quiz-streak", text: `${streak} seguidas` })] : [];
+        const progress = document.getElementById("quizProgress");
+        progress.hidden = mode !== "round";
         if (mode === "round") {
           const answered = run.right + run.wrong;
           const current = Math.min(answered + (round && round.answered ? 0 : 1), ROUND_SIZE);
           quizScore.replaceChildren(
             el("span", { text: `${current}/${ROUND_SIZE}` }),
             tally("is-right", "✓", run.right, "acerto"),
-            tally("is-wrong", "✕", run.wrong, "erro")
+            tally("is-wrong", "✕", run.wrong, "erro"),
+            ...streakChip
           );
+          renderProgress(progress, run.answers, round && !round.answered);
           quizReset.hidden = true;
           return;
         }
-        quizScore.replaceChildren(tally("is-right", "✓", score.right, "acerto"), tally("is-wrong", "✕", score.wrong, "erro"));
+        quizScore.replaceChildren(tally("is-right", "✓", score.right, "acerto"), tally("is-wrong", "✕", score.wrong, "erro"), ...streakChip);
         quizReset.hidden = score.right + score.wrong === 0;
+      }
+
+      // One segment per bird of the round; with asking, the next unanswered one shows as current
+      function renderProgress(list, answers, asking) {
+        list.replaceChildren(
+          ...Array.from({ length: ROUND_SIZE }, (_, i) => {
+            const a = answers[i];
+            const cls = a ? (a.right ? "is-right" : "is-wrong") : asking && i === answers.length ? "is-current" : "";
+            return el("li", { class: cls });
+          })
+        );
       }
 
       // One view of the sheet at a time: the mode picker, a question, a round's result or the history
@@ -1596,8 +1748,18 @@
         }
       }
 
+      // The best round so far, among rounds of the current size
+      function bestRound() {
+        const full = rounds.filter((r) => r.total === ROUND_SIZE);
+        return full.length ? Math.max(...full.map((r) => r.right)) : null;
+      }
+
       function showMenu() {
         run = null;
+        const best = bestRound();
+        const record = document.getElementById("modeRoundRecord");
+        record.hidden = best === null;
+        if (best !== null) record.textContent = `Recorde: ${best} de ${ROUND_SIZE}`;
         showView("menu");
         document.getElementById(mode === "round" ? "modeRound" : "modeEndless").focus();
       }
@@ -1605,6 +1767,7 @@
       function startEndless() {
         mode = "endless";
         run = null;
+        streak = 0;
         showView("play");
         newRound();
       }
@@ -1612,21 +1775,57 @@
       // ROUND_SIZE different birds; skipping one brings in another, so a round always has ROUND_SIZE answers
       function startRound() {
         mode = "round";
-        run = { queue: shuffle(BIRDS.filter((b) => b.sounds.length)), right: 0, wrong: 0 };
+        run = { queue: shuffle(BIRDS.filter((b) => b.sounds.length)), right: 0, wrong: 0, answers: [] };
+        streak = 0;
         showView("play");
         newRound();
       }
 
+      // The result's title, by the share of the round answered right
+      const VERDICTS = [
+        [1, "Perfeito!"],
+        [0.8, "Excelente!"],
+        [0.6, "Muito bem!"],
+        [0.33, "Bom começo!"],
+        [0, "Continue ouvindo!"],
+      ];
+
       function showResult() {
-        document.getElementById("quizResultText").textContent = `Você acertou ${run.right} de ${ROUND_SIZE}.`;
+        const { right, prevBest } = run;
+        document.getElementById("quizResultTitle").textContent = VERDICTS.find(([min]) => right / ROUND_SIZE >= min)[1];
+        document.getElementById("quizResultRight").textContent = right;
+        renderProgress(document.getElementById("quizResultProgress"), run.answers, false);
+        const record = document.getElementById("quizResultRecord");
+        const isNew = prevBest !== null && right > prevBest;
+        record.classList.toggle("is-new", isNew);
+        record.textContent =
+          prevBest === null ? "Sua primeira rodada completa." : isNew ? "Novo recorde!" : `Seu recorde: ${prevBest} de ${ROUND_SIZE}.`;
+        // The birds missed, each once, with the recording that was asked, to hear again
+        const missed = [...new Map(run.answers.filter((a) => !a.right).map((a) => [a.bird, a])).values()];
+        document.getElementById("quizReviewHead").hidden = !missed.length;
+        const review = document.getElementById("quizReview");
+        review.hidden = !missed.length;
+        review.replaceChildren(
+          ...missed.map(({ bird, sound }) => {
+            const row = makeRow(sound, bird.name, "");
+            row.el = el("li", { class: "rec" }, [
+              el("img", { src: bird.photo, alt: "" }),
+              el("span", { class: "quiz-review-name", text: bird.name }),
+              row.btn,
+            ]);
+            return row.el;
+          })
+        );
         showView("result");
         document.getElementById("quizAgain").focus();
       }
 
       function showHistory() {
         const answered = score.right + score.wrong;
+        const bestStreak = score.bestStreak || 0;
         document.getElementById("historyEndless").textContent = answered
-          ? `${score.right} ${score.right === 1 ? "acerto" : "acertos"} e ${score.wrong} ${score.wrong === 1 ? "erro" : "erros"} (${Math.round((score.right / answered) * 100)}% de acertos).`
+          ? `${score.right} ${score.right === 1 ? "acerto" : "acertos"} e ${score.wrong} ${score.wrong === 1 ? "erro" : "erros"} (${Math.round((score.right / answered) * 100)}% de acertos).` +
+            (bestStreak >= 2 ? ` Maior sequência: ${bestStreak} seguidas.` : "")
           : "Você ainda não respondeu nenhuma ave.";
         document.getElementById("historyRoundsSummary").textContent = rounds.length
           ? `Você completou ${rounds.length} ${rounds.length === 1 ? "rodada" : "rodadas"}.`
@@ -1713,7 +1912,7 @@
         row.spec.appendChild(row.time);
         row.el = el("div", { class: "rec quiz-rec" }, [row.btn, row.spec]);
         quizSound.replaceChildren(row.el);
-        round = { bird, row, answered: false };
+        round = { bird, sound, row, answered: false };
 
         quizOptions.replaceChildren(
           ...choices.map((choice) => {
@@ -1741,15 +1940,19 @@
         round.answered = true;
         const right = choice === round.bird;
         const finished = mode === "round" && run.right + run.wrong + 1 === ROUND_SIZE;
+        streak = right ? streak + 1 : 0;
         if (mode === "round") {
           run[right ? "right" : "wrong"] += 1;
-          // Saved as soon as the 20th answer is in, so closing the sheet now doesn't lose it
+          run.answers.push({ bird: round.bird, sound: round.sound, right });
+          // Saved as soon as the last answer is in, so closing the sheet now doesn't lose it
           if (finished) {
+            run.prevBest = bestRound();
             rounds.push({ date: new Date().toISOString(), right: run.right, total: ROUND_SIZE });
             saveRounds();
           }
         } else {
           score[right ? "right" : "wrong"] += 1;
+          if (streak > (score.bestStreak || 0)) score.bestStreak = streak;
           saveScore();
         }
         renderScore();
@@ -1758,7 +1961,7 @@
         round.correctBtn.classList.add("is-correct");
         round.row.spec.classList.remove("is-concealed");
         if (!right) btn.classList.add("is-wrong");
-        quizFeedback.textContent = right ? "Acertou!" : `Errou. A resposta é ${round.bird.name}.`;
+        quizFeedback.textContent = right ? (streak >= 3 ? `Acertou! ${streak} seguidas.` : "Acertou!") : `Errou. A resposta é ${round.bird.name}.`;
         quizFeedback.classList.add(right ? "is-right" : "is-wrong");
         quizNext.textContent = finished ? "Ver resultado" : "Próxima";
         quizNext.classList.remove("is-skip");
@@ -1793,6 +1996,7 @@
       quiz.addEventListener("close", () => {
         stopPlayback();
         run = null; // a round left unfinished is dropped
+        streak = 0;
         quiz.classList.remove("is-settling");
         quiz.style.transform = "";
       });
