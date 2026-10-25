@@ -23,13 +23,17 @@ OUT = ROOT / "birds-porto-alegre-ebird.js"
 REGION = "BR-RS-328"
 WEEKS = 48
 
-# Our name -> eBird's, where they differ. eBird has no row for domestic birds (Galinha-doméstica).
+# Our name -> eBird's, where they differ. Some rare birds have no row of their own in eBird's chart.
 ALIASES = {
     "Bacurau-da-telha": "bacurau-da-telha/de-roraima",
     "Gavião-carrapateiro": "carrapateiro",
     "Vira-folha": "vira-folha/vira-folha-cearense",
     "Pernilongo-de-costas-brancas": "pernilongo-de-costas-negras/de-costas-brancas",
     "Tesourinha": "tesourinha/tesourinha-do-norte",
+    "Beija-flor-de-banda-branca": "beija-flor-de-banda-branca/de-cabeça-azul",
+    "Caneleiro-verde": "caneleiro-verde/de-cara-amarela",
+    "Sanhaço-de-fogo": "sanhaço-de-fogo/montano",
+    "Tiê-de-bando": "tiê-de-bando/do-mato-grosso",
 }
 
 
