@@ -4,8 +4,8 @@
 // 286 species in October 2026), named as iNaturalist names them today and grouped in WikiAves's families (the CBRO's,
 // which split some of iNaturalist's: the arapaçus, vira-folhas, patinhos, borboletinhas and papa-piri have their own).
 // Birds without sounds have sounds: [].
-// Birds are listed by family, in the order of BIRD_FAMILIES, as the page shows them; within a
-// family, the ones eBird checklists in Porto Alegre report most often come first.
+// Birds are listed by family, in the order of BIRD_FAMILIES; within a family, the ones eBird checklists in
+// Porto Alegre report most often come first. The page shows them all commonest first, by eBird presence.
 // Each sound is either:
 //   { source: "inaturalist", audio: <file URL>, recordist: <the name in the sound's "(c)" attribution>,
 //     license: <a Creative Commons code, e.g. "cc-by-nc"; never "all rights reserved">, observation: <observation id>,
@@ -35,7 +35,7 @@
 // After adding sounds, run: python3 scripts/bird-spectrograms.py
 
 // Portuguese names for each bird's family (from iNaturalist, or the COA list for the CBRO's own families),
-// A-Z by name. The page groups birds by family and sorts the families by these names.
+// A-Z by name, the order of the page's family filter.
 const BIRD_FAMILIES = {
   Pandionidae: "Águias-pescadoras",
   Tityridae: "Anambés e caneleiros",
