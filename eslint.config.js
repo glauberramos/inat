@@ -71,6 +71,9 @@ const sharedGlobals = {
   // birds-porto-alegre-data.js
   BIRD_FAMILIES: "readonly",
   BIRDS_PORTO_ALEGRE: "readonly",
+  // birds-porto-alegre-ebird.js
+  BIRD_EBIRD_REGION: "readonly",
+  BIRD_EBIRD_WEEKS: "readonly",
   INatWidget: "readonly",
   // third-party
   $crisp: "readonly",
@@ -154,6 +157,7 @@ module.exports = [
       "location-autocomplete.js",
       "calendar-modal.js",
       "birds-porto-alegre-data.js",
+      "birds-porto-alegre-ebird.js",
     ],
     rules: { "no-redeclare": "off", "no-unused-vars": "off" },
   },

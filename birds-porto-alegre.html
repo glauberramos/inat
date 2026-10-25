@@ -298,6 +298,47 @@
       .bird-tag.is-introduced::before {
         background: var(--introduced);
       }
+      /* eBird presence: one bar per week, like eBird's bar chart, scaled to the bird's best week;
+         this week's bar is solid */
+      .presence {
+        margin: 14px 0 0;
+      }
+      .presence-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 13px;
+        line-height: 18px;
+        color: var(--label-2);
+      }
+      .presence-head a {
+        color: var(--tint);
+        text-decoration: none;
+      }
+      .presence-chart {
+        display: block;
+        width: 100%;
+        height: 28px;
+        margin-top: 6px;
+      }
+      .presence-chart .is-track {
+        fill: var(--fill);
+      }
+      .presence-chart .is-week {
+        fill: color-mix(in srgb, var(--tint) 55%, transparent);
+      }
+      .presence-chart .is-now {
+        fill: var(--tint);
+      }
+      .presence-months {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        margin-top: 2px;
+        font-size: 11px;
+        line-height: 14px;
+        color: var(--label-2);
+        text-align: center;
+      }
       /* The page is ordered by family; the label above the name shows which one */
       .bird-family {
         margin-bottom: 2px;
@@ -958,6 +999,11 @@
           Espectrogramas gerados por este site a partir das gravações e compartilhados sob a mesma licença de cada uma. Gravações cuja licença não
           permite obras derivadas (ND) tocam inteiras, sem cortes.
         </p>
+        <p class="credits-note">
+          Gráficos de presença: eBird, Cornell Lab of Ornithology, a partir do
+          <a href="https://ebird.org/barchart?r=BR-RS-328&amp;bmo=1&amp;emo=12&amp;byr=1900&amp;eyr=2026" target="_blank" rel="noopener">gráfico de barras de Porto Alegre</a>
+          (todas as listas de todos os anos). Cada barra é uma semana; a altura é a parte das listas que registraram a ave, relativa à melhor semana dela.
+        </p>
       </details>
     </div>
 
@@ -1011,6 +1057,7 @@
     </dialog>
 
     <script src="birds-porto-alegre-data.js"></script>
+    <script src="birds-porto-alegre-ebird.js"></script>
     <script>
       const LICENSES = {
         cc0: "CC0",
@@ -1279,6 +1326,7 @@
             el("h2", { class: "bird-name", text: bird.name }),
             el("p", { class: "bird-sci", text: bird.scientificName }),
             ...renderTags(bird),
+            ...renderPresence(bird),
             ...sounds,
           ]),
         ]);
@@ -1321,6 +1369,64 @@
           tags.push(el("li", { class: "bird-tag is-introduced", title: "Espécie exótica, trazida ao Brasil por pessoas", text: "Introduzida" }));
         }
         return tags.length ? [el("ul", { class: "bird-tags" }, tags)] : [];
+      }
+
+      // eBird's bar chart for Porto Alegre, trimmed to one bird: how often it's reported, week by week
+      const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+      const EBIRD_CHART_URL = `https://ebird.org/barchart?r=${BIRD_EBIRD_REGION}&bmo=1&emo=12&byr=1900&eyr=2026`;
+      // eBird splits each month into four weeks: days 1–7, 8–14, 15–21 and 22 to the end
+      const THIS_WEEK = (() => {
+        const today = new Date();
+        return today.getMonth() * 4 + Math.min(3, Math.floor((today.getDate() - 1) / 7));
+      })();
+
+      function percent(tenths) {
+        return `${(tenths / 10).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
+      }
+
+      function svg(tag, attrs) {
+        const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+        Object.entries(attrs).forEach(([k, v]) => node.setAttribute(k, v));
+        return node;
+      }
+
+      function renderPresence(bird) {
+        const weeks = BIRD_EBIRD_WEEKS[bird.inatTaxonId];
+        if (!weeks) return [];
+        const peak = Math.max(...weeks);
+        // Bars in a 48 x 28 box, each 0.7 wide; weeks with no reports keep a thin track so the year reads as a line
+        const H = 28;
+        const bar = (w, h) => `M${w + 0.15} ${H}v-${h}h0.7v${h}z`;
+        const height = (v) => Math.max(1.5, (v / peak) * H);
+        const path = (pick) =>
+          weeks
+            .map((v, w) => (pick(v, w) ? bar(w, v ? height(v) : 1.5) : ""))
+            .join("");
+        const chart = svg("svg", { class: "presence-chart", viewBox: `0 0 48 ${H}`, preserveAspectRatio: "none", "aria-hidden": "true" });
+        chart.append(
+          svg("path", { class: "is-track", d: path((v) => !v) }),
+          svg("path", { class: "is-week", d: path((v, w) => v && w !== THIS_WEEK) }),
+          svg("path", { class: "is-now", d: path((v, w) => v && w === THIS_WEEK) })
+        );
+
+        // The month it's reported most, for screen readers and the tooltip
+        const byMonth = MONTHS.map((_, m) => weeks.slice(m * 4, m * 4 + 4).reduce((a, b) => a + b, 0));
+        const best = MONTHS[byMonth.indexOf(Math.max(...byMonth))];
+        const summary = `Presença em Porto Alegre segundo o eBird: mais registrada em ${best}, em até ${percent(peak)} das listas de uma semana.`;
+
+        return [
+          el("figure", { class: "presence", role: "img", "aria-label": summary, title: summary }, [
+            el("div", { class: "presence-head" }, [
+              el("span", {}, [
+                document.createTextNode("Presença no "),
+                el("a", { href: EBIRD_CHART_URL, target: "_blank", rel: "noopener", text: "eBird" }),
+              ]),
+              el("span", { text: `até ${percent(peak)} das listas` }),
+            ]),
+            chart,
+            el("div", { class: "presence-months", "aria-hidden": "true" }, MONTHS.map((m) => el("span", { text: m[0].toUpperCase() }))),
+          ]),
+        ];
       }
 
       // How far a photo's shape can stray from the 3:2 frame and still fill it; a 4:3 photo would lose
