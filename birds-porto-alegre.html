@@ -266,8 +266,9 @@
         font-style: italic;
         color: var(--label-2);
       }
-      /* Labels under the name: migration (a warm dot for birds here in summer, a cool one for winter),
-         conservation status and introduced species */
+      /* Labels under the name, from the COA list: how easy the bird is to find (a green dot when it's common),
+         its season (a warm dot for spring and summer, a cool one for autumn and winter) and whether it was
+         introduced; plus its conservation status */
       .bird-tags {
         display: flex;
         flex-wrap: wrap;
@@ -294,8 +295,10 @@
         border-radius: 50%;
         background: var(--label-2);
       }
-      .bird-tag.is-summer::before,
-      .bird-tag.is-north::before {
+      .bird-tag.is-common::before {
+        background: var(--tint);
+      }
+      .bird-tag.is-summer::before {
         background: var(--summer);
       }
       .bird-tag.is-winter::before {
@@ -1191,9 +1194,15 @@
             </select>
           </label>
           <label class="pill-filter">
-            <span class="visually-hidden">Filtrar por etiqueta</span>
+            <span class="visually-hidden">Filtrar por raridade</span>
+            <select id="rarityFilter">
+              <option value="">Todas as raridades</option>
+            </select>
+          </label>
+          <label class="pill-filter">
+            <span class="visually-hidden">Filtrar por época ou etiqueta</span>
             <select id="tagFilter">
-              <option value="">Todas as aves</option>
+              <option value="">Todas as épocas</option>
             </select>
           </label>
         </div>
@@ -1202,7 +1211,15 @@
       <main class="birds" id="birdsGrid"></main>
 
       <details class="credits">
-        <summary>Créditos das fotos e sons</summary>
+        <summary>Créditos e fontes</summary>
+        <p class="credits-note">
+          Lista de espécies:
+          <a href="https://www.wikiaves.com.br/especies.php?&amp;t=c&amp;c=4314902" target="_blank" rel="noopener">WikiAves, espécies em Porto Alegre</a>
+          (outubro de 2026). Raridade, época do ano e espécies introduzidas:
+          <a href="https://coapoa.org/aves-de-porto-alegre-2/" target="_blank" rel="noopener">Aves de Porto Alegre</a>, de Glayson Ariel Bencke e Eduardo
+          Chiarani, Clube de Observadores de Aves de Porto Alegre (COA-POA), 31 de agosto de 2020. Espécies ameaçadas: Decreto estadual 51.797/2014 (RS) e
+          Lista Vermelha da IUCN.
+        </p>
         <ul id="birdsCredits"></ul>
         <p class="credits-note">
           Espectrogramas gerados por este site a partir das gravações e compartilhados sob a mesma licença de cada uma. Gravações cuja licença não
@@ -1566,11 +1583,43 @@
         ]);
       }
 
-      // "Migrante de verão · set–fev": what kind of migrant, and when it's in Porto Alegre
-      const MIGRATION = {
-        summer: { text: "Migrante de verão", title: "Chega na primavera, se reproduz no RS e vai embora no outono" },
-        winter: { text: "Visitante de inverno", title: "Vem do sul só para passar o inverno" },
-        north: { text: "Visitante da América do Norte", title: "Reproduz-se na América do Norte e passa aqui o inverno de lá, que é o nosso verão" },
+      // The COA list's categories, in its order, with its legend for the tooltip
+      const FREQUENCIES = {
+        "Muito comum": "Muito fácil de observar, em praticamente todas as saídas",
+        Comum: "Fácil de observar, em bem mais da metade das saídas",
+        "Pouco comum": "Razoavelmente fácil de observar, em cerca de metade das saídas",
+        Incomum: "Pouca chance de encontrar, normalmente em bem menos da metade das saídas",
+        Rara: "Muito difícil de encontrar, normalmente em menos de 10% das saídas",
+        Acidental: "Encontrada só em circunstâncias excepcionais e imprevisíveis",
+      };
+      // Birds the COA list doesn't have get a frequency estimated from eBird: their share of Porto Alegre checklists,
+      // averaged over the year's weeks, against these floors. Each sits between the medians of two neighbouring COA
+      // categories (geometric mean), measured on the COA birds; no eBird record at all counts as Acidental.
+      const EBIRD_FREQUENCY_FLOORS = [
+        ["Muito comum", 11],
+        ["Comum", 1.7],
+        ["Pouco comum", 0.3],
+        ["Incomum", 0.09],
+        ["Rara", 0.022],
+      ];
+
+      // The COA list's category, or one estimated from eBird
+      function frequencyOf(bird) {
+        if (bird.coa) return bird.coa.frequency;
+        const weeks = BIRD_EBIRD_WEEKS[bird.inatTaxonId];
+        const mean = weeks ? weeks.reduce((a, b) => a + b, 0) / weeks.length / 10 : 0; // weeks are in tenths of a percent
+        const floor = EBIRD_FREQUENCY_FLOORS.find(([, min]) => mean >= min);
+        return floor ? floor[0] : "Acidental";
+      }
+
+      // When it's in Porto Alegre; "Todo o ano" gets no label. The dot is warm for spring and summer, cool for autumn and winter.
+      const SEASONS = {
+        "Todo o ano": null,
+        "Primavera/verão": { text: "Primavera e verão", cls: "is-summer" },
+        Primavera: { text: "Primavera", cls: "is-summer" },
+        "Outono/inverno": { text: "Outono e inverno", cls: "is-winter" },
+        Outono: { text: "Outono", cls: "is-winter" },
+        Indeterminada: { text: "Época indeterminada", cls: "" },
       };
 
       // "Quase ameaçada · IUCN": a conservation status and the list that gives it
@@ -1584,23 +1633,26 @@
       // The labels under a bird's name, or nothing when it has none
       function renderTags(bird) {
         const tags = [];
-        if (bird.migration) {
-          const { type, months } = bird.migration;
-          const { text, title } = MIGRATION[type];
-          tags.push(
-            el("li", {
-              class: `bird-tag is-${type}`,
-              title: months ? `${title}. Em Porto Alegre aparece em: ${months} (eBird)` : title,
-              text: months ? `${text} · ${months}` : text,
-            }),
-          );
+        const frequency = frequencyOf(bird);
+        const expanding = bird.coa && bird.coa.expanding;
+        const common = frequency === "Muito comum" || frequency === "Comum";
+        tags.push(
+          el("li", {
+            class: `bird-tag${common ? " is-common" : ""}`,
+            title: FREQUENCIES[frequency] + (expanding ? ". Em expansão na região, tende a ficar mais comum" : ""),
+            text: expanding ? `${frequency} · em expansão` : frequency,
+          })
+        );
+        if (bird.coa) {
+          const s = SEASONS[bird.coa.season];
+          if (s) tags.push(el("li", { class: `bird-tag ${s.cls}`.trim(), title: "Quando aparece em Porto Alegre (COA)", text: s.text }));
         }
         if (bird.conservation) {
           const { status, list } = bird.conservation;
           tags.push(el("li", { class: "bird-tag is-threat", title: THREAT_LISTS[list], text: `${THREAT[status]} · ${list}` }));
         }
         if (bird.introduced) {
-          tags.push(el("li", { class: "bird-tag is-introduced", title: "Espécie exótica, trazida ao Brasil por pessoas", text: "Introduzida" }));
+          tags.push(el("li", { class: "bird-tag is-introduced", title: "Introduzida em Porto Alegre por pessoas (COA)", text: "Introduzida" }));
         }
         return tags.length ? [el("ul", { class: "bird-tags" }, tags)] : [];
       }
@@ -1701,20 +1753,31 @@
       [...new Set(BIRDS.map((b) => b.family))]
         .sort((a, b) => BIRD_FAMILIES[a].localeCompare(BIRD_FAMILIES[b], "pt"))
         .forEach((family) => familyFilter.appendChild(el("option", { value: family, text: `${BIRD_FAMILIES[family]} (${family})` })));
-      // Label filter: one option per kind of label that some bird has, with how many have it.
-      const TAG_FILTERS = {
-        migratory: { text: "Migratórias", test: (b) => Boolean(b.migration) },
-        summer: { text: "Migrantes de verão", test: (b) => (b.migration || {}).type === "summer" },
-        winter: { text: "Visitantes de inverno", test: (b) => (b.migration || {}).type === "winter" },
-        north: { text: "Visitantes da América do Norte", test: (b) => (b.migration || {}).type === "north" },
-        conservation: { text: "Ameaçadas ou quase ameaçadas", test: (b) => Boolean(b.conservation) },
-        introduced: { text: "Introduzidas", test: (b) => Boolean(b.introduced) },
+      // Rarity filter: the COA list's categories, in its order, with how many birds are in each
+      // (estimated from eBird for the birds the list doesn't have)
+      const RARITY_FILTERS = {
+        ...Object.fromEntries(Object.keys(FREQUENCIES).map((f) => [f, { text: f, test: (b) => frequencyOf(b) === f }])),
+        expanding: { text: "Raras em expansão", test: (b) => b.coa && b.coa.expanding },
       };
-      const tagFilter = document.getElementById("tagFilter");
-      for (const [key, { text, test }] of Object.entries(TAG_FILTERS)) {
-        const n = BIRDS.filter(test).length;
-        if (n) tagFilter.appendChild(el("option", { value: key, text: `${text} (${n})` }));
+      // Season and label filter: the COA list's seasons, then introduced and threatened birds
+      const TAG_FILTERS = {
+        ...Object.fromEntries(
+          Object.keys(SEASONS).map((s) => [s, { text: s === "Indeterminada" ? "Época indeterminada" : s, test: (b) => b.coa && b.coa.season === s }])
+        ),
+        introduced: { text: "Introduzidas", test: (b) => Boolean(b.introduced) },
+        conservation: { text: "Ameaçadas ou quase ameaçadas", test: (b) => Boolean(b.conservation) },
+      };
+      // One option per category that some bird has, with how many have it
+      function fillFilter(select, filters) {
+        for (const [key, { text, test }] of Object.entries(filters)) {
+          const n = BIRDS.filter(test).length;
+          if (n) select.appendChild(el("option", { value: key, text: `${text} (${n})` }));
+        }
       }
+      const rarityFilter = document.getElementById("rarityFilter");
+      const tagFilter = document.getElementById("tagFilter");
+      fillFilter(rarityFilter, RARITY_FILTERS);
+      fillFilter(tagFilter, TAG_FILTERS);
 
       // Species total in the subtitle; with a filter picked, how many of the total are shown.
       const speciesCount = document.getElementById("speciesCount");
@@ -1725,15 +1788,16 @@
       }
       updateCount();
 
-      // The two filters combine: a bird shows when it matches both
+      // The filters combine: a bird shows when it matches all of them
       function applyFilters() {
         const family = familyFilter.value;
-        const tag = TAG_FILTERS[tagFilter.value];
-        cards.forEach(({ bird, card }) => (card.hidden = (Boolean(family) && bird.family !== family) || (Boolean(tag) && !tag.test(bird))));
+        const tests = [RARITY_FILTERS[rarityFilter.value], TAG_FILTERS[tagFilter.value]].filter(Boolean).map((f) => f.test);
+        cards.forEach(({ bird, card }) => (card.hidden = (Boolean(family) && bird.family !== family) || !tests.every((test) => test(bird))));
         if (active && active.el.closest(".bird[hidden]")) stopPlayback();
         updateCount();
       }
       familyFilter.addEventListener("change", applyFilters);
+      rarityFilter.addEventListener("change", applyFilters);
       tagFilter.addEventListener("change", applyFilters);
 
       // Like an iOS navigation bar: the compact title shows once the large one scrolls under the bar.
