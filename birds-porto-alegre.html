@@ -144,7 +144,7 @@
         outline: 3px solid var(--tint);
         outline-offset: 2px;
       }
-      /* The headphones in a lighter circle, and the round record once there is one */
+      /* The headphones in a lighter circle */
       .challenge-icon {
         display: grid;
         place-items: center;
@@ -152,13 +152,6 @@
         height: 28px;
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.22);
-      }
-      .challenge-record {
-        padding: 1px 8px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.22);
-        font-size: 13px;
-        font-variant-numeric: tabular-nums;
       }
       .challenge-btn svg {
         width: 16px;
@@ -714,13 +707,6 @@
         line-height: 20px;
         color: var(--label-2);
       }
-      .quiz-mode-record {
-        display: block;
-        margin-top: 6px;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--tint);
-      }
       /* A round's 15 birds as segments: green right, red wrong, gray the one being asked */
       .quiz-progress {
         display: flex;
@@ -1164,7 +1150,6 @@
               </svg>
             </span>
             Desafio
-            <span class="challenge-record" id="challengeRecord" hidden></span>
           </button>
           <label class="pill-filter">
             <span class="visually-hidden">Filtrar por família</span>
@@ -1214,7 +1199,6 @@
             <span class="quiz-mode-text">
               <span class="quiz-mode-name">Rodada de 15</span>
               <span class="quiz-mode-desc">15 aves diferentes e uma nota no fim.</span>
-              <span class="quiz-mode-record" id="modeRoundRecord" hidden></span>
             </span>
           </button>
           <button class="quiz-mode" id="modeEndless" type="button">
@@ -1222,7 +1206,6 @@
             <span class="quiz-mode-text">
               <span class="quiz-mode-name">Infinito</span>
               <span class="quiz-mode-desc">Uma ave atrás da outra, sem fim. Todas aparecem antes de repetir.</span>
-              <span class="quiz-mode-record" id="modeEndlessRecord" hidden></span>
             </span>
           </button>
         </div>
@@ -1827,36 +1810,8 @@
         return full.length ? Math.max(...full.map((r) => r.right)) : null;
       }
 
-      // Each mode's record in the menu: the best round, and Infinito's hit rate and best streak
-      function renderRecords() {
-        const best = bestRound();
-        const roundRecord = document.getElementById("modeRoundRecord");
-        roundRecord.hidden = best === null;
-        if (best !== null) roundRecord.textContent = `Recorde: ${best} de ${ROUND_SIZE}`;
-        const answered = score.right + score.wrong;
-        const endlessRecord = document.getElementById("modeEndlessRecord");
-        endlessRecord.hidden = !answered;
-        if (answered) {
-          const rate = `${Math.round((score.right / answered) * 100)}% de acertos`;
-          endlessRecord.textContent = score.bestStreak >= 2 ? `${rate} · ${score.bestStreak} seguidas no máximo` : rate;
-        }
-        renderChallengeRecord();
-      }
-
-      // The header button shows the best round once there is one
-      function renderChallengeRecord() {
-        const best = bestRound();
-        const chip = document.getElementById("challengeRecord");
-        chip.hidden = best === null;
-        if (best !== null) {
-          chip.textContent = `${best}/${ROUND_SIZE}`;
-          chip.title = `Seu recorde: ${best} de ${ROUND_SIZE}`;
-        }
-      }
-
       function showMenu() {
         run = null;
-        renderRecords();
         showView("menu");
         document.getElementById(mode === "round" ? "modeRound" : "modeEndless").focus();
       }
@@ -2046,7 +2001,6 @@
             run.prevBest = bestRound();
             rounds.push({ date: new Date().toISOString(), right: run.right, total: ROUND_SIZE });
             saveRounds();
-            renderChallengeRecord();
           }
         } else {
           score[right ? "right" : "wrong"] += 1;
@@ -2066,7 +2020,6 @@
         quizNext.focus();
       }
 
-      renderChallengeRecord();
       document.getElementById("challengeBtn").addEventListener("click", () => {
         quiz.showModal();
         showMenu();
