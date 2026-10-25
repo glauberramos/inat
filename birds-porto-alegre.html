@@ -1603,13 +1603,13 @@
         ["Rara", 0.022],
       ];
 
-      // { frequency, estimated }: the COA list's category, or one estimated from eBird
+      // The COA list's category, or one estimated from eBird
       function frequencyOf(bird) {
-        if (bird.coa) return { frequency: bird.coa.frequency, estimated: false };
+        if (bird.coa) return bird.coa.frequency;
         const weeks = BIRD_EBIRD_WEEKS[bird.inatTaxonId];
         const mean = weeks ? weeks.reduce((a, b) => a + b, 0) / weeks.length / 10 : 0; // weeks are in tenths of a percent
         const floor = EBIRD_FREQUENCY_FLOORS.find(([, min]) => mean >= min);
-        return { frequency: floor ? floor[0] : "Acidental", estimated: true };
+        return floor ? floor[0] : "Acidental";
       }
 
       // When it's in Porto Alegre; "Todo o ano" gets no label. The dot is warm for spring and summer, cool for autumn and winter.
@@ -1633,16 +1633,13 @@
       // The labels under a bird's name, or nothing when it has none
       function renderTags(bird) {
         const tags = [];
-        const { frequency, estimated } = frequencyOf(bird);
+        const frequency = frequencyOf(bird);
         const expanding = bird.coa && bird.coa.expanding;
         const common = frequency === "Muito comum" || frequency === "Comum";
         tags.push(
           el("li", {
             class: `bird-tag${common ? " is-common" : ""}`,
-            title:
-              `${FREQUENCIES[frequency]} ` +
-              (estimated ? "(estimada pela presença no eBird; a ave não está na lista do COA)" : "(COA)") +
-              (expanding ? ". Em expansão na região, tende a ficar mais comum" : ""),
+            title: FREQUENCIES[frequency] + (expanding ? ". Em expansão na região, tende a ficar mais comum" : ""),
             text: expanding ? `${frequency} · em expansão` : frequency,
           })
         );
@@ -1759,7 +1756,7 @@
       // Rarity filter: the COA list's categories, in its order, with how many birds are in each
       // (estimated from eBird for the birds the list doesn't have)
       const RARITY_FILTERS = {
-        ...Object.fromEntries(Object.keys(FREQUENCIES).map((f) => [f, { text: f, test: (b) => frequencyOf(b).frequency === f }])),
+        ...Object.fromEntries(Object.keys(FREQUENCIES).map((f) => [f, { text: f, test: (b) => frequencyOf(b) === f }])),
         expanding: { text: "Raras em expansão", test: (b) => b.coa && b.coa.expanding },
       };
       // Season and label filter: the COA list's seasons, then introduced and threatened birds
