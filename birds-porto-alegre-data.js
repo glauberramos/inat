@@ -114,7 +114,23 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/6903515/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
     coa: { frequency: "Rara", season: "Primavera/verão" },
-    sounds: [],
+    sounds: [
+      {
+        // Whistled 'kyew' calls and a long chirping call series, about 18s of the 33s recording
+        source: "xenocanto",
+        xc: 118482,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/TGBFXDVERJ/XC118482-Pandion%20halietus_Porto%20de%20Moz_1327.mp3",
+        recordist: "Gabriel Leite",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Porto de Moz, PA",
+        type: "call",
+        start: 2.35,
+        end: 19.9,
+        fmin: 800,
+      },
+    ],
   },
   {
     name: "Caneleiro-verde",
@@ -124,7 +140,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/237484813/medium.jpg",
     photoCredit: "no rights reserved, uploaded by Paulo Mascaretti",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // A steady series of rising, nasal 'tuee' calls, about 13s of the 46s recording
+        source: "xenocanto",
+        xc: 181732,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/TLLUGZINYM/XC181732-Pachyramphus%20viridis%20%2828.05.14%29.mp3",
+        recordist: "Roberto Buss Stringari",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Pedras Altas, RS",
+        type: "call",
+        start: 4.95,
+        end: 18.3,
+      },
+    ],
   },
   {
     name: "Caneleiro-preto",
@@ -134,7 +165,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/84283/medium.jpg",
     photoCredit: "(c) Dominic Sherony, some rights reserved (CC BY-SA)",
     coa: { frequency: "Incomum", season: "Primavera/verão" },
-    sounds: [],
+    sounds: [
+      {
+        // Three phrases of mellow, falling 'tu-tu-tu-tu-tu' song with soft notes between them, about 18s of the 26s recording
+        source: "xenocanto",
+        xc: 176872,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MNENFHYTAE/XC176872-Tityridae_Phachyramphus_polychopterus_02_11_2010_H09_13_Fazenda_Beira_Rio_Salete.mp3",
+        recordist: "Douglas Meyer",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Salete, SC",
+        type: "song",
+        start: 0,
+        end: 17.9,
+      },
+    ],
   },
   {
     name: "Andorinha-pequena-de-casa",
@@ -263,7 +309,22 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 11901,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/122469139/medium.jpg",
     photoCredit: "(c) Ad Konings, some rights reserved (CC BY-NC), uploaded by Ad Konings",
-    sounds: [],
+    sounds: [
+      {
+        // Twittering of swallows, bursts of 'vit' notes, about 16s of the 36s recording
+        source: "xenocanto",
+        xc: 52060,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/BYLLSJRVDZ/SWALLOW%20Barn_06_Albufera%20Mar%20Chiquita_Buenos%20Aires_AR_28ENE06_Bernabe%20Lopez-Lanus.mp3",
+        recordist: "Bernabe Lopez-Lanus",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Mar Chiquita, Argentina",
+        type: "song",
+        start: 0.15,
+        end: 16.15,
+      },
+    ],
   },
   {
     name: "Andorinhão-do-temporal",
@@ -400,7 +461,22 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // Two songs, long rattling series of notes, about 15s of the 39s recording
+        source: "xenocanto",
+        xc: 193222,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/FYHMASBKBC/XC193222-Dendrocolaptes%20platyrostris.mp3",
+        recordist: "Cleberton D. Bianchini",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Lajeado, RS",
+        type: "song",
+        start: 1.8,
+        end: 16.5,
+      },
+    ],
   },
   {
     name: "Azulinho",
@@ -434,7 +510,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/424905909/medium.jpg",
     photoCredit:
       "(c) Enéas V. Gouvêa Junior, some rights reserved (CC BY-SA), uploaded by Enéas V. Gouvêa Junior",
-    sounds: [],
+    sounds: [
+      {
+        // A slow series of clear, falling whistles with a natural pause, about 15s of the 28s recording
+        source: "xenocanto",
+        xc: 84543,
+        audio: "https://xeno-canto.org/sounds/uploaded/DGVLLRYDXS/HABRUB23.mp3",
+        recordist: "Jeremy Minns",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "São Francisco de Paula, RS",
+        type: "song",
+        start: 1.4,
+        end: 16.1,
+      },
+    ],
   },
   {
     name: "Azulão",
@@ -443,7 +533,21 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 558592,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/67327517/medium.jpg",
     photoCredit: "(c) Norton Santos, some rights reserved (CC BY-NC), uploaded by Norton Santos",
-    sounds: [],
+    sounds: [
+      {
+        // The whole 23s recording: four song phrases
+        source: "xenocanto",
+        xc: 121387,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/ODNEDFESFY/XC121387-Cyanoloxia%20brissonii%20%28Lichtenstein%2C%201823%293.mp3",
+        recordist: "Alexandre Bianco",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Fagundes Varela, RS",
+        type: "song",
+        duration: 23.35,
+      },
+    ],
   },
   {
     name: "Sanhaço-de-fogo",
@@ -454,7 +558,22 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Manequinho Correia, some rights reserved (CC BY-NC), uploaded by Manequinho Correia",
     coa: { frequency: "Rara", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // Repeated whistled 'chu-wee' song notes, about 12s of the 19s recording
+        source: "xenocanto",
+        xc: 795090,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/ZCFZMKSMPP/XC795090-Piranga-flava-14-Nov-2005-Mala-Cara-Arapey-Chico---Salto.mp3",
+        recordist: "José Menéndez",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Salto, Uruguai",
+        type: "song",
+        start: 0.15,
+        end: 12.15,
+      },
+    ],
   },
   {
     name: "Bacurau-da-telha",
@@ -492,7 +611,23 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/151522305/medium.jpg",
     photoCredit: "(c) eneaschr, some rights reserved (CC BY-NC)",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // A steady series of high 'tsip' notes, one per second, about 15s of the 2m43s recording
+        source: "xenocanto",
+        xc: 440802,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MHHPJBCUXC/XC440802-Hydropsalis%20torquata%20mp3%20-%20near%20Cerro%20das%20Almas%20-20181027-192536.mp3",
+        recordist: "Fernando Jacobs",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Capão do Leão, RS",
+        type: "song",
+        start: 0.55,
+        end: 15.25,
+        fmin: 2000,
+      },
+    ],
   },
   {
     name: "Corucão",
@@ -502,7 +637,23 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/150819319/medium.jpg",
     photoCredit: "(c) Paul Donahue, some rights reserved (CC BY-NC), uploaded by Paul Donahue",
     coa: { frequency: "Rara", season: "Primavera/verão" },
-    sounds: [],
+    sounds: [
+      {
+        // Low, hollow paired 'pu-pu' notes, about 15s of the 1m17s recording
+        source: "xenocanto",
+        xc: 577514,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC577514-15-07-2020%205e49%20Corucao%20%28Podager%20nacundao-OK%29.mp3",
+        recordist: "Jayrson Araujo de Oliveira",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Santa Rita do Novo Destino, GO",
+        type: "song",
+        start: 0.17,
+        end: 15.15,
+        fmax: 2000,
+      },
+    ],
   },
   {
     name: "Tuju",
@@ -511,7 +662,23 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 19645,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1418104/medium.jpg",
     photoCredit: "(c) barloventomagico, some rights reserved (CC BY-NC-ND)",
-    sounds: [],
+    sounds: [
+      {
+        // A regular series of short, low 'quirt' notes, about 15s of the 33s recording
+        source: "xenocanto",
+        xc: 450247,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/JQSYKZHEMB/XC450247-LurocalissemTape25PY%20%282%29.mp3",
+        recordist: "Rosendo Manuel Fraga",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Itapúa, Paraguai",
+        type: "song",
+        start: 0.5,
+        end: 15.9,
+        fmax: 4000,
+      },
+    ],
   },
   {
     name: "Bacurau",
@@ -520,7 +687,23 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 19627,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/209035/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    sounds: [],
+    sounds: [
+      {
+        // Four songs, about 13s of the 30s recording
+        source: "xenocanto",
+        xc: 217758,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/ODNEDFESFY/XC217758-Hydropsalis%20albicollis%20%28Gmelin%2C%201789%29.mp3",
+        recordist: "Alexandre Bianco",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Urussanga, SC",
+        type: "song",
+        start: 0.33,
+        end: 13.5,
+        fmax: 5000,
+      },
+    ],
   },
   {
     name: "Bacurau-chintã",
@@ -531,7 +714,22 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Lilian Tomazelli, some rights reserved (CC BY-NC), uploaded by Lilian Tomazelli",
     coa: { frequency: "Rara", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 18s recording: four songs
+        source: "xenocanto",
+        xc: 121383,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/ODNEDFESFY/XC121383-Hydropsalis%20parvula%20%28Gould%2C%201837%29.mp3",
+        recordist: "Alexandre Bianco",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Palhoça, SC",
+        type: "song",
+        duration: 17.59,
+        fmax: 5000,
+      },
+    ],
   },
   {
     name: "Balança-rabo-de-máscara",
@@ -590,7 +788,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/37910349/medium.jpg",
     photoCredit: "(c) pedro vargas, some rights reserved (CC BY-NC), uploaded by pedro vargas",
     coa: { frequency: "Rara", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // A burst of excited 'kip' calls, then single sharp 'kip' calls, about 15s of the 57s recording
+        source: "xenocanto",
+        xc: 686879,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC686879-09-11-2021%2017e57%20Batuira%20de%20coleira%20BOA%20MOSTARDAS.mp3",
+        recordist: "Jayrson Araujo de Oliveira",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Mostardas, RS",
+        type: "call",
+        start: 13.45,
+        end: 28.45,
+      },
+    ],
   },
   {
     name: "Beija-flor-dourado",
@@ -799,7 +1012,24 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/419072263/medium.jpg",
     photoCredit: "(c) Lindolfo Souto, some rights reserved (CC BY), uploaded by Lindolfo Souto",
     coa: { frequency: "Acidental", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // Eleven calls, about 13s of the 29s recording
+        source: "xenocanto",
+        xc: 803026,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/ORPKXJRFDZ/XC803026-bico-reto-azul-editado.mp3",
+        recordist: "Luiz C. Silva",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Campo Mourão, PR",
+        type: "call",
+        start: 14.2,
+        end: 26.95,
+        fmin: 2000,
+        fmax: 14000,
+      },
+    ],
   },
   {
     name: "Beija-flor-de-banda-branca",
@@ -810,7 +1040,24 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Tomaz Nascimento de Melo, some rights reserved (CC BY-NC-ND), uploaded by Tomaz Nascimento de Melo",
     coa: { frequency: "Rara", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // Song, a long series of high notes, about 11s of the 30s recording
+        source: "xenocanto",
+        xc: 173956,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MNENFHYTAE/XC173956-Trochilidae_Amazilia_versicolor_06_10_2011_H17_23_Centro_Vidal_Ramos.mp3",
+        recordist: "Douglas Meyer",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Vidal Ramos, SC",
+        type: "song",
+        start: 0.15,
+        end: 11.4,
+        fmin: 3000,
+        fmax: 12000,
+      },
+    ],
   },
   {
     name: "Bico-de-lacre",
@@ -948,7 +1195,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/369307358/medium.jpg",
     photoCredit: "(c) terence zahner, some rights reserved (CC BY-NC), uploaded by terence zahner",
     coa: { frequency: "Rara", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 15s recording: the ticking song
+        source: "xenocanto",
+        xc: 173977,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MNENFHYTAE/XC173977-Tyrannidae_Todirostrum_cinereum_03_12_2011_H08_53_Centro_Vidal_Ramos.mp3",
+        recordist: "Douglas Meyer",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Vidal Ramos, SC",
+        type: "song",
+        duration: 14.83,
+      },
+    ],
   },
   {
     name: "Cabeçudo",
@@ -958,7 +1219,20 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/77930/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
     coa: { frequency: "Rara", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // Four songs, about 14s of the 25s recording
+        source: "inaturalist",
+        audio: "https://static.inaturalist.org/sounds/1627246.mp3",
+        recordist: "amandapmarcon",
+        license: "cc-by-nc",
+        observation: 311920186,
+        location: "Mato Castelhano, RS",
+        type: "song",
+        start: 0.5,
+        end: 14.4,
+      },
+    ],
   },
   {
     name: "Caminheiro-zumbidor",
@@ -969,7 +1243,21 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Enéas V. Gouvêa Junior, some rights reserved (CC BY-SA), uploaded by Enéas V. Gouvêa Junior",
     coa: { frequency: "Pouco comum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 19s recording: two flight songs
+        source: "xenocanto",
+        xc: 662524,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/CFRYARSVHN/XC662524-Caminheiro%20xc%20recording-20210710-122139.mp3",
+        recordist: "Ricardo José Mitidieri",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Guapimirim, RJ",
+        type: "song",
+        duration: 19.2,
+      },
+    ],
   },
   {
     name: "Carão",
@@ -1118,7 +1406,22 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Hudson Martins Soares, some rights reserved (CC BY-NC), uploaded by Hudson Martins Soares",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 23s recording: two songs
+        source: "xenocanto",
+        xc: 181725,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/TLLUGZINYM/XC181725-Mackenziana%20leachii%20%28Candiota-RS%2C%2025.05.14%29.mp3",
+        recordist: "Roberto Buss Stringari",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Pedras Altas, RS",
+        type: "song",
+        duration: 22.6,
+        fmax: 8000,
+      },
+    ],
   },
   {
     name: "Chupa-dente",
@@ -1278,7 +1581,22 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) cello caruso-turiello, some rights reserved (CC BY), uploaded by cello caruso-turiello",
     coa: { frequency: "Rara", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // Three bouts of whistled calls, about 7s of the 13s recording
+        source: "xenocanto",
+        xc: 511711,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/VKQHDAFQDZ/XC511711-Sirir%C3%AD%20Vientre%20Negro%5B1%5D.mp3",
+        recordist: "Pedro Rinaldi",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Salto, Uruguai",
+        type: "call",
+        start: 3.5,
+        end: 10.8,
+      },
+    ],
   },
   {
     name: "Marreca-caneleira",
@@ -1288,7 +1606,20 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/91528685/medium.jpg",
     photoCredit: "(c) Tom Benson, some rights reserved (CC BY-NC-ND)",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 20s recording: single whistled calls, then a flock calling together
+        source: "xenocanto",
+        xc: 20601,
+        audio: "https://xeno-canto.org/sounds/uploaded/MHHPJBCUXC/Dendrocygna%20bicolor.mp3",
+        recordist: "Fernando Jacobs",
+        license: "cc-by-nc-nd",
+        licenseVersion: "2.5",
+        location: "Arroio Grande, RS",
+        type: "call",
+        duration: 20.04,
+      },
+    ],
   },
   {
     name: "Pato-do-mato",
@@ -1308,7 +1639,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/177332894/medium.jpeg",
     photoCredit: "(c) markus lilje, some rights reserved (CC BY-NC-ND), uploaded by markus lilje",
     coa: { frequency: "Rara", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // A series of seven rasping quacks, about 5s of the 9s recording
+        source: "xenocanto",
+        xc: 32169,
+        audio: "https://xeno-canto.org/sounds/uploaded/XTVEPHMPPJ/Anas_georgica_2009_03_22b.mp3",
+        recordist: "Niels Krabbe",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Puesto del Marqués, Argentina",
+        type: "call",
+        start: 1.2,
+        end: 6.6,
+      },
+    ],
   },
   {
     name: "Capororoca",
@@ -1318,7 +1663,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/160405251/medium.jpg",
     photoCredit: "(c) Ninosca Angel, some rights reserved (CC BY-NC), uploaded by Ninosca Angel",
     coa: { frequency: "Rara", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // Six honking calls, about 7s of the 17s recording
+        source: "xenocanto",
+        xc: 510827,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/TGBFXDVERJ/XC510827-Coscoroba%20coscoroba_Tavares_1131.mp3",
+        recordist: "Gabriel Leite",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Tavares, RS",
+        type: "call",
+        start: 0.95,
+        end: 7.5,
+      },
+    ],
   },
   {
     name: "Marreca-toicinho",
@@ -1328,7 +1688,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/173806806/medium.jpg",
     photoCredit:
       "(c) Mariano Fernández Kloster, some rights reserved (CC BY-NC), uploaded by Mariano Fernández Kloster",
-    sounds: [],
+    sounds: [
+      {
+        // The whole 5s recording: a series of loud quacks
+        source: "xenocanto",
+        xc: 831012,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/XNCZRQNJCS/XC831012-230725_2233_230725_1412PM_White-cheeked-Pintail_FlightCall_Catamarca_EQuintanilla.mp3",
+        recordist: "Eduardo Quintanilla",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Catamarca, Argentina",
+        type: "call",
+        duration: 4.98,
+      },
+    ],
   },
   {
     name: "Marreca-caucau",
@@ -1448,7 +1822,23 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Matt Blue, some rights reserved (CC BY-NC), uploaded by Matt Blue",
     coa: { frequency: "Acidental", season: "Indeterminada" },
     conservation: { status: "NT", list: "RS" },
-    sounds: [],
+    sounds: [
+      {
+        // A rolling klu-klu-klu call series, about 6s of the 8s recording
+        source: "xenocanto",
+        xc: 176864,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MNENFHYTAE/XC176864-Threskiornithidae_Mesembrinibis_cayennensis_10_10_2010_H15_19_Fazenda_Beira_Rio_Salete.mp3",
+        recordist: "Douglas Meyer",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Salete, SC",
+        type: "call",
+        start: 2.5,
+        end: 8.36,
+        fmax: 5000,
+      },
+    ],
   },
   {
     name: "Urubu-preto",
@@ -1483,7 +1873,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/52277010/medium.jpg",
     photoCredit: "(c) Seig, some rights reserved (CC BY), uploaded by Seig",
     coa: { frequency: "Comum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // Two long hisses, about 8s of the 1m54s recording
+        source: "xenocanto",
+        xc: 520288,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/SEVIQQAKWM/XC520288-ZOOM0004_Tr1%20-%20Jote%20Cabeza%20colorada.mp3",
+        recordist: "Cristian Pinto",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "La Higuera, Chile",
+        type: "call",
+        start: 88.2,
+        end: 96.3,
+      },
+    ],
   },
   {
     name: "Urubu-de-cabeça-amarela",
@@ -1655,7 +2060,23 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Paul G. Johnson, some rights reserved (CC BY-NC-SA), uploaded by Paul G. Johnson",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // Two bouts of deep hoots, about 7s of the 1m09s recording
+        source: "xenocanto",
+        xc: 510863,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/TGBFXDVERJ/XC510863-Bubo%20virginianus_Mostardas_1105.mp3",
+        recordist: "Gabriel Leite",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Mostardas, RS",
+        type: "song",
+        start: 1.9,
+        end: 8.8,
+        fmax: 3000,
+      },
+    ],
   },
   {
     name: "Corujinha-do-sul",
@@ -1667,7 +2088,23 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // One full song, a rising purring trill, about 5s of the 12s recording
+        source: "xenocanto",
+        xc: 22771,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/XRABICUARW/R09_2046-Long-tufted-Screech-Owl.mp3",
+        recordist: "Nick Athanas",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "São Francisco de Paula, RS",
+        type: "song",
+        start: 0.4,
+        end: 5.5,
+        fmax: 4000,
+      },
+    ],
   },
   {
     name: "Coruja-do-mato",
@@ -1677,7 +2114,23 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/774636/medium.jpg",
     photoCredit: "(c) dominic sherony, some rights reserved (CC BY-SA)",
     coa: { frequency: "Acidental", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // Two songs with the natural pause between them, about 13s of the 56s recording
+        source: "xenocanto",
+        xc: 320324,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/ODNEDFESFY/XC320324-Strix%20virgata%20borelliana%20%28Bertoni%2C%201901%29-4.mp3",
+        recordist: "Alexandre Bianco",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Urussanga, SC",
+        type: "song",
+        start: 4.5,
+        end: 18,
+        fmax: 3000,
+      },
+    ],
   },
   {
     name: "Gralha-picaça",
@@ -1714,7 +2167,23 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Francesco Veronesi, some rights reserved (CC BY-SA)",
     coa: { frequency: "Acidental", season: "Indeterminada" },
     conservation: { status: "VU", list: "RS" },
-    sounds: [],
+    sounds: [
+      {
+        // A long run of deep booming hoots, about 17s of the 1m01s recording
+        source: "xenocanto",
+        xc: 672193,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/TGBFXDVERJ/XC672193-Pyroderus%20scutatus_Horto_ML048.mp3",
+        recordist: "Gabriel Leite",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "São José dos Campos, SP",
+        type: "song",
+        start: 40.3,
+        end: 57.2,
+        fmax: 800,
+      },
+    ],
   },
   {
     name: "Anu-branco",
@@ -1819,7 +2288,23 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/17537/medium.jpg",
     photoCredit: "(c) Edwin Harvey, some rights reserved (CC BY-NC-SA)",
     coa: { frequency: "Rara", season: "Primavera/verão" },
-    sounds: [],
+    sounds: [
+      {
+        // Two song phrases, about 15s of the 30s recording
+        source: "xenocanto",
+        xc: 807695,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/LBUERSNSGU/XC807695-Coccyzus-melacoryphus.mp3",
+        recordist: "Vinícius Soares Domingues",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Tavares, RS",
+        type: "song",
+        start: 2.1,
+        end: 17.4,
+        fmax: 3000,
+      },
+    ],
   },
   {
     name: "Peixe-frito-pavonino",
@@ -1831,7 +2316,23 @@ const BIRDS_PORTO_ALEGRE = [
       "(c) Hudson Martins Soares, some rights reserved (CC BY-NC), uploaded by Hudson Martins Soares",
     coa: { frequency: "Rara", season: "Indeterminada" },
     conservation: { status: "VU", list: "RS" },
-    sounds: [],
+    sounds: [
+      {
+        // Three song phrases, about 15s of the 2m12s recording
+        source: "xenocanto",
+        xc: 500505,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/ODNEDFESFY/XC500505-Dromococcyx%20pavoninus%20%C2%B7%20Pelzeln%2C%201870.mp3",
+        recordist: "Alexandre Bianco",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Fagundes Varela, RS",
+        type: "song",
+        start: 19.8,
+        end: 34.6,
+        fmax: 5000,
+      },
+    ],
   },
   {
     name: "Carcará",
@@ -1984,7 +2485,22 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 4719,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/121267586/medium.jpeg",
     photoCredit: "(c) Lina Crespo, some rights reserved (CC BY-NC), uploaded by Lina Crespo",
-    sounds: [],
+    sounds: [
+      {
+        // The pair's laughing 'gua-cão' duet, about 16s of the 1m14s recording
+        source: "xenocanto",
+        xc: 127355,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MNENFHYTAE/XC127355-Falconidae_Herpetotheres_cachimans_08_03_2013_H07_16_Rio_Paloma_Barra_do_Rio_Azul.mp3",
+        recordist: "Douglas Meyer",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Aratiba, RS",
+        type: "song",
+        start: 0.1,
+        end: 16.3,
+      },
+    ],
   },
   {
     name: "Falcão-de-coleira",
@@ -1995,7 +2511,21 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) eduardovieira17, some rights reserved (CC BY-NC), uploaded by eduardovieira17",
     coa: { frequency: "Rara", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 6s recording: a chattering 'kek-kek-kek' call series
+        source: "xenocanto",
+        xc: 174392,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MNENFHYTAE/XC174392-Falconidae_Falco_femoralis_05_11_2011_H15_32_Rio_Indai%C3%A1_Petrolandia.mp3",
+        recordist: "Douglas Meyer",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Petrolândia, SC",
+        type: "call",
+        duration: 6.08,
+      },
+    ],
   },
   {
     name: "Flamingo-chileno",
@@ -2007,7 +2537,21 @@ const BIRDS_PORTO_ALEGRE = [
       "(c) Sebastián Lescano, some rights reserved (CC BY-NC), uploaded by Sebastián Lescano",
     coa: { frequency: "Acidental", season: "Indeterminada" },
     conservation: { status: "NT", list: "IUCN" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 24s recording: a flock honking in alarm
+        source: "xenocanto",
+        xc: 46345,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/BYLLSJRVDZ/Phoenicopterus%20chilensis_Chilean%20Flamingo_Albufera%20Mar%20Chiquita_Mar%20Chiquita_Buenos%20Aires_Argentina_17JUL2005_Bernabe%20Lopez-Lanus.mp3",
+        recordist: "Bernabe Lopez-Lanus",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Mar Chiquita, Argentina",
+        type: "call",
+        duration: 24.13,
+      },
+    ],
   },
   {
     name: "Fragata",
@@ -2347,7 +2891,23 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/7582/medium.jpg",
     photoCredit: "(c) ClÃ¡udio Dias Timm, some rights reserved (CC BY-NC-SA)",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // Three 'kek-kek-kek' call series, about 9s of the 47s recording
+        source: "xenocanto",
+        xc: 686960,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC686960-11-11-2021%2016e19%20Galinha%20dagua%20carijo%20RIO%20GRANDE.mp3",
+        recordist: "Jayrson Araujo de Oliveira",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 0.6,
+        end: 9.3,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Carqueja-de-bico-amarelo",
@@ -2357,7 +2917,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2229680/medium.jpg",
     photoCredit:
       "(c) Jorge Schlemmer, some rights reserved (CC BY-NC), uploaded by Jorge Schlemmer",
-    sounds: [],
+    sounds: [
+      {
+        // A series of clucking calls, about 8s of the 37s recording
+        source: "xenocanto",
+        xc: 827894,
+        audio: "https://xeno-canto.org/sounds/uploaded/THHNKSHUMO/XC827894-122-FoulquesSTE-065.mp3",
+        recordist: "Bernard BOUSQUET",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "José de la Quintana, Argentina",
+        type: "call",
+        start: 0.7,
+        end: 8.3,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Frango-d'água-azul",
@@ -2367,7 +2942,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/246710060/medium.jpg",
     photoCredit: "(c) Bert Filemyr, some rights reserved (CC BY-NC), uploaded by Bert Filemyr",
     coa: { frequency: "Rara", season: "Primavera/verão" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 7s recording: a cackling alarm call series
+        source: "xenocanto",
+        xc: 147540,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/WZSVLIHYQF/XC147540-Porphyrio_martinica_Piracicaba.mp3",
+        recordist: "Robson Silva e Silva",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Piracicaba, SP",
+        type: "call",
+        duration: 7.44,
+      },
+    ],
   },
   {
     name: "Garça-branca-grande",
@@ -2597,7 +3186,22 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Bryan Caro San Martin, some rights reserved (CC BY-NC), uploaded by Bryan Caro San Martin",
     coa: { frequency: "Acidental", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 9s recording: a series of six low, hoarse 'gwok' notes
+        source: "xenocanto",
+        xc: 45682,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/BYLLSJRVDZ/Ixobrychus%20involucris_Stripe-backed%20Bittern_Estancia%20La%20Verdosa_San%20Enrique_Tapalque_Buenos%20Aires_Argentina_Bernabe%20Lopez-Lanus.mp3",
+        recordist: "Bernabe Lopez-Lanus",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "25 de Mayo, Argentina",
+        type: "call",
+        duration: 9.55,
+        fmax: 3000,
+      },
+    ],
   },
   {
     name: "Fim-fim",
@@ -2678,7 +3282,22 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 10461,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/95545/medium.jpg",
     photoCredit: "(c) Dave Curtis, some rights reserved (CC BY-NC-ND)",
-    sounds: [],
+    sounds: [
+      {
+        // Plaintive 'peeu' whistles and nasal calls, about 13s of the 39s recording
+        source: "xenocanto",
+        xc: 426197,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MHHPJBCUXC/XC426197-Chlorophonia%20cyanea-20180714-123548.mp3",
+        recordist: "Fernando Jacobs",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Maquiné, RS",
+        type: "call",
+        start: 1.5,
+        end: 14.3,
+      },
+    ],
   },
   {
     name: "Gavião-carijó",
@@ -2883,7 +3502,20 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5355,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/191470/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    sounds: [],
+    sounds: [
+      {
+        // The whole 28s recording: harsh kee-ah calls, then several birds chattering
+        source: "xenocanto",
+        xc: 9404,
+        audio: "https://xeno-canto.org/sounds/uploaded/IGDDGNGPAL/gavimixto.alvaricc.mp3",
+        recordist: "Alvaro Riccetto",
+        license: "cc-by-nc-nd",
+        licenseVersion: "2.5",
+        location: "Lavalleja, Uruguai",
+        type: "call",
+        duration: 27.82,
+      },
+    ],
   },
   {
     name: "Gavião-pernilongo",
@@ -2892,7 +3524,22 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 5411,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/93130641/medium.jpg",
     photoCredit: "(c) Geir Drange, some rights reserved (CC BY-NC), uploaded by Geir Drange",
-    sounds: [],
+    sounds: [
+      {
+        // The whole 20s recording: four whistled kyeew calls
+        source: "xenocanto",
+        xc: 463487,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/ORPKXJRFDZ/XC463487-gavi%C3%A3o-ernilongo%20%28online-audio-converter.com%29.mp3",
+        recordist: "Luiz C. Silva",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Campo Mourão, PR",
+        type: "call",
+        duration: 20.41,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Gavião-de-rabo-branco",
@@ -2901,7 +3548,22 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 201043,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/28307351/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
-    sounds: [],
+    sounds: [
+      {
+        // A short burst, then the full laughing ke-ke-ke series, about 8s of the 32s recording
+        source: "xenocanto",
+        xc: 1018671,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/WZSVLIHYQF/XC1018671-Buteo_albicaudatus_04092024_RSS.mp3",
+        recordist: "Robson Silva e Silva",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Patrocínio, MG",
+        type: "call",
+        start: 23.75,
+        end: 31.65,
+      },
+    ],
   },
   {
     name: "Gavião-gato",
@@ -2911,7 +3573,23 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/93330234/medium.jpeg",
     photoCredit: "(c) andretostes, some rights reserved (CC BY-NC), uploaded by andretostes",
     conservation: { status: "NT", list: "RS" },
-    sounds: [],
+    sounds: [
+      {
+        // A cat-like mew and a short soft kek series, about 7s of the 39s recording
+        source: "xenocanto",
+        xc: 344859,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/ORPKXJRFDZ/XC344859-gavi%C3%A3o%20de%20cabe%C3%A7a%20cinza.mp3",
+        recordist: "Luiz C. Silva",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Peabiru, PR",
+        type: "call",
+        start: 1.3,
+        end: 8.2,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Gavião-tesoura",
@@ -2921,7 +3599,20 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/21518168/medium.jpg",
     photoCredit: "(c) Greg Lasley, some rights reserved (CC BY-NC), uploaded by Greg Lasley",
     coa: { frequency: "Rara", season: "Primavera/verão" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 18s recording: bursts of shrill klee-klee calls
+        source: "xenocanto",
+        xc: 85130,
+        audio: "https://xeno-canto.org/sounds/uploaded/DGVLLRYDXS/ELAFOR06.mp3",
+        recordist: "Jeremy Minns",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Iporanga, SP",
+        type: "call",
+        duration: 18.3,
+      },
+    ],
   },
   {
     name: "Sabiá-do-campo",
@@ -3009,7 +3700,23 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Diego Caballero, some rights reserved (CC BY-NC), uploaded by Diego Caballero",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // The end of a long series of high pip notes, about 14s of the 36s recording
+        source: "xenocanto",
+        xc: 51597,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/BYLLSJRVDZ/NOTHURA%20Spotted_10_Sao%20Francisco%20de%20Paula_Rio%20Grande%20do%20Sul_BR_4JUL07_Bernabe%20Lopez-Lanus.mp3",
+        recordist: "Bernabe Lopez-Lanus",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "São Francisco de Paula, RS",
+        type: "song",
+        start: 15.7,
+        end: 29.45,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Chupim",
@@ -3248,7 +3955,20 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 18s recording: six song phrases of clucks and liquid whistles
+        source: "xenocanto",
+        xc: 84448,
+        audio: "https://xeno-canto.org/sounds/uploaded/DGVLLRYDXS/CACCHR22.mp3",
+        recordist: "Jeremy Minns",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "São Francisco de Paula, RS",
+        type: "song",
+        duration: 18.3,
+      },
+    ],
   },
   {
     name: "Jaçanã",
@@ -3506,7 +4226,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/327548198/medium.jpg",
     photoCredit: "(c) Alan Hentz, some rights reserved (CC BY-NC), uploaded by Alan Hentz",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // Repeated stuttering song phrases, possibly a pair, about 13s of the 32s recording
+        source: "xenocanto",
+        xc: 825934,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/AYMBPYCGJV/XC825934-ZOOM0048_Rufous-capped-Spinetail_Floresta-Nacional-de-Canela_01-08-2023_09-10AM_HNorambuena.mp3",
+        recordist: "Heraldo V. Norambuena",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Canela, RS",
+        type: "song",
+        start: 3.36,
+        end: 16.12,
+      },
+    ],
   },
   {
     name: "João-botina-do-brejo",
@@ -3517,7 +4252,22 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) mauriciofreitas, some rights reserved (CC BY-NC), uploaded by mauriciofreitas",
     coa: { frequency: "Rara", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // Soft lead-in notes building into the loud song, about 13s of the 17s recording
+        source: "xenocanto",
+        xc: 176859,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MNENFHYTAE/XC176859-Furnariidae_Phacellodomus%20ferrugineigula_12_07_2012_H14_07_Salvador_do_Sul.mp3",
+        recordist: "Douglas Meyer",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Salvador do Sul, RS",
+        type: "song",
+        start: 2.3,
+        end: 15.5,
+      },
+    ],
   },
   {
     name: "Bate-bico",
@@ -3527,7 +4277,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/59558992/medium.jpg",
     photoCredit:
       "(c) Adrian Braidotti, some rights reserved (CC BY-NC), uploaded by Adrian Braidotti",
-    sounds: [],
+    sounds: [
+      {
+        // The whole 15s recording: a long series of dry ticks, a pause, then a harsh note and paired ticks
+        source: "xenocanto",
+        xc: 510882,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/TGBFXDVERJ/XC510882-Phleocryptes%20melanops_Mostardas_1070.mp3",
+        recordist: "Gabriel Leite",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Mostardas, RS",
+        type: "song",
+        duration: 14.89,
+      },
+    ],
   },
   {
     name: "Narceja",
@@ -3587,7 +4351,22 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) Jonathan Irons, some rights reserved (CC BY-NC), uploaded by Jonathan Irons",
     coa: { frequency: "Rara", season: "Primavera/verão" },
     conservation: { status: "VU", list: "IUCN" },
-    sounds: [],
+    sounds: [
+      {
+        // A steady series of tew calls, about 10s of the 25s recording
+        source: "xenocanto",
+        xc: 510859,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/TGBFXDVERJ/XC510859-Tringa%20flavipes_Tavares_1142.mp3",
+        recordist: "Gabriel Leite",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Tavares, RS",
+        type: "call",
+        start: 13.15,
+        end: 22.7,
+      },
+    ],
   },
   {
     name: "Maçarico-solitário",
@@ -3598,7 +4377,22 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Robin Gwen Agarwal, some rights reserved (CC BY-NC), uploaded by Robin Gwen Agarwal",
     coa: { frequency: "Incomum", season: "Primavera/verão" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 8s recording: four 'peet-weet-weet' flight calls
+        source: "xenocanto",
+        xc: 323490,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MNENFHYTAE/XC323490-Scolopacidae_Tringa_solitaria_17_12_2015_H09_26_Doutor_Pedrinho.mp3",
+        recordist: "Douglas Meyer",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Doutor Pedrinho, SC",
+        type: "call",
+        duration: 8.2,
+        fmin: 2000,
+      },
+    ],
   },
   {
     name: "Mariquita",
@@ -3787,7 +4581,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/103739937/medium.jpg",
     photoCredit: "(c) Luciano Massa, some rights reserved (CC BY), uploaded by Luciano Massa",
     coa: { frequency: "Rara", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 11s recording: four trilled calls
+        source: "xenocanto",
+        xc: 45665,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/BYLLSJRVDZ/Rollandia%20rolland%20chilensis_White-tufted%20Grebe_Villa%20Pehuenia_Neuquen_Argentina_23ENE05_Bernabe%20Lopez-Lanus.mp3",
+        recordist: "Bernabe Lopez-Lanus",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Villa Pehuenia, Argentina",
+        type: "call",
+        duration: 10.91,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Mergulhão-caçador",
@@ -3797,7 +4606,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/117828251/medium.jpg",
     photoCredit: "(c) Ad Konings, some rights reserved (CC BY-NC), uploaded by Ad Konings",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // Accelerating 'kuk' notes running into the 'cow-cow-cowp' series, about 16s of the 58s recording
+        source: "inaturalist",
+        audio: "https://static.inaturalist.org/sounds/835915.mp3",
+        recordist: "Alan Hentz",
+        license: "cc-by-nc",
+        observation: 188705565,
+        location: "São Lourenço do Oeste, SC",
+        type: "song",
+        start: 38.6,
+        end: 54.7,
+        fmax: 4000,
+      },
+    ],
   },
   {
     name: "Mergulhão-grande",
@@ -3807,7 +4630,23 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/4901168/medium.jpg",
     photoCredit: "(c) Daniele Colombo, some rights reserved (CC BY-NC-SA)",
     coa: { frequency: "Rara", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // Nine 'kek' alarm calls, about 13s of the 29s recording
+        source: "xenocanto",
+        xc: 686950,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC686950-11-11-2021%209e37%20Mergulhao%20grande%20RIO%20GRANDE.mp3",
+        recordist: "Jayrson Araujo de Oliveira",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Rio Grande, RS",
+        type: "call",
+        start: 5.4,
+        end: 18.5,
+        fmax: 5000,
+      },
+    ],
   },
   {
     name: "Aracuã-escamoso",
@@ -3987,7 +4826,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/77933/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
     coa: { frequency: "Rara", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // Seven songs, about 17s of the 34s recording
+        source: "xenocanto",
+        xc: 418164,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC418164-Patinho1%20%28Platyrinchus%20mystaceus-OK-OK%29.mp3",
+        recordist: "Jayrson Araujo de Oliveira",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "São Francisco de Paula, RS",
+        type: "song",
+        start: 6.3,
+        end: 23.2,
+      },
+    ],
   },
   {
     name: "Pernilongo-de-costas-brancas",
@@ -4118,7 +4972,20 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) visionsamazoniennes, some rights reserved (CC BY-NC), uploaded by visionsamazoniennes",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 6s recording: two loud phrases
+        source: "inaturalist",
+        audio: "https://static.inaturalist.org/sounds/1742388.mp3",
+        recordist: "amandapmarcon",
+        license: "cc-by-nc",
+        observation: 334944845,
+        location: "Getúlio Vargas, RS",
+        type: "song",
+        duration: 5.88,
+        fmax: 8000,
+      },
+    ],
   },
   {
     name: "Pica-pau-dourado",
@@ -4129,7 +4996,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/12204993/large.jpg",
     photoCredit: "(c) Gustavo Lazarini Forreque, some rights reserved (CC BY)",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // Two four-note series, about 8.5s of the 10s recording
+        source: "inaturalist",
+        audio: "https://static.inaturalist.org/sounds/1787556.mp3",
+        recordist: "amandapmarcon",
+        license: "cc-by-nc",
+        observation: 340803060,
+        location: "Água Santa, RS",
+        type: "song",
+        start: 1,
+        end: 9.5,
+        fmax: 8000,
+      },
+    ],
   },
   {
     name: "Tovaca-campainha",
@@ -4350,7 +5231,20 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Andria E. Hernandez, some rights reserved (CC BY-NC), uploaded by Andria E. Hernandez",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 15s recording: two long screeches
+        source: "xenocanto",
+        xc: 70088,
+        audio: "https://xeno-canto.org/sounds/uploaded/IGDDGNGPAL/lechuzacampanario.mp3",
+        recordist: "Alvaro Riccetto",
+        license: "cc-by-nc-nd",
+        licenseVersion: "2.5",
+        location: "Lavalleja, Uruguai",
+        type: "call",
+        duration: 14.58,
+      },
+    ],
   },
   {
     name: "Surucuá-variado",
@@ -4411,7 +5305,22 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Diego Caballero, some rights reserved (CC BY-NC), uploaded by Diego Caballero",
     coa: { frequency: "Pouco comum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // Two songs, about 13s of the 29s recording
+        source: "xenocanto",
+        xc: 200399,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MHHPJBCUXC/XC200399-Ammodramus_humeralis-51311%2025-10-2008.mp3",
+        recordist: "Fernando Jacobs",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Arroio Grande, RS",
+        type: "song",
+        start: 0.8,
+        end: 14,
+      },
+    ],
   },
   {
     name: "Cambacica",
@@ -4947,7 +5856,21 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit: "(c) RAP, some rights reserved (CC BY), uploaded by RAP",
     coa: { frequency: "Rara", season: "Todo o ano" },
     conservation: { status: "NT", list: "RS" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 24s recording: two long warbled songs
+        source: "xenocanto",
+        xc: 203407,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/AOPMSCIDIA/XC203407-coleiro-do-brejo%20%28Sporophila%20collaris%29.mp3",
+        recordist: "Adrian Eisen Rupp",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Mostardas, RS",
+        type: "song",
+        duration: 24,
+      },
+    ],
   },
   {
     name: "Saíra-de-papo-preto",
@@ -4958,7 +5881,24 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Frederico Acaz Sonntag, some rights reserved (CC BY-NC), uploaded by Frederico Acaz Sonntag",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // A fast burst of high notes, then a long series of thin notes, about 18s of the 22s recording
+        source: "xenocanto",
+        xc: 308816,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MHHPJBCUXC/XC308816-Hemithraupis_guira-63199.mp3",
+        recordist: "Fernando Jacobs",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Derrubadas, RS",
+        type: "song",
+        start: 0.1,
+        end: 17.9,
+        fmin: 2000,
+        fmax: 12000,
+      },
+    ],
   },
   {
     name: "Tico-tico-do-banhado",
@@ -4969,7 +5909,22 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Agustín Gabriel Álvarez, some rights reserved (CC BY-NC), uploaded by Agustín Gabriel Álvarez",
     coa: { frequency: "Rara", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // One long song: a 9s series of rapid downslurred notes, from the 36s recording
+        source: "xenocanto",
+        xc: 1052975,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC1052975-05-11-2025-10e40-Tico-tico-do-banhado-SAO-FRANCISCO-DE-PAULA.mp3",
+        recordist: "Jayrson Araujo de Oliveira",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "São Francisco de Paula, RS",
+        type: "song",
+        start: 3,
+        end: 12.6,
+      },
+    ],
   },
   {
     name: "Canário-do-campo",
@@ -4979,7 +5934,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/555212/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
     coa: { frequency: "Rara", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 25s recording: nine song phrases
+        source: "xenocanto",
+        xc: 8150,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MHHPJBCUXC/Canario-do-campo%20-%20Emberizoides%20herbicola.mp3",
+        recordist: "Fernando Jacobs",
+        license: "cc-by-nc-nd",
+        licenseVersion: "2.5",
+        location: "Pelotas, RS",
+        type: "song",
+        duration: 24.77,
+      },
+    ],
   },
   {
     name: "Cabecinha-castanha",
@@ -4989,7 +5958,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/104133569/medium.jpeg",
     photoCredit:
       "(c) Frederico Acaz Sonntag, some rights reserved (CC BY-NC), uploaded by Frederico Acaz Sonntag",
-    sounds: [],
+    sounds: [
+      {
+        // Two song phrases, about 8s of the 25s recording
+        source: "xenocanto",
+        xc: 84641,
+        audio: "https://xeno-canto.org/sounds/uploaded/DGVLLRYDXS/PYRRUF13.mp3",
+        recordist: "Jeremy Minns",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "São Francisco de Paula, RS",
+        type: "song",
+        start: 2,
+        end: 10,
+      },
+    ],
   },
   {
     name: "Cigarra-bambu",
@@ -4999,7 +5982,24 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1507236/medium.jpg",
     photoCredit: "(c) Nigel Voaden, some rights reserved (CC BY)",
     coa: { frequency: "Acidental", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // Five songs, about 16s of the 40s recording
+        source: "xenocanto",
+        xc: 186838,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/CEKMJEZKSJ/XC186838-Haplospiza%20unicolor_BARRA_DO_OURO_12_04_2014.mp3",
+        recordist: "João Gava",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Maquiné, RS",
+        type: "song",
+        start: 1.1,
+        end: 17.5,
+        fmin: 2000,
+        fmax: 12000,
+      },
+    ],
   },
   {
     name: "Tiê-de-topete",
@@ -5010,7 +6010,22 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) João Paulo Rosa, some rights reserved (CC BY-NC), uploaded by João Paulo Rosa",
     coa: { frequency: "Incomum", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // A long jumbled song of chips and slurred whistles, about 10s of the 46s recording
+        source: "xenocanto",
+        xc: 488834,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MLTFMFCXEO/XC488834-Trichothraupis%20melanops%20-%20Arataca%20-%20Joinville%20-%20SC%20-%2017-10-2017%20%2817-18%29%20M%20editada.mp3",
+        recordist: "Guilherme Willrich",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Joinville, SC",
+        type: "song",
+        start: 1.2,
+        end: 11.4,
+      },
+    ],
   },
   {
     name: "Bem-te-vi",
@@ -5550,7 +6565,23 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/63359967/medium.jpg",
     photoCredit:
       "(c) Josh van der Meulen, some rights reserved (CC BY-NC-ND), uploaded by Josh van der Meulen",
-    sounds: [],
+    sounds: [
+      {
+        // Three whining 'wee-yee' notes with short 'pi-ri-ri' series between them, about 20s of the 24s recording
+        source: "xenocanto",
+        xc: 114755,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/IRBNRXBEVU/XC114755-1209_101707_Legatus_leucophaius_Campo_Belo_do_Sul.mp3",
+        recordist: "Cid Espínola",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Campo Belo do Sul, SC",
+        type: "song",
+        start: 0.3,
+        end: 19.9,
+        fmax: 8000,
+      },
+    ],
   },
   {
     name: "Filipe",
@@ -5560,7 +6591,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/77937/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
     coa: { frequency: "Pouco comum", season: "Primavera/verão" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 11s recording: two songs, each an upslur followed by a rapid 'pit-pit-pit' trill
+        source: "xenocanto",
+        xc: 551043,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/BYLLSJRVDZ/XC551043-0773%20BLL513-48%20Myiophobus%20fasciatus.mp3",
+        recordist: "Bernabe Lopez-Lanus",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "San Pedro, Argentina",
+        type: "song",
+        duration: 11.25,
+      },
+    ],
   },
   {
     name: "Maria-preta-de-bico-azulado",
@@ -5570,7 +6615,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/26406838/medium.jpeg",
     photoCredit: "no rights reserved, uploaded by Diego Carús",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 6s recording: six thin, downslurred 'tsip' notes
+        source: "xenocanto",
+        xc: 138551,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/TWSKITNQOV/XC138551-maria-preta-de-bico-azuladoPESB.mp3",
+        recordist: "Noé Eiterer",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Araponga, MG",
+        type: "song",
+        duration: 5.68,
+        fmin: 3000,
+      },
+    ],
   },
   {
     name: "Guaracava-de-crista-alaranjada",
@@ -5580,7 +6640,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/2077595/medium.jpg",
     photoCredit: "(c) Nigel Voaden, some rights reserved (CC BY)",
     coa: { frequency: "Rara", season: "Primavera/verão" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 21s recording: dawn song of repeated burry 'chree-eet' notes, some followed by a quick 'pi-pi-pi' series
+        source: "xenocanto",
+        xc: 304367,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/CHDHFSVVIN/XC304367-308%20Myiopagis%20viridicata%28Morning%20song%29MoedaTr%C3%AAsLagoas150212.mp3",
+        recordist: "Fernando Igor de Godoy",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Três Lagoas, MS",
+        type: "song",
+        duration: 20.59,
+        fmax: 8000,
+      },
+    ],
   },
   {
     name: "Freirinha",
@@ -5590,7 +6665,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/279432/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
     coa: { frequency: "Incomum", season: "Todo o ano" },
-    sounds: [],
+    sounds: [
+      {
+        // Three song phrases (soft ticks and a sharp 'tsew'), about 7s of the 10s recording
+        source: "xenocanto",
+        xc: 414335,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/LXKLWEDKEM/XC414335-Freirinha%20%28Arundinicola%20leucocephala-OK%29.mp3",
+        recordist: "Jayrson Araujo de Oliveira",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Goiânia, GO",
+        type: "song",
+        start: 0.1,
+        end: 7,
+      },
+    ],
   },
   {
     name: "Barulhento",
@@ -5600,7 +6690,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/565889/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
     coa: { frequency: "Rara", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 21s recording: the dry rattle-and-snap song, repeated
+        source: "xenocanto",
+        xc: 181728,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/TLLUGZINYM/XC181728-Euscarthmus%20meloryphus%20%28Candiota-RS%2C%2028.05.14%29%20%28p%C3%B3s-playback%29.mp3",
+        recordist: "Roberto Buss Stringari",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Pedras Altas, RS",
+        type: "song",
+        duration: 21.21,
+      },
+    ],
   },
   {
     name: "Primavera",
@@ -5610,7 +6714,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/1718631/medium.jpg",
     photoCredit: "(c) Mauricio Mercadante, some rights reserved (CC BY-NC-SA)",
     coa: { frequency: "Rara", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // Three whistled song phrases, about 11s of the 27s recording
+        source: "xenocanto",
+        xc: 350095,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/WZSVLIHYQF/XC350095-Xolmis_cinereus_Patrocinio_MG_30_Aug_2011_RSS.mp3",
+        recordist: "Robson Silva e Silva",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Patrocínio, MG",
+        type: "song",
+        start: 15.55,
+        end: 26.5,
+      },
+    ],
   },
   {
     name: "Alegrinho-trinador",
@@ -5621,7 +6740,24 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Jorge Schlemmer, some rights reserved (CC BY-NC), uploaded by Jorge Schlemmer",
     coa: { frequency: "Rara", season: "Outono/inverno" },
-    sounds: [],
+    sounds: [
+      {
+        // A call note and two trilled songs, about 8s of the 42s recording
+        source: "xenocanto",
+        xc: 440803,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MHHPJBCUXC/XC440803-Serpophaga%20griseicapilla%20mp3-%20Estrada%20do%20Cotovelo%20-%20A%C3%A7ude%20-%2020181015-105728.mp3",
+        recordist: "Fernando Jacobs",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Pelotas, RS",
+        type: "song",
+        start: 31.2,
+        end: 38.8,
+        fmin: 2000,
+        fmax: 12000,
+      },
+    ],
   },
   {
     name: "Viuvinha-de-óculos",
@@ -5631,7 +6767,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/386914/medium.jpg",
     photoCredit: "(c) Lip Kee, some rights reserved (CC BY-SA)",
     coa: { frequency: "Incomum", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 5s recording: two of its whistled-and-clicking calls
+        source: "xenocanto",
+        xc: 510836,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/TGBFXDVERJ/XC510836-Hymenops%20perpicillatus_Tavares_1025.mp3",
+        recordist: "Gabriel Leite",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Tavares, RS",
+        type: "call",
+        duration: 5.1,
+      },
+    ],
   },
   {
     name: "Lavadeira-mascarada",
@@ -5642,7 +6792,22 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Luciano Bernardes, some rights reserved (CC BY-NC), uploaded by Luciano Bernardes",
     coa: { frequency: "Rara", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // Bursts of sharp chattering notes, about 14s of the 47s recording
+        source: "xenocanto",
+        xc: 745046,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/CFRYARSVHN/XC745046-recording-20220818-075303%20Lavadeira%20xc.mp3",
+        recordist: "Ricardo José Mitidieri",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Niterói, RJ",
+        type: "song",
+        start: 1.1,
+        end: 14.75,
+      },
+    ],
   },
   {
     name: "Gibão-de-couro",
@@ -5651,7 +6816,21 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 17180,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/567541/medium.jpg",
     photoCredit: "(c) Dario Sanches, some rights reserved (CC BY-SA)",
-    sounds: [],
+    sounds: [
+      {
+        // The whole 10s recording: two loud 'wheee-titititi' song phrases
+        source: "xenocanto",
+        xc: 173287,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/MNENFHYTAE/XC173287-Tyrannidae_Hirundinea_ferruginea_03_11_2010_H13_15_Centro_Salete.mp3",
+        recordist: "Douglas Meyer",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Salete, SC",
+        type: "song",
+        duration: 10.58,
+      },
+    ],
   },
   {
     name: "Guaracava-de-crista-branca",
@@ -5662,7 +6841,21 @@ const BIRDS_PORTO_ALEGRE = [
     photoCredit:
       "(c) Cristóbal Costoya, some rights reserved (CC BY-NC), uploaded by Cristóbal Costoya",
     coa: { frequency: "Rara", season: "Outono/inverno" },
-    sounds: [],
+    sounds: [
+      {
+        // The whole 17s recording: the repeated dawn song note
+        source: "xenocanto",
+        xc: 29343,
+        audio: "https://xeno-canto.org/sounds/uploaded/XTVEPHMPPJ/ELAALB01.mp3",
+        recordist: "Niels Krabbe",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Calilegua, Argentina",
+        type: "song",
+        duration: 17.09,
+        fmax: 6000,
+      },
+    ],
   },
   {
     name: "Sabiá-laranjeira",
@@ -5804,7 +6997,21 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/276384930/medium.jpeg",
     photoCredit: "(c) Júlio Castellain, some rights reserved (CC BY), uploaded by Júlio Castellain",
     coa: { frequency: "Acidental", season: "Indeterminada" },
-    sounds: [],
+    sounds: [
+      {
+        // Two bouts of the high, varied song, about 14s of the 22s recording
+        source: "xenocanto",
+        xc: 291468,
+        audio: "https://xeno-canto.org/sounds/uploaded/HJWRCPSXJP/XC291468-Turdus%20flavipes.mp3",
+        recordist: "Samuel Lopes Oliveira",
+        license: "cc-by-nc-sa",
+        licenseVersion: "4.0",
+        location: "Santa Cruz do Sul, RS",
+        type: "song",
+        start: 0.25,
+        end: 14.6,
+      },
+    ],
   },
   {
     name: "Tucano-de-bico-verde",
@@ -5814,7 +7021,22 @@ const BIRDS_PORTO_ALEGRE = [
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/66312147/medium.jpeg",
     photoCredit:
       "(c) Javier González, some rights reserved (CC BY-NC), uploaded by Javier González",
-    sounds: [],
+    sounds: [
+      {
+        // The whole 23s recording: a steady series of frog-like croaks
+        source: "xenocanto",
+        xc: 166271,
+        audio:
+          "https://xeno-canto.org/sounds/uploaded/FUUWTBJYFV/XC166271-Ramphastos_dicolorus_tucano_bico_verde_4.mp3",
+        recordist: "Antonio de Almeida Correia Junior",
+        license: "cc-by-nc-sa",
+        licenseVersion: "3.0",
+        location: "Abelardo Luz, SC",
+        type: "call",
+        duration: 23.48,
+        fmax: 5000,
+      },
+    ],
   },
   {
     name: "Tucanuçu",
@@ -5823,7 +7045,21 @@ const BIRDS_PORTO_ALEGRE = [
     inatTaxonId: 18793,
     photo: "https://inaturalist-open-data.s3.amazonaws.com/photos/63281117/medium.jpg",
     photoCredit: "(c) Paul Steeves, some rights reserved (CC BY-NC), uploaded by Paul Steeves",
-    sounds: [],
+    sounds: [
+      {
+        // Seven deep croaks, about 10s of the 12s recording
+        source: "inaturalist",
+        audio: "https://static.inaturalist.org/sounds/1570179.wav",
+        recordist: "Simón Pla García",
+        license: "cc-by-nc",
+        observation: 298329861,
+        location: "Comandante Andresito, Argentina",
+        type: "call",
+        start: 2.15,
+        end: 11.8,
+        fmax: 4000,
+      },
+    ],
   },
   {
     name: "Tangará",
