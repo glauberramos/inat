@@ -65,6 +65,10 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://glauberramos.github.io/inat/species-tree</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://glauberramos.github.io/inat/widget</loc>
     <priority>0.7</priority>
   </url>
