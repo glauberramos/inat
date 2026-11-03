@@ -448,6 +448,20 @@ function collectInfraspecificTaxa(records) {
   return Array.from(byId.values());
 }
 
+// iNaturalist can set a common name for a place, and that name beats the locale's
+// default: Pseudoleistes guirahuro is "Pássaro-preto-soldado" in Portuguese but
+// "Chupim-do-brejo" in Brazil. It beats the locale for every language (English
+// with Brazil gets the Portuguese name), so a place is only sent for a language
+// it belongs to.
+const COMMON_NAME_PLACES = { "pt-BR": 6878 /* Brazil */, pt: 7122 /* Portugal */ };
+
+// Query params for common names in a language, matching what iNaturalist shows.
+function commonNameParams(language) {
+  if (!language || language === "en") return "";
+  const place = COMMON_NAME_PLACES[language];
+  return `&locale=${language}${place ? `&preferred_place_id=${place}` : ""}`;
+}
+
 // The identifications endpoint returns bare taxa (id and rank only). Fill in
 // names, photos and counts from /taxa, which accepts up to 30 ids per call.
 async function hydrateTaxa(taxaList, apiBase, { chunkSize = 30, locale, delayMs = 0 } = {}) {
@@ -455,8 +469,7 @@ async function hydrateTaxa(taxaList, apiBase, { chunkSize = 30, locale, delayMs 
   const ids = Array.from(byId.keys());
   for (let i = 0; i < ids.length; i += chunkSize) {
     const chunk = ids.slice(i, i + chunkSize);
-    let url = `${apiBase}/taxa/${chunk.join(",")}?per_page=${chunkSize}`;
-    if (locale && locale !== "en") url += `&locale=${locale}`;
+    const url = `${apiBase}/taxa/${chunk.join(",")}?per_page=${chunkSize}${commonNameParams(locale)}`;
     const data = await fetchJSON(url);
     for (const taxon of data.results || []) {
       const item = byId.get(taxon.id);
@@ -548,6 +561,7 @@ if (typeof module !== "undefined" && module.exports) {
     resolvePlaceIdByName,
     fetchAllRecords,
     collectInfraspecificTaxa,
+    commonNameParams,
     hydrateTaxa,
     FOLDED_RANKS,
     mapSpeciesCountTaxa,

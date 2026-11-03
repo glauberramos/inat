@@ -450,7 +450,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const verifiable = verifiableCheckbox && verifiableCheckbox.checked ? "&verifiable=true" : "";
     const limit = document.getElementById("limitSelect").value;
     const selectedLanguage = languageSelect ? languageSelect.value : "en";
-    const languageParam = selectedLanguage !== "en" ? `&locale=${selectedLanguage}` : "";
+    const languageParam = commonNameParams(selectedLanguage);
 
     // Get selected months
     const monthCheckboxes = document.querySelectorAll(".month-checkbox:checked");

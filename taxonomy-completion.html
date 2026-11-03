@@ -470,7 +470,8 @@
               <option value="es">Spanish</option>
               <option value="fr">French</option>
               <option value="de">German</option>
-              <option value="pt">Portuguese</option>
+              <option value="pt-BR">Portuguese (Brazil)</option>
+              <option value="pt">Portuguese (Portugal)</option>
               <option value="it">Italian</option>
               <option value="nl">Dutch</option>
               <option value="sv">Swedish</option>
@@ -539,7 +540,7 @@
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js?v=5"></script>
+    <script src="shared-utils.js?v=6"></script>
     <script src="autocomplete.js"></script>
     <script>
       const usernameInput = document.getElementById("usernameInput");
@@ -825,7 +826,7 @@
           // Fetch all taxa of the selected rank within the parent taxon
           loadingStatus.textContent = `Fetching ${labels.plural} in this taxon...`;
           const selectedLanguage = languageSelect.value;
-          const localeParam = `&locale=${selectedLanguage}`;
+          const localeParam = commonNameParams(selectedLanguage);
           const taxaResponse = await fetch(
             `${API_BASE}/taxa?taxon_id=${taxonId}&rank=${currentRank}&per_page=500&is_active=true${localeParam}`
           );

@@ -7,6 +7,9 @@
   "use strict";
 
   const INAT_API = "https://api.inaturalist.org/v1";
+  // Same as COMMON_NAME_PLACES in shared-utils.js, which embeds don't load: a
+  // place's common name beats the locale, so these match what iNaturalist shows.
+  const COMMON_NAME_PLACES = { "pt-BR": "6878" /* Brazil */, pt: "7122" /* Portugal */ };
   const WIDGET_HOME_URL = "https://glauberramos.github.io/inat/widget?ref=widget-embed";
   const MAX_LIMIT = 50;
   const SLIDESHOW_MAX_LIMIT = 1000;
@@ -1007,10 +1010,17 @@
       });
     }
 
+    setLangParams(params) {
+      if (!this.lang) return;
+      params.set("locale", this.lang);
+      const place = COMMON_NAME_PLACES[this.lang];
+      if (place) params.set("preferred_place_id", place);
+    }
+
     async fetchTaxaSuggestions(query, resultsEl, applyTaxon) {
       try {
         const params = new URLSearchParams({ q: query, per_page: 6 });
-        if (this.lang) params.set("locale", this.lang);
+        this.setLangParams(params);
         const res = await fetch(`${INAT_API}/taxa/autocomplete?${params.toString()}`);
         if (!res.ok) throw new Error("autocomplete failed");
         const data = await res.json();
@@ -1104,7 +1114,7 @@
         // Single observation mode
         if (this.sourceType === "observation") {
           const singleParams = new URLSearchParams();
-          if (this.lang) singleParams.set("locale", this.lang);
+          this.setLangParams(singleParams);
           const singleQuery = singleParams.toString();
           const response = await fetch(
             `${INAT_API}/observations/${encodeURIComponent(this.source)}${singleQuery ? "?" + singleQuery : ""}`
@@ -1188,9 +1198,7 @@
       }
 
       // Language/locale
-      if (this.lang) {
-        params.set("locale", this.lang);
-      }
+      this.setLangParams(params);
 
       // Taxon filter (in-widget search takes precedence over the configured filter)
       const taxonFilter = this.searchTaxon || this.taxon;

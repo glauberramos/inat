@@ -42,6 +42,7 @@ const sharedGlobals = {
   initPlace: "readonly",
   initLanguage: "readonly",
   fetchAllRecords: "readonly",
+  commonNameParams: "readonly",
   hydrateTaxa: "readonly",
   collectInfraspecificTaxa: "readonly",
   collectTaxonomyExtras: "readonly",

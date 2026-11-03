@@ -33,3 +33,41 @@ test("sleep resolves after the given delay", async () => {
   await sleep(20);
   assert.ok(Date.now() - start >= 15);
 });
+
+test("commonNameParams asks for each Portuguese's own country", () => {
+  const { commonNameParams } = require("../shared-utils.js");
+  assert.equal(commonNameParams("pt-BR"), "&locale=pt-BR&preferred_place_id=6878");
+  assert.equal(commonNameParams("pt"), "&locale=pt&preferred_place_id=7122");
+});
+
+test("commonNameParams sends no place for languages without one", () => {
+  const { commonNameParams } = require("../shared-utils.js");
+  // A place's name beats the locale, so a place here would turn these into
+  // Portuguese names.
+  assert.equal(commonNameParams("es"), "&locale=es");
+  assert.equal(commonNameParams("fr"), "&locale=fr");
+  assert.equal(commonNameParams("de"), "&locale=de");
+});
+
+test("commonNameParams is empty for English, the API default", () => {
+  const { commonNameParams } = require("../shared-utils.js");
+  assert.equal(commonNameParams("en"), "");
+  assert.equal(commonNameParams(""), "");
+  assert.equal(commonNameParams(undefined), "");
+});
+
+test("hydrateTaxa asks for the language's place-specific names", async () => {
+  const { hydrateTaxa } = require("../shared-utils.js");
+  const original = global.fetch;
+  const urls = [];
+  global.fetch = async (url) => {
+    urls.push(url);
+    return { ok: true, status: 200, json: async () => ({ results: [] }) };
+  };
+  try {
+    await hydrateTaxa([{ taxon: { id: 1 } }], "https://x", { locale: "pt-BR" });
+  } finally {
+    global.fetch = original;
+  }
+  assert.match(urls[0], /&locale=pt-BR&preferred_place_id=6878$/);
+});
