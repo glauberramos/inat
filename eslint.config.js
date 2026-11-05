@@ -48,6 +48,9 @@ const sharedGlobals = {
   collectTaxonomyExtras: "readonly",
   FOLDED_RANKS: "readonly",
   fetchSpeciesCountPages: "readonly",
+  creditCountsToRequested: "readonly",
+  splitByWorldShare: "readonly",
+  MOSTLY_HERE_SHARE: "readonly",
   mapSpeciesCountTaxa: "readonly",
   // notifications.js
   CATEGORY_PRIORITY: "readonly",

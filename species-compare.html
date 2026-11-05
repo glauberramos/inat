@@ -115,6 +115,142 @@
         padding: 0 10px;
       }
 
+      .compare-mode {
+        display: flex;
+        gap: 4px;
+        background: #f1f3f4;
+        border-radius: 6px;
+        padding: 3px;
+      }
+
+      .compare-mode label {
+        flex: 1;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: #555;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .compare-mode input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .compare-mode label:has(input:checked) {
+        background: white;
+        color: #2c3e50;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+      }
+
+      .compare-mode label:has(input:focus-visible) {
+        outline: 2px solid #74ac00;
+      }
+
+      .world-chip {
+        display: none;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 12px;
+        border: 2px dashed #90caf9;
+        border-radius: 5px;
+        background: #e3f2fd;
+        color: #1565c0;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .world-mode #placeBInputWrap {
+        display: none;
+      }
+
+      .world-mode .world-chip {
+        display: block;
+      }
+
+      .stop-btn {
+        margin-left: 10px;
+        padding: 4px 12px;
+        font-size: 13px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        background: white;
+        color: #2c3e50;
+        cursor: pointer;
+      }
+
+      .world-note {
+        text-align: center;
+        font-size: 13px;
+        color: #666;
+        margin: 0 auto;
+        max-width: 760px;
+      }
+
+      .share-bar {
+        height: 4px;
+        border-radius: 2px;
+        background: #e0e0e0;
+        margin-top: 4px;
+        overflow: hidden;
+      }
+
+      .share-bar span {
+        display: block;
+        height: 100%;
+        background: #2e7d32;
+      }
+
+      .species-count .share {
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      html.dark-mode body .compare-mode {
+        background: #3d3d3d;
+      }
+
+      html.dark-mode body .compare-mode label {
+        color: #aaa;
+      }
+
+      html.dark-mode body .compare-mode label:has(input:checked) {
+        background: #2d2d2d;
+        color: #e0e0e0;
+      }
+
+      html.dark-mode body .world-chip {
+        background: #1a2a3d;
+        border-color: #3d5a80;
+        color: #6fa0d0;
+      }
+
+      html.dark-mode body .stop-btn {
+        background: #3d3d3d;
+        border-color: #555;
+        color: #e0e0e0;
+      }
+
+      html.dark-mode body .world-note {
+        color: #aaa;
+      }
+
+      html.dark-mode body .share-bar {
+        background: #444;
+      }
+
+      html.dark-mode body .share-bar span {
+        background: #6fbf6f;
+      }
+
+      html.dark-mode body .species-count .share {
+        color: #e0e0e0;
+      }
+
       .results-grid {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
@@ -415,7 +551,7 @@
             <img src="logo.png" alt="iNaturalist Logo" class="logo" />
             <h1>Location Species Compare</h1>
           </div>
-          <p class="description">Compare observed species between two locations. Species not listed may still be present but not yet observed.</p>
+          <p class="description">Compare observed species between two locations, or one location against the rest of the world. Species not listed may still be present but not yet observed.</p>
         </div>
         <div class="error-message" id="errorMessage"></div>
       </header>
@@ -455,18 +591,25 @@
 
             <div class="vs-divider">VS</div>
 
-            <div class="location-group">
-              <label for="locationInputB">Place B</label>
+            <div class="location-group" id="placeBGroup">
+              <div class="compare-mode" role="radiogroup" aria-label="Compare Place A with">
+                <label><input type="radio" name="compareMode" value="place" checked />Another place</label>
+                <label><input type="radio" name="compareMode" value="world" />Rest of world</label>
+              </div>
               <div class="username-search-container">
-                <input
-                  type="text"
-                  id="locationInputB"
-                  placeholder="Enter location..."
-                  autocomplete="off"
-                  style="width: 100%"
-                />
-                <div id="locationAutocompleteB" class="username-autocomplete"></div>
-                <input type="hidden" id="placeIdB" value="" />
+                <div id="placeBInputWrap">
+                  <input
+                    type="text"
+                    id="locationInputB"
+                    placeholder="Enter location..."
+                    autocomplete="off"
+                    aria-label="Place B"
+                    style="width: 100%"
+                  />
+                  <div id="locationAutocompleteB" class="username-autocomplete"></div>
+                  <input type="hidden" id="placeIdB" value="" />
+                </div>
+                <div class="world-chip">🌍 Rest of world (excluding Place A)</div>
               </div>
             </div>
 
@@ -506,7 +649,10 @@
           </div>
         </div>
 
-        <div class="loading" id="loading" style="display: none">Loading species data...</div>
+        <div class="loading" id="loadingWrap" style="display: none">
+          <span id="loading">Loading species data...</span>
+          <button type="button" id="stopButton" class="stop-btn" style="display: none">Stop</button>
+        </div>
 
         <div id="resultsSection" style="display: none">
           <div class="summary-stats" id="summaryStats"></div>
@@ -516,7 +662,7 @@
     </div>
 
     <script src="constants.js"></script>
-    <script src="shared-utils.js?v=6"></script>
+    <script src="shared-utils.js?v=7"></script>
     <script src="location-autocomplete.js?v=2"></script>
     <script>
       const locationInputA = document.getElementById("locationInputA");
@@ -533,6 +679,9 @@
       const compareButton = document.getElementById("compareButton");
       const exportButton = document.getElementById("exportButton");
       const loading = document.getElementById("loading");
+      const loadingWrap = document.getElementById("loadingWrap");
+      const stopButton = document.getElementById("stopButton");
+      const placeBGroup = document.getElementById("placeBGroup");
       const resultsSection = document.getElementById("resultsSection");
       const summaryStats = document.getElementById("summaryStats");
       const resultsGrid = document.getElementById("resultsGrid");
@@ -540,6 +689,30 @@
 
       let userObservedTaxonIds = new Set();
       let lastCompareResults = null;
+
+      // Stop button: checked between requests, so a run ends after the
+      // request in flight instead of fetching every remaining page.
+      let stopRequested = false;
+      class StopRequested extends Error {}
+      stopButton.addEventListener("click", () => {
+        stopRequested = true;
+        loading.textContent = "Stopping...";
+      });
+
+      // "Another place" vs "Rest of world" for the right-hand side
+      function isWorldMode() {
+        return document.querySelector('input[name="compareMode"]:checked').value === "world";
+      }
+
+      function applyCompareMode() {
+        placeBGroup.classList.toggle("world-mode", isWorldMode());
+      }
+
+      document.querySelectorAll('input[name="compareMode"]').forEach(radio => {
+        radio.addEventListener("change", applyCompareMode);
+      });
+      // The browser can restore a checked radio on back/forward navigation
+      applyCompareMode();
 
       // Initialize location autocompletes
       initLocationAutocomplete(locationInputA, locationAutocompleteA, placeIdA, {
@@ -760,6 +933,7 @@
 
         // Fetch remaining pages one by one
         for (let page = 2; page <= totalPages; page++) {
+          if (stopRequested) throw new StopRequested();
           loading.textContent = `Loading ${placeName} species (page ${page}/${totalPages})...`;
           const response = await fetch(
             `${API_BASE}/observations/species_counts?place_id=${placeId}&per_page=${perPage}&page=${page}&verifiable=true${taxonParam}${localeParam}${rankParam}`
@@ -832,11 +1006,15 @@
       }
 
       async function compareSpecies() {
+        const worldMode = isWorldMode();
         const placeNameA = locationInputA.value.trim();
-        const placeNameB = locationInputB.value.trim();
+        const placeNameB = worldMode ? "Rest of world" : locationInputB.value.trim();
+        const placesToResolve = worldMode
+          ? [[placeNameA, placeIdA]]
+          : [[placeNameA, placeIdA], [placeNameB, placeIdB]];
 
         // A box can show a name while no place is picked; look the name up instead of ignoring it
-        for (const [name, idInput] of [[placeNameA, placeIdA], [placeNameB, placeIdB]]) {
+        for (const [name, idInput] of placesToResolve) {
           if (name && !idInput.value) {
             const id = await resolvePlaceIdByName(name).catch(() => null);
             if (!id) {
@@ -848,28 +1026,41 @@
         }
 
         const placeA = placeIdA.value;
-        const placeB = placeIdB.value;
+        const placeB = worldMode ? null : placeIdB.value;
         const taxonId = taxonIdInput.value || null;
         const username = usernameInput.value.trim();
 
-        if (!placeA || !placeB) {
+        if (worldMode && !placeA) {
+          showError(errorMessage, "Please select Place A");
+          return;
+        }
+
+        if (!worldMode && (!placeA || !placeB)) {
           showError(errorMessage, "Please select both locations");
           return;
         }
 
-        if (placeA === placeB) {
+        if (!worldMode && placeA === placeB) {
           showError(errorMessage, "Please select two different locations");
           return;
         }
 
         hideError(errorMessage);
-        loading.style.display = "block";
+        stopRequested = false;
+        compareButton.disabled = true;
+        loadingWrap.style.display = "block";
+        stopButton.style.display = "inline-block";
         resultsSection.style.display = "none";
         exportButton.style.display = "none";
 
         try {
           // Fetch species from Place A first
           const speciesA = await fetchSpecies(placeA, taxonId, placeNameA);
+
+          if (worldMode) {
+            await compareWithWorld(speciesA, placeA, placeNameA, taxonId, username);
+            return;
+          }
 
           // Then fetch species from Place B
           const speciesB = await fetchSpecies(placeB, taxonId, placeNameB);
@@ -882,7 +1073,7 @@
 
           userObservedTaxonIds = observedIds;
 
-          loading.style.display = "none";
+          loadingWrap.style.display = "none";
 
           if (speciesA.length === 0 && speciesB.length === 0) {
             showError(errorMessage, "No species found for either location");
@@ -931,6 +1122,7 @@
 
           // Store results for export
           lastCompareResults = {
+            mode: "place",
             uniqueToA,
             uniqueToB,
             shared,
@@ -944,10 +1136,179 @@
           exportButton.style.display = "inline-block";
 
         } catch (error) {
+          loadingWrap.style.display = "none";
+          if (error instanceof StopRequested) return;
           console.error("Error comparing species:", error);
-          loading.style.display = "none";
           showError(errorMessage, "Error fetching data. Please try again.");
+        } finally {
+          stopButton.style.display = "none";
+          compareButton.disabled = false;
         }
+      }
+
+      // ===== Place A vs rest of world =====
+
+      // Species ids per not_in_place request: keeps the URL well under length
+      // limits while still covering a whole country in tens of requests.
+      const WORLD_BATCH_SIZE = 200;
+      const WORLD_BATCH_DELAY_MS = 300;
+
+      async function compareWithWorld(speciesA, placeA, placeNameA, taxonId, username) {
+        if (speciesA.length === 0) {
+          loadingWrap.style.display = "none";
+          showError(errorMessage, `No species found for ${placeNameA}`);
+          return;
+        }
+
+        const restCounts = await fetchRestOfWorldCounts(placeA, placeNameA, speciesA, taxonId);
+
+        if (username) {
+          loading.textContent = "Loading user observations...";
+        }
+        userObservedTaxonIds = await fetchUserObservedSpecies(username, taxonId);
+
+        loadingWrap.style.display = "none";
+
+        const groups = splitByWorldShare(speciesA, restCounts);
+        lastCompareResults = { mode: "world", groups, placeNameA };
+
+        displayWorldResults(groups, placeNameA, placeA);
+        resultsSection.style.display = "block";
+        exportButton.style.display = "inline-block";
+      }
+
+      // Observations outside the place for each of the place's species, asked
+      // in batches with not_in_place. A species missing from the answer has no
+      // verifiable observations outside the place. Returns Map(id -> count).
+      async function fetchRestOfWorldCounts(placeId, placeName, rows, taxonId) {
+        const ids = [...new Set(rows.map(row => row.taxon.id))];
+        const cacheKey = `speciesCompareWorld:${placeId}:${taxonId || "all"}`;
+
+        const cached = readWorldCache(cacheKey);
+        if (cached && ids.every(id => id in cached)) {
+          return new Map(ids.map(id => [id, cached[id]]));
+        }
+
+        const counts = new Map();
+        const totalBatches = Math.ceil(ids.length / WORLD_BATCH_SIZE);
+        for (let b = 0; b < totalBatches; b++) {
+          if (stopRequested) throw new StopRequested();
+          if (b > 0) await sleep(WORLD_BATCH_DELAY_MS);
+          loading.textContent = `Counting observations outside ${placeName} (batch ${b + 1}/${totalBatches})...`;
+          const batch = ids.slice(b * WORLD_BATCH_SIZE, (b + 1) * WORLD_BATCH_SIZE);
+          const results = await fetchSpeciesCountPages(
+            `${API_BASE}/observations/species_counts?not_in_place=${placeId}&verifiable=true&taxon_id=${batch.join(",")}`
+          );
+          creditCountsToRequested(batch, results).forEach((count, id) => counts.set(id, count));
+        }
+
+        const toCache = {};
+        ids.forEach(id => { toCache[id] = counts.get(id) || 0; });
+        writeWorldCache(cacheKey, toCache);
+        return counts;
+      }
+
+      // Per-tab cache so re-running (another username or language) skips the
+      // world requests. Storage can be blocked or full; then just refetch.
+      function readWorldCache(key) {
+        try {
+          const raw = sessionStorage.getItem(key);
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      }
+
+      function writeWorldCache(key, value) {
+        try {
+          sessionStorage.setItem(key, JSON.stringify(value));
+        } catch {
+          // Ignore: caching is only a convenience
+        }
+      }
+
+      function formatShare(item) {
+        const pct = item.share * 100;
+        if (item.rest > 0 && pct >= 99.95) return ">99.9%";
+        if (pct > 0 && pct < 0.1) return "<0.1%";
+        return `${Number(pct.toFixed(1))}%`;
+      }
+
+      function displayWorldResults(groups, placeNameA, placeIdA) {
+        const { onlyHere, mostlyHere, mostlyElsewhere } = groups;
+        const name = escapeHtml(placeNameA);
+        const half = Math.round(MOSTLY_HERE_SHARE * 100);
+
+        summaryStats.innerHTML = `
+          <div class="stat-box place-a">
+            <div class="stat-number">${onlyHere.length.toLocaleString()}</div>
+            <div class="stat-label">Only in ${name}</div>
+          </div>
+          <div class="stat-box shared">
+            <div class="stat-number">${mostlyHere.length.toLocaleString()}</div>
+            <div class="stat-label">Mostly in ${name}</div>
+          </div>
+          <div class="stat-box place-b">
+            <div class="stat-number">${mostlyElsewhere.length.toLocaleString()}</div>
+            <div class="stat-label">Mostly elsewhere</div>
+          </div>
+        `;
+
+        const column = (cls, title, items) => `
+          <div class="results-column">
+            <div class="column-header ${cls}">
+              ${title} <span class="count">(${items.length.toLocaleString()})</span>
+            </div>
+            <div class="species-list">
+              ${items.map(item => renderWorldSpeciesItem(item, placeIdA, placeNameA)).join('')}
+            </div>
+          </div>
+        `;
+
+        resultsGrid.innerHTML = `
+          <p class="world-note" style="grid-column: 1 / -1">
+            Share = verifiable observations in ${name} ÷ verifiable observations worldwide.
+            "Only in" means no iNaturalist records elsewhere yet, which is not the same as endemic.
+          </p>
+          ${column("place-a", `Only in ${name}`, onlyHere)}
+          ${column("shared", `Mostly in ${name} <span class="count">(≥${half}% of obs)</span>`, mostlyHere)}
+          ${column("place-b", "Mostly elsewhere", mostlyElsewhere)}
+        `;
+      }
+
+      function renderWorldSpeciesItem(item, placeId, placeName) {
+        const taxon = item.taxon;
+        const commonName = taxon.preferred_common_name || taxon.name;
+        const sciName = taxon.name;
+        const iconicIcon = ICONIC_TAXON_ICONS[taxon.iconic_taxon_name] || '?';
+        const imageUrl = taxon.default_photo?.square_url;
+        const isObserved = userObservedTaxonIds.has(taxon.id);
+        // Only-here species: their records in the place. Otherwise the taxon
+        // page, whose map shows where else it occurs.
+        const url = item.rest === 0
+          ? `https://www.inaturalist.org/observations?taxon_id=${taxon.id}&place_id=${placeId}`
+          : `https://www.inaturalist.org/taxa/${taxon.id}`;
+        const tooltip = `${item.here.toLocaleString()} obs in ${placeName} · ${item.rest.toLocaleString()} elsewhere`;
+
+        return `
+          <a href="${url}" target="_blank" style="text-decoration: none; color: inherit;">
+            <div class="species-item${isObserved ? ' user-observed' : ''}" title="${escapeHtml(tooltip)}">
+              ${imageUrl
+                ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(commonName)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><div class="placeholder" style="display:none">${iconicIcon}</div>`
+                : `<div class="placeholder">${iconicIcon}</div>`
+              }
+              <div class="species-info">
+                <div class="species-common">${isObserved ? '<span class="observed-check">✓</span> ' : ''}${escapeHtml(commonName)}</div>
+                ${commonName !== sciName ? `<div class="species-scientific">${escapeHtml(sciName)}</div>` : ''}
+                <div class="share-bar"><span style="width: ${(item.share * 100).toFixed(1)}%"></span></div>
+              </div>
+              <div class="species-count">
+                <span class="share">${formatShare(item)}</span><br />
+                ${item.here.toLocaleString()} · ${item.rest.toLocaleString()}
+              </div>
+            </div>
+          </a>
+        `;
       }
 
       function displayResults(uniqueToA, shared, uniqueToB, placeNameA, placeNameB, placeIdA, placeIdB) {
@@ -1050,9 +1411,6 @@
       function exportTXT() {
         if (!lastCompareResults) return;
 
-        const { uniqueToA, uniqueToB, shared, placeNameA, placeNameB } = lastCompareResults;
-        const lines = [];
-
         const getScientificName = (name) => {
           if (!name) return '';
           const parts = name.split(' ');
@@ -1066,6 +1424,14 @@
           }
           return scientificName;
         };
+
+        if (lastCompareResults.mode === "world") {
+          exportWorldTXT(lastCompareResults, formatSpecies);
+          return;
+        }
+
+        const { uniqueToA, uniqueToB, shared, placeNameA, placeNameB } = lastCompareResults;
+        const lines = [];
 
         lines.push('========================================');
         lines.push(`UNIQUE TO ${placeNameA.toUpperCase()}`);
@@ -1090,12 +1456,32 @@
           lines.push(`${formatSpecies(item.taxon)} - ${item.count} observations`);
         });
 
-        const txt = lines.join('\n');
-        const blob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
+        downloadTXT(lines, `species-compare-${placeNameA.replace(/[^a-z0-9]/gi, '-')}-vs-${placeNameB.replace(/[^a-z0-9]/gi, '-')}.txt`);
+      }
+
+      function exportWorldTXT({ groups, placeNameA }, formatSpecies) {
+        const lines = [];
+        const section = (title, items) => {
+          if (lines.length) lines.push('');
+          lines.push('========================================');
+          lines.push(title.toUpperCase());
+          lines.push('========================================');
+          items.forEach(item => {
+            lines.push(`${formatSpecies(item.taxon)} - ${item.here} here / ${item.rest} elsewhere (${formatShare(item)})`);
+          });
+        };
+        section(`Only in ${placeNameA}`, groups.onlyHere);
+        section(`Mostly in ${placeNameA}`, groups.mostlyHere);
+        section('Mostly elsewhere', groups.mostlyElsewhere);
+        downloadTXT(lines, `species-compare-${placeNameA.replace(/[^a-z0-9]/gi, '-')}-vs-rest-of-world.txt`);
+      }
+
+      function downloadTXT(lines, filename) {
+        const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `species-compare-${placeNameA.replace(/[^a-z0-9]/gi, '-')}-vs-${placeNameB.replace(/[^a-z0-9]/gi, '-')}.txt`;
+        link.download = filename;
         link.click();
         URL.revokeObjectURL(url);
       }

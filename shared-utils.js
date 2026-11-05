@@ -552,6 +552,58 @@ function collectTaxonomyExtras(rows, knownIds) {
     }));
 }
 
+// ===== Place vs Rest of World =====
+
+// Credit each species_counts row to the requested taxon it belongs to. A
+// taxon_id filter also matches descendants, so a requested species can come
+// back as one of its subspecies: walk the row's ancestors (deepest first) to
+// the nearest requested id. Rows matching nothing requested are ignored.
+// Returns Map(requestedId -> summed count).
+function creditCountsToRequested(requestedIds, results) {
+  const requested = new Set(requestedIds);
+  const counts = new Map();
+  for (const row of results || []) {
+    const taxon = row.taxon;
+    if (!taxon) continue;
+    const lineage = [...(taxon.ancestor_ids || [])];
+    if (lineage[lineage.length - 1] !== taxon.id) lineage.push(taxon.id);
+    for (let i = lineage.length - 1; i >= 0; i--) {
+      if (requested.has(lineage[i])) {
+        counts.set(lineage[i], (counts.get(lineage[i]) || 0) + (row.count || 0));
+        break;
+      }
+    }
+  }
+  return counts;
+}
+
+// Share of a species' world observations that fall in the place. Below this
+// it lands in "mostly elsewhere".
+const MOSTLY_HERE_SHARE = 0.5;
+
+// Split a place's species_counts rows by how much of each species' world
+// record the place holds. restCounts maps taxon id -> observations outside
+// the place; a missing id means none were found outside.
+function splitByWorldShare(placeRows, restCounts) {
+  const onlyHere = [];
+  const mostlyHere = [];
+  const mostlyElsewhere = [];
+  for (const row of placeRows || []) {
+    const here = row.count || 0;
+    const rest = restCounts.get(row.taxon.id) || 0;
+    const share = here + rest > 0 ? here / (here + rest) : 0;
+    const item = { taxon: row.taxon, here, rest, share };
+    if (rest === 0) onlyHere.push(item);
+    else if (share >= MOSTLY_HERE_SHARE) mostlyHere.push(item);
+    else mostlyElsewhere.push(item);
+  }
+  onlyHere.sort((a, b) => b.here - a.here);
+  const byShare = (a, b) => b.share - a.share || b.here - a.here;
+  mostlyHere.sort(byShare);
+  mostlyElsewhere.sort(byShare);
+  return { onlyHere, mostlyHere, mostlyElsewhere };
+}
+
 // Allow unit tests (Node) to import the pure helpers; no-op in the browser.
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
@@ -567,6 +619,9 @@ if (typeof module !== "undefined" && module.exports) {
     mapSpeciesCountTaxa,
     fetchSpeciesCountPages,
     collectTaxonomyExtras,
+    creditCountsToRequested,
+    splitByWorldShare,
+    MOSTLY_HERE_SHARE,
     DATE_RANGE_PRESETS,
     isDateRangePreset,
     formatDateParam,
