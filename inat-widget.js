@@ -1485,9 +1485,41 @@
       return url || null;
     }
 
+    // Open the widget's own observations of this species on Explore (same
+    // user/place/project, quality grade, dates and extra params), so the count
+    // shown on the tile matches what the link lists. The global taxon page is
+    // one click away from there.
     speciesUrl(taxon) {
       if (!taxon || !taxon.id) return "https://www.inaturalist.org";
-      return `https://www.inaturalist.org/taxa/${taxon.id}`;
+      const params = new URLSearchParams();
+      if (this.sourceType === "project") {
+        params.set("project_id", this.source);
+      } else if (this.sourceType === "place") {
+        params.set("place_id", this.source);
+      } else {
+        params.set("user_id", this.source);
+      }
+      if (this.qualityGrade && this.qualityGrade !== "any") {
+        params.set("quality_grade", this.qualityGrade);
+      }
+      if (this.dateOn) {
+        params.set("on", this.dateOn);
+      } else {
+        if (this.dateFrom) params.set("d1", this.dateFrom);
+        if (this.dateTo) params.set("d2", this.dateTo);
+      }
+      if (this.extraParams) {
+        new URLSearchParams(this.extraParams).forEach((value, key) => {
+          params.set(key, value);
+        });
+      }
+      // The API counted every quality grade, but Explore hides casual
+      // observations unless told otherwise.
+      if (!params.has("quality_grade") && !params.has("verifiable")) {
+        params.set("verifiable", "any");
+      }
+      params.set("taxon_id", taxon.id);
+      return `https://www.inaturalist.org/observations?${params.toString()}`;
     }
 
     speciesCommonName(taxon) {
