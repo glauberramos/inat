@@ -1,0 +1,3431 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Runs before first paint so dark pages never flash white;
+      // dark-mode.js (end of body) syncs <body> and builds the toggle.
+      if (localStorage.getItem("darkMode") === "true") {
+        document.documentElement.classList.add("dark-mode");
+      }
+    </script>
+    <title>Species Tree - Your Observed Species on the Tree of Life | iNaturalist</title>
+    <link rel="icon" href="favicon.ico" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#74ac00" />
+    <link rel="apple-touch-icon" href="logo.png" />
+    <link rel="canonical" href="https://glauberramos.github.io/inat/species-tree" />
+    <meta
+      name="description"
+      content="See every species you've observed on iNaturalist placed on the tree of life. Explore your observations as an interactive sunburst and taxonomic tree, from kingdoms down to species."
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Glauber Ramos" />
+    <meta property="og:title" content="Species Tree - Your Observed Species on the Tree of Life" />
+    <meta property="og:description" content="Explore every species you've observed on iNaturalist as an interactive tree of life." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://glauberramos.github.io/inat/species-tree" />
+    <meta property="og:site_name" content="iNaturalist Tools" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content="https://glauberramos.github.io/inat/logo.png" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Species Tree - Your Observed Species on the Tree of Life" />
+    <meta name="twitter:description" content="Explore every species you've observed on iNaturalist as an interactive tree of life." />
+    <meta name="twitter:image" content="https://glauberramos.github.io/inat/logo.png" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "iNaturalist Species Tree",
+      "description": "See every species you've observed on iNaturalist placed on the tree of life, as an interactive sunburst and taxonomic tree.",
+      "url": "https://glauberramos.github.io/inat/species-tree",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "author": {
+        "@type": "Person",
+        "name": "Glauber Ramos"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "iNaturalist Tools", "item": "https://glauberramos.github.io/inat/" },
+        { "@type": "ListItem", "position": 2, "name": "Species Tree", "item": "https://glauberramos.github.io/inat/species-tree" }
+      ]
+    }
+    </script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="dark-mode.css?v=8" />
+    <style>
+      .summary-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        padding: 15px 20px;
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+
+      .summary-search {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .tree-select {
+        padding: 8px 12px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        background: white;
+        cursor: pointer;
+      }
+
+      .error-message {
+        background: #ffebee;
+        color: #c62828;
+        padding: 12px;
+        border-radius: 4px;
+        margin: 16px 0;
+        display: none;
+        text-align: center;
+      }
+
+      .error-message.show {
+        display: block;
+      }
+
+      .loading-container {
+        text-align: center;
+        padding: 40px;
+      }
+
+      .loading-text {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 10px;
+      }
+
+      .loading-subtext {
+        font-size: 0.9rem;
+        color: #999;
+      }
+
+      /* Rank counts */
+      .rank-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .rank-stat {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px 16px;
+        text-align: center;
+        min-width: 92px;
+      }
+
+      .rank-stat-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #74ac00;
+      }
+
+      .rank-stat-label {
+        font-size: 0.8rem;
+        color: #666;
+        text-transform: capitalize;
+      }
+
+      /* Sunburst + outline */
+      .tree-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+        gap: 20px;
+        align-items: start;
+      }
+
+      .tree-panel {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 16px;
+        min-width: 0;
+      }
+
+      .sunburst-wrap {
+        position: relative;
+      }
+
+      #sunburst {
+        width: 100%;
+        height: auto;
+        display: block;
+        touch-action: manipulation;
+      }
+
+      #sunburst .arc {
+        cursor: pointer;
+        stroke: white;
+        stroke-width: 0.6;
+        transition: fill 0.6s ease;
+      }
+
+      #sunburst .arc:hover {
+        fill-opacity: 1 !important;
+        stroke-width: 1.5;
+      }
+
+      #sunburst .arc-label {
+        font-size: 10px;
+        fill: white;
+        pointer-events: none;
+        text-shadow: 0 0 2px rgba(0, 0, 0, 0.45);
+      }
+
+      #sunburst .labels-layer {
+        animation: fade-in 0.3s ease-out;
+      }
+
+      #sunburst .center-text {
+        animation: fade-in 0.35s ease-out;
+      }
+
+      #sunburst .center-circle {
+        fill: #f6f8f2;
+        stroke: #ddd;
+        cursor: pointer;
+      }
+
+      #sunburst .center-name {
+        font-size: 15px;
+        font-weight: 600;
+        fill: #2c3e50;
+        pointer-events: none;
+      }
+
+      #sunburst .center-sub {
+        font-size: 11px;
+        fill: #666;
+        pointer-events: none;
+      }
+
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes slide-down {
+        from {
+          opacity: 0;
+          transform: translateY(-6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slide-up {
+        from {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(-6px);
+        }
+      }
+
+      @keyframes pulse-ring {
+        from {
+          transform: scale(1);
+          opacity: 0.9;
+        }
+        to {
+          transform: scale(2.4);
+          opacity: 0;
+        }
+      }
+
+      @keyframes pop-in {
+        from {
+          opacity: 0;
+          transform: scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* View switcher + shared search */
+      .view-bar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+
+      .view-bar .tree-search {
+        flex: 1;
+        max-width: 440px;
+        min-width: 220px;
+        margin: 0;
+      }
+
+      .view-pane {
+        animation: fade-in 0.3s ease-out;
+      }
+
+      .maximize-btn {
+        width: auto;
+        padding: 8px 14px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+      }
+
+      /* Full page: the views take over the whole window */
+      .view-area.maximized {
+        position: fixed;
+        inset: 0;
+        z-index: 2500;
+        background: #f5f5f5;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        animation: fade-in 0.2s ease-out;
+      }
+
+      .view-area.maximized .view-bar {
+        margin-bottom: 10px;
+      }
+
+      .view-area.maximized #treePane {
+        flex: 1;
+        min-height: 0;
+      }
+
+      .view-area.maximized #treeSvg {
+        height: 100%;
+        min-height: 0;
+      }
+
+      .view-area.maximized #sunburstPane {
+        flex: 1;
+        min-height: 0;
+      }
+
+      .view-area.maximized #sunburstPane .tree-panel {
+        height: 100%;
+        box-sizing: border-box;
+        overflow: auto;
+      }
+
+      .view-area.maximized #sunburst {
+        max-height: calc(100vh - 150px);
+      }
+
+      .view-area.maximized .outline {
+        max-height: none;
+      }
+
+      body.page-maximized {
+        overflow: hidden;
+      }
+
+      /* Full tree view */
+      .tree-canvas-panel {
+        position: relative;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      #treeSvg {
+        display: block;
+        width: 100%;
+        height: 72vh;
+        min-height: 420px;
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      #treeSvg.dragging {
+        cursor: grabbing;
+      }
+
+      .tree-toolbar {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        z-index: 2;
+      }
+
+      .tree-toolbar button {
+        width: auto;
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #2c3e50;
+        border: 1px solid #ddd;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      .tree-toolbar button:hover {
+        background: #74ac00;
+        color: white;
+        border-color: #74ac00;
+      }
+
+      .tree-hint {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: calc(100% - 24px);
+        width: max-content;
+        text-align: center;
+        font-size: 0.75rem;
+        color: #777;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        padding: 3px 10px;
+        pointer-events: none;
+      }
+
+      .scope-toggle {
+        background: rgba(240, 240, 240, 0.95);
+      }
+
+      .tree-toolbar .scope-toggle button {
+        border: none;
+        box-shadow: none;
+        background: transparent;
+        color: #555;
+      }
+
+      .tree-toolbar .scope-toggle button.active {
+        background: #74ac00;
+        color: white;
+      }
+
+      /* Expanding everything makes no sense for the whole taxonomy */
+      .scope-all #treeExpandAll {
+        display: none;
+      }
+
+      .scope-legend {
+        display: none;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 2;
+        gap: 12px;
+        font-size: 0.78rem;
+        color: #666;
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 12px;
+        padding: 4px 10px;
+      }
+
+      .scope-all .scope-legend {
+        display: flex;
+      }
+
+      .tree-hint .hint-all,
+      .scope-all .tree-hint .hint-mine {
+        display: none;
+      }
+
+      .scope-all .tree-hint .hint-all {
+        display: inline;
+      }
+
+      .legend-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #74ac00;
+        vertical-align: -1px;
+      }
+
+      .legend-dot.unseen {
+        background: #b8b8b8;
+      }
+
+      .tnode-unseen image {
+        filter: grayscale(1);
+        opacity: 0.55;
+      }
+
+      .tnode-unseen .tnode-bg {
+        stroke-width: 2;
+        stroke-dasharray: 3 2;
+      }
+
+      .tnode-unseen .tnode-emoji {
+        opacity: 0.45;
+      }
+
+      .tnode-unseen .tnode-name {
+        fill: #999;
+        font-weight: 500;
+      }
+
+      .tnode-unseen .tnode-sub {
+        fill: #aaa;
+      }
+
+      .tlink-unseen {
+        stroke-dasharray: 4 3;
+        opacity: 0.7;
+      }
+
+      .tnode-more .tnode-bg {
+        stroke: #74ac00;
+        stroke-width: 2;
+        stroke-dasharray: 3 2;
+      }
+
+      .tnode-more-plus {
+        fill: #74ac00;
+        font-weight: 700;
+        font-size: 14px;
+        pointer-events: none;
+      }
+
+      .tnode-more .tnode-name {
+        fill: #74ac00;
+        font-size: 12px;
+      }
+
+      .tlink {
+        fill: none;
+        stroke: #cbd5c0;
+        stroke-width: 1.5;
+        vector-effect: non-scaling-stroke;
+      }
+
+      .overview-label {
+        font-weight: 600;
+        fill: #2c3e50;
+        paint-order: stroke;
+        stroke: white;
+        stroke-linejoin: round;
+        pointer-events: none;
+      }
+
+      .tnode {
+        cursor: pointer;
+      }
+
+      .tnode-bg {
+        fill: #f6f8f2;
+        stroke-width: 3;
+        transition: stroke-width 0.15s;
+      }
+
+      .tnode:hover .tnode-bg {
+        stroke-width: 5;
+      }
+
+      .tnode-emoji {
+        font-size: 14px;
+        pointer-events: none;
+      }
+
+      .tnode-name,
+      .tnode-sub {
+        paint-order: stroke;
+        stroke: white;
+        stroke-width: 4px;
+        stroke-linejoin: round;
+        pointer-events: none;
+      }
+
+      .tnode-name {
+        font-size: 13px;
+        font-weight: 600;
+        fill: #2c3e50;
+      }
+
+      .tnode-name.italic {
+        font-style: italic;
+      }
+
+      .tnode-sub {
+        font-size: 11px;
+        fill: #777;
+      }
+
+      .tnode-badge circle {
+        fill: #74ac00;
+        stroke: white;
+        stroke-width: 1.5;
+      }
+
+      .tnode-badge text {
+        font-size: 11px;
+        font-weight: 700;
+        fill: white;
+        pointer-events: none;
+      }
+
+      .tnode image {
+        transition: opacity 0.4s;
+      }
+
+      .tnode-pulse {
+        fill: none;
+        stroke: #74ac00;
+        stroke-width: 3;
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: pulse-ring 1.1s ease-out 3;
+        pointer-events: none;
+      }
+
+      /* Observation gallery */
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+
+      .lightbox[hidden] {
+        display: none;
+      }
+
+      .lightbox-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.78);
+        animation: fade-in 0.2s ease-out;
+      }
+
+      .lightbox-card {
+        position: relative;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        width: min(920px, 100%);
+        max-height: calc(100vh - 32px);
+        display: flex;
+        flex-direction: column;
+        animation: pop-in 0.25s ease-out;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      }
+
+      .lightbox-stage {
+        position: relative;
+        background: #111;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+      }
+
+      #lbImage {
+        display: block;
+        max-width: 100%;
+        max-height: 68vh;
+        object-fit: contain;
+        transition: opacity 0.25s ease;
+      }
+
+      #lbImage.loading {
+        opacity: 0.25;
+      }
+
+      .lb-nav,
+      .lb-close {
+        position: absolute;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        font-size: 1.3rem;
+        line-height: 40px;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        cursor: pointer;
+      }
+
+      .lb-nav:hover,
+      .lb-close:hover {
+        background: rgba(0, 0, 0, 0.75);
+      }
+
+      .lb-nav[disabled] {
+        opacity: 0.25;
+        cursor: default;
+      }
+
+      .lb-prev {
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .lb-next {
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .lb-close {
+        top: 10px;
+        right: 10px;
+        z-index: 2;
+      }
+
+      .lightbox-info {
+        padding: 14px 18px;
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        align-items: flex-end;
+        flex-wrap: wrap;
+      }
+
+      .lb-name {
+        font-size: 1.15rem;
+        font-weight: 600;
+        font-style: italic;
+        color: #2c3e50;
+      }
+
+      .lb-common,
+      .lb-meta {
+        font-size: 0.85rem;
+        color: #666;
+      }
+
+      .lb-attribution {
+        font-size: 0.7rem;
+        color: #999;
+        margin-top: 4px;
+      }
+
+      .lb-links {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-size: 0.85rem;
+      }
+
+      .lb-links a {
+        color: #74ac00;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .lb-counter {
+        color: #999;
+      }
+
+      .tt-photo {
+        display: block;
+        width: 100%;
+        max-width: 160px;
+        border-radius: 4px;
+        margin-bottom: 6px;
+      }
+
+      .row-photo {
+        cursor: zoom-in;
+      }
+
+      .outline ul.opening {
+        animation: slide-down 0.22s ease-out;
+      }
+
+      .outline ul.closing {
+        animation: slide-up 0.16s ease-in forwards;
+      }
+
+      .outline-row.highlight {
+        animation: fade-in 0.6s ease-out;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      .sunburst-hint {
+        text-align: center;
+        font-size: 0.8rem;
+        color: #888;
+        margin-top: 8px;
+      }
+
+      .tree-tooltip {
+        position: fixed;
+        pointer-events: none;
+        background: rgba(30, 30, 30, 0.92);
+        color: white;
+        padding: 8px 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        line-height: 1.35;
+        z-index: 2600;
+        max-width: 260px;
+        display: none;
+      }
+
+      .tree-tooltip .tt-rank {
+        text-transform: capitalize;
+        color: #b5d77a;
+        font-size: 0.75rem;
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 14px;
+        justify-content: center;
+        margin-top: 12px;
+        font-size: 0.8rem;
+        color: #555;
+      }
+
+      .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .legend-swatch {
+        width: 11px;
+        height: 11px;
+        border-radius: 3px;
+      }
+
+      .breadcrumbs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        align-items: center;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+      }
+
+      .crumb {
+        background: none;
+        border: none;
+        padding: 2px 4px;
+        color: #74ac00;
+        cursor: pointer;
+        font-size: 0.85rem;
+        border-radius: 4px;
+      }
+
+      .crumb:hover {
+        background: rgba(116, 172, 0, 0.12);
+      }
+
+      .crumb.current {
+        color: #2c3e50;
+        font-weight: 600;
+        cursor: default;
+      }
+
+      .crumb-sep {
+        color: #bbb;
+      }
+
+      .tree-search {
+        position: relative;
+        margin-bottom: 10px;
+      }
+
+      .tree-search input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px 12px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+
+      .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 2px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 5px 5px;
+        max-height: 260px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+      }
+
+      .search-result {
+        padding: 6px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+        font-size: 0.9rem;
+      }
+
+      .search-result:hover {
+        background: #f5f5f5;
+      }
+
+      .search-result small {
+        color: #888;
+        text-transform: capitalize;
+      }
+
+      .outline {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        max-height: 640px;
+        overflow-y: auto;
+      }
+
+      .outline ul {
+        list-style: none;
+        margin: 0;
+        padding-left: 18px;
+        border-left: 1px dashed #ddd;
+        margin-left: 9px;
+      }
+
+      .outline-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 4px;
+        border-radius: 6px;
+      }
+
+      .outline-row:hover {
+        background: rgba(116, 172, 0, 0.08);
+      }
+
+      .outline-row.highlight {
+        background: rgba(116, 172, 0, 0.22);
+      }
+
+      .toggle {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        border: none;
+        background: none;
+        padding: 0;
+        color: #888;
+        cursor: pointer;
+        font-size: 0.75rem;
+        line-height: 20px;
+        transition: transform 0.15s;
+      }
+
+      .toggle:hover {
+        background: none;
+        color: #74ac00;
+      }
+
+      .toggle.open {
+        transform: rotate(90deg);
+      }
+
+      .toggle.leaf {
+        visibility: hidden;
+      }
+
+      .row-swatch {
+        width: 4px;
+        align-self: stretch;
+        border-radius: 2px;
+        flex-shrink: 0;
+      }
+
+      .row-photo {
+        width: 32px;
+        height: 32px;
+        border-radius: 5px;
+        object-fit: cover;
+        flex-shrink: 0;
+        background: #f0f0f0;
+      }
+
+      .row-main {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .row-name {
+        font-weight: 600;
+        color: #2c3e50;
+        cursor: pointer;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .row-name.italic {
+        font-style: italic;
+      }
+
+      .row-name:hover {
+        color: #74ac00;
+      }
+
+      .row-meta {
+        font-size: 0.78rem;
+        color: #777;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .rank-tag {
+        text-transform: capitalize;
+        color: #999;
+      }
+
+      .row-count {
+        font-size: 0.8rem;
+        color: #555;
+        text-align: right;
+        flex-shrink: 0;
+        width: 70px;
+      }
+
+      .row-bar {
+        height: 4px;
+        background: #eee;
+        border-radius: 2px;
+        margin-top: 3px;
+        overflow: hidden;
+      }
+
+      .row-bar-fill {
+        height: 100%;
+        background: #74ac00;
+      }
+
+      .row-link {
+        color: #aaa;
+        text-decoration: none;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+      }
+
+      .row-link:hover {
+        color: #74ac00;
+      }
+
+      .show-more {
+        margin: 6px 0 6px 28px;
+        font-size: 0.8rem;
+        padding: 4px 10px;
+      }
+
+      @media (max-width: 900px) {
+        .tree-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .tree-hint {
+          display: none;
+        }
+
+        .tree-toolbar {
+          right: 10px;
+        }
+
+        .scope-legend {
+          top: auto;
+          bottom: 10px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .summary-search {
+          flex-direction: column;
+          width: 100%;
+        }
+
+        .summary-search .username-search-container {
+          width: 100% !important;
+        }
+
+        .summary-search button,
+        .summary-search select {
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding-top: 60px;
+        }
+
+        .container {
+          padding: 10px;
+        }
+
+        h1 {
+          font-size: 1.3rem;
+        }
+
+        .rank-stat {
+          min-width: 70px;
+          padding: 8px 10px;
+        }
+      }
+
+      /* Dark mode */
+      html.dark-mode body .rank-stat,
+      html.dark-mode body .tree-panel,
+      html.dark-mode body .search-results {
+        background: #2d2d2d;
+        border-color: #444;
+      }
+
+      html.dark-mode body .rank-stat-label,
+      html.dark-mode body .row-meta,
+      html.dark-mode body .row-count,
+      html.dark-mode body .legend {
+        color: #aaa;
+      }
+
+      html.dark-mode body .row-name,
+      html.dark-mode body .crumb.current {
+        color: #e0e0e0;
+      }
+
+      html.dark-mode body .outline ul {
+        border-left-color: #444;
+      }
+
+      html.dark-mode body .row-bar,
+      html.dark-mode body .row-photo {
+        background: #3d3d3d;
+      }
+
+      html.dark-mode body .search-result {
+        border-bottom-color: #3d3d3d;
+      }
+
+      html.dark-mode body .search-result:hover {
+        background: #3d3d3d;
+      }
+
+      html.dark-mode body .crumb {
+        background: none;
+        color: #9ccc3a;
+      }
+
+      html.dark-mode body .crumb:hover {
+        background: rgba(116, 172, 0, 0.18);
+      }
+
+      html.dark-mode body .view-area.maximized {
+        background: #1a1a1a;
+      }
+
+      html.dark-mode body .tree-toolbar button {
+        background: rgba(45, 45, 45, 0.92);
+        color: #e0e0e0;
+        border-color: #555;
+      }
+
+      html.dark-mode body .tree-toolbar button:hover {
+        background: #74ac00;
+        border-color: #74ac00;
+      }
+
+      html.dark-mode body .tree-hint {
+        background: rgba(45, 45, 45, 0.9);
+        color: #aaa;
+      }
+
+      html.dark-mode body .scope-toggle,
+      html.dark-mode body .scope-legend {
+        background: rgba(45, 45, 45, 0.92);
+        color: #aaa;
+      }
+
+      html.dark-mode body .tree-toolbar .scope-toggle button {
+        background: transparent;
+        color: #ccc;
+      }
+
+      html.dark-mode body .tree-toolbar .scope-toggle button.active {
+        background: #74ac00;
+        color: white;
+      }
+
+      html.dark-mode body .tnode-unseen .tnode-name {
+        fill: #888;
+      }
+
+      html.dark-mode body .tlink {
+        stroke: #4a5243;
+      }
+
+      html.dark-mode body .tnode-bg {
+        fill: #252525;
+      }
+
+      html.dark-mode body .tnode-name,
+      html.dark-mode body .tnode-sub {
+        stroke: #2d2d2d;
+      }
+
+      html.dark-mode body .overview-label {
+        fill: #e0e0e0;
+        stroke: #2d2d2d;
+      }
+
+      html.dark-mode body .tnode-name {
+        fill: #e0e0e0;
+      }
+
+      html.dark-mode body .tnode-sub {
+        fill: #aaa;
+      }
+
+      html.dark-mode body .tnode-badge circle {
+        stroke: #2d2d2d;
+      }
+
+      html.dark-mode body .lightbox-card {
+        background: #2d2d2d;
+      }
+
+      html.dark-mode body .lb-name {
+        color: #e0e0e0;
+      }
+
+      html.dark-mode body .lb-common,
+      html.dark-mode body .lb-meta {
+        color: #aaa;
+      }
+
+      html.dark-mode body .lb-nav,
+      html.dark-mode body .lb-close {
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      html.dark-mode body .toggle {
+        background: none;
+        color: #888;
+      }
+
+      html.dark-mode body #sunburst .arc {
+        stroke: #2d2d2d;
+      }
+
+      html.dark-mode body #sunburst .center-circle {
+        fill: #252525;
+        stroke: #444;
+      }
+
+      html.dark-mode body #sunburst .center-name {
+        fill: #e0e0e0;
+      }
+
+      html.dark-mode body #sunburst .center-sub {
+        fill: #aaa;
+      }
+
+      /* Hide default pipeback widget */
+      #pipeback-widget-container,
+      .pipeback-launcher-frame {
+        display: none !important;
+      }
+
+      /* Custom feedback button */
+      .feedback-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #74ac00;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: 999;
+        transition: all 0.3s;
+      }
+
+      .feedback-button:hover {
+        background: #5d8a00;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      }
+    </style>
+    <script src="analytics.js"></script>
+  </head>
+  <body>
+    <a
+      href="/inat"
+      class="back-button"
+      style="
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        background: #2d2d2d;
+        color: #ccc;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 4px 10px;
+        border-radius: 6px;
+        z-index: 1000;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: background 0.2s;
+      "
+      onmouseover="this.style.background='#3d3d3d'"
+      onmouseout="this.style.background='#2d2d2d'"
+    >
+      <span style="font-size: 1rem">←</span> More tools
+    </a>
+    <div class="container">
+      <header>
+        <div class="header-content">
+          <div class="title-container">
+            <img src="logo.png" alt="iNaturalist Logo" class="logo" />
+            <h1>Species Tree</h1>
+          </div>
+          <p class="description">
+            Every species you've observed, placed on the tree of life
+          </p>
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+      </header>
+
+      <main>
+        <div class="summary-card">
+          <div class="summary-search">
+            <div class="username-search-container" style="width: 250px">
+              <input
+                type="text"
+                id="usernameInput"
+                placeholder="Enter iNaturalist username..."
+                autocomplete="off"
+                style="width: 100%"
+              />
+              <div id="usernameAutocomplete" class="username-autocomplete"></div>
+            </div>
+            <select id="qualitySelect" class="tree-select" title="Which observations count">
+              <option value="all" selected>All observations</option>
+              <option value="verifiable">Verifiable only</option>
+              <option value="research">Research grade only</option>
+            </select>
+            <select id="ranksSelect" class="tree-select" title="Which taxonomic ranks to show">
+              <option value="major" selected>Main ranks</option>
+              <option value="all">All ranks</option>
+            </select>
+            <select id="languageSelect" class="tree-select" title="Language for common names">
+              <option value="en" selected>English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="pt">Portuguese</option>
+              <option value="it">Italian</option>
+              <option value="nl">Dutch</option>
+              <option value="sv">Swedish</option>
+              <option value="pl">Polish</option>
+              <option value="da">Danish</option>
+              <option value="fi">Finnish</option>
+              <option value="no">Norwegian</option>
+              <option value="ru">Russian</option>
+              <option value="zh">Chinese</option>
+              <option value="ja">Japanese</option>
+              <option value="ko">Korean</option>
+            </select>
+            <button id="searchButton">Show tree</button>
+          </div>
+        </div>
+
+        <div id="loadingContainer" class="loading-container" style="display: none">
+          <div class="loading-text">Loading your tree...</div>
+          <div class="loading-subtext" id="loadingStatus">Fetching your observed taxa</div>
+        </div>
+
+        <div id="results" style="display: none">
+          <div class="rank-stats" id="rankStats"></div>
+
+          <div class="view-area" id="viewArea">
+          <div class="view-bar">
+            <div class="filter-toggle" role="tablist" aria-label="View">
+              <button type="button" class="filter-toggle-btn view-tab active" data-view="sunburst">Sunburst</button>
+              <button type="button" class="filter-toggle-btn view-tab" data-view="tree">Full tree</button>
+            </div>
+            <div class="tree-search">
+              <input type="text" id="treeSearch" placeholder="Find a taxon in your tree..." autocomplete="off" />
+              <div class="search-results" id="searchResults"></div>
+            </div>
+            <button type="button" class="maximize-btn" id="maximizeBtn" title="Use the whole page (Esc to exit)">⤢ Full page</button>
+          </div>
+
+          <div class="tree-layout view-pane" id="sunburstPane">
+            <div class="tree-panel">
+              <div class="sunburst-wrap">
+                <svg id="sunburst" viewBox="-300 -300 600 600" role="img" aria-label="Sunburst of observed taxa"></svg>
+              </div>
+              <div class="sunburst-hint">
+                Click a slice to zoom in, the center to zoom out, a species to see your photos
+              </div>
+              <div class="legend" id="legend"></div>
+            </div>
+
+            <div class="tree-panel">
+              <div class="breadcrumbs" id="breadcrumbs"></div>
+              <ul class="outline" id="outline"></ul>
+            </div>
+          </div>
+
+          <div class="tree-panel tree-canvas-panel view-pane" id="treePane" style="display: none">
+            <div class="tree-toolbar">
+              <div class="filter-toggle scope-toggle" role="group" aria-label="Which taxa to show">
+                <button type="button" class="filter-toggle-btn scope-btn active" data-scope="mine">My species</button>
+                <button type="button" class="filter-toggle-btn scope-btn" data-scope="all">All of iNaturalist</button>
+              </div>
+              <button type="button" id="treeExpandAll">Expand all</button>
+              <button type="button" id="treeCollapseAll">Collapse all</button>
+              <button type="button" id="treeFit">Fit</button>
+              <button type="button" id="treeZoomOut" aria-label="Zoom out">−</button>
+              <button type="button" id="treeZoomIn" aria-label="Zoom in">+</button>
+            </div>
+            <div class="scope-legend">
+              <span><span class="legend-dot"></span> You've observed it</span>
+              <span><span class="legend-dot unseen"></span> Not yet</span>
+            </div>
+            <svg id="treeSvg" role="img" aria-label="Tree of observed taxa">
+              <defs>
+                <clipPath id="nodeClip" clipPathUnits="objectBoundingBox">
+                  <circle cx="0.5" cy="0.5" r="0.5" />
+                </clipPath>
+              </defs>
+              <g id="treeViewport">
+                <g id="treeOverview"></g>
+                <g id="treeLinks"></g>
+                <g id="treeNodes"></g>
+              </g>
+            </svg>
+            <div class="tree-hint">
+              <span class="hint-mine">Drag to move · scroll or pinch to zoom · click a group to open it (Shift+click opens everything below) · click a species to see your photos</span>
+              <span class="hint-all">Drag to move · scroll or pinch to zoom · click a group to load what's inside · click a species to see your photos, or a grey one to open it on iNaturalist</span>
+            </div>
+          </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div class="tree-tooltip" id="tooltip"></div>
+
+    <div class="lightbox" id="lightbox" hidden>
+      <div class="lightbox-backdrop" data-close></div>
+      <div class="lightbox-card" role="dialog" aria-modal="true" aria-labelledby="lbName">
+        <button type="button" class="lb-close" data-close aria-label="Close">×</button>
+        <div class="lightbox-stage">
+          <img id="lbImage" alt="" />
+          <button type="button" class="lb-nav lb-prev" id="lbPrev" aria-label="Previous photo">‹</button>
+          <button type="button" class="lb-nav lb-next" id="lbNext" aria-label="Next photo">›</button>
+        </div>
+        <div class="lightbox-info">
+          <div>
+            <div class="lb-name" id="lbName"></div>
+            <div class="lb-common" id="lbCommon"></div>
+            <div class="lb-meta" id="lbMeta"></div>
+            <div class="lb-attribution" id="lbAttribution"></div>
+          </div>
+          <div class="lb-links">
+            <span class="lb-counter" id="lbCounter"></span>
+            <a id="lbObservation" href="#" target="_blank" rel="noopener">Open observation ↗</a>
+            <a id="lbAll" href="#" target="_blank" rel="noopener">All your observations ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="constants.js"></script>
+    <script src="shared-utils.js?v=5"></script>
+    <script src="autocomplete.js"></script>
+    <script src="species-tree.js"></script>
+    <script>
+      const usernameInput = document.getElementById("usernameInput");
+      const usernameAutocomplete = document.getElementById("usernameAutocomplete");
+      const qualitySelect = document.getElementById("qualitySelect");
+      const ranksSelect = document.getElementById("ranksSelect");
+      const languageSelect = document.getElementById("languageSelect");
+      const searchButton = document.getElementById("searchButton");
+      const loadingContainer = document.getElementById("loadingContainer");
+      const loadingStatus = document.getElementById("loadingStatus");
+      const results = document.getElementById("results");
+      const rankStats = document.getElementById("rankStats");
+      const svg = document.getElementById("sunburst");
+      const legend = document.getElementById("legend");
+      const breadcrumbs = document.getElementById("breadcrumbs");
+      const outline = document.getElementById("outline");
+      const treeSearch = document.getElementById("treeSearch");
+      const searchResults = document.getElementById("searchResults");
+      const tooltip = document.getElementById("tooltip");
+      const viewTabs = document.querySelectorAll(".view-tab");
+      const sunburstPane = document.getElementById("sunburstPane");
+      const treePane = document.getElementById("treePane");
+      const treeSvg = document.getElementById("treeSvg");
+      const treeViewport = document.getElementById("treeViewport");
+      const treeOverview = document.getElementById("treeOverview");
+      const treeLinks = document.getElementById("treeLinks");
+      const treeNodes = document.getElementById("treeNodes");
+      const viewArea = document.getElementById("viewArea");
+      const maximizeBtn = document.getElementById("maximizeBtn");
+      const lightbox = document.getElementById("lightbox");
+      const lbImage = document.getElementById("lbImage");
+      const lbPrev = document.getElementById("lbPrev");
+      const lbNext = document.getElementById("lbNext");
+
+      const SVG_NS = "http://www.w3.org/2000/svg";
+      const RADIUS = 290;
+      const CENTER_RADIUS = 70;
+      const RINGS = 4;
+      const OUTLINE_PAGE = 200;
+      const TREE_ROW = 56;
+      const TREE_COLUMN = 230;
+      const NODE_RADIUS = 18;
+      const LEAF_RADIUS = 24;
+      // Below this zoom the tree is drawn as a lightweight overview (dots + lines)
+      const OVERVIEW_ZOOM = 0.35;
+      const MIN_ZOOM = 0.002;
+      const PHOTO_BATCH = 12;
+      const PHOTO_PAGE = 200;
+      const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const ICONIC_COLORS = {
+        Plantae: "#5e9e2e",
+        Fungi: "#c2185b",
+        Aves: "#1e88e5",
+        Mammalia: "#8d6e63",
+        Reptilia: "#00897b",
+        Amphibia: "#9e9d24",
+        Actinopterygii: "#3949ab",
+        Insecta: "#f57c00",
+        Arachnida: "#e53935",
+        Mollusca: "#8e24aa",
+        Animalia: "#546e7a",
+        Protozoa: "#00acc1",
+        Chromista: "#a1887f",
+      };
+      const ICONIC_LABELS = {
+        Plantae: "Plants",
+        Fungi: "Fungi",
+        Aves: "Birds",
+        Mammalia: "Mammals",
+        Reptilia: "Reptiles",
+        Amphibia: "Amphibians",
+        Actinopterygii: "Ray-finned fishes",
+        Insecta: "Insects",
+        Arachnida: "Arachnids",
+        Mollusca: "Mollusks",
+        Animalia: "Other animals",
+        Protozoa: "Protozoans",
+        Chromista: "Chromista",
+      };
+      const OTHER_COLOR = "#78909c";
+      const ITALIC_RANK_LEVEL = 20; // genus and below are written in italics
+
+      let tree = null;
+      let nodeById = new Map();
+      let focus = null;
+      let login = "";
+      let qualityParams = "";
+      let highlightId = null;
+      let currentView = "sunburst";
+      // Rows the user expanded in the outline, kept across focus changes
+      const expanded = new Set();
+      // Common names and taxon photos from /taxa, filled in lazily per locale
+      const details = new Map();
+      const pendingDetails = new Set();
+      let detailsGeneration = 0;
+
+      initUsername(usernameInput);
+      initLanguage(languageSelect);
+      initUsernameAutocomplete(usernameInput, usernameAutocomplete);
+      initAutocompleteClickOutside([{ input: usernameInput, container: usernameAutocomplete }]);
+
+      const urlParams = new URLSearchParams(window.location.search);
+      if (["all", "verifiable", "research"].includes(urlParams.get("quality"))) {
+        qualitySelect.value = urlParams.get("quality");
+      }
+      if (urlParams.get("ranks") === "all") ranksSelect.value = "all";
+      if (urlParams.get("view") === "tree") currentView = "tree";
+
+      searchButton.addEventListener("click", () => loadTree());
+      usernameInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") loadTree();
+      });
+      ranksSelect.addEventListener("change", () => {
+        if (tree) rebuild(focus?.id);
+      });
+      qualitySelect.addEventListener("change", () => {
+        if (tree) loadTree(focus?.id);
+      });
+      languageSelect.addEventListener("change", () => {
+        details.clear();
+        pendingDetails.clear();
+        detailsGeneration++;
+        if (tree) {
+          render();
+          if (treeReady) {
+            for (const el of treeNodeEls.values()) el.remove();
+            treeNodeEls.clear();
+            drawTree();
+          }
+        }
+      });
+
+      // ===== Animation =====
+
+      const tweens = {};
+
+      // Run onFrame(eased t) every frame for `ms`. A new tween on the same
+      // channel cancels the running one, so the new one starts from wherever
+      // the old one left things.
+      function tween(channel, ms, onFrame, onDone) {
+        window.cancelAnimationFrame(tweens[channel]);
+        if (REDUCED_MOTION || !ms) {
+          onFrame(1);
+          if (onDone) onDone();
+          return;
+        }
+        const start = window.performance.now();
+        const step = (now) => {
+          const t = Math.min(1, (now - start) / ms);
+          onFrame(easeInOutCubic(t));
+          if (t < 1) {
+            tweens[channel] = requestAnimationFrame(step);
+          } else if (onDone) {
+            onDone();
+          }
+        };
+        tweens[channel] = requestAnimationFrame(step);
+      }
+
+      const lerp = (a, b, t) => a + (b - a) * t;
+
+      function countUp(el, value) {
+        tween(`count-${el.dataset.rank}`, 900, (t) => {
+          el.textContent = Math.round(value * t).toLocaleString();
+        });
+      }
+
+      // ===== Loading =====
+
+      let rawRows = [];
+
+      async function loadTree(keepFocusId = null) {
+        const username = usernameInput.value.trim();
+        if (!username) {
+          showError("errorMessage", "Please enter a username");
+          return;
+        }
+
+        hideError("errorMessage");
+        results.style.display = "none";
+        loadingContainer.style.display = "block";
+        loadingStatus.textContent = "Fetching your observed taxa...";
+
+        const quality = qualitySelect.value;
+        qualityParams =
+          quality === "verifiable"
+            ? "&verifiable=true"
+            : quality === "research"
+              ? "&quality_grade=research"
+              : "";
+
+        try {
+          let data;
+          try {
+            data = await fetchJSON(
+              `${API_BASE}/observations/taxonomy?user_id=${encodeURIComponent(username)}${qualityParams}`
+            );
+          } catch (error) {
+            if (/HTTP 422/.test(error.message)) throw new Error(`User "${username}" not found`);
+            throw error;
+          }
+
+          rawRows = data.results || [];
+          if (!rawRows.length) {
+            throw new Error("No identified observations found for this user");
+          }
+
+          login = username;
+          saveUsername(username);
+          details.clear();
+          pendingDetails.clear();
+          detailsGeneration++;
+          resetPhotos();
+          expanded.clear();
+
+          loadingContainer.style.display = "none";
+          results.style.display = "block";
+          rebuild(keepFocusId ?? (Number(urlParams.get("taxon")) || null));
+        } catch (error) {
+          console.error("Error:", error);
+          loadingContainer.style.display = "none";
+          showError("errorMessage", error.message || "Error fetching data. Please try again.");
+        }
+      }
+
+      function rebuild(focusId = null) {
+        tree = partitionTree(buildSpeciesTree(rawRows, { majorOnly: ranksSelect.value === "major" }));
+        nodeById = new Map();
+        const stack = [tree];
+        while (stack.length) {
+          const node = stack.pop();
+          nodeById.set(node.id, node);
+          stack.push(...node.children);
+        }
+        resetSunburst();
+        resetTreeView();
+        catalog.clear();
+        catalogRoot = null;
+        renderRankStats();
+        renderLegend();
+        // A focused taxon may be gone after switching ranks; fall back to Life
+        const target = focusId ? nodeById.get(focusId) : null;
+        setFocus(target && target.children.length ? target : tree);
+        showView(currentView);
+      }
+
+      function setFocus(node, { highlight = null } = {}) {
+        focus = node;
+        highlightId = highlight;
+        // Open the path down to the highlighted row so it is visible
+        if (highlight) {
+          const target = nodeById.get(highlight);
+          for (const ancestor of pathToRoot(target)) {
+            if (ancestor !== focus && ancestor !== target && pathToRoot(ancestor).includes(focus)) {
+              expanded.add(ancestor.id);
+            }
+          }
+        }
+        updateUrl();
+        render();
+      }
+
+      function updateUrl() {
+        const params = new URLSearchParams();
+        params.set("user", login);
+        if (qualitySelect.value !== "all") params.set("quality", qualitySelect.value);
+        if (ranksSelect.value !== "major") params.set("ranks", ranksSelect.value);
+        if (focus && focus !== tree) params.set("taxon", focus.id);
+        if (currentView !== "sunburst") params.set("view", currentView);
+        if (treeScope !== "mine") params.set("scope", treeScope);
+        history.replaceState(null, "", `${window.location.pathname}?${params}`);
+      }
+
+      function render() {
+        renderSunburst();
+        renderBreadcrumbs();
+        renderOutline();
+        requestVisibleDetails();
+      }
+
+      // ===== Views =====
+
+      function showView(view) {
+        currentView = view;
+        viewTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.view === view));
+        sunburstPane.style.display = view === "sunburst" ? "" : "none";
+        treePane.style.display = view === "tree" ? "" : "none";
+        hideTooltip();
+        if (view === "tree") {
+          treePane.classList.toggle("scope-all", treeScope === "all");
+          document.querySelectorAll(".scope-btn").forEach((btn) => {
+            btn.classList.toggle("active", btn.dataset.scope === treeScope);
+          });
+          if (!treeReady) initTreeView();
+          // Open the tree where the sunburst was looking
+          if (focus && focus !== tree) revealInTree(focus, { open: true });
+          else drawTree();
+        }
+        updateUrl();
+      }
+
+      viewTabs.forEach((tab) => tab.addEventListener("click", () => showView(tab.dataset.view)));
+
+      // ===== Full page =====
+
+      function setMaximized(on) {
+        const before = { width: treeSvg.clientWidth, height: treeSvg.clientHeight };
+        viewArea.classList.toggle("maximized", on);
+        document.body.classList.toggle("page-maximized", on);
+        maximizeBtn.textContent = on ? "✕ Exit full page" : "⤢ Full page";
+        hideTooltip();
+        // Keep whatever was in the middle of the tree in the middle
+        if (treeReady && currentView === "tree") {
+          treeTransform = {
+            ...treeTransform,
+            x: treeTransform.x + (treeSvg.clientWidth - before.width) / 2,
+            y: treeTransform.y + (treeSvg.clientHeight - before.height) / 2,
+          };
+          drawTree();
+        }
+      }
+
+      maximizeBtn.addEventListener("click", () => setMaximized(!viewArea.classList.contains("maximized")));
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && lightbox.hidden && viewArea.classList.contains("maximized")) {
+          setMaximized(false);
+        }
+      });
+
+      // ===== Colors =====
+
+      function colorFor(node) {
+        // Iconic taxon of the node, or of its nearest ancestor that has one
+        // the legend knows (Life and kingdoms like Bacteria have none)
+        for (let current = node; current; current = current.parent) {
+          if (ICONIC_COLORS[current.iconic]) return ICONIC_COLORS[current.iconic];
+        }
+        return OTHER_COLOR;
+      }
+
+      function hexToHsl(hex) {
+        const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const l = (max + min) / 2;
+        if (max === min) return [0, 0, l * 100];
+        const d = max - min;
+        const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        const h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+        return [h * 60, s * 100, l * 100];
+      }
+
+      // Once zoomed inside one group every slice would share its color, so
+      // give each inner-ring branch its own shade of it: hue shifts a little
+      // and lightness alternates, keeping the group recognizable.
+      let branchColors = new Map();
+      function computeBranchColors() {
+        branchColors = new Map();
+        const ring = focus.children;
+        const groups = new Set(ring.map(colorFor));
+        if (focus === tree || groups.size > 1) return;
+        const [h, s, l] = hexToHsl(colorFor(focus));
+        ring.forEach((child, index) => {
+          const t = ring.length > 1 ? index / (ring.length - 1) : 0.5;
+          const hue = (h - 28 + t * 56 + 360) % 360;
+          const light = Math.min(Math.max(l + (index % 2 ? 9 : -5), 28), 62);
+          branchColors.set(child.id, `hsl(${hue.toFixed(0)}, ${Math.max(s, 45).toFixed(0)}%, ${light.toFixed(0)}%)`);
+        });
+      }
+
+      function arcColorFor(node) {
+        for (let current = node; current && current !== focus; current = current.parent) {
+          if (branchColors.has(current.id)) return branchColors.get(current.id);
+        }
+        return colorFor(node);
+      }
+
+      function renderLegend() {
+        const present = new Set();
+        const stack = [tree];
+        while (stack.length) {
+          const node = stack.pop();
+          if (node.iconic) present.add(node.iconic);
+          if (node.rankLevel > 40) stack.push(...node.children);
+        }
+        legend.innerHTML = Object.keys(ICONIC_COLORS)
+          .filter((key) => present.has(key))
+          .map(
+            (key) => `
+              <span class="legend-item">
+                <span class="legend-swatch" style="background:${ICONIC_COLORS[key]}"></span>
+                ${ICONIC_LABELS[key]}
+              </span>`
+          )
+          .join("");
+      }
+
+      // ===== Stats =====
+
+      function renderRankStats() {
+        const counts = countByRank(tree);
+        const plural = {
+          kingdom: "kingdoms",
+          phylum: "phyla",
+          class: "classes",
+          order: "orders",
+          family: "families",
+          genus: "genera",
+          species: "species",
+        };
+        rankStats.innerHTML = MAJOR_RANKS.map(
+          (rank) => `
+            <div class="rank-stat">
+              <div class="rank-stat-value" data-rank="${rank}">0</div>
+              <div class="rank-stat-label">${plural[rank]}</div>
+            </div>`
+        ).join("");
+        rankStats.querySelectorAll(".rank-stat-value").forEach((el) => countUp(el, counts[el.dataset.rank]));
+      }
+
+      // ===== Sunburst =====
+
+      // Every slice is a <path> kept across renders, so zooming can move the
+      // same slices from the old view to the new one instead of redrawing.
+      const arcEls = new Map();
+      let drawnView = null;
+      let drawnIds = new Set();
+      let ringsLayer = null;
+      let labelsLayer = null;
+      let centerLayer = null;
+
+      function resetSunburst() {
+        arcEls.clear();
+        drawnView = null;
+        drawnIds = new Set();
+        svg.innerHTML = "";
+        ringsLayer = svgEl("g");
+        labelsLayer = svgEl("g", { class: "labels-layer" });
+        centerLayer = svgEl("g");
+        svg.append(ringsLayer, labelsLayer, centerLayer);
+      }
+
+      function polar(radius, angle) {
+        return [radius * Math.sin(angle), -radius * Math.cos(angle)];
+      }
+
+      function arcPath(start, end, inner, outer) {
+        // A full circle can't be drawn as a single arc; nudge it just shy of 2π
+        if (end - start >= Math.PI * 2 - 1e-6) end = start + Math.PI * 2 - 1e-4;
+        const large = end - start > Math.PI ? 1 : 0;
+        const [x0, y0] = polar(outer, start);
+        const [x1, y1] = polar(outer, end);
+        const [x2, y2] = polar(inner, end);
+        const [x3, y3] = polar(inner, start);
+        return (
+          `M${x0},${y0}A${outer},${outer} 0 ${large} 1 ${x1},${y1}` +
+          `L${x2},${y2}A${inner},${inner} 0 ${large} 0 ${x3},${y3}Z`
+        );
+      }
+
+      function svgEl(tag, attrs = {}) {
+        const el = document.createElementNS(SVG_NS, tag);
+        for (const [key, value] of Object.entries(attrs)) el.setAttribute(key, value);
+        return el;
+      }
+
+      function createArc(node) {
+        const path = svgEl("path", { class: "arc" });
+        path.addEventListener("mousemove", (e) => showTooltip(e, node));
+        path.addEventListener("mouseleave", hideTooltip);
+        path.addEventListener("click", () => {
+          hideTooltip();
+          if (node.children.length) {
+            setFocus(node);
+          } else {
+            setFocus(node.parent, { highlight: node.id });
+            if (node.rank === "species") openLightbox(node);
+          }
+        });
+        ringsLayer.appendChild(path);
+        return path;
+      }
+
+      function renderSunburst() {
+        computeBranchColors();
+        const arcs = visibleArcs(focus, { maxDepth: RINGS });
+        const targetIds = new Set(arcs.map((node) => node.id));
+        // Shallow subtrees get wider rings so the circle is always filled
+        const rings = arcs.reduce((max, node) => Math.max(max, node.depth - focus.depth), 1);
+        const targetView = { ...sunburstView(focus), rings };
+        const fromView = drawnView || targetView;
+        const fromIds = drawnIds;
+
+        for (const [id, el] of arcEls) {
+          if (!targetIds.has(id) && !fromIds.has(id)) {
+            el.remove();
+            arcEls.delete(id);
+          }
+        }
+        for (const node of arcs) {
+          if (!arcEls.has(node.id)) arcEls.set(node.id, createArc(node));
+          arcEls.get(node.id).style.fill = arcColorFor(node);
+        }
+
+        labelsLayer.innerHTML = "";
+        renderCenter();
+        // An interrupted zoom continues from the slices currently on screen
+        drawnIds = new Set([...fromIds, ...targetIds]);
+
+        tween(
+          "sunburst",
+          drawnView ? 750 : 0,
+          (t) => {
+            drawnView = {
+              x0: lerp(fromView.x0, targetView.x0, t),
+              x1: lerp(fromView.x1, targetView.x1, t),
+              depth: lerp(fromView.depth, targetView.depth, t),
+              rings: lerp(fromView.rings, targetView.rings, t),
+            };
+            drawArcs(drawnView, t, fromIds, targetIds);
+          },
+          () => {
+            for (const [id, el] of arcEls) {
+              if (!targetIds.has(id)) {
+                el.remove();
+                arcEls.delete(id);
+              }
+            }
+            drawnIds = targetIds;
+            drawLabels(targetView, arcs);
+          }
+        );
+      }
+
+      function drawArcs(view, t, fromIds, toIds) {
+        const ringWidth = (RADIUS - CENTER_RADIUS) / view.rings;
+        for (const [id, el] of arcEls) {
+          const node = nodeById.get(id);
+          const { start, end, ring } = arcGeometry(node, view);
+          const inner = Math.max(CENTER_RADIUS, CENTER_RADIUS + (ring - 1) * ringWidth);
+          const outer = Math.min(RADIUS, CENTER_RADIUS + ring * ringWidth);
+          if (end - start < 1e-4 || outer - inner < 0.5) {
+            el.setAttribute("d", "");
+            continue;
+          }
+          const visible = lerp(fromIds.has(id) ? 1 : 0, toIds.has(id) ? 1 : 0, t);
+          const depthShade = 1 - (Math.min(Math.max(ring, 1), RINGS) - 1) * 0.17;
+          el.setAttribute("d", arcPath(start, end, inner, outer));
+          el.setAttribute("fill-opacity", (visible * depthShade).toFixed(3));
+          // Borders on hairline slices would paint the ring white
+          el.style.strokeWidth = (end - start) * outer < 2.5 ? "0" : "";
+        }
+      }
+
+      function drawLabels(view, arcs) {
+        const ringWidth = (RADIUS - CENTER_RADIUS) / view.rings;
+        const fragment = document.createDocumentFragment();
+        for (const node of arcs) {
+          const { start, end, ring } = arcGeometry(node, view);
+          const inner = CENTER_RADIUS + (ring - 1) * ringWidth;
+          const radiusMid = inner + ringWidth / 2;
+          // Label along the radius when the slice is wide enough to hold text
+          if ((end - start) * radiusMid < 11) continue;
+          const maxChars = Math.floor((ringWidth - 8) / 5.6);
+          // "Turdus rufiventris" -> "T. rufiventris", the genus is in the ring inside
+          let text = node.rank === "species" ? node.name.replace(/^(\S)\S*\s/, "$1. ") : node.name;
+          if (text.length > maxChars) text = text.slice(0, Math.max(maxChars - 1, 1)) + "…";
+          const degrees = (((start + end) / 2) * 180) / Math.PI;
+          const label = svgEl("text", {
+            class: "arc-label",
+            transform: `rotate(${degrees - 90}) translate(${radiusMid},0)${degrees > 180 ? " rotate(180)" : ""}`,
+            "text-anchor": "middle",
+            dy: "0.35em",
+          });
+          label.textContent = text;
+          fragment.appendChild(label);
+        }
+        // Re-adding the layer restarts its fade-in
+        labelsLayer.remove();
+        labelsLayer.innerHTML = "";
+        labelsLayer.appendChild(fragment);
+        svg.insertBefore(labelsLayer, centerLayer);
+      }
+
+      function renderCenter() {
+        centerLayer.innerHTML = "";
+        const circle = svgEl("circle", { class: "center-circle", r: CENTER_RADIUS - 2 });
+        const text = svgEl("g", { class: "center-text" });
+        const nameText = svgEl("text", { class: "center-name", "text-anchor": "middle", y: -4 });
+        const centerName = focus === tree ? "Life" : focus.name;
+        nameText.textContent = centerName.length > 16 ? centerName.slice(0, 15) + "…" : centerName;
+        const subText = svgEl("text", { class: "center-sub", "text-anchor": "middle", y: 14 });
+        subText.textContent = `${focus.species.toLocaleString()} species`;
+        text.append(nameText, subText);
+        if (focus.parent) {
+          const upText = svgEl("text", { class: "center-sub", "text-anchor": "middle", y: 32 });
+          upText.textContent = "↑ zoom out";
+          text.appendChild(upText);
+          circle.addEventListener("click", () => setFocus(focus.parent, { highlight: focus.id }));
+        }
+        circle.addEventListener("mousemove", (e) => showTooltip(e, focus));
+        circle.addEventListener("mouseleave", hideTooltip);
+        centerLayer.append(circle, text);
+      }
+
+      function showTooltip(event, node) {
+        const info = details.get(node.id);
+        if (!info) requestDetails([node.id]);
+        const rep = representativeSpecies(node);
+        if (rep) wantPhotos([rep.id]);
+        const photo = rep ? photoFor(rep.id) : null;
+        const common = info?.common ? `<div>${escapeHtml(info.common)}</div>` : "";
+        const name = node === tree ? "Life" : node.name;
+        tooltip.innerHTML = `
+          ${photo ? `<img class="tt-photo" src="${escapeHtml(photoSize(photo, "small"))}" alt="" />` : ""}
+          <div class="tt-rank">${escapeHtml(node.rank)}</div>
+          <div><strong${node.rankLevel <= ITALIC_RANK_LEVEL ? ' style="font-style:italic"' : ""}>${escapeHtml(name)}</strong></div>
+          ${common}
+          <div>${node.species.toLocaleString()} species observed</div>`;
+        tooltip.style.display = "block";
+        const x = Math.min(event.clientX + 14, window.innerWidth - tooltip.offsetWidth - 8);
+        const y = Math.min(event.clientY + 14, window.innerHeight - tooltip.offsetHeight - 8);
+        tooltip.style.left = `${x}px`;
+        tooltip.style.top = `${y}px`;
+      }
+
+      // Tooltip for a taxon of the whole iNaturalist tree
+      function showCatalogTooltip(event, node) {
+        if (node.observed) {
+          showTooltip(event, node.observed);
+          if (node.completeSpecies && node.rank !== "species") {
+            tooltip.insertAdjacentHTML(
+              "beforeend",
+              `<div>of ${node.completeSpecies.toLocaleString()} known on iNaturalist</div>`
+            );
+          }
+          return;
+        }
+        const name = node.id === tree.id ? "Life" : node.name;
+        tooltip.innerHTML = `
+          ${node.photo ? `<img class="tt-photo" src="${escapeHtml(photoSize(node.photo, "small"))}" alt="" />` : ""}
+          <div class="tt-rank">${escapeHtml(node.rank)}</div>
+          <div><strong${node.rankLevel <= ITALIC_RANK_LEVEL ? ' style="font-style:italic"' : ""}>${escapeHtml(name)}</strong></div>
+          ${node.common ? `<div>${escapeHtml(node.common)}</div>` : ""}
+          <div>Not observed yet${node.completeSpecies && node.rank !== "species" ? ` · ${node.completeSpecies.toLocaleString()} species on iNaturalist` : ""}</div>`;
+        tooltip.style.display = "block";
+        const x = Math.min(event.clientX + 14, window.innerWidth - tooltip.offsetWidth - 8);
+        const y = Math.min(event.clientY + 14, window.innerHeight - tooltip.offsetHeight - 8);
+        tooltip.style.left = `${x}px`;
+        tooltip.style.top = `${y}px`;
+      }
+
+      function hideTooltip() {
+        tooltip.style.display = "none";
+      }
+
+      // ===== Breadcrumbs + outline =====
+
+      function renderBreadcrumbs() {
+        const path = pathToRoot(focus);
+        breadcrumbs.innerHTML = path
+          .map((node, index) => {
+            const name = node === tree ? "Life" : node.name;
+            const isCurrent = index === path.length - 1;
+            return `${index ? '<span class="crumb-sep">›</span>' : ""}<button type="button" class="crumb${isCurrent ? " current" : ""}" data-id="${node.id}">${escapeHtml(name)}</button>`;
+          })
+          .join("");
+        breadcrumbs.querySelectorAll(".crumb:not(.current)").forEach((button) => {
+          button.addEventListener("click", () => setFocus(nodeById.get(Number(button.dataset.id))));
+        });
+      }
+
+      function observationsUrl(node) {
+        const taxon = node === tree ? "" : `&taxon_id=${node.id}`;
+        return `https://www.inaturalist.org/observations?user_id=${encodeURIComponent(login)}${taxon}${qualityParams}&view=species`;
+      }
+
+      function rowHtml(node) {
+        const info = details.get(node.id) || {};
+        const hasChildren = node.children.length > 0;
+        const open = hasChildren && expanded.has(node.id);
+        const share = focus.weight ? (node.weight / focus.weight) * 100 : 0;
+        const photoUrl = node.rank === "species" ? photoFor(node.id) : null;
+        const photo =
+          node.rank === "species"
+            ? `<img class="row-photo" data-photo-id="${node.id}" alt="" loading="lazy"${photoUrl ? ` src="${escapeHtml(photoUrl)}"` : ""} />`
+            : "";
+        const countLabel =
+          node.rank === "species" ? "" : `${node.species.toLocaleString()} spp.`;
+        return `
+          <li data-id="${node.id}">
+            <div class="outline-row${node.id === highlightId ? " highlight" : ""}">
+              <button type="button" class="toggle${hasChildren ? (open ? " open" : "") : " leaf"}" aria-label="Expand">▶</button>
+              <span class="row-swatch" style="background:${arcColorFor(node)}"></span>
+              ${photo}
+              <div class="row-main">
+                <div class="row-name${node.rankLevel <= ITALIC_RANK_LEVEL ? " italic" : ""}" title="${hasChildren ? "Focus the tree here" : ""}">${escapeHtml(node.name)}</div>
+                <div class="row-meta"><span class="rank-tag">${escapeHtml(node.rank)}</span><span data-common-id="${node.id}">${info.common ? ` · ${escapeHtml(info.common)}` : ""}</span></div>
+                ${node.rank === "species" ? "" : `<div class="row-bar"><div class="row-bar-fill" style="width:${share.toFixed(1)}%"></div></div>`}
+              </div>
+              <div class="row-count">${countLabel}</div>
+              <a class="row-link" href="${observationsUrl(node)}" target="_blank" rel="noopener" title="Your observations on iNaturalist">↗</a>
+            </div>
+            ${open ? childListHtml(node) : ""}
+          </li>`;
+      }
+
+      function childItemsHtml(node, limit = OUTLINE_PAGE) {
+        const shown = node.children.slice(0, limit);
+        const more = node.children.length - shown.length;
+        return `${shown.map(rowHtml).join("")}${
+          more > 0
+            ? `<li><button type="button" class="show-more" data-parent="${node.id}">Show ${more.toLocaleString()} more</button></li>`
+            : ""
+        }`;
+      }
+
+      function childListHtml(node, limit = OUTLINE_PAGE) {
+        return `<ul>${childItemsHtml(node, limit)}</ul>`;
+      }
+
+      function renderOutline() {
+        outline.innerHTML = childItemsHtml(focus);
+        if (!focus.children.length) {
+          outline.innerHTML = '<li style="padding:20px;color:#888;text-align:center">Nothing below this taxon</li>';
+        }
+        outline.querySelector(".outline-row.highlight")?.scrollIntoView({ block: "nearest" });
+      }
+
+      outline.addEventListener("click", (e) => {
+        const showMore = e.target.closest(".show-more");
+        if (showMore) {
+          const parent = nodeById.get(Number(showMore.dataset.parent));
+          const list = showMore.closest("ul");
+          if (parent === focus) {
+            outline.innerHTML = childItemsHtml(parent, Infinity);
+          } else {
+            list.outerHTML = childListHtml(parent, Infinity);
+          }
+          requestVisibleDetails();
+          return;
+        }
+
+        const item = e.target.closest("li[data-id]");
+        if (!item || e.target.closest(".row-link")) return;
+        const node = nodeById.get(Number(item.dataset.id));
+        if (!node) return;
+
+        if (e.target.closest(".row-photo")) {
+          openLightbox(node);
+          return;
+        }
+        if (e.target.closest(".row-name") && node.children.length) {
+          setFocus(node);
+          return;
+        }
+        if (e.target.closest(".toggle") && node.children.length) {
+          const toggle = item.querySelector(":scope > .outline-row > .toggle");
+          if (expanded.has(node.id)) {
+            expanded.delete(node.id);
+            toggle.classList.remove("open");
+            const list = item.querySelector(":scope > ul");
+            if (!list || REDUCED_MOTION) {
+              list?.remove();
+            } else {
+              list.classList.add("closing");
+              list.addEventListener("animationend", () => list.remove(), { once: true });
+            }
+          } else {
+            expanded.add(node.id);
+            item.outerHTML = rowHtml(node);
+            outline
+              .querySelector(`li[data-id="${node.id}"] > ul`)
+              ?.classList.add("opening");
+          }
+          requestVisibleDetails();
+        }
+      });
+
+      // ===== Common names =====
+
+      // Ask /taxa for the common names of the rows on screen, and the
+      // observation photos of the species among them
+      function requestVisibleDetails() {
+        const ids = [focus.id];
+        for (const ancestor of pathToRoot(focus)) ids.push(ancestor.id);
+        outline.querySelectorAll("li[data-id]").forEach((item) => ids.push(Number(item.dataset.id)));
+        for (const child of focus.children.slice(0, 60)) ids.push(child.id);
+        requestDetails(ids);
+        wantPhotos(ids.filter((id) => nodeById.get(id)?.rank === "species"));
+      }
+
+      async function requestDetails(ids) {
+        const generation = detailsGeneration;
+        const wanted = [...new Set(ids)].filter(
+          (id) => id !== tree.id && !details.has(id) && !pendingDetails.has(id)
+        );
+        if (!wanted.length) return;
+        wanted.forEach((id) => pendingDetails.add(id));
+        const locale = languageSelect.value;
+
+        for (let i = 0; i < wanted.length; i += 30) {
+          const chunk = wanted.slice(i, i + 30);
+          try {
+            const data = await fetchJSON(
+              `${API_BASE}/taxa/${chunk.join(",")}?per_page=30&locale=${locale}`
+            );
+            if (generation !== detailsGeneration) return;
+            for (const taxon of data.results || []) {
+              details.set(taxon.id, {
+                common: taxon.preferred_common_name || null,
+                photo: taxon.default_photo?.square_url || null,
+              });
+            }
+          } catch (error) {
+            console.error("Error fetching taxon details:", error);
+          }
+          if (generation !== detailsGeneration) return;
+          chunk.forEach((id) => {
+            pendingDetails.delete(id);
+            // Remember misses too, so they are not asked for again
+            if (!details.has(id)) details.set(id, {});
+            applyDetails(id);
+          });
+        }
+      }
+
+      function applyDetails(id) {
+        const info = details.get(id);
+        if (!info) return;
+        document.querySelectorAll(`[data-common-id="${id}"]`).forEach((el) => {
+          el.textContent = info.common ? ` · ${info.common}` : "";
+        });
+        const el = treeNodeEls.get(id);
+        if (el && treeNode(id)) updateTreeNodeText(el, treeNode(id));
+        // A species the user never photographed falls back to its taxon photo
+        if (obsPhotos.get(id) === null) applyPhoto(id);
+      }
+
+      // ===== Observation photos =====
+
+      // speciesId -> best photographed observation of it by this user, or
+      // null once we know there is none
+      const obsPhotos = new Map();
+      const pendingPhotos = new Set();
+      let photoQueue = [];
+      let photoLoading = false;
+      let photoGeneration = 0;
+
+      function resetPhotos() {
+        obsPhotos.clear();
+        pendingPhotos.clear();
+        photoQueue = [];
+        photoGeneration++;
+      }
+
+      function photoFor(speciesId) {
+        const obs = obsPhotos.get(speciesId);
+        if (obs) return obs.photo;
+        if (obs === null) return details.get(speciesId)?.photo || null;
+        return null;
+      }
+
+      // Queue species for photo lookup; the latest request goes first so
+      // what is on screen right now loads before what was scrolled past
+      function wantPhotos(speciesIds) {
+        const fresh = [...new Set(speciesIds)].filter(
+          (id) => !obsPhotos.has(id) && !pendingPhotos.has(id)
+        );
+        if (!fresh.length) return;
+        fresh.forEach((id) => pendingPhotos.add(id));
+        photoQueue = [...fresh, ...photoQueue];
+        if (!photoLoading) processPhotoQueue();
+      }
+
+      async function processPhotoQueue() {
+        photoLoading = true;
+        const generation = photoGeneration;
+        while (photoQueue.length) {
+          const batch = photoQueue.splice(0, PHOTO_BATCH);
+          let picked = new Map();
+          let complete = true;
+          try {
+            const data = await fetchJSON(
+              `${API_BASE}/observations?user_id=${encodeURIComponent(login)}&taxon_id=${batch.join(",")}` +
+                `&photos=true&per_page=${PHOTO_PAGE}&order_by=votes${qualityParams}`
+            );
+            if (generation !== photoGeneration) break;
+            picked = pickObservationPhotos(data.results, batch);
+            complete = (data.total_results || 0) <= PHOTO_PAGE;
+          } catch (error) {
+            console.error("Error fetching observation photos:", error);
+            if (generation !== photoGeneration) break;
+          }
+          const retry = [];
+          for (const id of batch) {
+            if (picked.has(id)) {
+              obsPhotos.set(id, picked.get(id));
+            } else if (!complete && batch.length > 1) {
+              // A prolific species filled the page; look this one up alone
+              retry.push(id);
+              continue;
+            } else {
+              obsPhotos.set(id, null);
+              requestDetails([id]);
+            }
+            pendingPhotos.delete(id);
+            applyPhoto(id);
+          }
+          if (retry.length) await processSingles(retry, generation);
+          if (generation !== photoGeneration) break;
+        }
+        photoLoading = false;
+        // A new user was loaded meanwhile; start on their queue
+        if (photoQueue.length) processPhotoQueue();
+      }
+
+      async function processSingles(ids, generation) {
+        for (const id of ids) {
+          try {
+            const data = await fetchJSON(
+              `${API_BASE}/observations?user_id=${encodeURIComponent(login)}&taxon_id=${id}` +
+                `&photos=true&per_page=1&order_by=votes${qualityParams}`
+            );
+            if (generation !== photoGeneration) return;
+            obsPhotos.set(id, pickObservationPhotos(data.results, [id]).get(id) || null);
+          } catch (error) {
+            console.error("Error fetching observation photo:", error);
+            obsPhotos.set(id, null);
+          }
+          pendingPhotos.delete(id);
+          applyPhoto(id);
+        }
+      }
+
+      function applyPhoto(speciesId) {
+        const url = photoFor(speciesId);
+        if (!url) return;
+        document.querySelectorAll(`[data-photo-id="${speciesId}"]`).forEach((img) => {
+          if (img.getAttribute("src") !== url) img.src = url;
+        });
+        for (const [id, el] of treeNodeEls) {
+          const node = treeNode(id);
+          if (node && !node.more && repSpeciesId(node) === speciesId) setTreeNodePhoto(el, url);
+        }
+      }
+
+      // ===== Full tree view =====
+
+      let treeReady = false;
+      const treeOpen = new Set();
+      let treeTargets = new Map(); // id -> {x, y} after the latest layout
+      let treeFrame = new Map(); // id -> {x, y, opacity} as currently drawn
+      let treeTransform = { x: 60, y: 0, k: 1 };
+      const treeNodeEls = new Map();
+      const treeLinkEls = new Map();
+      const repCache = new Map();
+      let treePulseId = null;
+      // "mine": only the user's taxa. "all": the whole iNaturalist taxonomy,
+      // loaded a group at a time, with the user's taxa in color.
+      let treeScope = urlParams.get("scope") === "all" ? "all" : "mine";
+
+      function resetTreeView() {
+        treeReady = false;
+        treeOpen.clear();
+        treeTargets = new Map();
+        treeFrame = new Map();
+        repCache.clear();
+        treeNodeEls.clear();
+        treeLinkEls.clear();
+        treeNodes.innerHTML = "";
+        treeLinks.innerHTML = "";
+        treeOverview.innerHTML = "";
+      }
+
+      function treeRoot() {
+        return treeScope === "all" ? catalogRoot : tree;
+      }
+
+      function treeNode(id) {
+        return treeScope === "all" ? catalog.get(id) : nodeById.get(id);
+      }
+
+      // Whether clicking the node can open it. Catalog groups don't know their
+      // children until they are fetched, so anything above species can open.
+      function isExpandable(node) {
+        if (!node.catalog) return node.children.length > 0;
+        if (node.more || node.rank === "species") return false;
+        return !node.loaded || node.children.length > 0;
+      }
+
+      function isTreeOpen(node) {
+        return treeOpen.has(node.id) && node.children.length > 0;
+      }
+
+      // The user's species whose photo stands for this node
+      function repSpeciesId(node) {
+        if (node.catalog) return node.observed ? repSpeciesId(node.observed) : null;
+        if (!repCache.has(node.id)) repCache.set(node.id, representativeSpecies(node)?.id ?? null);
+        return repCache.get(node.id);
+      }
+
+      function treeNodeColor(node) {
+        if (node.catalog) return node.observed ? colorFor(node.observed) : UNSEEN_COLOR;
+        return colorFor(node);
+      }
+
+      function layoutCurrentTree() {
+        return layoutTree(treeRoot(), (n) => treeOpen.has(n.id), {
+          rowHeight: TREE_ROW,
+          columnWidth: TREE_COLUMN,
+        });
+      }
+
+      function initTreeView() {
+        treeReady = true;
+        if (treeScope === "all" && !catalogRoot) initCatalog();
+        const root = treeRoot();
+        treeOpen.add(root.id);
+        if (treeScope === "mine") tree.children.forEach((child) => treeOpen.add(child.id));
+        treeTargets = layoutCurrentTree();
+        treeFrame = new Map([...treeTargets].map(([id, p]) => [id, { x: p.x, y: p.y, opacity: 1 }]));
+        treeTransform = { x: 60, y: treeSvg.clientHeight / 2 - treeTargets.get(root.id).y, k: 1 };
+        if (treeScope === "all" && !root.loaded) {
+          loadCatalogChildren(root).then(() => {
+            relayoutTree(null, {
+              transformTo: {
+                x: 60,
+                y: treeSvg.clientHeight / 2 - (TREE_ROW * (root.children.length - 1)) / 2,
+                k: 1,
+              },
+            });
+          });
+        }
+      }
+
+      function setTreeScope(scope) {
+        treeScope = scope;
+        document.querySelectorAll(".scope-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.scope === scope);
+        });
+        treePane.classList.toggle("scope-all", scope === "all");
+        resetTreeView();
+        initTreeView();
+        if (focus && focus !== tree) revealInTree(focus, { open: true });
+        else drawTree();
+        updateUrl();
+      }
+
+      document.querySelectorAll(".scope-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          if (btn.dataset.scope !== treeScope) setTreeScope(btn.dataset.scope);
+        });
+      });
+
+      // --- The whole iNaturalist taxonomy, fetched on demand ---
+
+      const catalog = new Map();
+      let catalogRoot = null;
+      const CATALOG_PAGE = 100;
+      const UNSEEN_COLOR = "#b8b8b8";
+
+      function makeCatalogNode(taxon, parent) {
+        const observed = nodeById.get(taxon.id) || null;
+        const node = {
+          catalog: true,
+          id: taxon.id,
+          name: taxon.name,
+          rank: taxon.rank,
+          rankLevel: taxon.rankLevel ?? taxon.rank_level,
+          iconic: taxon.iconic ?? taxon.iconic_taxon_name ?? null,
+          parent,
+          children: [],
+          childIds: new Set(),
+          loaded: false,
+          loading: false,
+          nextPage: 1,
+          remaining: 0,
+          childRank: null,
+          observed,
+          species: observed ? observed.species : 0,
+          common: taxon.preferred_common_name ?? details.get(taxon.id)?.common ?? null,
+          photo: taxon.default_photo?.square_url ?? null,
+          completeSpecies: taxon.complete_species_count ?? null,
+        };
+        catalog.set(node.id, node);
+        return node;
+      }
+
+      function initCatalog() {
+        catalog.clear();
+        catalogRoot = makeCatalogNode({ id: tree.id, name: "Life", rank: tree.rank, rankLevel: tree.rankLevel }, null);
+      }
+
+      // Fetch the next page of a group's children. With main ranks the
+      // children are the taxa of the next main rank inside it (an order's
+      // families), skipping down a rank when a group has none of the next.
+      function loadCatalogChildren(node) {
+        // Callers arriving while a page is in flight wait for that same page
+        if (!node.loadPromise) {
+          node.loadPromise = fetchCatalogPage(node).finally(() => {
+            node.loadPromise = null;
+          });
+        }
+        return node.loadPromise;
+      }
+
+      async function fetchCatalogPage(node) {
+        if (node.loaded && !node.remaining) return;
+        node.loading = true;
+        refreshTreeNode(node);
+        const base =
+          `${API_BASE}/taxa?is_active=true&per_page=${CATALOG_PAGE}&order_by=observations_count&order=desc` +
+          `&locale=${languageSelect.value}`;
+        try {
+          let data;
+          if (ranksSelect.value === "all") {
+            data = await fetchJSON(`${base}&parent_id=${node.id}&page=${node.nextPage}`);
+          } else if (node.childRank) {
+            data = await fetchJSON(`${base}&taxon_id=${node.id}&rank=${node.childRank}&page=${node.nextPage}`);
+          } else {
+            const below = MAJOR_RANKS.slice(MAJOR_RANKS.indexOf(node.rank) + 1);
+            for (const rank of below) {
+              data = await fetchJSON(`${base}&taxon_id=${node.id}&rank=${rank}&page=1`);
+              if (data.total_results) {
+                node.childRank = rank;
+                break;
+              }
+            }
+          }
+          const results = data?.results || [];
+          const real = node.children.filter((child) => !child.more);
+          for (const taxon of results) {
+            if (node.childIds.has(taxon.id) || taxon.id === node.id) continue;
+            // Extinct taxa only clutter the tree, unless the user observed one
+            if (taxon.extinct && !nodeById.has(taxon.id)) continue;
+            node.childIds.add(taxon.id);
+            real.push(makeCatalogNode(taxon, node));
+          }
+          if (node.nextPage === 1 && node.observed) {
+            // Taxa the user saw always show up, even past the first page or
+            // where the taxonomy skips a rank
+            for (const seen of node.observed.children) {
+              if (node.childIds.has(seen.id)) continue;
+              node.childIds.add(seen.id);
+              real.push(makeCatalogNode(seen, node));
+            }
+          }
+          node.remaining = Math.max(0, (data?.total_results || 0) - node.nextPage * CATALOG_PAGE);
+          node.nextPage++;
+          node.loaded = true;
+          node.children = node.remaining
+            ? [...real, { id: -node.id, more: true, name: "", rank: "more", rankLevel: 0, parent: node, children: [], species: 0 }]
+            : real;
+          if (node.remaining) catalog.set(-node.id, node.children[node.children.length - 1]);
+          else catalog.delete(-node.id);
+        } catch (error) {
+          console.error("Error loading taxa:", error);
+          showError("errorMessage", "Couldn't load that part of the tree. Please try again.");
+        }
+        node.loading = false;
+        refreshTreeNode(node);
+        refreshTreeNode(catalog.get(-node.id));
+      }
+
+      function refreshTreeNode(node) {
+        const g = node && treeNodeEls.get(node.id);
+        if (!g) return;
+        // A "more" node's label changes after each page; rebuild it
+        if (node.more) {
+          g.remove();
+          treeNodeEls.delete(node.id);
+          drawTree();
+          return;
+        }
+        updateTreeNodeText(g, node);
+      }
+
+      // Open each group on the way down to a taxon the user observed
+      async function revealInCatalog(userNode, { open }) {
+        for (const ancestor of pathToRoot(userNode)) {
+          const node = catalog.get(ancestor.id);
+          if (!node) return;
+          if (ancestor === userNode && !open) break;
+          if (!isExpandable(node)) break;
+          if (!node.loaded) await loadCatalogChildren(node);
+          treeOpen.add(node.id);
+        }
+        const target = catalog.get(userNode.id);
+        const after = layoutCurrentTree();
+        if (!target || !after.has(target.id)) return relayoutTree();
+        treePulseId = target.id;
+        relayoutTree(null, {
+          transformTo: transformCentering(after.get(target.id), Math.max(treeTransform.k, 0.85)),
+        });
+      }
+
+      // Lay the tree out again and animate every node from where it is drawn
+      // now to its new place. Nodes appearing grow out of their nearest visible
+      // ancestor; nodes disappearing fold back into it. When `anchor` is given
+      // the view follows it so the clicked node stays under the pointer.
+      function relayoutTree(anchor = null, { transformTo = null } = {}) {
+        const before = treeFrame;
+        const after = layoutCurrentTree();
+        treeTargets = after;
+        const rootId = treeRoot().id;
+
+        const nearest = (node, positions) => {
+          for (let current = node && node.parent; current; current = current.parent) {
+            if (positions.has(current.id)) return positions.get(current.id);
+          }
+          return positions.get(rootId);
+        };
+        const moves = [];
+        const ids = new Set([...before.keys(), ...after.keys()]);
+        for (const id of ids) {
+          const node = treeNode(id);
+          if (!node) continue;
+          const from = before.get(id) || { ...nearest(node, before), opacity: 0 };
+          const to = after.get(id) || nearest(node, after);
+          moves.push({ id, from, to, toOpacity: after.has(id) ? 1 : 0 });
+        }
+
+        const fromT = { ...treeTransform };
+        let toT = transformTo || fromT;
+        if (!transformTo && anchor && before.has(anchor.id) && after.has(anchor.id)) {
+          const a = before.get(anchor.id);
+          const b = after.get(anchor.id);
+          toT = { x: fromT.x - (b.x - a.x) * fromT.k, y: fromT.y - (b.y - a.y) * fromT.k, k: fromT.k };
+        }
+
+        tween(
+          "tree",
+          moves.length > 6000 ? 0 : 550,
+          (t) => {
+            const frame = new Map();
+            for (const { id, from, to, toOpacity } of moves) {
+              frame.set(id, {
+                x: lerp(from.x, to.x, t),
+                y: lerp(from.y, to.y, t),
+                opacity: lerp(from.opacity ?? 1, toOpacity, t),
+              });
+            }
+            treeFrame = frame;
+            treeTransform = { x: lerp(fromT.x, toT.x, t), y: lerp(fromT.y, toT.y, t), k: lerp(fromT.k, toT.k, t) };
+            drawTree();
+          },
+          () => {
+            treeFrame = new Map([...after].map(([id, p]) => [id, { x: p.x, y: p.y, opacity: 1 }]));
+            drawTree();
+          }
+        );
+      }
+
+      function animateTransform(to, ms = 600) {
+        const from = { ...treeTransform };
+        tween("tree-pan", ms, (t) => {
+          treeTransform = { x: lerp(from.x, to.x, t), y: lerp(from.y, to.y, t), k: lerp(from.k, to.k, t) };
+          drawTree();
+        });
+      }
+
+      // The transform that puts a laid-out node at a comfortable spot on screen
+      function transformCentering(position, k) {
+        return {
+          // On a phone keep the node near the edge so its children's names fit
+          x: treeSvg.clientWidth * (treeSvg.clientWidth < 600 ? 0.1 : 0.3) - position.x * k,
+          y: treeSvg.clientHeight / 2 - position.y * k,
+          k,
+        };
+      }
+
+      // Show one of the user's taxa in the tree (in either scope)
+      function revealInTree(node, { open = false } = {}) {
+        if (treeScope === "all") {
+          revealInCatalog(node, { open });
+          return;
+        }
+        for (const ancestor of pathToRoot(node)) {
+          if (ancestor !== node) treeOpen.add(ancestor.id);
+        }
+        if (open && node.children.length) treeOpen.add(node.id);
+        const after = layoutCurrentTree();
+        treePulseId = node.id;
+        relayoutTree(null, {
+          transformTo: transformCentering(after.get(node.id), Math.max(treeTransform.k, 0.85)),
+        });
+      }
+
+      async function toggleTreeNode(node, { deep = false } = {}) {
+        if (node.more) {
+          // Keep the last child already shown where it is while the next page drops in
+          const siblings = node.parent.children;
+          const anchor = siblings[siblings.length - 2] || node.parent;
+          await loadCatalogChildren(node.parent);
+          relayoutTree(anchor);
+          return;
+        }
+        if (!isExpandable(node)) return;
+        if (node.catalog && !node.loaded) {
+          treeOpen.add(node.id);
+          await loadCatalogChildren(node);
+          relayoutTree(node);
+          return;
+        }
+        if (deep && !node.catalog) {
+          const stack = [node];
+          while (stack.length) {
+            const current = stack.pop();
+            if (current.children.length) treeOpen.add(current.id);
+            stack.push(...current.children);
+          }
+        } else if (treeOpen.has(node.id)) {
+          treeOpen.delete(node.id);
+        } else {
+          treeOpen.add(node.id);
+        }
+        relayoutTree(node);
+      }
+
+      function createTreeNode(node) {
+        if (node.more) return createMoreNode(node);
+        const radius = node.rank === "species" ? LEAF_RADIUS : NODE_RADIUS;
+        const unseen = node.catalog && !node.observed;
+        const g = svgEl("g", { class: `tnode${unseen ? " tnode-unseen" : ""}`, "data-id": node.id });
+        g.appendChild(svgEl("circle", { class: "tnode-bg", r: radius, stroke: treeNodeColor(node) }));
+        const emoji = svgEl("text", {
+          class: "tnode-emoji",
+          "text-anchor": "middle",
+          dy: "0.35em",
+        });
+        emoji.textContent = node.id === tree.id ? "🌍" : getIconicTaxonIcon(node.iconic);
+        g.appendChild(emoji);
+
+        const name = svgEl("text", { class: `tnode-name${node.rankLevel <= ITALIC_RANK_LEVEL ? " italic" : ""}` });
+        const sub = svgEl("text", { class: "tnode-sub" });
+        g.append(name, sub);
+        g.__radius = radius;
+
+        if (isExpandable(node)) {
+          const badge = svgEl("g", {
+            class: "tnode-badge",
+            transform: `translate(${radius * 0.75},${radius * 0.75})`,
+          });
+          badge.appendChild(svgEl("circle", { r: 7 }));
+          const sign = svgEl("text", { "text-anchor": "middle", dy: "0.36em" });
+          badge.appendChild(sign);
+          g.appendChild(badge);
+          g.__sign = sign;
+        }
+
+        updateTreeNodeText(g, node);
+        // Taxa the user saw show their own photo; the rest iNaturalist's
+        const rep = repSpeciesId(node);
+        const url = rep ? photoFor(rep) : unseen ? node.photo : null;
+        if (url) setTreeNodePhoto(g, url);
+        treeNodes.appendChild(g);
+        return g;
+      }
+
+      function createMoreNode(node) {
+        const g = svgEl("g", { class: "tnode tnode-more", "data-id": node.id });
+        g.__radius = 11;
+        g.appendChild(svgEl("circle", { class: "tnode-bg", r: 11 }));
+        const plus = svgEl("text", { class: "tnode-more-plus", "text-anchor": "middle", dy: "0.35em" });
+        plus.textContent = node.parent.loading ? "…" : "+";
+        const label = svgEl("text", { class: "tnode-name", x: 19, y: 4.5 });
+        label.textContent = node.parent.loading
+          ? "Loading..."
+          : `Show ${Math.min(node.parent.remaining, CATALOG_PAGE).toLocaleString()} more (${node.parent.remaining.toLocaleString()} left)`;
+        g.append(plus, label);
+        g.__open = false;
+        treeNodes.appendChild(g);
+        return g;
+      }
+
+      function setTreeNodePhoto(g, url) {
+        let image = g.__image;
+        if (!image) {
+          const r = g.__radius - 1.5;
+          image = svgEl("image", {
+            x: -r,
+            y: -r,
+            width: r * 2,
+            height: r * 2,
+            "clip-path": "url(#nodeClip)",
+            preserveAspectRatio: "xMidYMid slice",
+            opacity: "0",
+          });
+          image.addEventListener("load", () => image.setAttribute("opacity", "1"));
+          // Above the background and emoji, below labels and badge
+          g.insertBefore(image, g.childNodes[2]);
+          g.__image = image;
+        }
+        if (image.getAttribute("href") !== url) image.setAttribute("href", url);
+      }
+
+      function treeSubtitle(node) {
+        const common = node.catalog ? node.common || details.get(node.id)?.common : details.get(node.id)?.common;
+        if (node.rank === "species") return common || "";
+        let count = `${node.species.toLocaleString()} spp.`;
+        // Against the whole taxonomy, show how much of the group has been seen
+        if (node.catalog && node.completeSpecies) {
+          count = `${node.species.toLocaleString()} / ${node.completeSpecies.toLocaleString()} spp.`;
+        } else if (node.catalog && !node.observed) {
+          count = "";
+        }
+        return [count, common].filter(Boolean).join(" · ");
+      }
+
+      function updateTreeNodeText(g, node) {
+        if (node.more) return;
+        const [name, sub] = g.querySelectorAll(".tnode-name, .tnode-sub");
+        const open = isTreeOpen(node);
+        name.textContent = node.id === tree.id ? "Life" : node.name;
+        sub.textContent = treeSubtitle(node);
+        // Open groups have their children's links to the right, so their
+        // label goes above the node instead
+        const r = g.__radius;
+        if (open) {
+          for (const el of [name, sub]) el.setAttribute("text-anchor", "middle");
+          name.setAttribute("x", 0);
+          name.setAttribute("y", -r - 18);
+          sub.setAttribute("x", 0);
+          sub.setAttribute("y", -r - 5);
+        } else {
+          for (const el of [name, sub]) el.setAttribute("text-anchor", "start");
+          name.setAttribute("x", r + 8);
+          name.setAttribute("y", sub.textContent ? -1 : 4.5);
+          sub.setAttribute("x", r + 8);
+          sub.setAttribute("y", 13);
+        }
+        if (g.__sign) g.__sign.textContent = node.loading ? "…" : open ? "−" : "+";
+        g.__open = open;
+      }
+
+      function drawTree() {
+        if (!treeReady || currentView !== "tree") return;
+        const { x: tx, y: ty, k } = treeTransform;
+        treeViewport.setAttribute("transform", `translate(${tx},${ty}) scale(${k})`);
+        const width = treeSvg.clientWidth;
+        const height = treeSvg.clientHeight;
+        // What part of the tree is on screen, with a margin for labels
+        const x0 = -tx / k - TREE_COLUMN;
+        const x1 = (width - tx) / k + TREE_COLUMN * 0.2;
+        const y0 = -ty / k - TREE_ROW;
+        const y1 = (height - ty) / k + TREE_ROW;
+        const inView = (p) => p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1;
+
+        if (k < OVERVIEW_ZOOM) {
+          drawTreeOverview(inView, x0, x1, y0, y1);
+          return;
+        }
+        treeOverview.innerHTML = "";
+
+        const seenNodes = new Set();
+        const seenLinks = new Set();
+        const wantedPhotos = [];
+        const wantedNames = [];
+        for (const [id, p] of treeFrame) {
+          if (p.opacity < 0.02) continue;
+          const node = treeNode(id);
+          if (!node) continue;
+          const parent = node.parent && treeFrame.get(node.parent.id);
+          if (
+            parent &&
+            Math.max(parent.x, p.x) >= x0 &&
+            Math.min(parent.x, p.x) <= x1 &&
+            Math.max(parent.y, p.y) >= y0 &&
+            Math.min(parent.y, p.y) <= y1
+          ) {
+            let link = treeLinkEls.get(id);
+            if (!link) {
+              link = svgEl("path", { class: `tlink${node.catalog && !node.observed ? " tlink-unseen" : ""}` });
+              treeLinks.appendChild(link);
+              treeLinkEls.set(id, link);
+            }
+            const mid = (parent.x + p.x) / 2;
+            link.setAttribute("d", `M${parent.x},${parent.y}C${mid},${parent.y} ${mid},${p.y} ${p.x},${p.y}`);
+            link.setAttribute("opacity", p.opacity.toFixed(3));
+            seenLinks.add(id);
+          }
+          if (!inView(p)) continue;
+          let g = treeNodeEls.get(id);
+          if (!g) {
+            g = createTreeNode(node);
+            treeNodeEls.set(id, g);
+          }
+          g.setAttribute("transform", `translate(${p.x},${p.y})`);
+          g.setAttribute("opacity", p.opacity.toFixed(3));
+          if (!node.more && g.__open !== isTreeOpen(node)) updateTreeNodeText(g, node);
+          if (id === treePulseId && !g.__pulsing) {
+            const ring = svgEl("circle", { class: "tnode-pulse", r: g.__radius });
+            ring.addEventListener("animationend", () => ring.remove());
+            g.appendChild(ring);
+            g.__pulsing = true;
+            treePulseId = null;
+          }
+          seenNodes.add(id);
+          if (node.more) continue;
+          const rep = repSpeciesId(node);
+          if (rep && !obsPhotos.has(rep)) wantedPhotos.push(rep);
+          if (!node.catalog && !details.has(id)) wantedNames.push(id);
+        }
+        for (const [id, g] of treeNodeEls) {
+          if (!seenNodes.has(id)) {
+            g.remove();
+            treeNodeEls.delete(id);
+          }
+        }
+        for (const [id, link] of treeLinkEls) {
+          if (!seenLinks.has(id)) {
+            link.remove();
+            treeLinkEls.delete(id);
+          }
+        }
+        scheduleTreeFetches(wantedPhotos, wantedNames);
+      }
+
+      // Zoomed far out there can be thousands of nodes on screen: draw all
+      // links as one path and the nodes as one path per color.
+      function drawTreeOverview(inView, x0, x1, y0, y1) {
+        for (const g of treeNodeEls.values()) g.remove();
+        for (const link of treeLinkEls.values()) link.remove();
+        treeNodeEls.clear();
+        treeLinkEls.clear();
+        const k = treeTransform.k;
+        let links = "";
+        const dots = new Map();
+        const labels = [];
+        for (const [id, p] of treeFrame) {
+          if (p.opacity < 0.5) continue;
+          const node = treeNode(id);
+          if (!node || node.more) continue;
+          const parent = node.parent && treeFrame.get(node.parent.id);
+          if (parent && Math.max(parent.y, p.y) >= y0 && Math.min(parent.y, p.y) <= y1 && p.x >= x0 && parent.x <= x1) {
+            const mid = (parent.x + p.x) / 2;
+            links += `M${parent.x},${parent.y}H${mid}V${p.y}H${p.x}`;
+          }
+          if (!inView(p)) continue;
+          // Groups tall enough on screen get a name, so the overview can be read
+          const target = treeTargets.get(id);
+          const extent = target ? (target.bottom - target.top) * k : 0;
+          // ...and once rows are far enough apart, every node does
+          if ((node.children.length && extent > 40) || TREE_ROW * k >= 13) {
+            labels.push({ node, p, size: extent });
+          }
+          const color = treeNodeColor(node);
+          // Keep dots visible however far out the view is
+          const r = Math.max(node.rank === "species" ? 9 : 7, (node.rank === "species" ? 1.6 : 2.4) / k);
+          dots.set(
+            color,
+            (dots.get(color) || "") + `M${p.x - r},${p.y}a${r},${r} 0 1,0 ${r * 2},0a${r},${r} 0 1,0 ${-r * 2},0`
+          );
+        }
+        const fontSize = (TREE_ROW * k >= 13 ? 11 : 12) / k;
+        // Biggest groups first; skip a label that would overlap one already placed
+        const placed = [];
+        const labelHtml = labels
+          .sort((a, b) => b.size - a.size)
+          .filter(({ p }) => {
+            const clash = placed.some((q) => Math.abs(q.y - p.y) * k < 12 && Math.abs(q.x - p.x) * k < 160);
+            if (!clash) placed.push(p);
+            return !clash;
+          })
+          .slice(0, 400)
+          .map(({ node, p }) => {
+            const leaf = !isTreeOpen(node);
+            const italic = node.rankLevel <= ITALIC_RANK_LEVEL ? ' font-style="italic"' : "";
+            const count = node.rank === "species" ? "" : ` · ${node.species.toLocaleString()}`;
+            // Leaves are labelled beside their dot, open groups just above it
+            const [dx, dy] = leaf ? [6 / k, 4 / k] : [5 / k, -5 / k];
+            const unseen = node.catalog && !node.observed ? ' fill-opacity="0.55"' : "";
+            return (
+              `<text class="overview-label" x="${p.x + dx}" y="${p.y + dy}" font-size="${fontSize}" stroke-width="${3 / k}"${italic}${unseen}>` +
+              `${escapeHtml(node.id === tree.id ? "Life" : node.name)}${count}</text>`
+            );
+          })
+          .join("");
+        treeOverview.innerHTML =
+          `<path class="tlink" d="${links}" />` +
+          [...dots].map(([color, d]) => `<path d="${d}" fill="${color}" />`).join("") +
+          labelHtml;
+      }
+
+      let treeFetchTimer = null;
+      // Wait for panning to settle before asking for what is on screen
+      function scheduleTreeFetches(photoIds, nameIds) {
+        clearTimeout(treeFetchTimer);
+        if (!photoIds.length && !nameIds.length) return;
+        treeFetchTimer = setTimeout(() => {
+          wantPhotos(photoIds);
+          requestDetails(nameIds);
+        }, 200);
+      }
+
+      // --- Pan, zoom and clicks ---
+
+      function zoomAt(px, py, factor) {
+        const { x, y, k } = treeTransform;
+        const nk = Math.min(3, Math.max(MIN_ZOOM, k * factor));
+        const ratio = nk / k;
+        treeTransform = { x: px - (px - x) * ratio, y: py - (py - y) * ratio, k: nk };
+        drawTree();
+      }
+
+      treeSvg.addEventListener(
+        "wheel",
+        (e) => {
+          e.preventDefault();
+          window.cancelAnimationFrame(tweens["tree-pan"]);
+          const rect = treeSvg.getBoundingClientRect();
+          // Pinch on a trackpad arrives as a wheel event with ctrlKey
+          const factor = Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015));
+          zoomAt(e.clientX - rect.left, e.clientY - rect.top, factor);
+        },
+        { passive: false }
+      );
+
+      const pointers = new Map();
+      let dragMoved = false;
+      let pinchStart = null;
+
+      treeSvg.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0 && e.pointerType === "mouse") return;
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        dragMoved = false;
+        if (pointers.size === 2) {
+          const [a, b] = [...pointers.values()];
+          pinchStart = { distance: Math.hypot(a.x - b.x, a.y - b.y), k: treeTransform.k };
+        }
+      });
+
+      window.addEventListener("pointermove", (e) => {
+        const last = pointers.get(e.pointerId);
+        if (!last) return;
+        const dx = e.clientX - last.x;
+        const dy = e.clientY - last.y;
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (!dragMoved && Math.hypot(dx, dy) < 1) return;
+        if (!dragMoved) {
+          dragMoved = true;
+          treeSvg.classList.add("dragging");
+          hideTooltip();
+          window.cancelAnimationFrame(tweens["tree-pan"]);
+        }
+        if (pointers.size === 2 && pinchStart) {
+          const [a, b] = [...pointers.values()];
+          const rect = treeSvg.getBoundingClientRect();
+          const distance = Math.hypot(a.x - b.x, a.y - b.y);
+          const target = (pinchStart.k * distance) / pinchStart.distance;
+          zoomAt((a.x + b.x) / 2 - rect.left, (a.y + b.y) / 2 - rect.top, target / treeTransform.k);
+        } else if (pointers.size === 1) {
+          treeTransform = { ...treeTransform, x: treeTransform.x + dx, y: treeTransform.y + dy };
+          drawTree();
+        }
+      });
+
+      const endPointer = (e) => {
+        pointers.delete(e.pointerId);
+        if (pointers.size < 2) pinchStart = null;
+        if (!pointers.size) treeSvg.classList.remove("dragging");
+      };
+      window.addEventListener("pointerup", endPointer);
+      window.addEventListener("pointercancel", endPointer);
+
+      treeSvg.addEventListener("click", (e) => {
+        if (dragMoved) return;
+        const g = e.target.closest(".tnode");
+        if (!g) return;
+        const node = treeNode(Number(g.dataset.id));
+        if (!node) return;
+        hideTooltip();
+        if (node.rank === "species") {
+          // A species the user hasn't seen opens on iNaturalist instead
+          if (!node.catalog) openLightbox(node);
+          else if (node.observed) openLightbox(node.observed);
+          else window.open(`https://www.inaturalist.org/taxa/${node.id}`, "_blank", "noopener");
+        } else {
+          toggleTreeNode(node, { deep: e.shiftKey || e.altKey });
+        }
+      });
+
+      function treeHover(e) {
+        const g = e.target.closest(".tnode");
+        const node = g && !pointers.size ? treeNode(Number(g.dataset.id)) : null;
+        if (!node || node.more) hideTooltip();
+        else if (node.catalog) showCatalogTooltip(e, node);
+        else showTooltip(e, node);
+      }
+      treeSvg.addEventListener("mouseover", treeHover);
+      treeSvg.addEventListener("mousemove", treeHover);
+      treeSvg.addEventListener("mouseleave", hideTooltip);
+
+      document.getElementById("treeExpandAll").addEventListener("click", () => {
+        for (const node of nodeById.values()) {
+          if (node.children.length) treeOpen.add(node.id);
+        }
+        relayoutTree(tree);
+      });
+
+      document.getElementById("treeCollapseAll").addEventListener("click", () => {
+        const root = treeRoot();
+        treeOpen.clear();
+        treeOpen.add(root.id);
+        relayoutTree(null, {
+          transformTo: { x: 60, y: treeSvg.clientHeight / 2 - (TREE_ROW * (root.children.length - 1)) / 2, k: 1 },
+        });
+      });
+
+      document.getElementById("treeFit").addEventListener("click", () => {
+        let maxX = 0;
+        let maxY = 0;
+        for (const p of treeTargets.values()) {
+          maxX = Math.max(maxX, p.x);
+          maxY = Math.max(maxY, p.y);
+        }
+        const width = treeSvg.clientWidth;
+        const height = treeSvg.clientHeight;
+        const fitWidth = (width - 280) / (maxX + 1);
+        const fitHeight = (height - 80) / (maxY + 1);
+        // A tall tree squeezed to fit would be a single line; keep it at
+        // least half the panel wide and center on Life, then pan up and down
+        const k = Math.max(MIN_ZOOM, Math.min(1.2, fitWidth, Math.max(fitHeight, fitWidth * 0.5)));
+        const rootY = treeTargets.get(treeRoot().id).y;
+        const y = maxY * k <= height ? (height - maxY * k) / 2 : height / 2 - rootY * k;
+        animateTransform({ x: 60, y, k });
+      });
+
+      const zoomButton = (factor) => () => {
+        const { x, y, k } = treeTransform;
+        const nk = Math.min(3, Math.max(MIN_ZOOM, k * factor));
+        const cx = treeSvg.clientWidth / 2;
+        const cy = treeSvg.clientHeight / 2;
+        animateTransform({ x: cx - ((cx - x) * nk) / k, y: cy - ((cy - y) * nk) / k, k: nk }, 300);
+      };
+      document.getElementById("treeZoomIn").addEventListener("click", zoomButton(1.4));
+      document.getElementById("treeZoomOut").addEventListener("click", zoomButton(1 / 1.4));
+
+      window.addEventListener("resize", () => drawTree());
+
+      // ===== Observation gallery =====
+
+      let lbNode = null;
+      let lbItems = [];
+      let lbIndex = 0;
+      let lbRequest = 0;
+
+      async function openLightbox(node) {
+        lbNode = node;
+        lbIndex = 0;
+        const request = ++lbRequest;
+        const best = obsPhotos.get(node.id);
+        lbItems = best
+          ? [{ photo: best.photo, observationId: best.observationId, observedOn: best.observedOn, place: best.place }]
+          : [];
+        lightbox.hidden = false;
+        document.body.style.overflow = "hidden";
+        document.getElementById("lbName").textContent = node.name;
+        document.getElementById("lbCommon").textContent = details.get(node.id)?.common || "";
+        document.getElementById("lbAll").href = observationsUrl(node).replace("&view=species", "");
+        if (!details.has(node.id)) requestDetails([node.id]).then(() => {
+          if (lbNode === node) document.getElementById("lbCommon").textContent = details.get(node.id)?.common || "";
+        });
+        showLightboxItem();
+
+        try {
+          const data = await fetchJSON(
+            `${API_BASE}/observations?user_id=${encodeURIComponent(login)}&taxon_id=${node.id}` +
+              `&photos=true&per_page=50&order_by=votes${qualityParams}`
+          );
+          if (request !== lbRequest) return;
+          const items = [];
+          for (const obs of data.results || []) {
+            for (const photo of obs.photos || []) {
+              items.push({
+                photo: photo.url,
+                attribution: photo.attribution,
+                observationId: obs.id,
+                observedOn: obs.observed_on,
+                place: obs.place_guess,
+              });
+            }
+          }
+          if (items.length) {
+            // Keep the photo already on screen in place while the rest arrive
+            const current = lbItems[lbIndex];
+            lbItems = items;
+            lbIndex = Math.max(0, current ? items.findIndex((item) => item.photo === current.photo) : 0);
+          }
+          showLightboxItem();
+        } catch (error) {
+          console.error("Error fetching observations:", error);
+        }
+      }
+
+      function showLightboxItem() {
+        const item = lbItems[lbIndex];
+        const meta = document.getElementById("lbMeta");
+        const counter = document.getElementById("lbCounter");
+        const observationLink = document.getElementById("lbObservation");
+        if (!item) {
+          lbImage.removeAttribute("src");
+          meta.textContent = "Loading your photos...";
+          counter.textContent = "";
+          observationLink.style.display = "none";
+          lbPrev.disabled = lbNext.disabled = true;
+          return;
+        }
+        const url = photoSize(item.photo, "large");
+        if (lbImage.getAttribute("src") !== url) {
+          lbImage.classList.add("loading");
+          lbImage.onload = () => lbImage.classList.remove("loading");
+          lbImage.src = url;
+        }
+        lbImage.alt = lbNode.name;
+        meta.textContent = [item.observedOn, item.place].filter(Boolean).join(" · ");
+        document.getElementById("lbAttribution").textContent = item.attribution || "";
+        counter.textContent = lbItems.length > 1 ? `${lbIndex + 1} / ${lbItems.length}` : "";
+        observationLink.style.display = "";
+        observationLink.href = `https://www.inaturalist.org/observations/${item.observationId}`;
+        lbPrev.disabled = lbIndex === 0;
+        lbNext.disabled = lbIndex >= lbItems.length - 1;
+        // Warm the cache for the next photo so paging feels instant
+        const next = lbItems[lbIndex + 1];
+        if (next) new Image().src = photoSize(next.photo, "large");
+      }
+
+      function stepLightbox(delta) {
+        const index = lbIndex + delta;
+        if (index < 0 || index >= lbItems.length) return;
+        lbIndex = index;
+        showLightboxItem();
+      }
+
+      function closeLightbox() {
+        lightbox.hidden = true;
+        document.body.style.overflow = "";
+        lbRequest++;
+      }
+
+      lbPrev.addEventListener("click", () => stepLightbox(-1));
+      lbNext.addEventListener("click", () => stepLightbox(1));
+      lightbox.querySelectorAll("[data-close]").forEach((el) => el.addEventListener("click", closeLightbox));
+      document.addEventListener("keydown", (e) => {
+        if (lightbox.hidden) return;
+        if (e.key === "Escape") closeLightbox();
+        if (e.key === "ArrowLeft") stepLightbox(-1);
+        if (e.key === "ArrowRight") stepLightbox(1);
+      });
+
+      // Swipe between photos on touch screens
+      let swipeStart = null;
+      lbImage.addEventListener("touchstart", (e) => {
+        swipeStart = e.touches[0].clientX;
+      });
+      lbImage.addEventListener("touchend", (e) => {
+        if (swipeStart === null) return;
+        const dx = e.changedTouches[0].clientX - swipeStart;
+        if (Math.abs(dx) > 40) stepLightbox(dx < 0 ? 1 : -1);
+        swipeStart = null;
+      });
+
+      // ===== Find a taxon =====
+
+      let searchTimeout = null;
+      treeSearch.addEventListener("input", () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          if (!tree) return;
+          const commonNames = new Map(
+            [...details].filter(([, info]) => info.common).map(([id, info]) => [id, info.common])
+          );
+          const matches = searchTree(tree, treeSearch.value, commonNames);
+          if (!matches.length) {
+            searchResults.style.display = treeSearch.value.trim() ? "block" : "none";
+            searchResults.innerHTML = '<div class="search-result">No match in your tree</div>';
+            return;
+          }
+          searchResults.innerHTML = matches
+            .map((node) => {
+              const common = details.get(node.id)?.common;
+              return `
+                <div class="search-result" data-id="${node.id}">
+                  <span${node.rankLevel <= ITALIC_RANK_LEVEL ? ' style="font-style:italic"' : ""}>${escapeHtml(node.name)}</span>
+                  ${common ? ` · ${escapeHtml(common)}` : ""}
+                  <small>(${escapeHtml(node.rank)}, ${node.species.toLocaleString()} spp.)</small>
+                </div>`;
+            })
+            .join("");
+          searchResults.style.display = "block";
+        }, 150);
+      });
+
+      searchResults.addEventListener("click", (e) => {
+        const item = e.target.closest(".search-result[data-id]");
+        if (!item) return;
+        const node = nodeById.get(Number(item.dataset.id));
+        searchResults.style.display = "none";
+        treeSearch.value = "";
+        if (currentView === "tree") {
+          revealInTree(node);
+        } else if (node.parent) {
+          setFocus(node.parent, { highlight: node.id });
+        }
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!treeSearch.contains(e.target) && !searchResults.contains(e.target)) {
+          searchResults.style.display = "none";
+        }
+      });
+
+      if (urlParams.get("user")) loadTree();
+    </script>
+    <button class="feedback-button" id="feedbackBtn">Send feedback</button>
+    <script type="text/javascript">
+      initFeedbackButton();
+    </script>
+    <script
+      defer
+      data-domain="glauberramos.github.io/inat"
+      src="https://plausible.io/js/script.js"
+    ></script>
+    <script src="dark-mode.js?v=2"></script>
+  </body>
+</html>
