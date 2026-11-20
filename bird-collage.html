@@ -1567,17 +1567,20 @@
         return els.canvas.width / layout.width;
       }
 
+      // The cache key of a sticker decoded at the size it is drawn on screen.
+      function screenKey(p, pixelScale) {
+        return `${p.key}@${Math.max(1, Math.round(p.w * pixelScale))}x${Math.max(1, Math.round(p.h * pixelScale))}`;
+      }
+
       async function drawScreen() {
+        resetHover();
         const token = ++state.renderToken;
         const layout = state.layout;
         const pixelScale = sizeCanvas(layout);
         const ctx = els.canvas.getContext("2d");
         ctx.setTransform(pixelScale, 0, 0, pixelScale, 0, 0);
         // Only animate stickers arriving the first time they're drawn at this size.
-        const fresh = layout.placements.some((p) => {
-          const key = `${p.key}@${Math.max(1, Math.round(p.w * pixelScale))}x${Math.max(1, Math.round(p.h * pixelScale))}`;
-          return !screenBitmaps.has(key);
-        });
+        const fresh = layout.placements.some((p) => !screenBitmaps.has(screenKey(p, pixelScale)));
         if (fresh) {
           // Drop stickers decoded at sizes this layout no longer uses.
           for (const bitmap of screenBitmaps.values()) bitmap.close();
@@ -1656,12 +1659,129 @@
         return null;
       }
 
+      // ===== Hover animation =====
+
+      // The hovered bird grows where it is, on the collage itself: each frame
+      // repaints the collage from the stickers already decoded for the screen,
+      // with the hovered one last, a little bigger.
+      const HOVER_GROWTH = 1.15;
+      const HOVER_MS = 160;
+      const hover = { key: null, scale: 1, from: 1, to: 1, start: 0, frame: 0, bitmap: null };
+
+      function easeOut(t) {
+        return 1 - (1 - t) ** 3;
+      }
+
+      function paintHoverFrame() {
+        const layout = state.layout;
+        if (!layout) return;
+        const pixelScale = els.canvas.width / layout.width;
+        const ctx = els.canvas.getContext("2d");
+        ctx.setTransform(pixelScale, 0, 0, pixelScale, 0, 0);
+        const colors = theme();
+        ctx.fillStyle = colors.background;
+        ctx.fillRect(0, 0, layout.width, layout.height);
+        drawText(ctx, layout, colors);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        let hovered = null;
+        for (const p of layout.placements) {
+          if (p.key === hover.key) {
+            hovered = p;
+            continue;
+          }
+          const bitmap = screenBitmaps.get(screenKey(p, pixelScale));
+          if (bitmap) ctx.drawImage(bitmap, p.x, p.y, p.w, p.h);
+        }
+        if (!hovered) return;
+        const w = hovered.w * hover.scale;
+        const h = hovered.h * hover.scale;
+        const bitmap = hover.bitmap || screenBitmaps.get(screenKey(hovered, pixelScale));
+        if (!bitmap) return;
+        const lift = (hover.scale - 1) / (HOVER_GROWTH - 1); // 0..1
+        ctx.save();
+        // Shadow sizes are in device pixels, not layout units.
+        ctx.shadowColor = `rgba(0, 0, 0, ${0.22 * lift})`;
+        ctx.shadowBlur = 10 * lift * (window.devicePixelRatio || 1);
+        ctx.shadowOffsetY = 4 * lift * (window.devicePixelRatio || 1);
+        ctx.drawImage(bitmap, hovered.x - (w - hovered.w) / 2, hovered.y - (h - hovered.h) / 2, w, h);
+        ctx.restore();
+      }
+
+      // Ease the hovered bird's scale towards `to`, repainting every frame.
+      function animateHover(to) {
+        hover.from = hover.scale;
+        hover.to = to;
+        hover.start = performance.now();
+        cancelAnimationFrame(hover.frame);
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const step = (now) => {
+          const t = reduce ? 1 : Math.min(1, (now - hover.start) / HOVER_MS);
+          hover.scale = hover.from + (hover.to - hover.from) * easeOut(t);
+          paintHoverFrame();
+          if (t < 1) {
+            hover.frame = requestAnimationFrame(step);
+          } else if (hover.to === 1) {
+            hover.key = null;
+            hover.bitmap = null;
+          }
+        };
+        hover.frame = requestAnimationFrame(step);
+      }
+
+      // A sharper copy of the hovered sticker, decoded at its grown size.
+      async function loadHoverBitmap(placement) {
+        const pixelScale = els.canvas.width / state.layout.width;
+        const bitmap = await decodeSticker(
+          placement.key,
+          Math.max(1, Math.round(placement.w * pixelScale * HOVER_GROWTH)),
+          Math.max(1, Math.round(placement.h * pixelScale * HOVER_GROWTH))
+        );
+        if (hover.key !== placement.key) {
+          bitmap.close();
+          return;
+        }
+        if (hover.bitmap) hover.bitmap.close();
+        hover.bitmap = bitmap;
+        paintHoverFrame();
+      }
+
+      function showHover(placement) {
+        if (hover.key === placement.key && hover.to === HOVER_GROWTH) return;
+        if (hover.key !== placement.key) {
+          // The last bird snaps back; the new one grows from its own size.
+          if (hover.bitmap) hover.bitmap.close();
+          hover.bitmap = null;
+          hover.key = placement.key;
+          hover.scale = 1;
+          loadHoverBitmap(placement);
+        }
+        animateHover(HOVER_GROWTH);
+      }
+
+      function hideHover() {
+        if (hover.key && hover.to !== 1) animateHover(1);
+      }
+
+      // Forget the hover without painting (a new collage is about to be drawn).
+      function resetHover() {
+        cancelAnimationFrame(hover.frame);
+        if (hover.bitmap) hover.bitmap.close();
+        Object.assign(hover, { key: null, scale: 1, from: 1, to: 1, bitmap: null });
+      }
+
       els.canvas.addEventListener("mousemove", (event) => {
         const bird = birdAt(event);
         els.canvas.style.cursor = bird ? "pointer" : "default";
         if (!bird) {
           els.tooltip.style.display = "none";
+          hideHover();
           return;
+        }
+        // Not while a new collage is being arranged or drawn.
+        if (els.previewLoading.hidden) {
+          const placement = state.layout.placements.find((p) => p.key === bird.sticker.stem);
+          if (placement) showHover(placement);
         }
         const status = THREATENED_IUCN.includes(bird.sticker.iucn) ? ` · ${bird.sticker.iucn}` : "";
         els.tooltip.innerHTML =
@@ -1681,6 +1801,7 @@
 
       els.canvas.addEventListener("mouseleave", () => {
         els.tooltip.style.display = "none";
+        hideHover();
       });
 
       els.canvas.addEventListener("click", (event) => {

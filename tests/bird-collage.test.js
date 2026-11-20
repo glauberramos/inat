@@ -218,3 +218,21 @@ test("layoutCollage keeps birds out of a superellipse hole", () => {
     assert.ok(u ** 3 + v ** 3 > 1, `${p.key} sits in the hole`);
   }
 });
+
+test("layoutCollage keeps true-size proportions when the biggest birds hit the size cap", () => {
+  // A few birds with a wide mass range: the big ones would overflow the cap.
+  const masses = [8000, 3000, 900, 250, 40];
+  const birds = masses.map((massG, i) => {
+    const { mask, opaque } = ellipseMask();
+    return { key: `bird${i}`, massG, aspect: 0.75, opaque, mask };
+  });
+  const { placements } = layoutCollage(birds, { width: 1600, height: 900, trueSize: true });
+  assert.equal(placements.length, masses.length);
+  const height = new Map(placements.map((p) => [p.key, p.h]));
+  for (let i = 1; i < masses.length; i++) {
+    const expected = Math.cbrt(masses[0] / masses[i]);
+    const actual = height.get("bird0") / height.get(`bird${i}`);
+    assert.ok(Math.abs(actual - expected) < 1e-9, `bird0 / bird${i}: ${actual} vs ${expected}`);
+  }
+  assert.ok(Math.max(...placements.map((p) => p.h)) <= 900 * 0.36 + 1e-9);
+});

@@ -381,16 +381,25 @@ function layoutCollage(birds, options) {
     const occupied = new Uint8Array(cols * rows);
     markReserve(occupied, cols, rows, cell, reserve);
     const k = (fill * freeArea) / totalWeight;
+    // Size each sticker by the area its bird covers, not its box.
+    const sizes = birds.map((bird, i) => {
+      const boxArea = (k * weights[i]) / Math.max(bird.opaque || 0.5, 0.15);
+      const h = Math.sqrt(boxArea / bird.aspect);
+      return { w: h * bird.aspect, h };
+    });
+    // No sticker may be wider or taller than maxShare of the page. Shrink them
+    // all by the same factor rather than capping the big ones, so the sizes
+    // keep following mass exactly (a few big birds would otherwise all come
+    // out the same size).
+    const limit = Math.min(
+      1,
+      ...sizes.map((s) => Math.min((maxShare * height) / s.h, (maxShare * width) / s.w))
+    );
     const placed = [];
     for (const i of order) {
       const bird = birds[i];
-      // Size the sticker by the area its bird covers, not its box.
-      const boxArea = (k * weights[i]) / Math.max(bird.opaque || 0.5, 0.15);
-      let h = Math.sqrt(boxArea / bird.aspect);
-      let w = h * bird.aspect;
-      const limit = Math.min(1, (maxShare * height) / h, (maxShare * width) / w);
-      h *= limit;
-      w *= limit;
+      const h = sizes[i].h * limit;
+      const w = sizes[i].w * limit;
       const cw = Math.max(1, Math.round(w / cell));
       const ch = Math.max(1, Math.round(h / cell));
       const mask = gridMask(bird.mask, cw, ch, gap);

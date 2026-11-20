@@ -117,6 +117,8 @@ const browserGlobals = {
   setInterval: "readonly",
   clearInterval: "readonly",
   requestAnimationFrame: "readonly",
+  cancelAnimationFrame: "readonly",
+  performance: "readonly",
   IntersectionObserver: "readonly",
   MutationObserver: "readonly",
   AbortController: "readonly",
