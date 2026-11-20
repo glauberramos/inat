@@ -1387,7 +1387,7 @@
         hole.y = (height - hole.h) / 2;
         const reserve = [hole, ...center.lineBoxes];
         if (format.safe) {
-          // Keep the story's top and bottom clear; the credits go in the bottom band.
+          // Keep the story's top and bottom clear; the credit goes in the bottom band.
           const band = height * format.safe;
           reserve.push({ x: 0, y: 0, w: width, h: band }, { x: 0, y: height - band, w: width, h: band });
         } else {
@@ -1454,38 +1454,22 @@
         }
 
         const footer = footerHeight(layout.width, layout.height);
-        const left = "Bird Collage · glauberramos.github.io/inat · inspired by everybird.yusuftaleb.com";
-        const right = "Stickers: github.com/alchaincyf/huashu-bird-sticker, CC BY 4.0 (AI illustrations)";
+        const credit = "Bird Collage · glauberramos.github.io/inat";
         const safe = currentFormat().safe;
         const margin = Math.min(layout.width, layout.height) * 0.025;
-        let size = footer * 0.36;
         ctx.fillStyle = colors.soft;
         if (safe) {
-          // Story: the credits stacked at the top of the clear bottom band,
-          // above where Instagram puts its reply box.
-          size = footer * 0.42;
-          ctx.font = `500 ${size}px ${FONT}`;
-          const widest = Math.max(ctx.measureText(left).width, ctx.measureText(right).width);
-          if (widest > layout.width - margin * 2) size *= (layout.width - margin * 2) / widest;
+          // Story: centred at the top of the clear bottom band, above where
+          // Instagram puts its reply box.
+          const size = footer * 0.42;
           ctx.font = `500 ${size}px ${FONT}`;
           ctx.textAlign = "center";
-          const top = layout.height * (1 - safe);
-          ctx.fillText(left, layout.width / 2, top + size * 1.8);
-          ctx.fillText(right, layout.width / 2, top + size * 3.3);
+          ctx.fillText(credit, layout.width / 2, layout.height * (1 - safe) + size * 1.8);
           return;
         }
-        // Side by side, shrunk to fit on the narrow shapes.
-        const baseline = layout.height - footer * 0.4;
-        ctx.font = `500 ${size}px ${FONT}`;
-        const needed = ctx.measureText(left).width + ctx.measureText(right).width + margin * 3;
-        if (needed > layout.width) {
-          size *= layout.width / needed;
-          ctx.font = `500 ${size}px ${FONT}`;
-        }
+        ctx.font = `500 ${footer * 0.36}px ${FONT}`;
         ctx.textAlign = "left";
-        ctx.fillText(left, margin, baseline);
-        ctx.textAlign = "right";
-        ctx.fillText(right, layout.width - margin, baseline);
+        ctx.fillText(credit, margin, layout.height - footer * 0.4);
       }
 
       // Decode a sticker straight to the size it is drawn at: the full file is
