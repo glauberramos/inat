@@ -14,6 +14,7 @@ A suite of companion tools for [iNaturalist](https://www.inaturalist.org) — ex
 - **Tree of Life** — how much of the tree of life have you seen? Progress across any taxonomic rank
 - **Country States** — track observations across the states of the US, Brazil, Canada, Australia, and France on interactive maps
 - **Field Card** — turn your stats into a shareable card you can download
+- **Bird Collage** — every bird species you've observed as a sticker ([huashu-bird-sticker](https://github.com/alchaincyf/huashu-bird-sticker), CC BY 4.0). Filter by place or project, date range, months, bird group, photos or sounds, quality and native/endemic/introduced; sized by body mass (or true size); download for Instagram (post, story) or as a 4K wallpaper. Inspired by [Everybird](https://everybird.yusuftaleb.com/)
 
 ### Explore your species
 

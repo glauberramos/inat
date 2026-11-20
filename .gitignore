@@ -4,3 +4,4 @@ node_modules/
 /scripts/.env.example
 /scripts/.env
 /docs/
+__pycache__/

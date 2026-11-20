@@ -78,6 +78,17 @@ const sharedGlobals = {
   // birds-porto-alegre-ebird.js
   BIRD_EBIRD_REGION: "readonly",
   BIRD_EBIRD_WEEKS: "readonly",
+  // bird-stickers-data.js / bird-collage.js
+  BIRD_STICKERS: "readonly",
+  BIRD_ORDER_NAMES: "readonly",
+  THREATENED_IUCN: "readonly",
+  stickerUrls: "readonly",
+  buildStickerIndex: "readonly",
+  matchSticker: "readonly",
+  layoutCollage: "readonly",
+  MONTH_NAMES: "readonly",
+  monthsLabel: "readonly",
+  collageQueryParams: "readonly",
   INatWidget: "readonly",
   // third-party
   $crisp: "readonly",
@@ -126,6 +137,7 @@ const browserGlobals = {
   atob: "readonly",
   self: "readonly",
   caches: "readonly",
+  createImageBitmap: "readonly",
   module: "writable",
 };
 
@@ -162,6 +174,8 @@ module.exports = [
       "calendar-modal.js",
       "birds-porto-alegre-data.js",
       "birds-porto-alegre-ebird.js",
+      "bird-stickers-data.js",
+      "bird-collage.js",
     ],
     rules: { "no-redeclare": "off", "no-unused-vars": "off" },
   },
