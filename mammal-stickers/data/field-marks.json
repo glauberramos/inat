@@ -1,0 +1,703 @@
+{
+  "_about": "Hand-written field-mark cards, the input scripts/build.py turns into prompts. DRAFT: written from general field-guide knowledge, not yet checked against references or by mammalogists. Keyed by iNaturalist scientific name. pose: one of the keys in POSES in scripts/build.py. similar: the look-alike the model is most likely to draw instead.",
+  "Odocoileus virginianus": {
+    "pose": "standing",
+    "draw": "adult male (buck) in reddish-brown summer coat, with full hard antlers",
+    "marks": "antlers: one main beam on each side that sweeps forward, with unbranched tines rising straight up from it; white ring around the eye and nose band, white throat patch; broad tail about the length of the head, brown above with a white fringe and pure white below, held down; white belly and inner legs; large ears about half the head length",
+    "similar": "Odocoileus hemionus",
+    "difference": "antler tines rise from one forward-curving beam (mule deer antlers fork into two, then fork again); tail long and brown above with white edges (mule deer: short, white with a black tip); ears smaller than a mule deer's"
+  },
+  "Sciurus carolinensis": {
+    "pose": "standing",
+    "draw": "adult in grey winter coat",
+    "marks": "back and sides silver-grey with a brownish wash along the spine and on the feet; belly white to pale grey, sharply divided from the grey sides; very bushy tail as long as the body, grey with a white frosted fringe, raised in an S-curve over the back; pale eye-ring; small rounded ears without tufts",
+    "similar": "Sciurus vulgaris",
+    "difference": "grey, not red; ears rounded with no tufts; tail edged with white frosting; larger and heavier than the Eurasian Red Squirrel"
+  },
+  "Odocoileus hemionus": {
+    "pose": "standing",
+    "draw": "adult male (buck) in grey-brown coat, with full hard antlers",
+    "marks": "very large mule-like ears, about two thirds the head length; antlers fork into two equal branches, each of which forks again; white rump patch; short thin white tail with a black tip; dark V or patch on the forehead; white throat patch; stocky body",
+    "similar": "Odocoileus virginianus",
+    "difference": "antlers branch by forking (not tines on one beam); huge ears; short white tail with a black tip (white-tailed deer: long brown tail with a white fringe)"
+  },
+  "Sylvilagus floridanus": {
+    "pose": "standing",
+    "draw": "adult, crouched on all four feet in the typical resting posture",
+    "marks": "grey-brown agouti fur; rust-brown nape patch behind the ears; ears about the head length, held up, with no black tips; tail a white cotton ball on the underside, brown above; large dark eye with a pale ring; long hind feet",
+    "similar": "Oryctolagus cuniculus",
+    "difference": "rusty nape patch; slimmer and smaller than the European Rabbit; ears without black tips"
+  },
+  "Procyon lotor": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "black mask across the eyes edged with white above and below; bushy tail about half the body length with five to seven black rings on grey-buff; grizzled grey coat; pointed muzzle with a dark band down the nose; rounded ears edged white; hind legs longer than front legs so the rump is higher than the shoulders; dark, hand-like front paws with long fingers",
+    "similar": "Nasua narica",
+    "difference": "black eye mask; tail shorter and bushier than a coati's, held low, not upright; muzzle short, not long and flexible"
+  },
+  "Sciurus niger": {
+    "pose": "standing",
+    "draw": "adult of the common orange-bellied eastern form",
+    "marks": "back grizzled grey-brown; belly, cheeks and feet rusty orange; very bushy tail as long as the body, orange-brown with a tawny fringe, raised in a curve over the back; no white eye-ring; largest tree squirrel in its range",
+    "similar": "Sciurus carolinensis",
+    "difference": "orange belly and orange tail fringe; the Eastern Gray Squirrel has a white belly and a white-frosted tail"
+  },
+  "Vulpes vulpes": {
+    "pose": "standing",
+    "draw": "adult of the common red form",
+    "marks": "orange-red coat; white chin, throat and chest; legs and the backs of the ears black, like black stockings; very bushy tail about two thirds of the body length, held straight out, ending in a white tip; narrow pointed muzzle; large pointed ears; amber eyes with vertical slit pupils",
+    "similar": "Urocyon cinereoargenteus",
+    "difference": "orange-red, black lower legs, white tail tip (gray fox: grizzled grey back, black-tipped tail with a black stripe along the top)"
+  },
+  "Canis latrans": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "grizzled grey-buff coat with a darker saddle; tawny legs, muzzle and ears; whitish throat and belly; narrow, pointed muzzle; large pointed ears; bushy tail about a third of the body length, held low, with a black tip; slim, long-legged build",
+    "similar": "Canis lupus",
+    "difference": "much slimmer and smaller than a wolf, with a narrower pointed muzzle and relatively larger ears; tail held low"
+  },
+  "Tamias striatus": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "five dark stripes along the back: one down the spine and two on each side, with a pale buff stripe between the side pairs; reddish rump with no stripes; face with a pale stripe above and below the eye; tail flattened, about a third of the body length, not bushy; small rounded ears",
+    "similar": "Callospermophilus lateralis",
+    "difference": "has stripes on the face (golden-mantled ground squirrel does not); rump reddish; smaller and slimmer"
+  },
+  "Tamiasciurus hudsonicus": {
+    "pose": "standing",
+    "draw": "adult in summer coat",
+    "marks": "reddish-brown upperparts; white belly separated from the sides by a thin black line along the flank; white eye-ring; small ears, with short tufts in winter only; bushy tail shorter than the body, rusty above with a dark fringe; small squirrel, about half the weight of an Eastern Gray Squirrel",
+    "similar": "Sciurus vulgaris",
+    "difference": "white eye-ring and black flank line; no long ear tufts; smaller than the Eurasian Red Squirrel"
+  },
+  "Felis catus": {
+    "pose": "standing",
+    "draw": "adult domestic cat of the classic short-haired brown tabby type, walking",
+    "marks": "brown-grey coat with dark mackerel stripes on the sides, rings on the legs and tail and an M mark on the forehead; long thin tail, ringed, with a dark tip, held up in a gentle curve; green-yellow eyes",
+    "similar": "Lynx rufus",
+    "difference": "long ringed tail (bobcat: short bobbed tail); smaller, with no ear tufts or cheek ruff"
+  },
+  "Sciurus vulgaris": {
+    "pose": "standing",
+    "draw": "adult of the common red form, in winter coat",
+    "marks": "bright rusty-red back, legs and tail; creamy white belly; long tufts of hair on the ear tips; bushy tail about as long as the body, raised in a curve over the back",
+    "similar": "Sciurus carolinensis",
+    "difference": "red, with long ear tufts; smaller than the Eastern Gray Squirrel"
+  },
+  "Capreolus capreolus": {
+    "pose": "standing",
+    "draw": "adult male (buck) in red-brown summer coat, with antlers",
+    "marks": "small slender deer; short antlers, about the head length, upright and rough at the base, with usually three points each; black nose and muzzle with a white chin; no visible tail; white rump patch shaped like a kidney; large dark eyes",
+    "similar": "Dama dama",
+    "difference": "much smaller; antlers short and upright, never flattened; no spots; no visible tail"
+  },
+  "Castor canadensis": {
+    "pose": "standing",
+    "draw": "adult on land",
+    "marks": "heavy, round-backed rodent with rich dark brown fur; broad flat paddle-shaped tail, black and scaly, about a third of the body length, held flat on the ground; large orange front teeth; small round ears; small eyes; large webbed hind feet",
+    "similar": "Ondatra zibethicus",
+    "difference": "far larger, with a broad flat paddle tail (muskrat: thin tail flattened from side to side)"
+  },
+  "Ursus americanus": {
+    "pose": "standing",
+    "draw": "adult of the common black form",
+    "marks": "black coat; brown muzzle; straight face profile from forehead to nose (no dish); tall, prominent rounded ears; no shoulder hump, the highest point of the back is over the hips; short curved claws",
+    "similar": "Ursus arctos",
+    "difference": "no shoulder hump; straight face profile; taller ears; shorter claws than the brown bear"
+  },
+  "Didelphis virginiana": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "grizzled grey body with long white guard hairs; white face with a long pointed pink nose; black, hairless rounded ears with pale tips; black legs; long naked tail, about the body length, black at the base and pink-white for the rest; pink feet with a clawless opposable thumb on the hind foot",
+    "similar": "Trichosurus vulpecula",
+    "difference": "white face with a long pointed snout and a naked pink tail (brushtail possum: short face and a bushy black tail)"
+  },
+  "Marmota monax": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "chunky, short-legged rodent; grizzled brown coat; dark brown to black feet; short, bushy, dark tail about a quarter of the body length; small rounded ears; blunt head; short dark claws",
+    "similar": "Marmota flaviventris",
+    "difference": "uniform grizzled brown with dark feet (yellow-bellied marmot: yellow belly, white band between the eyes)"
+  },
+  "Otospermophilus beecheyi": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "grey-brown back speckled with pale flecks; a dark triangle between the shoulders bordered by silvery-white patches running onto the sides of the neck; bushy grey tail edged with white, about two thirds of the body length; white eye-ring; short ears",
+    "similar": "Otospermophilus variegatus",
+    "difference": "a dark shoulder triangle between two silvery side patches (rock squirrel lacks the silver shoulder patches)"
+  },
+  "Alces alces": {
+    "pose": "standing",
+    "draw": "adult male (bull) with full palmate antlers",
+    "marks": "very tall, dark brown to black deer, legs long and pale grey-brown; shoulder hump higher than the rump; long, overhanging bulbous muzzle; dewlap (bell) hanging from the throat; broad flat palmate antlers with points along the outer edge, spreading sideways; very short tail",
+    "similar": "Cervus canadensis",
+    "difference": "flattened palmate antlers spreading sideways; long overhanging nose and a dewlap; shoulder hump"
+  },
+  "Phoca vitulina": {
+    "pose": "hauled-out-seal",
+    "draw": "adult",
+    "marks": "spotted coat, grey to brown with many small dark spots and rings; short round dog-like head with a concave forehead and short muzzle; V-shaped nostrils; no external ear flaps; short front flippers with claws",
+    "similar": "Halichoerus grypus",
+    "difference": "rounded head and short muzzle with a dip at the forehead (grey seal: long straight Roman-nose profile); nostrils form a V"
+  },
+  "Cervus canadensis": {
+    "pose": "standing",
+    "draw": "adult male (bull) with full antlers",
+    "marks": "pale tan to golden-brown body with a much darker chocolate-brown neck, head and legs; shaggy dark mane on the throat; large pale buff rump patch with a short tail; antlers huge and sweeping back, about six points per side; large deer",
+    "similar": "Cervus elaphus",
+    "difference": "paler body contrasting with a dark mane and head; larger, with a large pale rump patch (red deer: more uniform red-brown)"
+  },
+  "Ondatra zibethicus": {
+    "pose": "standing",
+    "draw": "adult on land",
+    "marks": "dense glossy dark brown fur, paler on the belly; long, scaly, nearly naked black tail flattened from side to side, about as long as the body; small ears almost hidden in fur; rat-like head with small eyes; partly webbed hind feet",
+    "similar": "Myocastor coypus",
+    "difference": "smaller; tail flattened from side to side; no white muzzle or orange teeth"
+  },
+  "Sus scrofa": {
+    "pose": "standing",
+    "draw": "adult male (boar)",
+    "marks": "dark grey-brown to black bristly coat with a mane of long stiff hairs along the spine; massive wedge-shaped head; long snout ending in a flat disc; short upward-curving tusks from the lower jaw; small erect ears; short legs; thin tail with a tuft, hanging down",
+    "similar": "Pecari tajacu",
+    "difference": "larger and darker, with tusks curving out and up, a long snout and no pale collar"
+  },
+  "Oryctolagus cuniculus": {
+    "pose": "standing",
+    "draw": "adult wild-type rabbit, crouched on all four feet",
+    "marks": "grey-brown agouti fur with a rusty nape; long ears with thin black edges at the tips; white underside of the tail; large dark eyes; stocky, compact body",
+    "similar": "Lepus europaeus",
+    "difference": "smaller, with shorter ears and hind legs; ears without the large black tips of the hare; eyes dark brown, not amber"
+  },
+  "Sylvilagus audubonii": {
+    "pose": "standing",
+    "draw": "adult, crouched on all four feet",
+    "marks": "pale buffy-grey coat; ears very long for a cottontail, about one and a half times the head length, sparsely furred inside; white cotton-ball tail; light brownish-yellow nape; slim body",
+    "similar": "Sylvilagus floridanus",
+    "difference": "paler and greyer, with longer, thinner ears"
+  },
+  "Lynx rufus": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "tawny to grey-brown coat with dark spots and bars, especially on the legs; short bobbed tail about the head length, black on the top of the tip and white below; short black ear tufts; ruff of fur on the cheeks; backs of the ears black with a white spot; long legs",
+    "similar": "Felis catus",
+    "difference": "short bobbed tail, ear tufts and cheek ruff; about twice the size of a house cat"
+  },
+  "Mephitis mephitis": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "glossy black body; thin white stripe down the middle of the forehead; a white cap on the nape that splits into two white stripes running back along the sides; very bushy black-and-white tail, held up; small head and ears; long front claws; short legs",
+    "similar": "Spilogale gracilis",
+    "difference": "two broad white stripes along the back from a white nape cap (spotted skunks: smaller, with many broken white stripes and spots)"
+  },
+  "Phascolarctos cinereus": {
+    "pose": "clinging-trunk",
+    "draw": "adult",
+    "marks": "dense ash-grey fur, white on the chest and inner arms; large round ears with white fluffy fringes; large black, rubbery, spoon-shaped nose; small eyes; no visible tail; strong limbs with long curved claws; stocky body",
+    "similar": "Vombatus ursinus",
+    "difference": "big fluffy white-fringed ears and a large black nose; clinging in a tree (wombat: small ears, on the ground)"
+  },
+  "Erinaceus europaeus": {
+    "pose": "standing",
+    "draw": "adult, walking, spines lowered",
+    "marks": "back covered in short brown-and-cream spines; face and belly covered in coarse brown fur; dark brown band across the chest; pointed snout with a black nose; small rounded ears; short legs",
+    "similar": "Erinaceus roumanicus",
+    "difference": "chest uniform brown, without the white patch of the Northern White-breasted Hedgehog"
+  },
+  "Megaptera novaeangliae": {
+    "pose": "swimming",
+    "draw": "adult",
+    "marks": "black or dark grey body with a white throat and belly; extremely long flippers, about a third of the body length, mostly white with knobby front edges; knobs (tubercles) on the head and lower jaw; throat grooves; small dorsal fin on a hump two thirds of the way back; broad flukes with a jagged trailing edge",
+    "similar": "Tursiops truncatus",
+    "difference": "very long white flippers and knobbed head; huge baleen whale with no beak and no teeth"
+  },
+  "Lepus europaeus": {
+    "pose": "standing",
+    "draw": "adult, crouched on all four feet",
+    "marks": "tawny-brown grizzled coat with a rusty chest and white belly; very long ears with large black tips, longer than the head; amber-yellow eyes; long hind legs; tail black on top and white below",
+    "similar": "Oryctolagus cuniculus",
+    "difference": "larger and longer-legged, with longer black-tipped ears and amber eyes"
+  },
+  "Urocyon cinereoargenteus": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "grizzled silver-grey back; rusty orange neck sides, legs and flanks; white throat and cheeks; black stripe on the muzzle from the nose to the eye; bushy tail with a black stripe along the top and a black tip; shorter legs than a red fox",
+    "similar": "Vulpes vulpes",
+    "difference": "grizzled grey back with rusty sides; black-tipped tail with a black mane along its top (red fox: orange with a white tail tip and black stockings)"
+  },
+  "Zalophus californianus": {
+    "pose": "upright-sea-lion",
+    "draw": "adult male (bull)",
+    "marks": "dark chocolate-brown sleek body; raised bony crest on the forehead, often pale; small external ear flaps; long, dog-like muzzle with whiskers; long front flippers it stands on; hind flippers turned forward under the body",
+    "similar": "Phoca vitulina",
+    "difference": "has small external ears and stands upright on long front flippers (harbor seal has no ear flaps and lies on its belly)"
+  },
+  "Myocastor coypus": {
+    "pose": "standing",
+    "draw": "adult on land",
+    "marks": "large rodent with coarse brown fur; white muzzle and whiskers; bright orange front teeth; long round, scaly, sparsely haired tail, about two thirds of the body length; small ears; webbed hind feet",
+    "similar": "Castor canadensis",
+    "difference": "round rat-like tail (not flat); white muzzle; smaller than a beaver"
+  },
+  "Dasypus mexicanus": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "body covered in a grey-brown armoured shell with nine narrow movable bands across the middle; long pointed head shield; long upright ears; long tapering tail covered in rings of armour, about two thirds of the body length; short legs with strong claws",
+    "similar": "Dasypus novemcinctus",
+    "difference": "split from the Nine-banded Armadillo in 2023 and almost identical to it; draw the typical nine-banded shape, do not invent distinguishing marks"
+  },
+  "Macropus giganteus": {
+    "pose": "upright-kangaroo",
+    "draw": "adult male",
+    "marks": "soft grey-brown coat, paler below; long thick tail with a dark tip; large ears; long narrow head; hairy muzzle between the nostrils and the lip; very long hind feet",
+    "similar": "Macropus fuliginosus",
+    "difference": "paler silver-grey (western grey kangaroo: chocolate-brown face and darker brown coat)"
+  },
+  "Lontra canadensis": {
+    "pose": "standing",
+    "draw": "adult on land",
+    "marks": "long, sleek, low-slung body with glossy dark brown fur; silvery-grey throat and cheeks; thick, muscular tail tapering to a point, about two thirds of the body length; broad flat head; small round ears; whiskers on a broad muzzle; webbed feet",
+    "similar": "Neogale vison",
+    "difference": "much larger, with a thick tapering tail and a pale throat (mink: smaller, with a slim bushy tail and a white chin spot)"
+  },
+  "Ovis canadensis": {
+    "pose": "standing",
+    "draw": "adult male (ram) with full curl horns",
+    "marks": "brown coat with a large white rump patch and white muzzle; massive, heavy, ridged horns curling back, down and forward around the ear in a full curl; short dark tail; white back of the legs; stocky build",
+    "similar": "Rupicapra rupicapra",
+    "difference": "massive curling horns and a white rump (chamois: short hooked horns and a striped face)"
+  },
+  "Erethizon dorsatum": {
+    "pose": "standing",
+    "draw": "adult, walking, quills relaxed",
+    "marks": "stocky dark brown to black body with long yellow-tipped guard hairs on the back; quills mostly hidden but visible on the rump and thick tail; short blunt face; small eyes and ears; arched back; short legs with long curved claws",
+    "similar": "Erinaceus europaeus",
+    "difference": "far larger, with long guard hairs over the quills and a thick quilled tail"
+  },
+  "Loxodonta africana": {
+    "pose": "standing",
+    "draw": "adult male (bull) with tusks",
+    "marks": "huge grey animal; very large ears shaped like the map of Africa, covering the shoulders; long curved tusks; concave back dipping in the middle; trunk with two finger-like tips; wrinkled skin; sloping forehead",
+    "similar": "Elephas maximus",
+    "difference": "very large ears covering the shoulders and a dip in the back (Asian elephant: small ears and a rounded, humped back)"
+  },
+  "Otospermophilus variegatus": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "large ground squirrel with mottled grey-brown speckled coat, often darker on the head and shoulders and more cinnamon behind; long bushy tail, nearly the body length, grey and white-edged; white eye-ring; short ears",
+    "similar": "Otospermophilus beecheyi",
+    "difference": "no silvery shoulder patches; larger, with a longer and bushier tail"
+  },
+  "Nasua narica": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "brown coat, grizzled on the shoulders; very long, flexible, upturned snout; white markings on the muzzle and around the eyes; long tail with faint pale rings, held upright like a flagpole; small rounded ears; long legs",
+    "similar": "Procyon lotor",
+    "difference": "long upturned snout and long, faintly ringed tail held straight up; no black eye mask"
+  },
+  "Canis familiaris": {
+    "pose": "standing",
+    "draw": "a typical medium-size short-haired dog of mixed breed, tan with white on the chest and feet",
+    "marks": "medium build; ears semi-erect, folding at the tip; tail curved up; tan coat with white chest and paws",
+    "similar": "Canis latrans",
+    "difference": "a domestic dog, not a wild canid: broader head, folded ear tips, curled tail"
+  },
+  "Bos bison": {
+    "pose": "standing",
+    "draw": "adult male (bull)",
+    "marks": "massive dark brown animal with a huge shoulder hump; long shaggy woolly hair on the head, shoulders and front legs, short hair on the hindquarters; large low-hung head with a beard; short black curved horns; short tail with a tuft",
+    "similar": "Syncerus caffer",
+    "difference": "huge shoulder hump and shaggy front half; small horns curving up (African buffalo: no hump, massive horns joined by a boss)"
+  },
+  "Callospermophilus lateralis": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "a white stripe bordered with black along each side of the back; golden-russet head and shoulders (the mantle); no stripes on the face; white eye-ring; grey back between the side stripes; short bushy tail",
+    "similar": "Tamias striatus",
+    "difference": "no stripes on the face; coppery mantle on the head and shoulders; larger and heavier than a chipmunk"
+  },
+  "Castor fiber": {
+    "pose": "standing",
+    "draw": "adult on land",
+    "marks": "heavy rodent with chestnut to dark brown fur; broad flat scaly paddle tail, narrower than the American beaver's; large orange front teeth; small ears; webbed hind feet",
+    "similar": "Castor canadensis",
+    "difference": "narrower tail; longer, narrower muzzle; often paler, more chestnut fur"
+  },
+  "Rattus norvegicus": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "grey-brown coarse fur, paler grey belly; blunt muzzle; small furry ears that would not reach the eye if folded forward; thick scaly tail shorter than the head and body together; heavy-bodied",
+    "similar": "Rattus rattus",
+    "difference": "stockier, with a blunter muzzle, smaller ears, and a tail shorter than the body (black rat: tail longer than the body, larger ears)"
+  },
+  "Antilocapra americana": {
+    "pose": "standing",
+    "draw": "adult male (buck) with horns",
+    "marks": "tan upperparts; white belly, rump patch and two white bands across the throat; black horns with a short forward prong and a hooked tip; black cheek patch and black muzzle; large eyes set high; slender legs",
+    "similar": "Aepyceros melampus",
+    "difference": "white throat bands and white rump; horns pronged with a hooked tip (impala: lyre-shaped horns, black stripes on the rump)"
+  },
+  "Tachyglossus aculeatus": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "back and sides covered in cream spines with dark tips, mixed with brown fur; long thin tubular snout, about the head length, hairless; very short legs; large curved claws on the feet, hind feet pointing back; no visible tail",
+    "similar": "Erinaceus europaeus",
+    "difference": "long thin beak-like snout; longer, cream spines; large backward-pointing hind claws"
+  },
+  "Trichosurus vulpecula": {
+    "pose": "standing",
+    "draw": "adult of the common silver-grey form",
+    "marks": "silver-grey fur, cream belly; large pointed ears; pink nose; bushy black tail with a bare grip patch under the tip; large dark eyes; fox-like face",
+    "similar": "Pseudocheirus peregrinus",
+    "difference": "bushy black tail and large pointed ears (ringtail possum: tail white-tipped and thinner, ears small and round)"
+  },
+  "Neogale vison": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "glossy dark chocolate-brown fur, almost black; small white patch on the chin; long, slim low body; short legs; bushy tail about half the body length; small rounded ears",
+    "similar": "Lontra canadensis",
+    "difference": "much smaller, with a slim bushy tail and white chin spot"
+  },
+  "Lepus californicus": {
+    "pose": "standing",
+    "draw": "adult, crouched on all four feet",
+    "marks": "grey-buff coat speckled with black; very long ears, longer than the head, with black tips; tail with a black stripe along the top that runs onto the rump; long hind legs",
+    "similar": "Sylvilagus audubonii",
+    "difference": "much larger, with longer ears and legs; black stripe on the tail and rump"
+  },
+  "Macaca fascicularis": {
+    "pose": "walking-primate",
+    "draw": "adult male",
+    "marks": "grey-brown to reddish-brown fur, pale below; long tail as long as the body or longer; pale whiskered cheeks and a crest of hair on the crown; pinkish-brown bare face with prominent brow; close-set eyes",
+    "similar": "Chlorocebus pygerythrus",
+    "difference": "long tail and pale cheek whiskers; brownish, not green-grey; face pinkish-brown, not black"
+  },
+  "Equus quagga": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "broad black and white stripes that wrap around the belly; pale brownish shadow stripes between the black stripes on the haunches; short upright mane striped like the body; black muzzle; striped legs fading below the knee",
+    "similar": "Equus caballus",
+    "difference": "stripes over the whole body, wrapping around the belly; upright mane"
+  },
+  "Cervus elaphus": {
+    "pose": "standing",
+    "draw": "adult male (stag) with full antlers",
+    "marks": "red-brown coat, greyer in winter; shaggy neck mane; pale cream rump patch; branched antlers with many points and a crown of several points at the top; large deer",
+    "similar": "Cervus canadensis",
+    "difference": "more uniform red-brown, with a smaller pale rump patch and a crown of points at the antler tips"
+  },
+  "Marmota flaviventris": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "grizzled brown back; yellow-orange belly and neck sides; white band across the face between the eyes; buff patches beside the neck; bushy brown tail about a third of the body length; stocky build",
+    "similar": "Marmota monax",
+    "difference": "yellow belly and white face band (groundhog is uniform brown)"
+  },
+  "Tursiops truncatus": {
+    "pose": "swimming",
+    "draw": "adult",
+    "marks": "grey body, darker on the back and paler on the belly; short thick beak clearly separated from the rounded melon by a crease; tall curved dorsal fin in the middle of the back; pointed flippers; mouth line curved in a smile",
+    "similar": "Megaptera novaeangliae",
+    "difference": "small toothed dolphin with a short beak and tall curved dorsal fin"
+  },
+  "Talpa europaea": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "cylindrical body with velvety black fur; huge spade-like front feet turned outward, pink with big claws; pointed pink snout; eyes tiny, hidden in fur; no external ears; short stubby tail",
+    "similar": "Blarina brevicauda",
+    "difference": "huge spade front feet turned outward; no visible eyes or ears"
+  },
+  "Wallabia bicolor": {
+    "pose": "upright-kangaroo",
+    "draw": "adult",
+    "marks": "dark brown to black coat with a rusty-orange belly and chest; pale yellowish cheek stripe; dark feet and tail; stocky build",
+    "similar": "Notamacropus rufogriseus",
+    "difference": "much darker overall, with a dark tail and feet and a pale cheek stripe"
+  },
+  "Lepus americanus": {
+    "pose": "standing",
+    "draw": "adult in brown summer coat, crouched on all four feet",
+    "marks": "rusty-brown coat with white feet and belly; very large furry hind feet; ears shorter than other hares, with dark tips; short tail, brown above",
+    "similar": "Sylvilagus floridanus",
+    "difference": "huge hind feet with white toes; larger body and dark-tipped ears"
+  },
+  "Sciurus griseus": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "bright silver-grey back with no brown wash; pure white belly; very long bushy tail edged with white, raised over the back; large ears without tufts; dark feet",
+    "similar": "Sciurus carolinensis",
+    "difference": "cleaner silver-grey with no brown; larger, with a longer and fuller tail"
+  },
+  "Panthera leo": {
+    "pose": "standing",
+    "draw": "adult male with full mane",
+    "marks": "uniform tawny coat; large dark-golden mane around the head, neck and chest; long tail with a black tuft at the end; rounded ears with black backs; heavy muscular build",
+    "similar": "Puma concolor",
+    "difference": "male has a big mane; tail with a black tuft; much larger"
+  },
+  "Pecari tajacu": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "pig-like animal with coarse grizzled dark grey-black hair; pale whitish collar around the neck and shoulders; long snout ending in a disc; short thin legs; small ears; mane of long hair along the back; no visible tail",
+    "similar": "Sus scrofa",
+    "difference": "smaller, with a pale collar; straight, short tusks that do not show"
+  },
+  "Tamiasciurus douglasii": {
+    "pose": "standing",
+    "draw": "adult in summer coat",
+    "marks": "dark olive-brown back; orange-tan belly; black line along the side between back and belly; orange eye-ring; bushy tail with dark centre and white fringe",
+    "similar": "Tamiasciurus hudsonicus",
+    "difference": "darker olive-brown with an orange belly (American red squirrel: rusty with a white belly)"
+  },
+  "Meles meles": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "grey body; white head with two broad black stripes running from the nose over the eyes to the ears; small white-tipped ears; black legs and chest; long-clawed front feet; short tail; low wedge-shaped build",
+    "similar": "Procyon lotor",
+    "difference": "white face with black stripes through the eyes; grey body; short tail without rings"
+  },
+  "Aepyceros melampus": {
+    "pose": "standing",
+    "draw": "adult male (ram) with horns",
+    "marks": "reddish-brown back over a paler fawn band on the flanks; white belly; black stripes down each thigh and the tail; black tufts above the hind hooves; lyre-shaped ridged horns curving up and out; large ears with black tips",
+    "similar": "Antilocapra americana",
+    "difference": "lyre-shaped horns, black thigh stripes and black hoof tufts"
+  },
+  "Dasyprocta punctata": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "rabbit-sized rodent with glossy orange-brown to chestnut fur, more grizzled on the front half; long slender legs; small hooflike claws; tiny tail; small rounded ears; arched back",
+    "similar": "Hydrochoerus hydrochaeris",
+    "difference": "much smaller, slim and long-legged, with orange-brown fur"
+  },
+  "Enhydra lutris": {
+    "pose": "floating-back",
+    "draw": "adult",
+    "marks": "dense dark brown fur; pale cream to grey head and neck in adults; round head with small ears; thick whiskers; flipper-like webbed hind feet; flattened tail about a third of the body length; small front paws held on the chest",
+    "similar": "Lontra canadensis",
+    "difference": "floats on its back with a pale head and flipper-like hind feet"
+  },
+  "Ursus arctos": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "brown coat, with paler tips on the guard hairs; large muscular hump over the shoulders; concave (dished) face profile; small rounded ears; long pale curved claws on the front feet",
+    "similar": "Ursus americanus",
+    "difference": "shoulder hump, dished face, small ears and long claws"
+  },
+  "Halichoerus grypus": {
+    "pose": "hauled-out-seal",
+    "draw": "adult male (bull)",
+    "marks": "dark grey to brown coat with paler blotches; long straight Roman-nose profile with no dip at the forehead; parallel nostrils; heavy body; no external ear flaps",
+    "similar": "Phoca vitulina",
+    "difference": "long straight muzzle and parallel nostrils; larger"
+  },
+  "Cynomys ludovicianus": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "plump, tan ground squirrel with paler belly; short tail with a black tip; short legs; small ears; large dark eyes",
+    "similar": "Marmota monax",
+    "difference": "smaller and paler tan, with a black-tipped tail"
+  },
+  "Hydrochoerus hydrochaeris": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "very large barrel-shaped rodent; coarse reddish-brown to grey-brown hair; large blunt square head; small round ears; eyes and nostrils set high; short legs; partly webbed feet; no visible tail",
+    "similar": "Dasyprocta punctata",
+    "difference": "huge and heavy, with a blunt square head and no tail"
+  },
+  "Blarina brevicauda": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "dark slate-grey velvety fur; long pointed snout; tiny eyes; ears hidden in fur; short tail about a quarter of the body length; stout body; pink feet",
+    "similar": "Talpa europaea",
+    "difference": "normal small front feet, not spade-like; short tail"
+  },
+  "Hippopotamus amphibius": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "massive barrel body with smooth grey-brown skin, pinkish around the eyes, ears and on the belly; huge head with a broad muzzle; eyes, ears and nostrils set on top of the head; very short legs; short tail flattened from side to side",
+    "similar": "Sus scrofa",
+    "difference": "huge, nearly hairless and barrel-shaped, with eyes and nostrils on top of the head"
+  },
+  "Pseudocheirus peregrinus": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "grey to reddish-brown fur; white patches below the eyes and behind the ears; small rounded ears; long tapering prehensile tail, dark at the base and white for the last third, often curled at the tip",
+    "similar": "Trichosurus vulpecula",
+    "difference": "thin tail with a white tip, curled at the end; small rounded ears"
+  },
+  "Syncerus caffer": {
+    "pose": "standing",
+    "draw": "adult male (bull)",
+    "marks": "large black, sparsely haired body; massive horns joined in a heavy boss on top of the head, sweeping down and then up to the tips; drooping, fringed ears below the horns; heavy build; tail with a tuft",
+    "similar": "Bos bison",
+    "difference": "no hump and no shaggy mane; massive horns joined in a boss"
+  },
+  "Phacochoerus africanus": {
+    "pose": "standing",
+    "draw": "adult male (boar)",
+    "marks": "grey, nearly naked body; mane of long coarse hair along the back; broad flat head with warty bumps on the face; two long tusks curving up and out from the mouth; thin tail held straight up when running",
+    "similar": "Sus scrofa",
+    "difference": "large curved upper tusks and warts on the face; almost hairless grey skin"
+  },
+  "Alouatta palliata": {
+    "pose": "walking-primate",
+    "draw": "adult male",
+    "marks": "black fur, with long golden-brown hair fringing the flanks (the mantle); large head with a bulging throat; bare black face; long prehensile tail as long as the body, curled at the tip",
+    "similar": "Cebus imitator",
+    "difference": "all black with a golden fringe on the flanks and a swollen throat; no white face"
+  },
+  "Equus caballus": {
+    "pose": "standing",
+    "draw": "an adult bay horse of a typical light riding type",
+    "marks": "reddish-brown body with black mane, tail and lower legs; long flowing tail; long mane lying to one side; small white blaze on the face",
+    "similar": "Equus quagga",
+    "difference": "no stripes; long flowing mane and tail"
+  },
+  "Dama dama": {
+    "pose": "standing",
+    "draw": "adult male (buck) in spotted summer coat, with palmate antlers",
+    "marks": "chestnut-brown coat with white spots along the back and flanks; white rump outlined in black, with a black-striped tail; flattened palmate antlers with points along the back edge; prominent Adam's apple",
+    "similar": "Capreolus capreolus",
+    "difference": "larger, with white spots, a long tail and flattened antlers"
+  },
+  "Puma concolor": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "plain tawny coat, paler below; small round head; long thick tail with a dark tip, about two thirds of the body length; black on the muzzle sides and the backs of the ears; long, muscular body",
+    "similar": "Panthera leo",
+    "difference": "small head, no mane, long tail with a dark tip, no tuft"
+  },
+  "Giraffa giraffa": {
+    "pose": "standing",
+    "draw": "adult male",
+    "marks": "very long neck and legs; irregular star-shaped brown blotches with jagged edges on a pale tan background, continuing down the legs; two short horn-like ossicones on the head; long tail with a black tuft; sloping back",
+    "similar": "Giraffa camelopardalis",
+    "difference": "irregular, jagged blotches extending down the lower legs"
+  },
+  "Rupicapra rupicapra": {
+    "pose": "standing",
+    "draw": "adult in summer coat",
+    "marks": "goat-like animal with tawny-brown summer coat; white face with a black stripe from the eye to the muzzle; short black horns that rise straight up and hook back at the tips; dark stripe along the back; sturdy legs",
+    "similar": "Ovis canadensis",
+    "difference": "short hooked black horns and a striped face"
+  },
+  "Bradypus variegatus": {
+    "pose": "hanging",
+    "draw": "adult",
+    "marks": "shaggy grey-brown fur, often with a greenish tinge; small round head with a dark mask through the eyes and a pale face; permanent smile; three long curved claws on each foot; very short tail; long arms",
+    "similar": "Choloepus hoffmanni",
+    "difference": "three claws on the front feet; dark eye mask and pale face"
+  },
+  "Sciurus aureogaster": {
+    "pose": "standing",
+    "draw": "adult of the common grey-and-red form",
+    "marks": "grizzled grey back; bright rust-red belly; bushy tail grey frosted with white; white eye-ring; small ears",
+    "similar": "Sciurus niger",
+    "difference": "grey back with a deep red belly, and a grey white-frosted tail"
+  },
+  "Marmota marmota": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "plump grey-brown rodent with a darker head; paler muzzle; short bushy tail with a dark tip; small rounded ears; short legs",
+    "similar": "Marmota monax",
+    "difference": "greyer, with a darker head and pale muzzle"
+  },
+  "Notamacropus rufogriseus": {
+    "pose": "upright-kangaroo",
+    "draw": "adult",
+    "marks": "grizzled grey back with a red-brown neck and shoulders; white stripe on the upper lip; black nose, paws and the tip of the tail; pale belly",
+    "similar": "Wallabia bicolor",
+    "difference": "red neck and shoulders, white lip stripe and pale grey body"
+  },
+  "Ochotona princeps": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "small, egg-shaped body with grey-brown fur; large round ears edged with white; no visible tail; short legs; whiskers; dark eyes",
+    "similar": "Sylvilagus floridanus",
+    "difference": "much smaller, with round ears and no visible tail"
+  },
+  "Chlorocebus pygerythrus": {
+    "pose": "walking-primate",
+    "draw": "adult male",
+    "marks": "grizzled olive-grey fur; black face framed by a white band across the brow and white cheeks; long tail with a dark tip; pale belly; black hands and feet",
+    "similar": "Macaca fascicularis",
+    "difference": "black face framed by white; olive-grey fur"
+  },
+  "Macropus fuliginosus": {
+    "pose": "upright-kangaroo",
+    "draw": "adult male",
+    "marks": "chocolate-brown to grey-brown coat; dark brown face; paler belly; dark hands, feet and tail tip",
+    "similar": "Macropus giganteus",
+    "difference": "darker brown coat and dark chocolate face"
+  },
+  "Connochaetes taurinus": {
+    "pose": "standing",
+    "draw": "adult male (bull)",
+    "marks": "slate-grey body with dark vertical bands on the neck and shoulders; black shaggy mane and beard; long black tail; large head with a broad muzzle; horns curving out sideways and up like a cow's; front higher than the back",
+    "similar": "Syncerus caffer",
+    "difference": "slimmer, with a beard, mane and thinner horns; body slopes down to the back"
+  },
+  "Canis lupus": {
+    "pose": "standing",
+    "draw": "adult of the grey form",
+    "marks": "large, powerful canid with grizzled grey-buff coat; broad head with a broad muzzle; pale cheeks and throat; relatively small rounded ears; long legs; bushy tail held low with a dark tip",
+    "similar": "Canis latrans",
+    "difference": "much larger, with a broad muzzle, smaller ears and a heavier build"
+  },
+  "Callosciurus erythraeus": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "olive-brown back; dark reddish-chestnut belly; long bushy tail with faint rings, darker towards the tip",
+    "similar": "Sciurus vulgaris",
+    "difference": "olive back and dark red belly; no ear tufts"
+  },
+  "Mirounga angustirostris": {
+    "pose": "hauled-out-seal",
+    "draw": "adult male (bull)",
+    "marks": "huge, tan to grey-brown body with a thick, scarred neck shield; large inflatable trunk-like nose hanging over the mouth; front flippers small; no external ear flaps",
+    "similar": "Halichoerus grypus",
+    "difference": "a huge male with a large trunk-like nose"
+  },
+  "Cebus imitator": {
+    "pose": "walking-primate",
+    "draw": "adult",
+    "marks": "black body; white to cream face, throat and shoulders; black cap on the head; pinkish face; long prehensile tail, often curled at the tip",
+    "similar": "Alouatta palliata",
+    "difference": "white face and shoulders with a black cap"
+  },
+  "Tragelaphus strepsiceros": {
+    "pose": "standing",
+    "draw": "adult male (bull) with horns",
+    "marks": "grey-brown body with six to ten thin vertical white stripes on the sides; very long spiral horns with two and a half twists; white chevron between the eyes; large round ears; fringe of hair under the throat",
+    "similar": "Aepyceros melampus",
+    "difference": "very long spiral horns and thin white side stripes"
+  },
+  "Rattus rattus": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "dark grey-brown to black fur; pointed muzzle; large thin ears; slim body; tail longer than the head and body, uniform dark",
+    "similar": "Rattus norvegicus",
+    "difference": "slimmer, with larger ears and a tail longer than the body"
+  },
+  "Erinaceus roumanicus": {
+    "pose": "standing",
+    "draw": "adult, walking, spines lowered",
+    "marks": "back covered in brown-and-cream spines; face and belly brown; a distinct white patch on the chest; pointed snout; small ears",
+    "similar": "Erinaceus europaeus",
+    "difference": "white patch on the chest"
+  },
+  "Kobus ellipsiprymnus": {
+    "pose": "standing",
+    "draw": "adult male (bull) with horns",
+    "marks": "shaggy grey-brown coat; white ring on the rump around the tail (or a white rump patch, depending on the form); white eyebrows and muzzle; white throat patch; long, heavily ridged horns that sweep back and up, then curve forward at the tips",
+    "similar": "Connochaetes taurinus",
+    "difference": "white ring around the rump, shaggy coat, and ridged horns curving forward at the tips (wildebeest: cow-like horns, black beard and mane)"
+  },
+  "Vombatus ursinus": {
+    "pose": "standing",
+    "draw": "adult",
+    "marks": "stocky, barrel-shaped body with coarse brown fur; broad flat head; small rounded ears; large, naked nose; very short legs; no visible tail",
+    "similar": "Phascolarctos cinereus",
+    "difference": "small ears and a heavy, barrel-like body on the ground"
+  }
+}

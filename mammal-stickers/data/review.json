@@ -1,0 +1,10 @@
+{
+ "Procyon_lotor": {
+  "status": "approved",
+  "reviewScore": 95,
+  "meetsQualityBar": true,
+  "model": "OpenAI image generation (run by hand)",
+  "generated": "2026-11-22",
+  "note": "first round; reviewed by Claude with the rubric in docs/how-the-stickers-are-made.md"
+ }
+}
