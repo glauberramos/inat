@@ -1,0 +1,38 @@
+{
+ "curated": true,
+ "note": "Picked by hand: typical adults, whole body or clear face. board.jpg is the four photos in a 2x2 grid.",
+ "items": [
+  {
+   "file": "1.jpg",
+   "page": "https://www.inaturalist.org/observations/14764500",
+   "image": "https://inaturalist-open-data.s3.amazonaws.com/photos/22029254/large.jpg",
+   "author": "Brady Reed",
+   "license": "CC0",
+   "attribution": "no rights reserved"
+  },
+  {
+   "file": "2.jpg",
+   "page": "https://www.inaturalist.org/observations/24294715",
+   "image": "https://inaturalist-open-data.s3.amazonaws.com/photos/37567305/large.jpeg",
+   "author": "Cody Stricker",
+   "license": "CC BY",
+   "attribution": "(c) Cody Stricker, some rights reserved (CC BY)"
+  },
+  {
+   "file": "3.jpg",
+   "page": "https://www.inaturalist.org/observations/255221351",
+   "image": "https://inaturalist-open-data.s3.amazonaws.com/photos/457175168/large.png",
+   "author": "Andrew Lai",
+   "license": "CC BY",
+   "attribution": "(c) Andrew Lai, some rights reserved (CC BY)"
+  },
+  {
+   "file": "4.jpg",
+   "page": "https://www.inaturalist.org/observations/119898535",
+   "image": "https://inaturalist-open-data.s3.amazonaws.com/photos/202730552/large.jpeg",
+   "author": "John Krampl",
+   "license": "CC BY",
+   "attribution": "(c) John Krampl, some rights reserved (CC BY)"
+  }
+ ]
+}
