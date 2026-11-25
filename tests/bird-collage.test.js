@@ -10,6 +10,10 @@ const {
   stickerWeight,
   monthsLabel,
   centerText,
+  periodStart,
+  dayBefore,
+  priorQueryParams,
+  collageWhat,
   collageQueryParams,
   layoutCollage,
 } = require("../bird-collage.js");
@@ -255,4 +259,45 @@ test("centerText swaps in the typed lines and keeps the automatic ones for blank
   assert.deepEqual(centerText(auto, null), auto);
   // The count can't be typed over.
   assert.equal(centerText(auto, { count: "999" }).count, "63");
+});
+
+test("periodStart is the from date or 1 January, and empty with no start", () => {
+  assert.equal(periodStart({ d1: "2026-11-20", d2: "2026-11-22" }), "2026-11-20");
+  assert.equal(periodStart({ year: "2025" }), "2025-01-01");
+  assert.equal(periodStart({ d2: "2026-11-22" }), "");
+  assert.equal(periodStart({}), "");
+});
+
+test("dayBefore steps back across months and years", () => {
+  assert.equal(dayBefore("2026-11-20"), "2026-11-19");
+  assert.equal(dayBefore("2026-03-01"), "2026-02-28");
+  assert.equal(dayBefore("2024-03-01"), "2024-02-29");
+  assert.equal(dayBefore("2026-01-01"), "2025-12-31");
+});
+
+test("priorQueryParams asks for every bird seen before the period, anywhere", () => {
+  assert.equal(
+    priorQueryParams("pampa sorro", "2026-11-20", true),
+    "user_login=pampa%20sorro&taxon_id=3&hrank=species&d2=2026-11-19&captive=false"
+  );
+  assert.equal(
+    priorQueryParams("pampasorro", "2026-01-01", false),
+    "user_login=pampasorro&taxon_id=3&hrank=species&d2=2025-12-31"
+  );
+});
+
+test("collageWhat names lifers, status and group", () => {
+  assert.equal(collageWhat({}), "bird species");
+  assert.equal(collageWhat({ lifers: true }), "lifers");
+  assert.equal(
+    collageWhat({ status: "threatened endemic", lifers: true }),
+    "threatened endemic lifers"
+  );
+  assert.equal(collageWhat({ status: "threatened" }), "threatened bird species");
+  assert.equal(collageWhat({ group: "Grebes" }), "Grebes");
+  assert.equal(collageWhat({ group: "Grebes", lifers: true }), "lifers · Grebes");
+  assert.equal(
+    collageWhat({ group: "Grebes", status: "threatened", lifers: true }),
+    "threatened lifers · Grebes"
+  );
 });

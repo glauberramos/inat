@@ -89,6 +89,9 @@ const sharedGlobals = {
   MONTH_NAMES: "readonly",
   monthsLabel: "readonly",
   centerText: "readonly",
+  periodStart: "readonly",
+  priorQueryParams: "readonly",
+  collageWhat: "readonly",
   collageQueryParams: "readonly",
   INatWidget: "readonly",
   // third-party

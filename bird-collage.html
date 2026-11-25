@@ -371,6 +371,11 @@
         width: auto;
       }
 
+      .toolbar label:has(input:disabled) {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
       .toolbar select {
         padding: 6px 10px;
         border: 2px solid #ddd;
@@ -788,6 +793,9 @@
           <label title="Vulnerable, Endangered and Critically Endangered (IUCN, via BirdLife)">
             <input type="checkbox" id="threatenedCheckbox" /> Threatened only
           </label>
+          <label id="lifersLabel">
+            <input type="checkbox" id="lifersCheckbox" /> Lifers only
+          </label>
           <label>
             <input type="checkbox" id="darkCheckbox" /> Dark background
           </label>
@@ -836,7 +844,7 @@
     <script src="autocomplete.js"></script>
     <script src="location-autocomplete.js?v=2"></script>
     <script src="bird-stickers-data.js?v=1"></script>
-    <script src="bird-collage.js?v=2"></script>
+    <script src="bird-collage.js?v=3"></script>
     <script>
       const STICKER_INDEX = buildStickerIndex(BIRD_STICKERS);
       const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif';
@@ -892,6 +900,8 @@
         chips: document.getElementById("chips"),
         trueSize: document.getElementById("trueSizeCheckbox"),
         threatened: document.getElementById("threatenedCheckbox"),
+        lifers: document.getElementById("lifersCheckbox"),
+        lifersLabel: document.getElementById("lifersLabel"),
         dark: document.getElementById("darkCheckbox"),
         format: document.getElementById("formatSelect"),
         size: document.getElementById("sizeSelect"),
@@ -1136,13 +1146,17 @@
             evidence: filters.evidence,
             quality: filters.quality,
             establishment: filters.establishment,
+            liferStart: periodStart(filters),
+            wild: filters.wild,
+            prior: null, // stems of the birds seen before liferStart, once fetched
           };
           state.birds = birds.filter((bird) => stickerFiles.get(bird.sticker.stem).ready);
           state.unmatched = unmatched.concat(birds.filter((bird) => !stickerFiles.get(bird.sticker.stem).ready));
           state.order = null;
           state.family = null;
           els.panel.style.display = "block";
-          refresh();
+          syncLifersToggle();
+          applyLifers();
         } catch (error) {
           setStatus("");
           clearPreviewLoading();
@@ -1228,12 +1242,29 @@
         return BIRD_ORDER_NAMES[order] || order;
       }
 
+      // Lifers only is on and the earlier birds are known.
+      function lifersActive() {
+        return els.lifers.checked && !!(state.query && state.query.prior);
+      }
+
+      function isLifer(bird) {
+        return !state.query.prior.has(bird.sticker.stem);
+      }
+
+      // The toolbar's filters (threatened, lifers), before the order and family chips.
+      function passesToggles(bird) {
+        return (
+          (!els.threatened.checked || THREATENED_IUCN.includes(bird.sticker.iucn)) &&
+          (!lifersActive() || isLifer(bird))
+        );
+      }
+
       function filteredBirds() {
         return state.birds.filter(
           (bird) =>
             (!state.order || bird.sticker.order === state.order) &&
             (!state.family || bird.sticker.family === state.family) &&
-            (!els.threatened.checked || THREATENED_IUCN.includes(bird.sticker.iucn))
+            passesToggles(bird)
         );
       }
 
@@ -1248,9 +1279,7 @@
       }
 
       function renderFilters() {
-        const pool = state.birds.filter(
-          (bird) => !els.threatened.checked || THREATENED_IUCN.includes(bird.sticker.iucn)
-        );
+        const pool = state.birds.filter(passesToggles);
         const visible = filteredBirds();
         const orders = countBy(pool, "order");
         const families = countBy(pool, "family");
@@ -1262,6 +1291,7 @@
           plural(countBy(visible, "family").size, "family", "families"),
         ];
         if (threatened) parts.push(`${threatened} threatened`);
+        if (state.query.prior) parts.push(plural(state.birds.filter(isLifer).length, "lifer", "lifers"));
         els.stats.innerHTML = parts.join(" · ");
 
         const crumbs = [`<button type="button" data-crumb="all">All birds</button>`];
@@ -1353,13 +1383,13 @@
         // when (place, dates, months); evidence and quality stay off the image.
         const q = state.query;
         const count = filteredBirds().length;
-        let what = "bird species";
-        if (state.family) what = familyLabel(state.family);
-        else if (state.order) what = orderLabel(state.order);
-        else if (q.taxonName) what = q.taxonName;
-        // "threatened endemic bird species", or "threatened · Hawks & eagles" for a group.
+        let group = "";
+        if (state.family) group = familyLabel(state.family);
+        else if (state.order) group = orderLabel(state.order);
+        else if (q.taxonName) group = q.taxonName;
+        // "threatened endemic lifers", or "threatened · Hawks & eagles" for a group.
         const status = [els.threatened.checked ? "threatened" : "", q.establishment].filter(Boolean).join(" ");
-        if (status) what = what === "bird species" ? `${status} ${what}` : `${status} · ${what}`;
+        const what = collageWhat({ group, status, lifers: lifersActive() });
         const where = [q.placeName, q.whenLabel, q.monthsLabel].filter(Boolean).join(" · ");
         return { who: `@${q.username}`, count: count.toLocaleString(), what, where };
       }
@@ -1716,6 +1746,56 @@
         }, 20);
       }
 
+      // ===== Lifers =====
+
+      // Lifers need a start: with all time (or only an end date) every bird is one.
+      function syncLifersToggle() {
+        const start = state.query && state.query.liferStart;
+        els.lifers.disabled = !start;
+        if (!start) els.lifers.checked = false;
+        els.lifersLabel.title = start
+          ? `Only the birds you saw for the first time in this period (none of your observations before ${formatDay(start)})`
+          : "Pick a period (dates, a year or recent days) to see only the birds that were new to you in it";
+      }
+
+      // Every bird the user saw before the period, anywhere, as sticker stems
+      // (so lumps and older names line up with the collage). Once per collage.
+      async function loadPrior(q) {
+        const url = `${API_BASE}/observations/species_counts?${priorQueryParams(q.username, q.liferStart, q.wild)}`;
+        const results = await fetchSpeciesCountPages(url, {
+          perPage: 500,
+          delayMs: 1000,
+          onPage: (page, pages) => {
+            if (pages > 1) els.previewLoadingText.textContent = `Checking the birds you'd seen before… page ${page} of ${pages}`;
+          },
+        });
+        const stems = new Set();
+        for (const result of results) {
+          const sticker = result.taxon && matchSticker(STICKER_INDEX, result.taxon.name);
+          if (sticker) stems.add(sticker.stem);
+        }
+        q.prior = stems;
+      }
+
+      async function applyLifers() {
+        const q = state.query;
+        if (q && els.lifers.checked && !q.prior) {
+          els.lifers.disabled = true;
+          setPreviewLoading("Checking the birds you'd seen before…", { dim: true });
+          try {
+            await loadPrior(q);
+          } catch (error) {
+            if (state.query === q) {
+              els.lifers.checked = false;
+              setError(`Couldn't check your earlier birds: ${error.message}`);
+            }
+          }
+          if (state.query !== q) return; // a new collage was made meanwhile
+          syncLifersToggle();
+        }
+        refresh();
+      }
+
       // ===== Hover & click =====
 
       function birdAt(event) {
@@ -1920,6 +2000,7 @@
             state.query.username,
             state.query.whenLabel,
             state.query.monthsLabel,
+            lifersActive() ? "lifers" : "",
             state.order,
             state.family,
           ]
@@ -1957,6 +2038,10 @@
         refresh();
       });
       els.threatened.addEventListener("change", refresh);
+      els.lifers.addEventListener("change", () => {
+        setError("");
+        applyLifers();
+      });
       els.format.addEventListener("change", () => {
         writePref("birdCollageFormat", els.format.value);
         updateSizeOptions();

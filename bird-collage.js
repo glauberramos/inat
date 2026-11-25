@@ -220,6 +220,42 @@ function monthsLabel(months) {
   return set.map((m) => MONTH_NAMES[m - 1]).join(", ");
 }
 
+// ===== Lifers =====
+
+// The first day of a collage's period: its from date, or 1 January of its
+// year. "" when the period has no start (all time, or only an end date), when
+// every bird would count as a lifer.
+function periodStart(filters) {
+  if (filters.d1) return String(filters.d1).slice(0, 10);
+  if (filters.year) return `${filters.year}-01-01`;
+  return "";
+}
+
+// "2026-11-19" for "2026-11-20", across months and years too.
+function dayBefore(isoDate) {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d - 1)).toISOString().slice(0, 10);
+}
+
+// The species_counts query for every bird the user saw before a period
+// starts, anywhere: those aren't lifers. Place, months, evidence and quality
+// are left out on purpose (a bird seen once, anywhere, isn't new), but a
+// wild-only collage doesn't count birds seen only in a zoo.
+function priorQueryParams(username, start, wild) {
+  let params = `user_login=${encodeURIComponent(username)}&taxon_id=3&hrank=species&d2=${dayBefore(start)}`;
+  if (wild) params += "&captive=false";
+  return params;
+}
+
+// The line after the count: "bird species", "lifers", "threatened lifers", or
+// "threatened lifers · Grebes" for a group (just "Grebes" with no status).
+function collageWhat({ group = "", status = "", lifers = false }) {
+  const noun = lifers ? "lifers" : "bird species";
+  if (!group) return [status, noun].filter(Boolean).join(" ");
+  const prefix = [status, lifers ? "lifers" : ""].filter(Boolean).join(" ");
+  return prefix ? `${prefix} · ${group}` : group;
+}
+
 // The words in the middle: the automatic lines ({ who, count, what, where }),
 // with any line the user typed in its place. A blank field keeps the automatic
 // text; the count always follows the birds shown.
@@ -510,6 +546,10 @@ if (typeof module !== "undefined" && module.exports) {
     MONTH_NAMES,
     monthsLabel,
     centerText,
+    periodStart,
+    dayBefore,
+    priorQueryParams,
+    collageWhat,
     collageQueryParams,
     gridMask,
     layoutCollage,
