@@ -380,6 +380,41 @@
         color: inherit;
       }
 
+      /* The words on the image: blank keeps the automatic text, shown as the placeholder. */
+      .text-fields {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+        justify-content: center;
+        margin-bottom: 12px;
+        font-size: 0.92rem;
+      }
+
+      .text-fields label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1 1 180px;
+        max-width: 260px;
+        color: #555;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      .text-fields input {
+        padding: 6px 10px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 0.92rem;
+        background: white;
+        color: inherit;
+      }
+
+      .text-fields input:focus {
+        outline: none;
+        border-color: #74ac00;
+      }
+
       #downloadButton {
         background: #2c3e50;
         font-weight: 600;
@@ -514,7 +549,8 @@
       }
 
       html.dark-mode body .collage-form select,
-      html.dark-mode body .toolbar select {
+      html.dark-mode body .toolbar select,
+      html.dark-mode body .text-fields input {
         background: #2a2a2a;
         border-color: #444;
         color: #e0e0e0;
@@ -522,6 +558,7 @@
 
       html.dark-mode body .collage-form .check,
       html.dark-mode body .toolbar label,
+      html.dark-mode body .text-fields label,
       html.dark-mode body .collage-stats,
       html.dark-mode body .status {
         color: #bbb;
@@ -606,6 +643,11 @@
 
         .canvas-wrap {
           border-radius: 8px;
+        }
+
+        .text-fields label {
+          max-width: none;
+          flex-basis: 100%;
         }
       }
     </style>
@@ -764,6 +806,20 @@
           </label>
           <button type="button" id="downloadButton">⬇ Download PNG</button>
         </div>
+        <div class="text-fields" title="Change the words on the image; leave a field blank for the automatic text">
+          <label>
+            Name
+            <input type="text" id="whoInput" maxlength="40" autocomplete="off" />
+          </label>
+          <label>
+            After the number
+            <input type="text" id="whatInput" maxlength="60" autocomplete="off" />
+          </label>
+          <label>
+            Place
+            <input type="text" id="whereInput" maxlength="80" autocomplete="off" />
+          </label>
+        </div>
         <div class="canvas-wrap" id="canvasWrap">
           <canvas id="collageCanvas"></canvas>
           <div class="tooltip" id="tooltip"></div>
@@ -780,7 +836,7 @@
     <script src="autocomplete.js"></script>
     <script src="location-autocomplete.js?v=2"></script>
     <script src="bird-stickers-data.js?v=1"></script>
-    <script src="bird-collage.js?v=1"></script>
+    <script src="bird-collage.js?v=2"></script>
     <script>
       const STICKER_INDEX = buildStickerIndex(BIRD_STICKERS);
       const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif';
@@ -839,6 +895,9 @@
         dark: document.getElementById("darkCheckbox"),
         format: document.getElementById("formatSelect"),
         size: document.getElementById("sizeSelect"),
+        who: document.getElementById("whoInput"),
+        what: document.getElementById("whatInput"),
+        where: document.getElementById("whereInput"),
         download: document.getElementById("downloadButton"),
         wrap: document.getElementById("canvasWrap"),
         canvas: document.getElementById("collageCanvas"),
@@ -1272,8 +1331,24 @@
 
       // ===== Layout =====
 
-      // The words in the middle.
+      // The words in the middle: the automatic ones, or what the user typed.
       function centerLines() {
+        return centerText(autoCenterLines(), {
+          who: els.who.value,
+          what: els.what.value,
+          where: els.where.value,
+        });
+      }
+
+      // Show the automatic words as the placeholders, so a blank field says what it will print.
+      function renderTextFields() {
+        const auto = autoCenterLines();
+        els.who.placeholder = auto.who;
+        els.what.placeholder = auto.what;
+        els.where.placeholder = auto.where || "No place";
+      }
+
+      function autoCenterLines() {
         // Who, how many, which group (with threatened / status), and where and
         // when (place, dates, months); evidence and quality stay off the image.
         const q = state.query;
@@ -1624,6 +1699,7 @@
       let layoutTimer = null;
       function refresh() {
         renderFilters();
+        renderTextFields();
         renderNotes();
         els.tooltip.style.display = "none";
         clearTimeout(layoutTimer);
@@ -1887,6 +1963,17 @@
         refresh();
       });
       els.size.addEventListener("change", () => writePref("birdCollageSize", els.size.value));
+      // Retype the middle: wait for a pause, since a longer line can move the birds.
+      let textTimer = null;
+      for (const input of [els.who, els.what, els.where]) {
+        input.addEventListener("input", () => {
+          clearTimeout(textTimer);
+          textTimer = setTimeout(() => {
+            writePref("birdCollageName", els.who.value);
+            if (state.query) refresh();
+          }, 350);
+        });
+      }
       els.dark.addEventListener("change", () => {
         writePref("birdCollageDark", els.dark.checked);
         if (state.layout) drawScreen();
@@ -1902,6 +1989,7 @@
 
       els.trueSize.checked = readPref("birdCollageTrueSize", "false") === "true";
       els.dark.checked = readPref("birdCollageDark", "false") === "true";
+      els.who.value = readPref("birdCollageName", "");
       const savedFormat = readPref("birdCollageFormat", "wide");
       if (FORMATS[savedFormat]) els.format.value = savedFormat;
       updateSizeOptions();

@@ -9,6 +9,7 @@ const {
   stickerUrls,
   stickerWeight,
   monthsLabel,
+  centerText,
   collageQueryParams,
   layoutCollage,
 } = require("../bird-collage.js");
@@ -235,4 +236,23 @@ test("layoutCollage keeps true-size proportions when the biggest birds hit the s
     assert.ok(Math.abs(actual - expected) < 1e-9, `bird0 / bird${i}: ${actual} vs ${expected}`);
   }
   assert.ok(Math.max(...placements.map((p) => p.h)) <= 900 * 0.36 + 1e-9);
+});
+
+test("centerText swaps in the typed lines and keeps the automatic ones for blanks", () => {
+  const auto = {
+    who: "@pampasorro",
+    count: "63",
+    what: "bird species",
+    where: "Encruzilhada do Sul",
+  };
+  assert.deepEqual(centerText(auto, { who: " Glauber ", what: "", where: "Parque Podocarpus" }), {
+    who: "Glauber",
+    count: "63",
+    what: "bird species",
+    where: "Parque Podocarpus",
+  });
+  assert.deepEqual(centerText(auto, { what: "Lifers", where: "   " }), { ...auto, what: "Lifers" });
+  assert.deepEqual(centerText(auto, null), auto);
+  // The count can't be typed over.
+  assert.equal(centerText(auto, { count: "999" }).count, "63");
 });

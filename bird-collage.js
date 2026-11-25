@@ -220,6 +220,18 @@ function monthsLabel(months) {
   return set.map((m) => MONTH_NAMES[m - 1]).join(", ");
 }
 
+// The words in the middle: the automatic lines ({ who, count, what, where }),
+// with any line the user typed in its place. A blank field keeps the automatic
+// text; the count always follows the birds shown.
+function centerText(auto, custom) {
+  const lines = { ...auto };
+  for (const key of ["who", "what", "where"]) {
+    const text = String((custom && custom[key]) || "").trim();
+    if (text) lines[key] = text;
+  }
+  return lines;
+}
+
 // The species_counts query for a collage's filters:
 // { username, taxonId, placeId, projectId, year, d1, d2, months, evidence
 //   ("photos" | "sounds"), quality ("verifiable" | "research"),
@@ -497,6 +509,7 @@ if (typeof module !== "undefined" && module.exports) {
     stickerWeight,
     MONTH_NAMES,
     monthsLabel,
+    centerText,
     collageQueryParams,
     gridMask,
     layoutCollage,

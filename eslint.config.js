@@ -88,6 +88,7 @@ const sharedGlobals = {
   layoutCollage: "readonly",
   MONTH_NAMES: "readonly",
   monthsLabel: "readonly",
+  centerText: "readonly",
   collageQueryParams: "readonly",
   INatWidget: "readonly",
   // third-party
