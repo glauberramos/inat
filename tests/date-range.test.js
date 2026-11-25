@@ -55,6 +55,21 @@ test("resolveDateRange handles month and year boundaries", () => {
   });
 });
 
+test("resolveDateRange computes calendar-year presets", () => {
+  assert.deepEqual(resolveDateRange("ytd", "", "", day(2026, 11, 25)), {
+    d1: "2026-01-01",
+    d2: "2026-11-25",
+  });
+  assert.deepEqual(resolveDateRange("ytd", "", "", day(2026, 1, 1)), {
+    d1: "2026-01-01",
+    d2: "2026-01-01",
+  });
+  assert.deepEqual(resolveDateRange("lastYear", "", "", day(2026, 11, 25)), {
+    d1: "2025-01-01",
+    d2: "2025-12-31",
+  });
+});
+
 test("resolveDateRange passes through the custom range, allowing open ends", () => {
   assert.deepEqual(resolveDateRange("custom", "2026-01-01", "2026-03-31"), {
     d1: "2026-01-01",

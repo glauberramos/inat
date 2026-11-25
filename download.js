@@ -16,6 +16,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const username = document.getElementById("usernameInput").value.trim();
     const placeName = document.getElementById("placeNameInput").value.trim();
     const currentDate = new Date().toLocaleDateString();
+    const periodEl = document.getElementById("observedPeriod");
+    const periodNote = periodEl ? periodEl.textContent.trim() : "";
 
     // Get taxon name from the taxon input
     const taxonInput = document.getElementById("taxonInput");
@@ -65,6 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
       locationType,
       taxonName,
       currentDate,
+      periodNote,
       spottedSpecies,
       missingSpecies
     );
@@ -89,6 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
     locationType,
     taxonName,
     date,
+    periodNote,
     spottedSpecies,
     missingSpecies
   ) {
@@ -101,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
 ${locationType}: ${locationName}
 Taxon Group: ${taxonName}
 Generated for: ${username}
-Date: ${date}
+Date: ${date}${periodNote ? `\n${periodNote}` : ""}
 
 SUMMARY:
 - Total species in this ${locationType.toLowerCase()}: ${totalSpecies}

@@ -83,8 +83,8 @@
       href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=4" />
-    <link rel="stylesheet" href="dark-mode.css?v=8" />
+    <link rel="stylesheet" href="styles.css?v=5" />
+    <link rel="stylesheet" href="dark-mode.css?v=9" />
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
@@ -482,7 +482,7 @@
         }
       }
     </style>
-    <link rel="stylesheet" href="speciesdex.css?v=4" />
+    <link rel="stylesheet" href="speciesdex.css?v=5" />
       <script src="analytics.js"></script>
   </head>
   <body class="speciesdex-page">
@@ -639,6 +639,12 @@
               >Include my observations from all places</label
             >
           </span>
+          <span class="advanced-options-checkbox period-to-me-option">
+            <input type="checkbox" id="applyPeriodToMeCheckbox" />
+            <label for="applyPeriodToMeCheckbox"
+              >Apply date &amp; month filters to my observations</label
+            >
+          </span>
           <div class="month-filter-container">
             <label class="month-filter-label">Filter by months:</label>
             <div class="month-checkboxes">
@@ -772,6 +778,12 @@
               <button type="button" class="date-preset-btn" data-range="12m">
                 Last 12 months
               </button>
+              <button type="button" class="date-preset-btn" data-range="ytd">
+                This year
+              </button>
+              <button type="button" class="date-preset-btn" data-range="lastYear">
+                Last year
+              </button>
               <button type="button" class="date-preset-btn" data-range="custom">
                 Custom
               </button>
@@ -807,6 +819,7 @@
               <span class="status-missing"
                 ><span id="missingCount">0</span> still missing</span
               >
+              <span class="status-period" id="observedPeriod"></span>
             </div>
             <div class="progress-bar">
               <div class="progress" id="progressBar"></div>
@@ -829,10 +842,10 @@
       </main>
     </div>
     <script src="constants.js"></script>
-    <script src="shared-utils.js?v=7"></script>
-    <script src="script.js"></script>
+    <script src="shared-utils.js?v=8"></script>
+    <script src="script.js?v=2"></script>
     <script src="search.js?v=3"></script>
-    <script src="download.js"></script>
+    <script src="download.js?v=2"></script>
     <!-- Map Modal -->
     <div class="map-modal" id="mapModal">
       <div class="map-modal-content">

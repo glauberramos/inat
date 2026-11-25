@@ -263,6 +263,10 @@ html.dark-mode body .status-missing {
   color: #aaa;
 }
 
+html.dark-mode body .status-period {
+  color: #9acd32;
+}
+
 html.dark-mode body .progress-bar {
   background: #444;
 }

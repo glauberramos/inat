@@ -291,13 +291,16 @@ function sleep(ms) {
 // ===== Date Range Helpers =====
 
 // Presets offered by the date range filter. The offset is subtracted from
-// today to get the start of the range; "all" applies no date filter and
+// today to get the start of the range; "ytd" and "lastYear" are calendar
+// years (for year-list comparisons); "all" applies no date filter and
 // "custom" is driven by the two date inputs instead.
 const DATE_RANGE_PRESETS = {
   all: {},
   "30d": { days: 30 },
   "3m": { months: 3 },
   "12m": { months: 12 },
+  ytd: { calendarYear: 0 },
+  lastYear: { calendarYear: -1 },
   custom: {},
 };
 
@@ -333,6 +336,14 @@ function resolveDateRange(preset, customFrom, customTo, today = new Date()) {
   }
 
   const offset = isDateRangePreset(preset) ? DATE_RANGE_PRESETS[preset] : null;
+
+  if (offset && typeof offset.calendarYear === "number") {
+    const year = today.getFullYear() + offset.calendarYear;
+    // The current year runs Jan 1 → today; past years cover the full year
+    const end = offset.calendarYear === 0 ? today : new Date(year, 11, 31);
+    return { d1: formatDateParam(new Date(year, 0, 1)), d2: formatDateParam(end) };
+  }
+
   if (!offset || (!offset.days && !offset.months)) {
     return { d1: null, d2: null };
   }

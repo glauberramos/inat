@@ -31,6 +31,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const dateRangeCustom = document.getElementById("dateRangeCustom");
   const dateFromInput = document.getElementById("dateFromInput");
   const dateToInput = document.getElementById("dateToInput");
+  const applyPeriodToMeCheckbox = document.getElementById("applyPeriodToMeCheckbox");
+  const observedPeriod = document.getElementById("observedPeriod");
   let dateRangePreset = "all";
 
   // Load saved username, place ID, taxon, and limit preference from localStorage
@@ -282,6 +284,62 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  if (applyPeriodToMeCheckbox) {
+    applyPeriodToMeCheckbox.checked = localStorage.getItem("inatApplyPeriodToMe") === "true";
+    applyPeriodToMeCheckbox.addEventListener("change", () => {
+      localStorage.setItem("inatApplyPeriodToMe", String(applyPeriodToMeCheckbox.checked));
+    });
+  }
+
+  function getSelectedMonths() {
+    return Array.from(document.querySelectorAll(".month-checkbox:checked")).map((cb) => cb.value);
+  }
+
+  // Human label for the active date + month filters, e.g. "this year · Jan, Feb".
+  // Empty when neither filter is set.
+  function describeSelectedPeriod() {
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const presetLabels = {
+      "30d": "the last 30 days",
+      "3m": "the last 3 months",
+      "12m": "the last 12 months",
+      ytd: `this year (${new Date().getFullYear()})`,
+      lastYear: `last year (${new Date().getFullYear() - 1})`,
+    };
+    const parts = [];
+    const range = getSelectedDateRange();
+    if (presetLabels[dateRangePreset]) {
+      parts.push(presetLabels[dateRangePreset]);
+    } else if (range.d1 || range.d2) {
+      parts.push(`${range.d1 || "…"} to ${range.d2 || "today"}`);
+    }
+    const months = getSelectedMonths();
+    if (months.length > 0) {
+      parts.push(months.map((m) => monthNames[Number(m) - 1]).join(", "));
+    }
+    return parts.join(" · ");
+  }
+
+  // True when "year list mode" is on and there is actually a period to apply
+  function isPeriodAppliedToMe() {
+    return Boolean(
+      applyPeriodToMeCheckbox && applyPeriodToMeCheckbox.checked && describeSelectedPeriod()
+    );
+  }
+
   [
     { input: dateFromInput, key: "inatDateFrom" },
     { input: dateToInput, key: "inatDateTo" },
@@ -365,6 +423,11 @@ document.addEventListener("DOMContentLoaded", function () {
       loading.style.display = "block";
       speciesGrid.innerHTML = "";
       updateStatus(0, 0); // Reset status
+      if (observedPeriod) {
+        observedPeriod.textContent = isPeriodAppliedToMe()
+          ? `Counting only your observations from ${describeSelectedPeriod()}`
+          : "";
+      }
 
       // First, get the user's observations
       const userObservations = await getUserObservations(username, placeId, taxonId, mapBounds);
@@ -404,10 +467,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const endemic = endemicCheckbox && endemicCheckbox.checked ? "&endemic=true" : "";
     const verifiable = verifiableCheckbox && verifiableCheckbox.checked ? "&verifiable=true" : "";
 
-    // Note: the month and date range filters are intentionally NOT applied to
-    // the user's own observations — they should only narrow the place's top
-    // species. A species counts as "observed" if the user has ever seen it,
-    // regardless of when.
+    // By default the month and date range filters only narrow the place's top
+    // species: a species counts as "observed" if the user has ever seen it.
+    // "Year list mode" applies the same filters to the user's observations, so
+    // the dex shows e.g. this year's species in the area vs what they've seen
+    // this year.
+    let periodParam = "";
+    if (isPeriodAppliedToMe()) {
+      const months = getSelectedMonths();
+      periodParam =
+        (months.length > 0 ? `&month=${months.join(",")}` : "") +
+        buildDateRangeParams(getSelectedDateRange());
+    }
 
     // Check if we have a project selected instead of a place
     const projectId = localStorage.getItem("inatProjectId");
@@ -431,7 +502,7 @@ document.addEventListener("DOMContentLoaded", function () {
       allPlacesParam = `&place_id=${placeId}`;
     }
 
-    const url = `${API_BASE}/observations/taxonomy?user_login=${username}${allPlacesParam}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}`;
+    const url = `${API_BASE}/observations/taxonomy?user_login=${username}${allPlacesParam}${taxonParam}${captiveParam}${researchGrade}${threatened}${endemic}${verifiable}${periodParam}`;
     const response = await fetch(url);
     const data = await response.json();
 
@@ -453,8 +524,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const languageParam = commonNameParams(selectedLanguage);
 
     // Get selected months
-    const monthCheckboxes = document.querySelectorAll(".month-checkbox:checked");
-    const selectedMonths = Array.from(monthCheckboxes).map((cb) => cb.value);
+    const selectedMonths = getSelectedMonths();
     const monthParam = selectedMonths.length > 0 ? `&month=${selectedMonths.join(",")}` : "";
 
     // Selected date range (preset or custom)
@@ -577,8 +647,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Create the iNaturalist URL for this species in the current place
     // Get selected months to include in URL
-    const monthCheckboxes = document.querySelectorAll(".month-checkbox:checked");
-    const selectedMonths = Array.from(monthCheckboxes).map((cb) => cb.value);
+    const selectedMonths = getSelectedMonths();
     const monthParam = selectedMonths.length > 0 ? `&month=${selectedMonths.join(",")}` : "";
     const dateParam = buildDateRangeParams(getSelectedDateRange());
 
