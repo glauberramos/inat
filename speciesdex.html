@@ -482,7 +482,7 @@
         }
       }
     </style>
-    <link rel="stylesheet" href="speciesdex.css?v=5" />
+    <link rel="stylesheet" href="speciesdex.css?v=6" />
       <script src="analytics.js"></script>
   </head>
   <body class="speciesdex-page">
@@ -628,23 +628,6 @@
               <label for="verifiableCheckbox">Verifiable</label>
             </span>
           </div>
-          <span class="advanced-options-checkbox">
-            <input
-              type="checkbox"
-              id="includeAllPlacesCheckbox"
-              class="include-all-places-checkbox"
-              checked
-            />
-            <label for="includeAllPlacesCheckbox"
-              >Include my observations from all places</label
-            >
-          </span>
-          <span class="advanced-options-checkbox period-to-me-option">
-            <input type="checkbox" id="applyPeriodToMeCheckbox" />
-            <label for="applyPeriodToMeCheckbox"
-              >Apply date &amp; month filters to my observations</label
-            >
-          </span>
           <div class="month-filter-container">
             <label class="month-filter-label">Filter by months:</label>
             <div class="month-checkboxes">
@@ -799,6 +782,24 @@
               </span>
             </div>
           </div>
+          <div class="my-list-container">
+            <label class="my-list-label" for="myListPeriodSelect">Compare with my:</label>
+            <div class="my-list-selects">
+              <!-- Option text gets the current year / month / day from script.js -->
+              <select id="myListPeriodSelect" class="language-select my-list-select">
+                <option value="life" selected>Life list</option>
+                <option value="year">Year list</option>
+                <option value="lastYear">Last year's list</option>
+                <option value="month">Month list (all years)</option>
+                <option value="day">Day list (all years)</option>
+                <option value="match">Same dates as the filters above</option>
+              </select>
+              <select id="myListPlaceSelect" class="language-select my-list-select" aria-label="Where your observations count">
+                <option value="anywhere" selected>from anywhere</option>
+                <option value="area">from this area only</option>
+              </select>
+            </div>
+          </div>
           <div class="advanced-actions">
             <button id="searchButtonAdvanced" class="search-button-advanced">
               Search
@@ -842,8 +843,8 @@
       </main>
     </div>
     <script src="constants.js"></script>
-    <script src="shared-utils.js?v=8"></script>
-    <script src="script.js?v=2"></script>
+    <script src="shared-utils.js?v=9"></script>
+    <script src="script.js?v=3"></script>
     <script src="search.js?v=3"></script>
     <script src="download.js?v=2"></script>
     <!-- Map Modal -->

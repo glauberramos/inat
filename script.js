@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const advancedOptionsButton = document.getElementById("advancedOptionsButton");
   const advancedOptionsSection = document.getElementById("advancedOptionsSection");
   const wildCheckbox = document.getElementById("wildCheckbox");
-  const includeAllPlacesCheckbox = document.getElementById("includeAllPlacesCheckbox");
   const researchGradeCheckbox = document.getElementById("researchGradeCheckbox");
   const threatenedCheckbox = document.getElementById("threatenedCheckbox");
   const endemicCheckbox = document.getElementById("endemicCheckbox");
@@ -31,7 +30,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const dateRangeCustom = document.getElementById("dateRangeCustom");
   const dateFromInput = document.getElementById("dateFromInput");
   const dateToInput = document.getElementById("dateToInput");
-  const applyPeriodToMeCheckbox = document.getElementById("applyPeriodToMeCheckbox");
+  const myListPeriodSelect = document.getElementById("myListPeriodSelect");
+  const myListPlaceSelect = document.getElementById("myListPlaceSelect");
   const observedPeriod = document.getElementById("observedPeriod");
   let dateRangePreset = "all";
 
@@ -284,10 +284,32 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  if (applyPeriodToMeCheckbox) {
-    applyPeriodToMeCheckbox.checked = localStorage.getItem("inatApplyPeriodToMe") === "true";
-    applyPeriodToMeCheckbox.addEventListener("change", () => {
-      localStorage.setItem("inatApplyPeriodToMe", String(applyPeriodToMeCheckbox.checked));
+  // "Compare with my:" — which of the user's own lists (life / year / month /
+  // day, here or anywhere) the area's species are checked against, like
+  // eBird Targets. Independent of the area's month + date filters.
+  if (myListPeriodSelect) {
+    Array.from(myListPeriodSelect.options).forEach((option) => {
+      option.textContent = myListPeriodLabel(option.value);
+    });
+    let savedPeriod = localStorage.getItem("inatMyListPeriod");
+    // Carry over the earlier "Apply date & month filters to my observations"
+    // checkbox, which behaved exactly like "match"
+    if (!savedPeriod && localStorage.getItem("inatApplyPeriodToMe") === "true") {
+      savedPeriod = "match";
+      localStorage.setItem("inatMyListPeriod", savedPeriod);
+    }
+    localStorage.removeItem("inatApplyPeriodToMe");
+    if (isMyListPeriod(savedPeriod)) myListPeriodSelect.value = savedPeriod;
+    myListPeriodSelect.addEventListener("change", () => {
+      localStorage.setItem("inatMyListPeriod", myListPeriodSelect.value);
+    });
+  }
+
+  if (myListPlaceSelect) {
+    const savedPlace = localStorage.getItem("inatMyListPlace");
+    if (savedPlace === "anywhere" || savedPlace === "area") myListPlaceSelect.value = savedPlace;
+    myListPlaceSelect.addEventListener("change", () => {
+      localStorage.setItem("inatMyListPlace", myListPlaceSelect.value);
     });
   }
 
@@ -333,11 +355,34 @@ document.addEventListener("DOMContentLoaded", function () {
     return parts.join(" · ");
   }
 
-  // True when "year list mode" is on and there is actually a period to apply
-  function isPeriodAppliedToMe() {
-    return Boolean(
-      applyPeriodToMeCheckbox && applyPeriodToMeCheckbox.checked && describeSelectedPeriod()
+  function getMyListPeriod() {
+    return myListPeriodSelect ? myListPeriodSelect.value : "life";
+  }
+
+  // Query fragment limiting the user's observations to the chosen list
+  function buildMyListParams() {
+    const period = getMyListPeriod();
+    if (period !== "match") return buildMyListPeriodParams(period);
+    const months = getSelectedMonths();
+    return (
+      (months.length > 0 ? `&month=${months.join(",")}` : "") +
+      buildDateRangeParams(getSelectedDateRange())
     );
+  }
+
+  // Status-bar note naming the list being compared against, so a smaller
+  // count isn't mistaken for a lifetime total. Empty for the life list.
+  function describeMyList() {
+    const period = getMyListPeriod();
+    let list = "";
+    if (period === "match") {
+      const filters = describeSelectedPeriod();
+      list = filters ? `observations from ${filters}` : "";
+    } else if (period !== "life") {
+      const label = myListPeriodLabel(period);
+      list = label.charAt(0).toLowerCase() + label.slice(1);
+    }
+    return list ? `Compared with your ${list}` : "";
   }
 
   [
@@ -424,9 +469,7 @@ document.addEventListener("DOMContentLoaded", function () {
       speciesGrid.innerHTML = "";
       updateStatus(0, 0); // Reset status
       if (observedPeriod) {
-        observedPeriod.textContent = isPeriodAppliedToMe()
-          ? `Counting only your observations from ${describeSelectedPeriod()}`
-          : "";
+        observedPeriod.textContent = describeMyList();
       }
 
       // First, get the user's observations
@@ -467,24 +510,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const endemic = endemicCheckbox && endemicCheckbox.checked ? "&endemic=true" : "";
     const verifiable = verifiableCheckbox && verifiableCheckbox.checked ? "&verifiable=true" : "";
 
-    // By default the month and date range filters only narrow the place's top
-    // species: a species counts as "observed" if the user has ever seen it.
-    // "Year list mode" applies the same filters to the user's observations, so
-    // the dex shows e.g. this year's species in the area vs what they've seen
-    // this year.
-    let periodParam = "";
-    if (isPeriodAppliedToMe()) {
-      const months = getSelectedMonths();
-      periodParam =
-        (months.length > 0 ? `&month=${months.join(",")}` : "") +
-        buildDateRangeParams(getSelectedDateRange());
-    }
+    // The area's month + date filters only narrow the place's top species.
+    // Which of the user's own lists counts (life, year, month, day…) comes
+    // from the separate "Compare with my:" selects.
+    const periodParam = buildMyListParams();
 
     // Check if we have a project selected instead of a place
     const projectId = localStorage.getItem("inatProjectId");
     let allPlacesParam = "";
 
-    if (includeAllPlacesCheckbox && includeAllPlacesCheckbox.checked) {
+    if (!myListPlaceSelect || myListPlaceSelect.value === "anywhere") {
       // Include all places - don't filter by location
       allPlacesParam = "";
     } else if (mapBounds) {

@@ -7,6 +7,9 @@ const {
   subtractMonths,
   resolveDateRange,
   buildDateRangeParams,
+  isMyListPeriod,
+  buildMyListPeriodParams,
+  myListPeriodLabel,
 } = require("../shared-utils.js");
 
 // Local-time constructor so the tests don't depend on the machine timezone
@@ -93,9 +96,35 @@ test("buildDateRangeParams builds only the bounds that are set", () => {
 });
 
 test("isDateRangePreset recognizes only the known presets", () => {
-  ["all", "30d", "3m", "12m", "custom"].forEach((preset) => {
+  ["all", "30d", "3m", "12m", "ytd", "lastYear", "custom"].forEach((preset) => {
     assert.ok(isDateRangePreset(preset));
   });
   assert.equal(isDateRangePreset("42d"), false);
   assert.equal(isDateRangePreset("toString"), false);
+});
+
+test("buildMyListPeriodParams limits the user's list like eBird's list types", () => {
+  const today = day(2026, 11, 25);
+  assert.equal(buildMyListPeriodParams("life", today), "");
+  assert.equal(buildMyListPeriodParams("match", today), "");
+  assert.equal(buildMyListPeriodParams("year", today), "&d1=2026-01-01&d2=2026-11-25");
+  assert.equal(buildMyListPeriodParams("lastYear", today), "&d1=2025-01-01&d2=2025-12-31");
+  assert.equal(buildMyListPeriodParams("month", today), "&month=11");
+  assert.equal(buildMyListPeriodParams("day", today), "&month=11&day=25");
+  assert.equal(buildMyListPeriodParams("nonsense", today), "");
+});
+
+test("myListPeriodLabel names the list with the current date", () => {
+  const today = day(2026, 11, 25);
+  assert.equal(myListPeriodLabel("life", today), "Life list");
+  assert.equal(myListPeriodLabel("year", today), "Year list (2026)");
+  assert.equal(myListPeriodLabel("lastYear", today), "Last year's list (2025)");
+  assert.equal(myListPeriodLabel("month", today), "Month list (November, all years)");
+  assert.equal(myListPeriodLabel("day", today), "Day list (25 Nov, all years)");
+});
+
+test("isMyListPeriod recognizes only the known list periods", () => {
+  assert.equal(isMyListPeriod("year"), true);
+  assert.equal(isMyListPeriod("match"), true);
+  assert.equal(isMyListPeriod("week"), false);
 });

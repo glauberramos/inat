@@ -355,6 +355,53 @@ function resolveDateRange(preset, customFrom, customTo, today = new Date()) {
   return { d1: formatDateParam(start), d2: formatDateParam(today) };
 }
 
+// ===== "Compare with my:" list periods (SpeciesDex) =====
+// Which of the user's own lists the area's species are compared against,
+// like eBird Targets' Life / Year / Month / Day lists. "match" reuses the
+// area's month + date filters and is resolved by the caller.
+const MY_LIST_PERIODS = ["life", "year", "lastYear", "month", "day", "match"];
+
+function isMyListPeriod(period) {
+  return MY_LIST_PERIODS.includes(period);
+}
+
+// Query fragment limiting the user's observations to the chosen list.
+// Empty for "life" (no limit) and "match" (caller builds it).
+function buildMyListPeriodParams(period, today = new Date()) {
+  switch (period) {
+    case "year":
+      return buildDateRangeParams(resolveDateRange("ytd", "", "", today));
+    case "lastYear":
+      return buildDateRangeParams(resolveDateRange("lastYear", "", "", today));
+    case "month":
+      return `&month=${today.getMonth() + 1}`;
+    case "day":
+      return `&month=${today.getMonth() + 1}&day=${today.getDate()}`;
+    default:
+      return "";
+  }
+}
+
+function myListPeriodLabel(period, today = new Date()) {
+  const year = today.getFullYear();
+  const monthLong = today.toLocaleString("en-US", { month: "long" });
+  const monthShort = today.toLocaleString("en-US", { month: "short" });
+  switch (period) {
+    case "year":
+      return `Year list (${year})`;
+    case "lastYear":
+      return `Last year's list (${year - 1})`;
+    case "month":
+      return `Month list (${monthLong}, all years)`;
+    case "day":
+      return `Day list (${today.getDate()} ${monthShort}, all years)`;
+    case "match":
+      return "Same dates as the filters above";
+    default:
+      return "Life list";
+  }
+}
+
 // Build the &d1=...&d2=... query fragment for a resolved range.
 function buildDateRangeParams(range) {
   if (!range) return "";
@@ -639,5 +686,9 @@ if (typeof module !== "undefined" && module.exports) {
     subtractMonths,
     resolveDateRange,
     buildDateRangeParams,
+    MY_LIST_PERIODS,
+    isMyListPeriod,
+    buildMyListPeriodParams,
+    myListPeriodLabel,
   };
 }

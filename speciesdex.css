@@ -670,7 +670,8 @@ body.speciesdex-page .month-checkboxes .advanced-options-checkbox label {
 }
 
 body.speciesdex-page .month-filter-label,
-body.speciesdex-page .date-range-label {
+body.speciesdex-page .date-range-label,
+body.speciesdex-page .my-list-label {
   display: block;
   margin: 0 0 6px;
   font-family: var(--dex-mono);
@@ -683,6 +684,24 @@ body.speciesdex-page .date-range-label {
 
 body.speciesdex-page .date-range-container {
   margin-top: 16px;
+}
+
+/* "Compare with my:" — which of the user's own lists the area is checked
+   against (life / year / month / day list, here or anywhere) */
+body.speciesdex-page .my-list-container {
+  margin-top: 16px;
+}
+
+body.speciesdex-page .my-list-selects {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+body.speciesdex-page .my-list-select {
+  padding-right: 34px;
+  max-width: 100%;
 }
 
 body.speciesdex-page .language-select-container {
