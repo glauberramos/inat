@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build bird-stickers-data.js, the sticker index behind bird-collage.html.
+"""Build bird-stickers-data.js, the bird sticker index behind sticker-collage.html.
 
 The stickers are huashu-bird-sticker (https://github.com/alchaincyf/huashu-bird-sticker, CC BY 4.0):
 one AI-illustrated sticker per species in AviList v2026, about 1,000 px on the long side. This keeps,
@@ -17,8 +17,9 @@ import sys
 import urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+REPO = "alchaincyf/huashu-bird-sticker"
 TAG = "v2.3.1"
-SOURCE = f"https://raw.githubusercontent.com/alchaincyf/huashu-bird-sticker/{TAG}/data/species.json"
+SOURCE = f"https://raw.githubusercontent.com/{REPO}/{TAG}/data/species.json"
 IUCN = ["", "LC", "NT", "VU", "EN", "CR", "EW", "EX", "DD"]
 
 
@@ -86,7 +87,7 @@ def main(argv):
 
     out = ROOT / "bird-stickers-data.js"
     out.write_text(
-        "// Sticker index for bird-collage.html, built by scripts/bird-stickers.py. Do not edit by hand.\n"
+        "// Bird sticker index for sticker-collage.html, built by scripts/bird-stickers.py. Do not edit by hand.\n"
         f"// Stickers: huashu-bird-sticker {TAG} (https://github.com/alchaincyf/huashu-bird-sticker), CC BY 4.0,\n"
         "// AI-generated illustrations. Body mass from AVONET, status from AviList v2026 (BirdLife).\n"
         "// rows: 'file stem|family index|mass in grams|IUCN index'; families: [order, family, English name].\n"
@@ -94,6 +95,7 @@ def main(argv):
         "const BIRD_STICKERS = "
         + json.dumps(
             {
+                "repo": REPO,
                 "tag": TAG,
                 "iucn": IUCN,
                 "families": families,

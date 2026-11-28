@@ -4,8 +4,12 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const {
+  animalsConfig,
+  orderName,
+  MAMMAL_ORDER_NAMES,
   buildStickerIndex,
   matchSticker,
+  matchTaxonSticker,
   stickerUrls,
   stickerWeight,
   monthsLabel,
@@ -16,12 +20,14 @@ const {
   collageWhat,
   collageQueryParams,
   layoutCollage,
-} = require("../bird-collage.js");
+} = require("../sticker-collage.js");
 
-const source = fs.readFileSync(path.join(__dirname, "..", "bird-stickers-data.js"), "utf8");
-const index = buildStickerIndex(
-  JSON.parse(source.slice(source.indexOf("{"), source.lastIndexOf("}") + 1))
-);
+function readIndex(file) {
+  const source = fs.readFileSync(path.join(__dirname, "..", file), "utf8");
+  return JSON.parse(source.slice(source.indexOf("{"), source.lastIndexOf("}") + 1));
+}
+const index = buildStickerIndex(readIndex("bird-stickers-data.js"), "bird");
+const mammals = buildStickerIndex(readIndex("mammal-stickers-data.js"), "mammal");
 
 test("matchSticker finds species by their current name", () => {
   const sticker = matchSticker(index, "Turdus rufiventris");
@@ -53,12 +59,52 @@ test("every sticker has a mass, estimated from its family when AVONET has none",
 });
 
 test("stickerUrls points at the pinned original files", () => {
-  const [primary, fallback] = stickerUrls(matchSticker(index, "Turdus rufiventris"), index.tag);
+  const [primary, fallback] = stickerUrls(matchSticker(index, "Turdus rufiventris"));
   assert.equal(
     primary,
     `https://cdn.jsdelivr.net/gh/alchaincyf/huashu-bird-sticker@${index.tag}/stickers/Passeriformes/Turdidae/Turdus_rufiventris.webp`
   );
   assert.match(fallback, /^https:\/\/raw\.githubusercontent\.com\//);
+});
+
+test("mammal stickers come from their own repository, pinned to a commit", () => {
+  const deer = matchSticker(mammals, "Odocoileus virginianus");
+  assert.equal(deer.key, "mammal/Odocoileus_virginianus");
+  assert.equal(deer.familyEnglish, "Deer");
+  const [primary, fallback] = stickerUrls(deer);
+  assert.equal(
+    primary,
+    `https://cdn.jsdelivr.net/gh/glauberramos/mammal-stickers@${mammals.tag}/stickers/Artiodactyla/Cervidae/Odocoileus_virginianus.webp`
+  );
+  assert.match(fallback, /^https:\/\/raw\.githubusercontent\.com\/glauberramos\/mammal-stickers\//);
+  assert.match(mammals.tag, /^[0-9a-f]{40}$/);
+});
+
+test("every mammal sticker has a mass and an English family name", () => {
+  assert.ok(mammals.stickers.length > 2000);
+  assert.ok(mammals.stickers.every((sticker) => sticker.massG > 0));
+  assert.ok(mammals.stickers.every((sticker) => sticker.familyEnglish));
+  assert.ok(mammals.stickers.every((sticker) => sticker.order in MAMMAL_ORDER_NAMES));
+  assert.equal(orderName("Chiroptera"), "Bats");
+  assert.equal(orderName("Passeriformes"), "Perching birds");
+});
+
+test("sticker keys are unique across birds and mammals", () => {
+  const keys = new Set(index.stickers.concat(mammals.stickers).map((sticker) => sticker.key));
+  assert.equal(keys.size, index.stickers.length + mammals.stickers.length);
+});
+
+test("matchTaxonSticker matches each taxon against its own class", () => {
+  const both = { Aves: index, Mammalia: mammals };
+  const deer = { name: "Odocoileus virginianus", iconic_taxon_name: "Mammalia" };
+  const thrush = { name: "Turdus rufiventris", iconic_taxon_name: "Aves" };
+  assert.equal(matchTaxonSticker(both, deer).kind, "mammal");
+  assert.equal(matchTaxonSticker(both, thrush).kind, "bird");
+  // A class the collage doesn't show matches nothing.
+  assert.equal(matchTaxonSticker({ Aves: index }, deer), null);
+  // Without an iconic taxon, every index is tried.
+  assert.equal(matchTaxonSticker(both, { name: "Odocoileus virginianus" }).kind, "mammal");
+  assert.equal(matchTaxonSticker(both, null), null);
 });
 
 test("stickerWeight: true size grows faster with mass than the evened-out size", () => {
@@ -273,6 +319,32 @@ test("dayBefore steps back across months and years", () => {
   assert.equal(dayBefore("2026-03-01"), "2026-02-28");
   assert.equal(dayBefore("2024-03-01"), "2024-02-29");
   assert.equal(dayBefore("2026-01-01"), "2025-12-31");
+});
+
+test("priorQueryParams asks for the collage's own taxa", () => {
+  assert.match(priorQueryParams("me", "2026-01-01", false, [3, 40151]), /&taxon_id=3,40151&/);
+  assert.match(priorQueryParams("me", "2026-01-01", false, [40151]), /&taxon_id=40151&/);
+});
+
+test("collageQueryParams asks for the collage's taxa unless a group is chosen", () => {
+  assert.match(
+    collageQueryParams({ username: "me", taxa: animalsConfig("both").taxa }),
+    /&taxon_id=3,40151&/
+  );
+  assert.match(
+    collageQueryParams({ username: "me", taxa: [40151], taxonId: 41573 }),
+    /&taxon_id=41573&/
+  );
+  assert.match(collageQueryParams({ username: "me" }), /&taxon_id=3&/);
+});
+
+test("collageWhat uses the collage's own noun", () => {
+  assert.equal(collageWhat({ noun: animalsConfig("mammals").noun }), "mammal species");
+  assert.equal(
+    collageWhat({ noun: animalsConfig("both").noun, status: "threatened" }),
+    "threatened bird & mammal species"
+  );
+  assert.equal(animalsConfig("nope").noun, "bird species");
 });
 
 test("priorQueryParams asks for every bird seen before the period, anywhere", () => {

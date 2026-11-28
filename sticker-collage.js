@@ -1,5 +1,34 @@
-// Bird Collage: sticker matching and collage layout for bird-collage.html.
+// Sticker Collage: sticker matching and collage layout for sticker-collage.html.
 // No DOM here, so the node tests can load it.
+
+// What a collage can show: its iNaturalist taxa and how the page names it.
+const ANIMALS = {
+  birds: {
+    taxa: [3],
+    noun: "bird species",
+    unit: ["bird", "birds"],
+    all: "All birds",
+    slug: "bird",
+  },
+  mammals: {
+    taxa: [40151],
+    noun: "mammal species",
+    unit: ["mammal", "mammals"],
+    all: "All mammals",
+    slug: "mammal",
+  },
+  both: {
+    taxa: [3, 40151],
+    noun: "bird & mammal species",
+    unit: ["animal", "animals"],
+    all: "All birds & mammals",
+    slug: "sticker",
+  },
+};
+
+function animalsConfig(kind) {
+  return ANIMALS[kind] || ANIMALS.birds;
+}
 
 // Friendly names for the bird orders, used on the filter chips.
 const BIRD_ORDER_NAMES = {
@@ -51,25 +80,68 @@ const BIRD_ORDER_NAMES = {
   Passeriformes: "Perching birds",
 };
 
+// The same for the mammal orders (iNaturalist's: whales are in Artiodactyla).
+const MAMMAL_ORDER_NAMES = {
+  Monotremata: "Monotremes",
+  Didelphimorphia: "Opossums",
+  Paucituberculata: "Shrew opossums",
+  Microbiotheria: "Monito del monte",
+  Dasyuromorphia: "Marsupial carnivores",
+  Peramelemorphia: "Bandicoots & bilbies",
+  Notoryctemorphia: "Marsupial moles",
+  Diprotodontia: "Kangaroos, koalas & allies",
+  Afrosoricida: "Tenrecs & golden moles",
+  Macroscelidea: "Elephant shrews",
+  Tubulidentata: "Aardvark",
+  Hyracoidea: "Hyraxes",
+  Proboscidea: "Elephants",
+  Sirenia: "Manatees & dugongs",
+  Cingulata: "Armadillos",
+  Pilosa: "Sloths & anteaters",
+  Scandentia: "Treeshrews",
+  Dermoptera: "Colugos",
+  Primates: "Primates",
+  Rodentia: "Rodents",
+  Lagomorpha: "Rabbits & pikas",
+  Eulipotyphla: "Shrews, moles & hedgehogs",
+  Chiroptera: "Bats",
+  Pholidota: "Pangolins",
+  Carnivora: "Carnivores",
+  Perissodactyla: "Odd-toed ungulates",
+  Artiodactyla: "Hoofed mammals & whales",
+  Cetacea: "Whales & dolphins",
+};
+
+function orderName(order) {
+  return BIRD_ORDER_NAMES[order] || MAMMAL_ORDER_NAMES[order] || order;
+}
+
 const THREATENED_IUCN = ["VU", "EN", "CR", "EW"];
 
-// Sticker files: pinned to the index's tag on jsDelivr (CORS-open, cached for
-// good), with raw GitHub as the fallback. Originals, about 1,000 px tall.
-function stickerUrls(sticker, tag) {
+// Sticker files: pinned to the index's tag (or commit) on jsDelivr (CORS-open,
+// cached for good), with raw GitHub as the fallback. Originals, about 1,000 px tall.
+function stickerUrls(sticker) {
   const path = `stickers/${sticker.order}/${sticker.family}/${sticker.stem}.webp`;
   return [
-    `https://cdn.jsdelivr.net/gh/alchaincyf/huashu-bird-sticker@${tag}/${path}`,
-    `https://raw.githubusercontent.com/alchaincyf/huashu-bird-sticker/${tag}/${path}`,
+    `https://cdn.jsdelivr.net/gh/${sticker.repo}@${sticker.tag}/${path}`,
+    `https://raw.githubusercontent.com/${sticker.repo}/${sticker.tag}/${path}`,
   ];
 }
 
-// Unpack BIRD_STICKERS (bird-stickers-data.js) into lookups by scientific name.
-function buildStickerIndex(data) {
+// Unpack a sticker index (BIRD_STICKERS in bird-stickers-data.js,
+// MAMMAL_STICKERS in mammal-stickers-data.js) into lookups by scientific name.
+// kind ("bird", "mammal") prefixes each sticker's key, unique across indexes.
+function buildStickerIndex(data, kind = "bird") {
+  const repo = data.repo || "alchaincyf/huashu-bird-sticker";
   const stickers = data.rows.split(";").map((row, index) => {
     const [stem, family, mass, iucn] = row.split("|");
     const [orderName, familyName, familyEnglish] = data.families[Number(family)];
     return {
       index,
+      key: `${kind}/${stem}`,
+      kind,
+      repo,
+      tag: data.tag,
       stem,
       name: stem.replace(/[_.]/g, " "),
       order: orderName,
@@ -79,7 +151,7 @@ function buildStickerIndex(data) {
       iucn: data.iucn[Number(iucn)] || "",
     };
   });
-  // AVONET has no mass for some birds; give them their family's median.
+  // AVONET and EltonTraits have no mass for some species; give them their family's median.
   const familyMasses = new Map();
   for (const sticker of stickers) {
     if (!sticker.massG) continue;
@@ -106,7 +178,21 @@ function buildStickerIndex(data) {
     if (!byGenus.has(genus)) byGenus.set(genus, []);
     byGenus.get(genus).push(sticker);
   }
-  return { tag: data.tag, stickers, byName, byGenus };
+  return { kind, tag: data.tag, stickers, byName, byGenus };
+}
+
+// The sticker for an iNaturalist taxon from whichever index covers its class
+// ({ Aves: birdIndex, Mammalia: mammalIndex }, only the ones in the collage).
+function matchTaxonSticker(indexes, taxon) {
+  if (!taxon) return null;
+  const own = indexes[taxon.iconic_taxon_name];
+  if (own) return matchSticker(own, taxon.name);
+  if (taxon.iconic_taxon_name) return null;
+  for (const index of Object.values(indexes)) {
+    const sticker = matchSticker(index, taxon.name);
+    if (sticker) return sticker;
+  }
+  return null;
 }
 
 function editDistance(a, b) {
@@ -237,20 +323,21 @@ function dayBefore(isoDate) {
   return new Date(Date.UTC(y, m - 1, d - 1)).toISOString().slice(0, 10);
 }
 
-// The species_counts query for every bird the user saw before a period
-// starts, anywhere: those aren't lifers. Place, months, evidence and quality
-// are left out on purpose (a bird seen once, anywhere, isn't new), but a
-// wild-only collage doesn't count birds seen only in a zoo.
-function priorQueryParams(username, start, wild) {
-  let params = `user_login=${encodeURIComponent(username)}&taxon_id=3&hrank=species&d2=${dayBefore(start)}`;
+// The species_counts query for every species (of the collage's taxa) the user
+// saw before a period starts, anywhere: those aren't lifers. Place, months,
+// evidence and quality are left out on purpose (an animal seen once, anywhere,
+// isn't new), but a wild-only collage doesn't count ones seen only in a zoo.
+function priorQueryParams(username, start, wild, taxa = [3]) {
+  let params = `user_login=${encodeURIComponent(username)}&taxon_id=${taxa.join(",")}&hrank=species&d2=${dayBefore(start)}`;
   if (wild) params += "&captive=false";
   return params;
 }
 
-// The line after the count: "bird species", "lifers", "threatened lifers", or
-// "threatened lifers · Grebes" for a group (just "Grebes" with no status).
-function collageWhat({ group = "", status = "", lifers = false }) {
-  const noun = lifers ? "lifers" : "bird species";
+// The line after the count: "bird species" (or the collage's own noun),
+// "lifers", "threatened lifers", or "threatened lifers · Grebes" for a group
+// (just "Grebes" with no status).
+function collageWhat({ group = "", status = "", lifers = false, noun: species = "bird species" }) {
+  const noun = lifers ? "lifers" : species;
   if (!group) return [status, noun].filter(Boolean).join(" ");
   const prefix = [status, lifers ? "lifers" : ""].filter(Boolean).join(" ");
   return prefix ? `${prefix} · ${group}` : group;
@@ -269,11 +356,11 @@ function centerText(auto, custom) {
 }
 
 // The species_counts query for a collage's filters:
-// { username, taxonId, placeId, projectId, year, d1, d2, months, evidence
+// { username, taxonId (a group), taxa (the collage's classes, birds by default), placeId, projectId, year, d1, d2, months, evidence
 //   ("photos" | "sounds"), quality ("verifiable" | "research"),
 //   establishment ("native" | "endemic" | "introduced"), wild }
 function collageQueryParams(filters) {
-  let params = `user_login=${encodeURIComponent(filters.username)}&taxon_id=${filters.taxonId || 3}&hrank=species`;
+  let params = `user_login=${encodeURIComponent(filters.username)}&taxon_id=${filters.taxonId || (filters.taxa || [3]).join(",")}&hrank=species`;
   if (filters.placeId) params += `&place_id=${filters.placeId}`;
   if (filters.projectId) params += `&project_id=${filters.projectId}`;
   if (filters.year) params += `&year=${filters.year}`;
@@ -536,11 +623,16 @@ function layoutCollage(birds, options) {
 
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
+    ANIMALS,
+    animalsConfig,
     BIRD_ORDER_NAMES,
+    MAMMAL_ORDER_NAMES,
+    orderName,
     THREATENED_IUCN,
     stickerUrls,
     buildStickerIndex,
     matchSticker,
+    matchTaxonSticker,
     editDistance,
     stickerWeight,
     MONTH_NAMES,

@@ -1,3 +1,5 @@
 # HTML pages contain large inline scripts/styles; format only the JS modules for now
 *.html
 node_modules/
+# Generated sticker indexes (scripts/*-stickers.py)
+*-stickers-data.js
