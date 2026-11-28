@@ -20,7 +20,7 @@ import urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 REPO = "glauberramos/mammal-stickers"
-REF = "d22f444d02f0dea94b7d6e2cb814b833a2a184a4"
+REF = "e1c6893eb4f530528d294a85ef7c96b271f22799"
 SOURCE = f"https://raw.githubusercontent.com/{REPO}/{REF}/data/species.json"
 FAMILIES = "https://api.inaturalist.org/v1/taxa?taxon_id=40151&rank=family&per_page=200&is_active=true"
 IUCN = ["", "LC", "NT", "VU", "EN", "CR", "EW", "EX", "DD"]
